@@ -271,24 +271,24 @@
 		<p>我们之前做单体应用的时候是直接把配置写在application.yml中，但是如果是采用微服务架构的模式进行开发，这样的方式会存在哪些问题呢？首先维护困难、安全因素、更新配置时项目需要重启等等。针对这些问题，本文主要讲述的就是Spring cloud config这个组件，使用该组件可以很好的处理如下问题。</p>
 <a id="more"></a>
 
-<h1 id="原始做法的缺陷"><a href="#原始做法的缺陷" class="headerlink" title="原始做法的缺陷"></a>原始做法的缺陷</h1><p>1、维护困难：假如一个服务，由多人开发，其中A在开发的时候，修改了配置，B再来开发的时候，需要测试别的一些功能，这个时候配置文件已经被A修改得面目全非了，这就造成了冲突。</p>
+<h1><span id="原始做法的缺陷">原始做法的缺陷</span></h1><p>1、维护困难：假如一个服务，由多人开发，其中A在开发的时候，修改了配置，B再来开发的时候，需要测试别的一些功能，这个时候配置文件已经被A修改得面目全非了，这就造成了冲突。</p>
 <p>2、安全因素：而且处于安全因素考虑，公司项目线上的配置基本是不对开发公开的，特别是数据库的账号密码这种，基本是只有运维才知道，把配置放在项目里面的话，每个开发人员都能看到，这种情况就需要对配置文件进行隔离。</p>
 <p>3、更新配置需要重启：线上更新配置是经常发生的事情，比如更新一点小小的配置，难道都需要重启吗？使用spring cloud config就可以解决这一点。</p>
-<h1 id="统一配置中心的架构"><a href="#统一配置中心的架构" class="headerlink" title="统一配置中心的架构"></a>统一配置中心的架构</h1><p> 配置中心到时候也会作为一个服务，这些配置为了方便管理，我们都把它放到git上，使用git控制起来会比较方便。如下图所示，其中箭头代表数据流动的方向：</p>
-<p><img src="https://img.zouchanglin.cn/blog_f5a33488147c99b93c503d9351fd0c31" alt=""></p>
+<h1><span id="统一配置中心的架构">统一配置中心的架构</span></h1><p> 配置中心到时候也会作为一个服务，这些配置为了方便管理，我们都把它放到git上，使用git控制起来会比较方便。如下图所示，其中箭头代表数据流动的方向：</p>
+<p><img src="https://img.zouchanglin.cn/blog_f5a33488147c99b93c503d9351fd0c31" alt></p>
 <p>最开始是把配置放在远端的Git，如Gitlab，Github或者自己搭建的私服，config-server把配置从远端Git拉下来之后，放到本地Git。config-server与本地Git之间是双向流动的，既会把远端的Git放到本地中，假如远端Git不能访问了，也会从本地Git把配置拉出来，拿到配置之后，就可以给微服务模块来使用。shop和order这两个服务，需要集成config-client这个组件。这就是统一配置中心整体的架构。</p>
-<h1 id="Config-Server端使用流程"><a href="#Config-Server端使用流程" class="headerlink" title="Config Server端使用流程"></a>Config Server端使用流程</h1><h2 id="1、引入相关依赖"><a href="#1、引入相关依赖" class="headerlink" title="1、引入相关依赖"></a>1、引入相关依赖</h2><p>因为Config配置中心也是作为一个Client服务注册到Eureka Server的，所以必须引入Eureka Client的依赖，作为一个Eureka Client注册到Eureka Server上面。作为统一配置中心，必不可少的引入SpringCloud Config组件的依赖：</p>
+<h1><span id="config-server端使用流程">Config Server端使用流程</span></h1><h2><span id="1-引入相关依赖">1、引入相关依赖</span></h2><p>因为Config配置中心也是作为一个Client服务注册到Eureka Server的，所以必须引入Eureka Client的依赖，作为一个Eureka Client注册到Eureka Server上面。作为统一配置中心，必不可少的引入SpringCloud Config组件的依赖：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="2、启动类加注解"><a href="#2、启动类加注解" class="headerlink" title="2、启动类加注解"></a>2、启动类加注解</h2><p>在启动类上添加注解支持@EnableConfigServer，其实不难发现很多SpringCloud组件的使用方式是一致的，都是先引入依赖，然后添加启动类的注解等流程，在这里不但需要@EnableConfigServer这个注解，同时不要忘记这也是一个Eureka Client，所以Eureka Client的注解和配置也是必不可少的。</p>
+<h2><span id="2-启动类加注解">2、启动类加注解</span></h2><p>在启动类上添加注解支持@EnableConfigServer，其实不难发现很多SpringCloud组件的使用方式是一致的，都是先引入依赖，然后添加启动类的注解等流程，在这里不但需要@EnableConfigServer这个注解，同时不要忘记这也是一个Eureka Client，所以Eureka Client的注解和配置也是必不可少的。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="meta">@EnableConfigServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ConfigApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>application.yml 配置文件：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">config</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">config:</span></span><br><span class="line">      <span class="attr">server:</span></span><br><span class="line">        <span class="attr">git:</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">https://gitee.com/zouchanglin/config-repo</span></span><br><span class="line">          <span class="attr">username:</span> <span class="string">zouchanglin</span></span><br><span class="line">          <span class="attr">password:</span> <span class="number">00101101010</span></span><br><span class="line">          <span class="comment"># 指定配置文件存放的目录</span></span><br><span class="line">          <span class="attr">basedir:</span> <span class="string">/root/config</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">appname:</span> <span class="string">config</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://localhost:8761/eureka</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="3、配置文件放入仓库"><a href="#3、配置文件放入仓库" class="headerlink" title="3、配置文件放入仓库"></a>3、配置文件放入仓库</h2><p>不难发现，我们在上面的配置文件中配置了Git的仓库地址、用户名以及密码，因为从架构图可以看出，其他服务组件配置文件需要放在一个Git仓库中，可以是Github、GitlabGit、Gitee或者是自己搭建的Git私服。我演示的时候直接放在了Gitee（码云）上面：</p>
+<h2><span id="3-配置文件放入仓库">3、配置文件放入仓库</span></h2><p>不难发现，我们在上面的配置文件中配置了Git的仓库地址、用户名以及密码，因为从架构图可以看出，其他服务组件配置文件需要放在一个Git仓库中，可以是Github、GitlabGit、Gitee或者是自己搭建的Git私服。我演示的时候直接放在了Gitee（码云）上面：</p>
 <p><img src="https://img.zouchanglin.cn///20200617/qGJD6bGO2pWy.png" alt="mark"></p>
-<h2 id="4、尝试访问配置文件"><a href="#4、尝试访问配置文件" class="headerlink" title="4、尝试访问配置文件"></a>4、尝试访问配置文件</h2><p>接下来可以尝试访问一下是否生效，开始Eureka Server，然后启动统一配置中心注册到Eureka Server上面。</p>
+<h2><span id="4-尝试访问配置文件">4、尝试访问配置文件</span></h2><p>接下来可以尝试访问一下是否生效，开始Eureka Server，然后启动统一配置中心注册到Eureka Server上面。</p>
 <p><img src="https://img.zouchanglin.cn///20200617/Y8QvDlULBB7w.png" alt="mark"></p>
 <p>可以看到，虽然我们只是在Master分支上提交一个order.yml，但是我们访问order.yml却无法访问，访问order-a.yml、order-b.yml、order-a.properties、order-b.properties、order-a.json、order-b.json却没有问题，也就是说SpringCloudConfig帮我们做了转换，那么具体的转换规则是什么呢？在日志里可以看到<code>/{label}/{name}-{profiles}.yml</code>的字样，这些分别代表的意义如下：</p>
 <ul>
@@ -297,14 +297,14 @@
 <li>profiles：环境，比如测试环境、预上线环境、线上环境等</li>
 </ul>
 <p><img src="https://img.zouchanglin.cn///20200617/pkvccHymz5RU.png" alt="mark"></p>
-<h1 id="Config-Client端使用流程"><a href="#Config-Client端使用流程" class="headerlink" title="Config Client端使用流程"></a>Config Client端使用流程</h1><h2 id="1、引入Config-Client依赖"><a href="#1、引入Config-Client依赖" class="headerlink" title="1、引入Config Client依赖"></a>1、引入Config Client依赖</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1><span id="config-client端使用流程">Config Client端使用流程</span></h1><h2><span id="1-引入config-client依赖">1、引入Config Client依赖</span></h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="2、修改配置文件"><a href="#2、修改配置文件" class="headerlink" title="2、修改配置文件"></a>2、修改配置文件</h2><p>将application.yml修改为bootstrap.yml，意思就是从指定的配置中心来获取配置文件，然后再执行启动SpringBoot的核心流程：</p>
+<h2><span id="2-修改配置文件">2、修改配置文件</span></h2><p>将application.yml修改为bootstrap.yml，意思就是从指定的配置中心来获取配置文件，然后再执行启动SpringBoot的核心流程：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">shop</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">config:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">service-id:</span> <span class="string">CONFIG</span></span><br><span class="line">      <span class="attr">profile:</span> <span class="string">test</span></span><br></pre></td></tr></table></figure>
 
 <p>修改为bootstrap.yml后，也从原来的图表变成了一朵云，意思就是从服务器（统一注册中心）获取了</p>
 <p><img src="https://img.zouchanglin.cn///20200617/BusewqSwCUdS.png" alt="mark"></p>
-<h2 id="3、验证是否成功"><a href="#3、验证是否成功" class="headerlink" title="3、验证是否成功"></a>3、验证是否成功</h2><p>在仓库中放置了 shop-test.yml 文件：</p>
+<h2><span id="3-验证是否成功">3、验证是否成功</span></h2><p>在仓库中放置了 shop-test.yml 文件：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8090</span></span><br><span class="line"></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://localhost:8761/eureka/</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">shop</span></span><br><span class="line"></span><br><span class="line"><span class="attr">env:</span> <span class="string">test</span></span><br></pre></td></tr></table></figure>
 
 <p>还在仓库中放置了 shop-dev.yml 文件</p>
@@ -315,12 +315,12 @@
 
 <p>当我们把bootstrap.yml中的profile属性设置为dev的时候，拿到的配置文件就是shop-dev.yml，此时访问打印环境属性的接口打印出来就是dev；当我们把bootstrap.yml中的profile属性设置为test的时候，拿到的配置文件就是shop-test.yml，此时访问打印环境属性的接口打印出来就是test：</p>
 <p><img src="https://img.zouchanglin.cn///20200617/7qUuEIYDDbyX.png" alt="mark"></p>
-<h1 id="统一配置中心的高可用"><a href="#统一配置中心的高可用" class="headerlink" title="统一配置中心的高可用"></a>统一配置中心的高可用</h1><p>在配置Eureka的高可用时，采用了相互注册的方式来实现高可用性。统一配置中心服务的高可用其实很简单，因为统一配置中心也Eureka的客户端，所以只要拥有足够的统一配置中心实例向Eureka Server注册即可实现高可用。由于是在本地开发环境，所以通过指定不同的端口号的方式来启动三个统一配置中心的实例：</p>
+<h1><span id="统一配置中心的高可用">统一配置中心的高可用</span></h1><p>在配置Eureka的高可用时，采用了相互注册的方式来实现高可用性。统一配置中心服务的高可用其实很简单，因为统一配置中心也Eureka的客户端，所以只要拥有足够的统一配置中心实例向Eureka Server注册即可实现高可用。由于是在本地开发环境，所以通过指定不同的端口号的方式来启动三个统一配置中心的实例：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">-Dserver.port</span>=<span class="number">8080</span></span><br><span class="line"><span class="attr">-Dserver.port</span>=<span class="number">8081</span></span><br><span class="line"><span class="attr">-Dserver.port</span>=<span class="number">8082</span></span><br></pre></td></tr></table></figure>
 
 <p>在Eureka Server的界面可以看到，三个配置中心的实例已经注册到了Eureka Server上面：</p>
 <p><img src="https://img.zouchanglin.cn///20200617/7cIQ2KmQM2mC.png" alt="mark"></p>
-<h1 id="使用配置中心的注意点"><a href="#使用配置中心的注意点" class="headerlink" title="使用配置中心的注意点"></a>使用配置中心的注意点</h1><p><code>http://localhost:8761/eureka/</code> 这个地址是默认的地址，假设我们改成其他的端口或者其他的IP地址就会报错找不到Eureka，其实要理解这一点并不难，因为要拿到配置文件的前提是得先找到统一配置中心的实例，统一配置中心的实例的前提是你得去Eureka Server上面找，前提是自身得注册到Eureka Server，但是此时并没有配置Eureka Server的注册地址，所以相当于与世隔绝是一个孤立的模块，自然会发生启动失败，所以关于Eureka Server的配置，无需由统一配置中心来分发，而是直接写在配置文件里即可。</p>
+<h1><span id="使用配置中心的注意点">使用配置中心的注意点</span></h1><p><code>http://localhost:8761/eureka/</code> 这个地址是默认的地址，假设我们改成其他的端口或者其他的IP地址就会报错找不到Eureka，其实要理解这一点并不难，因为要拿到配置文件的前提是得先找到统一配置中心的实例，统一配置中心的实例的前提是你得去Eureka Server上面找，前提是自身得注册到Eureka Server，但是此时并没有配置Eureka Server的注册地址，所以相当于与世隔绝是一个孤立的模块，自然会发生启动失败，所以关于Eureka Server的配置，无需由统一配置中心来分发，而是直接写在配置文件里即可。</p>
 <p>当然还有一种方式，那就是指定统一配置中心的URL，这样就能直接找到统一配置中心的实例，在bootstrap.yml中：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">shop</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">config:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">service-id:</span> <span class="string">CONFIG</span></span><br><span class="line">      <span class="attr">profile:</span> <span class="string">dev</span></span><br><span class="line">      <span class="attr">uri:</span> <span class="string">http://localhost:8888</span></span><br></pre></td></tr></table></figure>
 
@@ -523,7 +523,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#原始做法的缺陷"><span class="toc-number">1.</span> <span class="toc-text">原始做法的缺陷</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#统一配置中心的架构"><span class="toc-number">2.</span> <span class="toc-text">统一配置中心的架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Config-Server端使用流程"><span class="toc-number">3.</span> <span class="toc-text">Config Server端使用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、引入相关依赖"><span class="toc-number">3.1.</span> <span class="toc-text">1、引入相关依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、启动类加注解"><span class="toc-number">3.2.</span> <span class="toc-text">2、启动类加注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、配置文件放入仓库"><span class="toc-number">3.3.</span> <span class="toc-text">3、配置文件放入仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、尝试访问配置文件"><span class="toc-number">3.4.</span> <span class="toc-text">4、尝试访问配置文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Config-Client端使用流程"><span class="toc-number">4.</span> <span class="toc-text">Config Client端使用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、引入Config-Client依赖"><span class="toc-number">4.1.</span> <span class="toc-text">1、引入Config Client依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、修改配置文件"><span class="toc-number">4.2.</span> <span class="toc-text">2、修改配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、验证是否成功"><span class="toc-number">4.3.</span> <span class="toc-text">3、验证是否成功</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#统一配置中心的高可用"><span class="toc-number">5.</span> <span class="toc-text">统一配置中心的高可用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用配置中心的注意点"><span class="toc-number">6.</span> <span class="toc-text">使用配置中心的注意点</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">原始做法的缺陷</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">统一配置中心的架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Config Server端使用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、引入相关依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、启动类加注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">3、配置文件放入仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">4、尝试访问配置文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Config Client端使用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">1、引入Config Client依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">2、修改配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">3、验证是否成功</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">统一配置中心的高可用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">使用配置中心的注意点</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -682,18 +682,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -706,6 +694,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -714,15 +706,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -739,6 +739,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -846,15 +854,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -862,11 +862,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,11 +882,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -891,6 +895,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -942,10 +954,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -974,6 +982,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -994,6 +1006,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1007,6 +1023,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1046,15 +1066,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1071,22 +1091,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

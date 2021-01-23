@@ -269,7 +269,7 @@
 <p>1、ReentrantLock (再入锁)，位于java.util.concurrent.locks包<br>2、和CountDownLatch、Future Task、Semaphore一样基于AQS实现<br>3、能够实现比synchronized更细粒度的控制，如控制公平与非公平<br>4、调用lock()之后，必须调用unlock()释放锁<br>5、性能未必比synchronized高，并且也是可重入的<br>6、synchronized是关键字，ReentrantLock是类<br>7、ReentrantLock可以对获取锁的等待时间进行设置，避免死锁的发生<br>8、ReentrantLock可以获取各种锁的信息<br>9、ReentrantLock可以灵活地实现多路通知<br>10、机制：sync操作Mark Word，lock调用Unsafe类的park()方法</p>
 <a id="more"></a>
 
-<h1 id="关于ReentrantLock公平性的设置"><a href="#关于ReentrantLock公平性的设置" class="headerlink" title="关于ReentrantLock公平性的设置"></a>关于ReentrantLock公平性的设置</h1><p><code>ReentrantLock fairLock = new ReentrantLock(true);</code><br>1、参数为true时，倾向于将锁赋予等待时间最久的线程<br>2、公平锁：获取锁的顺序按先后调用lock方法的顺序(慎用)<br>3、非公平锁：抢占的顺序不一定，看运气<br>4、synchronized是非公平锁，如果比较强调吞吐量，没必要设置为公平锁</p>
+<h1><span id="关于reentrantlock公平性的设置">关于ReentrantLock公平性的设置</span></h1><p><code>ReentrantLock fairLock = new ReentrantLock(true);</code><br>1、参数为true时，倾向于将锁赋予等待时间最久的线程<br>2、公平锁：获取锁的顺序按先后调用lock方法的顺序(慎用)<br>3、非公平锁：抢占的顺序不一定，看运气<br>4、synchronized是非公平锁，如果比较强调吞吐量，没必要设置为公平锁</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReentrantLockDemo</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ReentrantLock reentrantLock = <span class="keyword">new</span> ReentrantLock(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                reentrantLock.lock();</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" get lock"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">                reentrantLock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ReentrantLockDemo lockDemo = <span class="keyword">new</span> ReentrantLockDemo();</span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(lockDemo, <span class="string">"Thread1"</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(lockDemo, <span class="string">"Thread2"</span>);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200401/ggWnghP90yYJ.png" alt="mark"></p>
@@ -466,7 +466,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#关于ReentrantLock公平性的设置"><span class="toc-number">1.</span> <span class="toc-text">关于ReentrantLock公平性的设置</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">关于ReentrantLock公平性的设置</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -625,18 +625,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -649,6 +637,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -657,15 +649,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -682,6 +682,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -789,15 +797,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -805,11 +805,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,11 +825,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -834,6 +838,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -885,10 +897,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -917,6 +925,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -937,6 +949,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -950,6 +966,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -989,15 +1009,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1014,22 +1034,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

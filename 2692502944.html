@@ -265,11 +265,11 @@
 
 	
 		<p><img src="https://img.zouchanglin.cn///20200207/zezNAjgSvS3I.png" alt="mark"></p>
-<h2 id="SYN泛洪攻击"><a href="#SYN泛洪攻击" class="headerlink" title="SYN泛洪攻击"></a>SYN泛洪攻击</h2><p>SYN攻击其实就是Server收到Client的SYN，Server向Client发送SYN-ACK之后未收到Client的ACK确认报文， 这样服务器就需要维护海量的半开连接 ，等待客户端的 ACK, 最终导致服务器资源耗尽(sync queue 满)而丢弃新的连接。  Server会不断重发SYN-ACK，Linux服务器默认直到63秒才断开连接！</p>
-<h2 id="SYN-Cookie"><a href="#SYN-Cookie" class="headerlink" title="SYN Cookie"></a>SYN Cookie</h2><p>其中一种防护方式是SYN Cookie， SYN Cookies 的应用允许服务器当 SYN 队列被填满时避免丢弃连接。相反，服务器会表现得像 SYN 队列扩大了一样。服务器会返回适当的SYN+ACK响应，但会丢弃 SYN 队列条目。如果服务器接收到客户端随后的ACK响应，服务器能够使用编码在 TCP 序号内的信息重构 SYN 队列条目。</p>
+<h2><span id="syn泛洪攻击">SYN泛洪攻击</span></h2><p>SYN攻击其实就是Server收到Client的SYN，Server向Client发送SYN-ACK之后未收到Client的ACK确认报文， 这样服务器就需要维护海量的半开连接 ，等待客户端的 ACK, 最终导致服务器资源耗尽(sync queue 满)而丢弃新的连接。  Server会不断重发SYN-ACK，Linux服务器默认直到63秒才断开连接！</p>
+<h2><span id="syn-cookie">SYN Cookie</span></h2><p>其中一种防护方式是SYN Cookie， SYN Cookies 的应用允许服务器当 SYN 队列被填满时避免丢弃连接。相反，服务器会表现得像 SYN 队列扩大了一样。服务器会返回适当的SYN+ACK响应，但会丢弃 SYN 队列条目。如果服务器接收到客户端随后的ACK响应，服务器能够使用编码在 TCP 序号内的信息重构 SYN 队列条目。</p>
 <a id="more"></a>
 
-<h2 id="Linux内核实现"><a href="#Linux内核实现" class="headerlink" title="Linux内核实现"></a>Linux内核实现</h2><p>服务器会构造一个 sequence  number，根据 TCP 规范，由端点发送的第一个序号可以是由该端点决定的任何值。SYN Cookies 是根据以下规则构造的初始序号：  </p>
+<h2><span id="linux内核实现">Linux内核实现</span></h2><p>服务器会构造一个 sequence  number，根据 TCP 规范，由端点发送的第一个序号可以是由该端点决定的任何值。SYN Cookies 是根据以下规则构造的初始序号：  </p>
 <ul>
 <li>令t为一个缓慢递增的时间戳（通常为 <code>time() &gt;&gt; 6</code>，提供 64 秒的分辨率）；</li>
 <li>令m为服务器会在 SYN 队列条目中存储的最大分段大小（maximum segment size，简称为 MSS）；</li>
@@ -316,10 +316,10 @@
 <p>如果成功匹配， 服务器就会为新的连接创建和初始化一个传输控制块，然后把完成三次握手的req和新sock关联起来，下面看看验证这段逻辑的代码</p>
 <p><img src="https://img.zouchanglin.cn///20200207/XFz6jkwLFrbc.png" alt="mark"></p>
 <p><code>SYN Cookie</code>技术可以让服务器在收到客户端的<code>SYN</code>报文时，不分配资源保存客户端信息，而是将这些信息保存在<code>SYN+ACK</code>的初始序号和时间戳中。对正常的连接，这些信息会随着<code>ACK</code>报文被带回来。 </p>
-<h2 id="SYN-Cookie总结"><a href="#SYN-Cookie总结" class="headerlink" title="SYN Cookie总结"></a>SYN Cookie总结</h2><p>由于cookie的计算只涉及到包头部分信息，在建立连接的过程。中不在服务器端保存任何信息，所以失去了协议的许多功能，比如超时重传。此外，由于计算cookie有一定的运算量，增加了连接建立的延迟时间，因此，SYN Cookie技术不能作为高性能服务器的防御手段。一些SYN攻击的防火墙也是基于SYN Cookie，只是把这个功能移动到内核之外的代理服务器上。</p>
+<h2><span id="syn-cookie总结">SYN Cookie总结</span></h2><p>由于cookie的计算只涉及到包头部分信息，在建立连接的过程。中不在服务器端保存任何信息，所以失去了协议的许多功能，比如超时重传。此外，由于计算cookie有一定的运算量，增加了连接建立的延迟时间，因此，SYN Cookie技术不能作为高性能服务器的防御手段。一些SYN攻击的防火墙也是基于SYN Cookie，只是把这个功能移动到内核之外的代理服务器上。</p>
 <p>参考资料：</p>
 <p><a href="https://lwn.net/Articles/277146/" target="_blank" rel="noopener">https://lwn.net/Articles/277146/</a> </p>
-<p><a href="https://zh.wikipedia.org/wiki/SYN_cookie" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/SYN_cookie</a> </p>
+<p><a href="https://zh.wikipedia.org/wiki/SYN_cookie" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/SYN_cookie</a></p>
 
 	
 
@@ -509,7 +509,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SYN泛洪攻击"><span class="toc-number">1.</span> <span class="toc-text">SYN泛洪攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SYN-Cookie"><span class="toc-number">2.</span> <span class="toc-text">SYN Cookie</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux内核实现"><span class="toc-number">3.</span> <span class="toc-text">Linux内核实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SYN-Cookie总结"><span class="toc-number">4.</span> <span class="toc-text">SYN Cookie总结</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">SYN泛洪攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">SYN Cookie</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Linux内核实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">SYN Cookie总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -668,18 +668,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -692,6 +680,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -700,15 +692,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -725,6 +725,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -832,15 +840,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -848,11 +848,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -864,11 +868,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -877,6 +881,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -928,10 +940,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -960,6 +968,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -980,6 +992,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -993,6 +1009,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1032,15 +1052,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1057,22 +1077,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

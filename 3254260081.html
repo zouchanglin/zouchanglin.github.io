@@ -277,7 +277,7 @@
 <p>1、同步代码块(synchronized(类.class))，锁是小括号()中的类对象，即Class对象。<br>2、同步静态方法(synchronized static method)，锁是当前对象的类对象(Class对象)。</p>
 <a id="more"></a>
 
-<h2 id="对象锁示例"><a href="#对象锁示例" class="headerlink" title="对象锁示例"></a>对象锁示例</h2><p>看看这样一段代码：</p>
+<h2><span id="对象锁示例">对象锁示例</span></h2><p>看看这样一段代码：</p>
 <p>SynchronizedDemo.java</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> thread_study.synchronize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedDemo</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String threadName = Thread.currentThread().getName();</span><br><span class="line">        <span class="keyword">if</span>(threadName.startsWith(<span class="string">"A"</span>))&#123;</span><br><span class="line">            async();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"B"</span>))&#123;</span><br><span class="line">            syncObjectBlock();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"C"</span>))&#123;</span><br><span class="line">            syncObjectMethod();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">async</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()</span><br><span class="line">            + <span class="string">"_Async_Start:"</span> </span><br><span class="line">            + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            </span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            </span><br><span class="line">            System.out.println(Thread.currentThread().getName() </span><br><span class="line">            + <span class="string">"_Async_End:"</span> </span><br><span class="line">            + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">syncObjectMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() </span><br><span class="line">        + <span class="string">"_SyncObjectMethod:"</span> </span><br><span class="line">        + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() </span><br><span class="line">            + <span class="string">"_SyncObjectMethod_Start:"</span> </span><br><span class="line">            + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            </span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            </span><br><span class="line">            System.out.println(Thread.currentThread().getName() </span><br><span class="line">            + <span class="string">"_SyncObjectMethod_End:"</span> </span><br><span class="line">            + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">syncObjectBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName() </span><br><span class="line">        + <span class="string">"_SyncObjectBlock:"</span> </span><br><span class="line">        + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() </span><br><span class="line">                + <span class="string">"_SyncObjectBlock_Start:"</span> </span><br><span class="line">                + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">                </span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">                </span><br><span class="line">                System.out.println(Thread.currentThread().getName() </span><br><span class="line">                + <span class="string">"_SyncObjectBlock_End:"</span> </span><br><span class="line">                + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -300,14 +300,14 @@
 <blockquote>
 <p>同步静态方法锁住整个方法，而同步代码块只是锁住的只是方法中的一部分代码，与上面一样的</p>
 </blockquote>
-<h2 id="类锁示例"><a href="#类锁示例" class="headerlink" title="类锁示例"></a>类锁示例</h2><p>下面来看看同步静态方法和同步代码块(synchronized(类.class))的效果吧：</p>
+<h2><span id="类锁示例">类锁示例</span></h2><p>下面来看看同步静态方法和同步代码块(synchronized(类.class))的效果吧：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> thread_study.synchronize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedDemo</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String threadName = Thread.currentThread().getName();</span><br><span class="line">        <span class="keyword">if</span>(threadName.startsWith(<span class="string">"A"</span>))&#123;</span><br><span class="line">            async();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"B"</span>))&#123;</span><br><span class="line">            syncObjectBlock();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"C"</span>))&#123;</span><br><span class="line">            syncObjectMethod();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"D"</span>))&#123;</span><br><span class="line">            syncClassBlock();</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(threadName.startsWith(<span class="string">"E"</span>))&#123;</span><br><span class="line">            syncClassMethod();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">syncClassMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()</span><br><span class="line">                           + <span class="string">"_SyncClassMethod:"</span></span><br><span class="line">                           + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()</span><br><span class="line">                               + <span class="string">"_SyncClassMethod_Start:"</span></span><br><span class="line">                               + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            System.out.println(Thread.currentThread().getName()</span><br><span class="line">                               + <span class="string">"_SyncClassMethod_End:"</span></span><br><span class="line">                               + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">syncClassBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()</span><br><span class="line">                           + <span class="string">"_SyncClassBlock:"</span> </span><br><span class="line">                           + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        <span class="keyword">synchronized</span> (SynchronizedDemo<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()</span><br><span class="line">                                   + <span class="string">"_SyncClassBlock_Start:"</span></span><br><span class="line">                                   + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">                System.out.println(Thread.currentThread().getName()</span><br><span class="line">                                   + <span class="string">"_SyncClassBlock_End:"</span> </span><br><span class="line">                                   + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">async</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() </span><br><span class="line">                               + <span class="string">"_Async_Start:"</span> </span><br><span class="line">                               + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            System.out.println(Thread.currentThread().getName() </span><br><span class="line">                               + <span class="string">"_Async_End:"</span> </span><br><span class="line">                               + <span class="keyword">new</span> SimpleDateFormat(<span class="string">"mm:ss"</span>).format(<span class="keyword">new</span> Date()));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//...和上面一样的</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>SynchronizedMain.java</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> thread_study.synchronize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedMain</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Thread A_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"A_thread1"</span>);</span><br><span class="line">        Thread A_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"A_thread2"</span>);</span><br><span class="line">        Thread D_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"D_thread1"</span>);</span><br><span class="line">        Thread D_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"D_thread2"</span>);</span><br><span class="line">        Thread E_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"E_thread1"</span>);</span><br><span class="line">        Thread E_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"E_thread2"</span>);</span><br><span class="line"></span><br><span class="line">        A_thread1.start();</span><br><span class="line">        A_thread2.start();</span><br><span class="line"></span><br><span class="line">        D_thread1.start();</span><br><span class="line">        D_thread2.start();</span><br><span class="line">        E_thread1.start();</span><br><span class="line">        E_thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200328/cqqOH3HC0DTl.png" alt="mark"></p>
-<h2 id="对象锁和类锁不会干扰"><a href="#对象锁和类锁不会干扰" class="headerlink" title="对象锁和类锁不会干扰"></a>对象锁和类锁不会干扰</h2><p>最后看看类锁和对象锁是否会相互影响呢？</p>
+<h2><span id="对象锁和类锁不会干扰">对象锁和类锁不会干扰</span></h2><p>最后看看类锁和对象锁是否会相互影响呢？</p>
 <p>修改一下代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> thread_study.synchronize;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedMain</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//SynchronizedDemo demo = new SynchronizedDemo();</span></span><br><span class="line">        Thread A_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"A_thread1"</span>);</span><br><span class="line">        Thread A_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"A_thread2"</span>);</span><br><span class="line">        Thread B_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"B_thread1"</span>);</span><br><span class="line">        Thread B_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"B_thread2"</span>);</span><br><span class="line">        Thread C_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"C_thread1"</span>);</span><br><span class="line">        Thread C_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"C_thread2"</span>);</span><br><span class="line">        Thread D_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"D_thread1"</span>);</span><br><span class="line">        Thread D_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"D_thread2"</span>);</span><br><span class="line">        Thread E_thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"E_thread1"</span>);</span><br><span class="line">        Thread E_thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> SynchronizedDemo(), <span class="string">"E_thread2"</span>);</span><br><span class="line"></span><br><span class="line">        A_thread1.start();</span><br><span class="line">        A_thread2.start();</span><br><span class="line"></span><br><span class="line">        B_thread1.start();</span><br><span class="line">        B_thread2.start();</span><br><span class="line">        C_thread1.start();</span><br><span class="line">        C_thread2.start();</span><br><span class="line"></span><br><span class="line">        D_thread1.start();</span><br><span class="line">        D_thread2.start();</span><br><span class="line">        E_thread1.start();</span><br><span class="line">        E_thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -506,7 +506,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对象锁示例"><span class="toc-number">1.</span> <span class="toc-text">对象锁示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#类锁示例"><span class="toc-number">2.</span> <span class="toc-text">类锁示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对象锁和类锁不会干扰"><span class="toc-number">3.</span> <span class="toc-text">对象锁和类锁不会干扰</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">对象锁示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">类锁示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">对象锁和类锁不会干扰</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -665,18 +665,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -689,6 +677,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -697,15 +689,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -722,6 +722,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -829,15 +837,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -845,11 +845,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -861,11 +865,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -874,6 +878,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -925,10 +937,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -957,6 +965,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -977,6 +989,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -990,6 +1006,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1029,15 +1049,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1054,22 +1074,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

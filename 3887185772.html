@@ -273,7 +273,7 @@
 		<p>RPC全称Remote Procedure Call，即远程过程调用，对于调用者无感知这是一个远程调用。目前流行的开源 RPC 框架有阿里的Dubbo、Google 的 gRPC、Twitter 的Finagle 等。本次RPC框架的设计主要参考的是阿里的Dubbo，这里Netty 基本上是作为架构的技术底层而存在的，主要完成高性能的网络通信，从而实现高效的远程调用。</p>
 <a id="more"></a>
 
-<h2 id="Dubbo的架构与Spring"><a href="#Dubbo的架构与Spring" class="headerlink" title="Dubbo的架构与Spring"></a>Dubbo的架构与Spring</h2><p>其实在之前的文章中<a href="https://zouchanglin.cn/2020/06/28/621394972.html">《谈谈京东的服务框架》</a>，探讨过Dubbo的组成和架构。</p>
+<h2><span id="dubbo的架构与spring">Dubbo的架构与Spring</span></h2><p>其实在之前的文章中<a href="https://zouchanglin.cn/2020/06/28/621394972.html">《谈谈京东的服务框架》</a>，探讨过Dubbo的组成和架构。</p>
 <table>
 <thead>
 <tr>
@@ -302,21 +302,21 @@
 <td align="left">服务运行容器</td>
 </tr>
 </tbody></table>
-<p><img src="https://img.zouchanglin.cn/blog/20200725/kwlNBqbWf1YY.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/blog/20200725/kwlNBqbWf1YY.png" alt></p>
 <p>另外使用Dubbo最方便的地方在于它可以和Spring非常方便的集成，Dubbo对于配置的优化也是随着Spring一脉相承的，从最早的XML形式到后来的注解方式以及自动装配，都是在不断地简化开发过程来提高开发效率。</p>
 <p>Dubbo在Spring框架中的工作流程：</p>
 <p>1、Spring的IOC容器启动<br>2、把服务注册到注册中心(zookeeper软件)中<br>3、消费者启动时会把它需要用到的服务从注册中心拉取下来<br>4、提供者的地址发生改变时，注册中心会马上通知消费者<br>5、根据注册中心中的服务地址直接可以调用提供者了，如果调用了提供者，就会把提供者的地址主动缓存起来<br>6、监控消费者调用提供者的次数</p>
-<h2 id="RPC实现的关键"><a href="#RPC实现的关键" class="headerlink" title="RPC实现的关键"></a>RPC实现的关键</h2><h3 id="1、序列化与反序列化"><a href="#1、序列化与反序列化" class="headerlink" title="1、序列化与反序列化"></a>1、序列化与反序列化</h3><p>在远程过程调用时，客户端跟服务端是不同的进程，甚至有时候客户端用Java，服务端用C++。这时候就需要客户端把参数先转成一个字节流，传给服务端后，再把字节流转成自己能读取的格式，这个过程叫序列化和反序列化，同理，从服务端返回的值也需要序列化反序列化的过程。在序列化的时候，我们选择Netty自身的对象序列化器。</p>
+<h2><span id="rpc实现的关键">RPC实现的关键</span></h2><h3><span id="1-序列化与反序列化">1、序列化与反序列化</span></h3><p>在远程过程调用时，客户端跟服务端是不同的进程，甚至有时候客户端用Java，服务端用C++。这时候就需要客户端把参数先转成一个字节流，传给服务端后，再把字节流转成自己能读取的格式，这个过程叫序列化和反序列化，同理，从服务端返回的值也需要序列化反序列化的过程。在序列化的时候，我们选择Netty自身的对象序列化器。</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200805/9phCGbxYiBj4.png" alt="mark"></p>
-<h3 id="2、数据网络传输"><a href="#2、数据网络传输" class="headerlink" title="2、数据网络传输"></a>2、数据网络传输</h3><p>解决了序列化的问题，那么剩下的就是如何把数据参数传到生产者，网络传输层需要把序列化后的参数字节流传给服务端，然后再把序列化后的调用结果传回客户端，虽然大部分RPC框架都采用了TCP作为传输协议，其实UDP也可以作为传输协议的，基于TCP和UDP我们可以自定义任意规则的协议，加之我们要使用NIO通信方式作为高性能网络服务的前提，于是Netty似乎更符合我们Java程序员的口味，Netty真香！</p>
-<h3 id="3、告诉注册中心我要调谁"><a href="#3、告诉注册中心我要调谁" class="headerlink" title="3、告诉注册中心我要调谁"></a>3、告诉注册中心我要调谁</h3><p>现在调用参数的序列化和网络传输都已经具备，但是还有个问题，那就是消费者要调用谁的问题，一个函数或者方法，我们可以理解为一个服务，这些服务注册在注册中心上面，只有当消费者告诉注册中心要调用谁，才可以进行远程调用。所以不但要把将要调用的服务的参数传过去，也要把要调用的服务信息传过去。</p>
-<h2 id="简易RPC框架的架构"><a href="#简易RPC框架的架构" class="headerlink" title="简易RPC框架的架构"></a>简易RPC框架的架构</h2><p><img src="https://img.zouchanglin.cn/blog/20200805/PctSLkfUt5db.png" alt="mark"></p>
+<h3><span id="2-数据网络传输">2、数据网络传输</span></h3><p>解决了序列化的问题，那么剩下的就是如何把数据参数传到生产者，网络传输层需要把序列化后的参数字节流传给服务端，然后再把序列化后的调用结果传回客户端，虽然大部分RPC框架都采用了TCP作为传输协议，其实UDP也可以作为传输协议的，基于TCP和UDP我们可以自定义任意规则的协议，加之我们要使用NIO通信方式作为高性能网络服务的前提，于是Netty似乎更符合我们Java程序员的口味，Netty真香！</p>
+<h3><span id="3-告诉注册中心我要调谁">3、告诉注册中心我要调谁</span></h3><p>现在调用参数的序列化和网络传输都已经具备，但是还有个问题，那就是消费者要调用谁的问题，一个函数或者方法，我们可以理解为一个服务，这些服务注册在注册中心上面，只有当消费者告诉注册中心要调用谁，才可以进行远程调用。所以不但要把将要调用的服务的参数传过去，也要把要调用的服务信息传过去。</p>
+<h2><span id="简易rpc框架的架构">简易RPC框架的架构</span></h2><p><img src="https://img.zouchanglin.cn/blog/20200805/PctSLkfUt5db.png" alt="mark"></p>
 <p>Dubbo 核心模块主要有四个：Registry 注册中心、Provider 服务提供者、Consumer 服务消费者、Monitor监控，为了方便直接砍掉了监控模块，同时把服务提供者模块与注册中心模块写在一起，通过实现自己的简易IOC容器，完成对服务提供者的实例化。</p>
 <p>关于使用Netty进行Socket编程的部分可以参考Netty的<a href="https://netty.io/" target="_blank" rel="noopener">官网</a> 或者我之前的博客<a href="https://zouchanglin.cn/2020/07/03/1716304322.html">《Netty编码实战与Channel生命周期》</a>，在这里Netty的编码技巧和方式不作为本文的重点。</p>
-<h2 id="RPC框架编码实现"><a href="#RPC框架编码实现" class="headerlink" title="RPC框架编码实现"></a>RPC框架编码实现</h2><p>首先需要引入的依赖如下(Netty + Lombok)：</p>
+<h2><span id="rpc框架编码实现">RPC框架编码实现</span></h2><p>首先需要引入的依赖如下(Netty + Lombok)：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.netty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>netty-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.1.6.Final<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.16.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="1、Registry与Provider"><a href="#1、Registry与Provider" class="headerlink" title="1、Registry与Provider"></a>1、Registry与Provider</h3><p>目录结构如下：</p>
+<h3><span id="1-registry与provider">1、Registry与Provider</span></h3><p>目录结构如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">───src</span><br><span class="line">    └─main</span><br><span class="line">        ├─java</span><br><span class="line">        │  └─edu</span><br><span class="line">        │      └─xpu</span><br><span class="line">        │          └─rpc</span><br><span class="line">        │              ├─api</span><br><span class="line">        │              │      IRpcCalc.java</span><br><span class="line">        │              │      IRpcHello.java</span><br><span class="line">        │              │</span><br><span class="line">        │              ├─core</span><br><span class="line">        │              │      InvokerMessage.java</span><br><span class="line">        │              │</span><br><span class="line">        │              ├─provider</span><br><span class="line">        │              │      RpcCalcProvider.java</span><br><span class="line">        │              │      RpcHelloProvider.java</span><br><span class="line">        │              │</span><br><span class="line">        │              └─registry</span><br><span class="line">        │                      MyRegistryHandler.java</span><br><span class="line">        │                      RpcRegistry.java</span><br><span class="line">        │</span><br><span class="line">        └─resources</span><br><span class="line">───pom.xml</span><br></pre></td></tr></table></figure>
 
 <p>IRpcCalc.java与IRpcHello.java是两个Service接口。IRpcCalc.java内容如下，完成模拟业务加、减、乘、除运算</p>
@@ -343,7 +343,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRegistryHandler</span> <span class="keyword">extends</span> <span class="title">ChannelInboundHandlerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在注册中心注册服务需要有容器存放</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> ConcurrentHashMap&lt;String, Object&gt; registryMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类名的缓存位置</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;String&gt; classCache = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 约定，只要是写在provider下所有的类都认为是一个可以对完提供服务的实现类</span></span><br><span class="line">    <span class="comment">// edu.xpu.rpc.provider</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyRegistryHandler</span><span class="params">()</span></span>&#123;</span><br><span class="line">        scanClass(<span class="string">"edu.xpu.rpc.provider"</span>);</span><br><span class="line">        doRegister();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Object result = <span class="keyword">new</span> Object();</span><br><span class="line">        <span class="comment">// 客户端传过来的调用信息</span></span><br><span class="line">        InvokerMessage request = (InvokerMessage)msg;</span><br><span class="line">        <span class="comment">// 先判断有没有这个服务</span></span><br><span class="line">        String serverClassName = request.getClassName();</span><br><span class="line">        <span class="keyword">if</span>(registryMap.containsKey(serverClassName))&#123;</span><br><span class="line">            <span class="comment">// 获取服务对象</span></span><br><span class="line">            Object clazz = registryMap.get(serverClassName);</span><br><span class="line">            Method method = clazz.getClass().getMethod(request.getMethodName(), request.getParams());</span><br><span class="line">            result = method.invoke(clazz, request.getValues());</span><br><span class="line">            System.out.println(<span class="string">"request="</span> + request);</span><br><span class="line">            System.out.println(<span class="string">"result="</span> + result);</span><br><span class="line">        &#125;</span><br><span class="line">        ctx.writeAndFlush(result);</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx, Throwable cause)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现简易IOC容器</span></span><br><span class="line">    <span class="comment">// 扫描出包里面所有的Class</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scanClass</span><span class="params">(String packageName)</span></span>&#123;</span><br><span class="line">        ClassLoader classLoader = <span class="keyword">this</span>.getClass().getClassLoader();</span><br><span class="line">        URL url = classLoader.getResource(packageName.replaceAll(<span class="string">"\\."</span>, <span class="string">"/"</span>));</span><br><span class="line">        File dir = <span class="keyword">new</span> File(url.getFile());</span><br><span class="line">        File[] files = dir.listFiles();</span><br><span class="line">        <span class="keyword">for</span> (File file: files)&#123;</span><br><span class="line">            <span class="keyword">if</span>(file.isDirectory())&#123;</span><br><span class="line">                scanClass(packageName + <span class="string">"."</span> + file.getName());</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">// 拿出类名</span></span><br><span class="line">                String className = packageName + <span class="string">"."</span> + file.getName().replace(<span class="string">".class"</span>, <span class="string">""</span>).trim();</span><br><span class="line">                classCache.add(className);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 把扫描到的Class实例化，放到Map中</span></span><br><span class="line">    <span class="comment">// 注册的服务名称就叫做接口的名字 [约定优于配置]</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doRegister</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(classCache.size() == <span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">for</span> (String className: classCache)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Class&lt;?&gt; clazz = Class.forName(className);</span><br><span class="line">                <span class="comment">// 服务名称</span></span><br><span class="line">                Class&lt;?&gt; anInterface = clazz.getInterfaces()[<span class="number">0</span>];</span><br><span class="line">                registryMap.put(anInterface.getName(), clazz.newInstance());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在这里还通过反射实现了简易的IOC容器，先递归扫描provider包底下的类，把这些类的对象作为服务对象放到IOC容器中进行管理，由于IOC是一个Map实现的，所以将类名作为服务名称，也就是Key，服务对象作为Value。根据消费者传过来的服务名称，就可以找到对应的服务，到此，Registry和Provider已经全部写完了。</p>
-<h3 id="2、consumer"><a href="#2、consumer" class="headerlink" title="2、consumer"></a>2、consumer</h3><p>目录结构如下：</p>
+<h3><span id="2-consumer">2、consumer</span></h3><p>目录结构如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">└─src</span><br><span class="line">    ├─main</span><br><span class="line">    │  ├─java</span><br><span class="line">    │  │  └─edu</span><br><span class="line">    │  │      └─xpu</span><br><span class="line">    │  │          └─rpc</span><br><span class="line">    │  │              ├─api</span><br><span class="line">    │  │              │      IRpcCalc.java</span><br><span class="line">    │  │              │      IRpcHello.java</span><br><span class="line">    │  │              │</span><br><span class="line">    │  │              ├─consumer</span><br><span class="line">    │  │              │  │  RpcConsumer.java</span><br><span class="line">    │  │              │  │</span><br><span class="line">    │  │              │  └─proxy</span><br><span class="line">    │  │              │          RpcProxy.java</span><br><span class="line">    │  │              │          RpcProxyHandler.java</span><br><span class="line">    │  │              │</span><br><span class="line">    │  │              └─core</span><br><span class="line">    │  │                      InvokerMessage.java</span><br><span class="line">    │  │</span><br><span class="line">    │  └─resources</span><br><span class="line">    └─test</span><br><span class="line">        └─java</span><br><span class="line">└─ pom.xml</span><br></pre></td></tr></table></figure>
 
 <p>再看客户端的实现之前，先梳理一下RPC流程。API 模块中的接口只在服务端实现了。因此，客户端调用API 中定义的某一个接口方法时，实际上是要发起一次网络请求去调用服务端的某一个服务。而这个网络请求首先被注册中心接收，由注册中心先确定需要调用的服务的位置，再将请求转发至真实的服务实现，最终调用服务端代码，将返回值通过网络传输给客户端。整个过程对于客户端而言是完全无感知的，就像调用本地方法一样，所以必定要对客户端的API接口做代理，隐藏网络请求的细节。</p>
@@ -358,7 +358,7 @@
 <p>这样就算是完成了整个流程，下面开始测试一下吧，测试的RpcConsumer.java代码如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcConsumer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 本机之间的正常调用</span></span><br><span class="line">        <span class="comment">// IRpcHello iRpcHello = new RpcHelloProvider();</span></span><br><span class="line">        <span class="comment">// iRpcHello.hello("Tom");</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 肯定是用动态代理来实现的</span></span><br><span class="line">        <span class="comment">// 传给它接口，返回一个接口的实例，伪代理</span></span><br><span class="line">        IRpcHello rpcHello = RpcProxy.create(IRpcHello<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        System.out.println(rpcHello.hello(<span class="string">"ZouChangLin"</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">5</span>;</span><br><span class="line">        IRpcCalc iRpcCalc = RpcProxy.create(IRpcCalc<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        System.out.println(String.format(<span class="string">"%d + %d = %d"</span>, a, b, iRpcCalc.add(a, b)));</span><br><span class="line">        System.out.println(String.format(<span class="string">"%d - %d = %d "</span>, a, b, iRpcCalc.sub(a, b)));</span><br><span class="line">        System.out.println(String.format(<span class="string">"%d * %d = %d"</span>, a, b, iRpcCalc.mul(a, b)));</span><br><span class="line">        System.out.println(String.format(<span class="string">"%d / %d = %d"</span>, a, b, iRpcCalc.div(a, b)));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="3、效果测试"><a href="#3、效果测试" class="headerlink" title="3、效果测试"></a>3、效果测试</h3><p>先开启Registry，运行端口是8080：</p>
+<h3><span id="3-效果测试">3、效果测试</span></h3><p>先开启Registry，运行端口是8080：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200805/iW2THrjJmwFR.png" alt="mark"></p>
 <p>开启consumer开始调用</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200805/9owd2R83qyIs.png" alt="mark"></p>
@@ -566,7 +566,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Dubbo的架构与Spring"><span class="toc-number">1.</span> <span class="toc-text">Dubbo的架构与Spring</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RPC实现的关键"><span class="toc-number">2.</span> <span class="toc-text">RPC实现的关键</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、序列化与反序列化"><span class="toc-number">2.1.</span> <span class="toc-text">1、序列化与反序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、数据网络传输"><span class="toc-number">2.2.</span> <span class="toc-text">2、数据网络传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、告诉注册中心我要调谁"><span class="toc-number">2.3.</span> <span class="toc-text">3、告诉注册中心我要调谁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简易RPC框架的架构"><span class="toc-number">3.</span> <span class="toc-text">简易RPC框架的架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RPC框架编码实现"><span class="toc-number">4.</span> <span class="toc-text">RPC框架编码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Registry与Provider"><span class="toc-number">4.1.</span> <span class="toc-text">1、Registry与Provider</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、consumer"><span class="toc-number">4.2.</span> <span class="toc-text">2、consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、效果测试"><span class="toc-number">4.3.</span> <span class="toc-text">3、效果测试</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Dubbo的架构与Spring</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">RPC实现的关键</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、序列化与反序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、数据网络传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、告诉注册中心我要调谁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">简易RPC框架的架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">RPC框架编码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">1、Registry与Provider</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">2、consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">3、效果测试</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -725,18 +725,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -749,6 +737,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -757,15 +749,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -782,6 +782,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -889,15 +897,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -905,11 +905,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -921,11 +925,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -934,6 +938,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -985,10 +997,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1017,6 +1025,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1037,6 +1049,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1050,6 +1066,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1089,15 +1109,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1114,22 +1134,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

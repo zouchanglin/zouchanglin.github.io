@@ -274,7 +274,7 @@
 <p>很多文章笼统的说synchronized是基于Monitor机制实现的，我认为这是错误的说法，Monitor 机制必须要有临界区、Monitor对象和互斥量、条件变量和wait()、signal()等要素。在synchronized的实现中根本找不到所有对应的元素。我认为Java的Monitor机制包括了synchronized、Object和程序员自己定的条件变量等（因为我们通常使用wait()、 notify()、notifyAll()配合synchronized才能取解决生产者消费者问题），这才一套完整的Monitor机制。JVM的ObjectMonitor用来辅助Java实现Monitor机制，直接把JVM的ObjectMonitor当成Monitor机制是不可取的。</p>
 <a id="more"></a>
 
-<h1 id="synchronized实现原理"><a href="#synchronized实现原理" class="headerlink" title="synchronized实现原理"></a>synchronized实现原理</h1><p>实现synchronized的关键是两个东西，Java对象头和Monitor，在HotShot虚拟机中，对象在内存中的布局分为三块：对象头、实例数据、对齐填充。我们需要重点关注的东西是对象头！</p>
+<h1><span id="synchronized实现原理">synchronized实现原理</span></h1><p>实现synchronized的关键是两个东西，Java对象头和Monitor，在HotShot虚拟机中，对象在内存中的布局分为三块：对象头、实例数据、对齐填充。我们需要重点关注的东西是对象头！</p>
 <p><img src="https://img.zouchanglin.cn///20200331/dg1WgXpEFkgu.png" alt="mark"></p>
 <p>下图即是32位的JVM Mark Word的结构：</p>
 <p><img src="https://img.zouchanglin.cn///20200331/LM8iREOSHsOu.png" alt="mark"></p>
@@ -304,33 +304,33 @@
 
 <p>比如一个线程获取到了锁，执行<code>System.out.println(&quot;Hello&quot;);</code> 这条语句时，可以再次获得锁去执行<code>System.out.println(&quot;World&quot;);</code> ，这就是可重入的情况！</p>
 </blockquote>
-<h1 id="synchronized的优化"><a href="#synchronized的优化" class="headerlink" title="synchronized的优化"></a>synchronized的优化</h1><p>在JDK的早期版本中，synchronized属于重量级锁，依赖于Mutex Lock实现，因为监视器锁(也就是Monitor)是基于互斥锁Mutex来实现的，线程之间的切换需要从用户态转换到内核态，开销较大。但是从JDK6以来，HotSpot团队对synchronized做了很多优化，现在已经优化得相当不错了。主要的优化方式分为有轻量级锁（Lightweight Locking）和偏向锁（Biased Locking）、自适应自旋、锁消除、锁粗化等等。</p>
-<h2 id="自适应自旋-Adaptive-Spinning"><a href="#自适应自旋-Adaptive-Spinning" class="headerlink" title="自适应自旋 Adaptive Spinning"></a>自适应自旋 Adaptive Spinning</h2><p>许多情况下，共享数据的锁定状态持续时间较短，切换线程不值得。通过让线程执行忙循环等待锁的释放，不让出CPU。自旋在JDK1.4就被引入了，默认是关闭状态，JDK1.6默认开启。缺点就是若锁被其他线程长时间占用，会带来许多性能上的开销，在JDK中用户可以根据一个叫做PerBlockSpin的参数来控制自旋时间。</p>
+<h1><span id="synchronized的优化">synchronized的优化</span></h1><p>在JDK的早期版本中，synchronized属于重量级锁，依赖于Mutex Lock实现，因为监视器锁(也就是Monitor)是基于互斥锁Mutex来实现的，线程之间的切换需要从用户态转换到内核态，开销较大。但是从JDK6以来，HotSpot团队对synchronized做了很多优化，现在已经优化得相当不错了。主要的优化方式分为有轻量级锁（Lightweight Locking）和偏向锁（Biased Locking）、自适应自旋、锁消除、锁粗化等等。</p>
+<h2><span id="自适应自旋-adaptive-spinning">自适应自旋 Adaptive Spinning</span></h2><p>许多情况下，共享数据的锁定状态持续时间较短，切换线程不值得。通过让线程执行忙循环等待锁的释放，不让出CPU。自旋在JDK1.4就被引入了，默认是关闭状态，JDK1.6默认开启。缺点就是若锁被其他线程长时间占用，会带来许多性能上的开销，在JDK中用户可以根据一个叫做PerBlockSpin的参数来控制自旋时间。</p>
 <p>什么是自适应自旋呢？即自旋的次数不再固定，由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。打个比方：红绿灯代表是否获取到了锁，如果之前不熄火等到了绿灯，那么这次不熄火的时间就长一点；如果之前不熄火没等到绿灯，那么这次不熄火的时间就短一点。</p>
-<h2 id="锁消除-Lock-Eliminate"><a href="#锁消除-Lock-Eliminate" class="headerlink" title="锁消除 Lock Eliminate"></a>锁消除 Lock Eliminate</h2><p>锁消除是一种更彻底的优化，JIT编译时，对运行上下文进行扫描，去除不可能存在竞争的锁。锁消除即删除不必要的加锁操作。根据代码逃逸技术，如果判断到一段代码中，堆上的数据不会逃逸出当前线程，那么可以认为这段代码是线程安全的，不必要加锁。看下面这段程序:</p>
+<h2><span id="锁消除-lock-eliminate">锁消除 Lock Eliminate</span></h2><p>锁消除是一种更彻底的优化，JIT编译时，对运行上下文进行扫描，去除不可能存在竞争的锁。锁消除即删除不必要的加锁操作。根据代码逃逸技术，如果判断到一段代码中，堆上的数据不会逃逸出当前线程，那么可以认为这段代码是线程安全的，不必要加锁。看下面这段程序:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringBufferWithoutSynchronized</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(String str1, String str2)</span></span>&#123;</span><br><span class="line">        <span class="comment">//StringBuffer是线程安全,由于sb只会在append方法中使用,不可能被其他线程引用</span></span><br><span class="line">        <span class="comment">//因此sb属于不可能共享的资源, JVM会自动消除内部的锁</span></span><br><span class="line">        StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        stringBuffer.append(str1).append(str2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="锁粗化-Lock-Coarsening"><a href="#锁粗化-Lock-Coarsening" class="headerlink" title="锁粗化 Lock Coarsening"></a>锁粗化 Lock Coarsening</h2><p>通过扩大加锁的范围，避免反复加锁和解锁</p>
+<h2><span id="锁粗化-lock-coarsening">锁粗化 Lock Coarsening</span></h2><p>通过扩大加锁的范围，避免反复加锁和解锁</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringBufferWithoutSynchronized</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">copyString</span><span class="params">(String target)</span></span>&#123;</span><br><span class="line">        StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">            stringBuffer.append(target);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> stringBuffer.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里每次调用stringBuffer.append方法都需要加锁和解锁，如果虚拟机检测到有一系列连串的对同一个对象加锁和解锁操作，就会将其合并成一次范围更大的加锁和解锁操作，即在第一次append方法时进行加锁，最后一次append方法结束后进行解锁。</p>
 <p>轻量级锁（Lightweight Locking）和偏向锁（Biased Locking）后面会讲。</p>
-<h1 id="轻量级锁和偏向锁"><a href="#轻量级锁和偏向锁" class="headerlink" title="轻量级锁和偏向锁"></a>轻量级锁和偏向锁</h1><p>synchronized的四种状态：无锁、偏向锁、轻量级锁、重量级锁<br>锁膨胀方向：无锁→偏向锁→轻量级锁→重量级锁，很多观点认为锁不会发生降级，这是不对的，当出现闲置的Monitor的时候可能会发生锁降级。</p>
-<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><p>减少同一线程获取锁的代价，大多数情况下，锁不存在多线程竞争，总是由同一线程多次获得</p>
+<h1><span id="轻量级锁和偏向锁">轻量级锁和偏向锁</span></h1><p>synchronized的四种状态：无锁、偏向锁、轻量级锁、重量级锁<br>锁膨胀方向：无锁→偏向锁→轻量级锁→重量级锁，很多观点认为锁不会发生降级，这是不对的，当出现闲置的Monitor的时候可能会发生锁降级。</p>
+<h2><span id="偏向锁">偏向锁</span></h2><p>减少同一线程获取锁的代价，大多数情况下，锁不存在多线程竞争，总是由同一线程多次获得</p>
 <p>偏向锁的核心思想：如果一个线程获得了锁，那么锁就进入偏向模式，此时Mark Word的结构也变为偏向锁结构，当该线程再次请求锁时，无需再做任何同步操作，即获取锁的过程只需要检查Mark Word的锁标记位为偏向锁以及当前线程Id等于Mark Word的ThreadID即可，这样就省去了大量有关锁申请的操作。偏向锁不适用于锁竞争比较激烈的多线程场合，这种场合下偏向锁就失效了。</p>
 <p>偏向锁的获取比较简单：线程在获取锁时，检测对象头的Mark Word里是否存在指向当前线程的指针，如果存在则获取所成功；如果测试失败，检查Mark Word偏向锁标识是否设置为1（也就是判断当前是否还是偏向锁），如果还是偏向锁，就通过CAS操作把Mark Word中的指针指向为当前线程。如果Mark Word偏向锁标识没有设置为1（则说明已经不是偏向锁），此时CAS尝试去竞争锁。</p>
 <p>偏向锁的撤销：偏向锁使用了一种等到竞争出现才释放锁的机制， 所以当其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁。</p>
 <p><img src="https://img.zouchanglin.cn///20200401/GPBSmDFL3Lay.png" alt="mark"></p>
-<h2 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h2><p>轻量级锁是由偏向锁升级来的，偏向锁运行在一个线程进入同步块的情况下，当第二个线程加入锁争用的时候，偏向锁就会升级为轻量级锁。轻量级锁的适应的场景是线程交替执行同步块。若存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。</p>
+<h2><span id="轻量级锁">轻量级锁</span></h2><p>轻量级锁是由偏向锁升级来的，偏向锁运行在一个线程进入同步块的情况下，当第二个线程加入锁争用的时候，偏向锁就会升级为轻量级锁。轻量级锁的适应的场景是线程交替执行同步块。若存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。</p>
 <p>轻量级锁的加锁过程：线程在执行同步块之前，JVM会先在当前线程的栈桢中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，官方称为Displaced Mark Word。然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，表示其他线程竞争锁，当前线程便尝试使用自旋来获取锁。</p>
 <p>轻量级锁解锁过程：轻量级解锁时，会使用原子的CAS操作将Displaced Mark Word替换回到对象头，如果成功，则表示没有竞争发生。如果失败，表示当前锁存在竞争，锁就会膨胀成重量级锁。下图是两个线程同时争夺锁， 导致锁膨胀的流程图。</p>
-<p><img src="https://img.zouchanglin.cn///20200202/s030yHiFC7Sv.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn///20200202/s030yHiFC7Sv.png" alt></p>
 <p>因为自旋会消耗CPU，为了避免无用的自旋(比如获得锁的线程被阻塞住了)，一旦锁升级成重量级锁，就不会再恢复到轻量级锁状态。当锁处于这个状态下，其他线程试图获取锁时，都会被阻塞住，当持有锁的线程释放锁之后<br>会唤醒这些线程，被唤醒的线程就会进行新一轮的夺锁之争。</p>
-<h1 id="锁的内存语义"><a href="#锁的内存语义" class="headerlink" title="锁的内存语义"></a>锁的内存语义</h1><p>当线程释放锁时，Java内存模型会把该线程对应的本地内存中的共享变量刷新到主内存中；<br>而当线程获取锁时，Java内存模型会把该线程对应的本地内存置为无效，从而使得被监视器保护的临界区代码必须从主内存中读取共享变量。</p>
+<h1><span id="锁的内存语义">锁的内存语义</span></h1><p>当线程释放锁时，Java内存模型会把该线程对应的本地内存中的共享变量刷新到主内存中；<br>而当线程获取锁时，Java内存模型会把该线程对应的本地内存置为无效，从而使得被监视器保护的临界区代码必须从主内存中读取共享变量。</p>
 <blockquote>
 <p>关于Java内存模型，可以参考我之前写的一篇博客<a href="https://zouchanglin.cn/2019/12/11/3728000607.html">《重新认识volatile》</a> 和我转载的一篇博客<a href="https://zouchanglin.cn/2019/01/31/111105950.html">《理解Java内存模型》</a>中来了解Java内存模型和缓存一致性协议。</p>
 </blockquote>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><img src="https://img.zouchanglin.cn///20200401/cJqu6RpytuQn.png" alt="mark"></p>
+<h1><span id="总结">总结</span></h1><p><img src="https://img.zouchanglin.cn///20200401/cJqu6RpytuQn.png" alt="mark"></p>
 
 	
 
@@ -524,7 +524,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#synchronized实现原理"><span class="toc-number">1.</span> <span class="toc-text">synchronized实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#synchronized的优化"><span class="toc-number">2.</span> <span class="toc-text">synchronized的优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#自适应自旋-Adaptive-Spinning"><span class="toc-number">2.1.</span> <span class="toc-text">自适应自旋 Adaptive Spinning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁消除-Lock-Eliminate"><span class="toc-number">2.2.</span> <span class="toc-text">锁消除 Lock Eliminate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁粗化-Lock-Coarsening"><span class="toc-number">2.3.</span> <span class="toc-text">锁粗化 Lock Coarsening</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#轻量级锁和偏向锁"><span class="toc-number">3.</span> <span class="toc-text">轻量级锁和偏向锁</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#偏向锁"><span class="toc-number">3.1.</span> <span class="toc-text">偏向锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#轻量级锁"><span class="toc-number">3.2.</span> <span class="toc-text">轻量级锁</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#锁的内存语义"><span class="toc-number">4.</span> <span class="toc-text">锁的内存语义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">synchronized实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">synchronized的优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">自适应自旋 Adaptive Spinning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">锁消除 Lock Eliminate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">锁粗化 Lock Coarsening</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">轻量级锁和偏向锁</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">偏向锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">轻量级锁</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">锁的内存语义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -683,18 +683,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -707,6 +695,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -715,15 +707,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -740,6 +740,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -847,15 +855,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -863,11 +863,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -879,11 +883,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -892,6 +896,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -943,10 +955,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -975,6 +983,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -995,6 +1007,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1008,6 +1024,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1047,15 +1067,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1072,22 +1092,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

@@ -276,7 +276,7 @@
 <p><img src="https://img.zouchanglin.cn///20200218/07pgJ5CxHbna.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="Linux-Namespace"><a href="#Linux-Namespace" class="headerlink" title="Linux Namespace"></a>Linux Namespace</h2><p>Linux Namespace 是Kernel 的一个功能，它可以隔离一系列的系统资源，比如PIO ( ProcessID ）、User ID 、Network 等。一般看到这里，很多人会想到一个命令chroot ，就像chroot 允许把当前目录变成根目录一样（被隔离开来的） , Namespace 也可以在一些资源上，将进程隔离起来，这些资源包括进程树、网络接口、挂载点等。   </p>
+<h2><span id="linux-namespace">Linux Namespace</span></h2><p>Linux Namespace 是Kernel 的一个功能，它可以隔离一系列的系统资源，比如PIO ( ProcessID ）、User ID 、Network 等。一般看到这里，很多人会想到一个命令chroot ，就像chroot 允许把当前目录变成根目录一样（被隔离开来的） , Namespace 也可以在一些资源上，将进程隔离起来，这些资源包括进程树、网络接口、挂载点等。   </p>
 <p>使用Namespace，就可以做到UID级别的隔离，也就是说，可以以UID为n的用户，虚拟化出来一个Namespace，在这个Namespace里面，用户是具有root权限的。但是，在真实的物理机器上，他还是那个以UID为n的用户，这样就解决了用户之间隔离的问题。当然这只是Namespace其中的一个简单功能。 </p>
 <p><img src="https://img.zouchanglin.cn///20200218/4UtwmbW2g359.png" alt="mark"></p>
 <p>当前Linux一共实现六种不同类型的namespace :</p>
@@ -288,14 +288,14 @@
 <p><strong>User namespaces</strong>始于 Linux 2.6.23 完成于 Linux 3.8)用户和组 ID 空间User namespace用来隔离user权限相关的Linux资源，包括user IDs and group IDs。这是目前实现的namespace中最复杂的一个，因为user和权限息息相关，而权限又事关容器的安全，所以稍有不慎，就会出安全问题。  在不同的user namespace中，同样一个用户的user ID 和group ID可以不一样，换句话说，一个用户可以在父user namespace中是普通用户，在子user namespace中是超级用户   </p>
 <p>Namespace的API主要使用如下三个系统调用（可以在这里查询系统接口 <a href="http://man7.org/linux/man-pages/dir_all_alphabetic.html" target="_blank" rel="noopener">http://man7.org/linux/man-pages/dir_all_alphabetic.html</a> ）：</p>
 <p><img src="https://img.zouchanglin.cn///20200218/VsAz50xpy7FH.png" alt="mark"></p>
-<h2 id="开发环境搭建"><a href="#开发环境搭建" class="headerlink" title="开发环境搭建"></a>开发环境搭建</h2><p>操作系统：Ubuntu Server 14.04</p>
+<h2><span id="开发环境搭建">开发环境搭建</span></h2><p>操作系统：Ubuntu Server 14.04</p>
 <p>内核版本：Linux version 4.4.0-142-generic（cat /proc/version命令可以查看）</p>
 <p>Golang版本：go version go1.7.1 linux/amd64</p>
 <p>首先配置好GOATH，我的GOPATH是<code>/go</code> ，目录结构：</p>
 <p><img src="https://img.zouchanglin.cn///20200218/hmheENlRX3UV.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200218/moCLAtMVHk6H.png" alt="mark"></p>
 <p>其中mydocker是我的工程路径！</p>
-<h2 id="UTS-Namespace"><a href="#UTS-Namespace" class="headerlink" title="UTS Namespace"></a>UTS Namespace</h2><p>前面也说到过，UTS Namespace提供了主机名和域名的隔离。能够使得子进程有独立的主机名和域名(hostname)，下面我会使用Go来做一个UTS Namespace的例子：</p>
+<h2><span id="uts-namespace">UTS Namespace</span></h2><p>前面也说到过，UTS Namespace提供了主机名和域名的隔离。能够使得子进程有独立的主机名和域名(hostname)，下面我会使用Go来做一个UTS Namespace的例子：</p>
 <p>UTSNamespace.go:</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"os/exec"</span></span><br><span class="line">	<span class="string">"syscall"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	cmd := exec.Command(<span class="string">"sh"</span>)</span><br><span class="line"></span><br><span class="line">	cmd.SysProcAttr = &amp;syscall.SysProcAttr&#123;</span><br><span class="line">		Cloneflags: syscall.CLONE_NEWUTS,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cmd.Stdin = os.Stdin</span><br><span class="line">	cmd.Stdout = os.Stdout</span><br><span class="line">	cmd.Stderr = os.Stderr</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := cmd.Run(); err != <span class="literal">nil</span>&#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -500,7 +500,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-Namespace"><span class="toc-number">1.</span> <span class="toc-text">Linux Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发环境搭建"><span class="toc-number">2.</span> <span class="toc-text">开发环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UTS-Namespace"><span class="toc-number">3.</span> <span class="toc-text">UTS Namespace</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Linux Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">开发环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">UTS Namespace</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -659,18 +659,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -683,6 +671,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -691,15 +683,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -716,6 +716,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -823,15 +831,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,11 +839,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -855,11 +859,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -868,6 +872,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -919,10 +931,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -951,6 +959,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -971,6 +983,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -984,6 +1000,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1023,15 +1043,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1048,22 +1068,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

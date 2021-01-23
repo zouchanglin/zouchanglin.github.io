@@ -268,15 +268,15 @@
 <p><img src="https://img.zouchanglin.cn/blog/20200822/WmwGYLtnGXyO.png" alt="mark"></p>
 <a id="more"></a>
 
-<h1 id="线程状态与锁的回顾"><a href="#线程状态与锁的回顾" class="headerlink" title="线程状态与锁的回顾"></a>线程状态与锁的回顾</h1><p>在看生产者与消费者模型之前先回顾一下线程的状态转换与synchronized的几种程度的锁：</p>
+<h1><span id="线程状态与锁的回顾">线程状态与锁的回顾</span></h1><p>在看生产者与消费者模型之前先回顾一下线程的状态转换与synchronized的几种程度的锁：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200822/XX5oboU82N49.png" alt="mark"></p>
 <p><strong>偏向锁</strong>：获取偏向锁锁时，测试一下对象头的Mark Word里是否存储了当前线程ID，测试成功，则线程获得了锁；测试失败，则需要再测试一下Mark Word中偏向锁的标识是否设置成1（表示当前是偏向锁）：如果没有设置，则使用CAS竞争锁；如果设置了，则尝试使用CAS将对象头的偏向锁指向当前线程。等到竞争出现才释放锁，也就意味着一旦出现其他线程来竞争锁，偏向锁才会撤销(参考《二、synchronized底层实现与优化》中的图示)，恢复到无锁或者标记该对象不适合作为偏向锁！ </p>
 <p><strong>轻量级锁</strong>：在栈中开辟空间复制Java对象头，尝试CAS修改对象头的MarkWord为指向自己在栈中开辟空间的指针，如果成功，则获得锁，如果失败，表示其他线程竞争锁，当前线程便尝试使用自旋来获取锁。<br>释放轻量级锁会使用原子的CAS操作将Displaced Mark Word替换回到对象头，如果成功，则表示没有竞争发生。如果失败，表示当前锁存在竞争，锁就会膨胀成重量级锁。</p>
 <p><strong>重量级锁</strong>：重量级锁是JVM中最为基础的锁实现。在这种状态下，JVM虚拟机会阻塞加锁失败的线程，并且在目标锁被释放的时候，唤醒这些线程。<br>Java线程的阻塞以及唤醒，都是依靠操作系统来完成的。举例来说，对于符合posix接口的操作系统(如macOS和绝大部分的Linux)，上述操作通过pthread的互斥锁(mutex)来实现的。此外，这些操作将涉及系统调用，需要从操作系统的用户态切换至内核态，其开销非常之大。</p>
 <p><strong>总结</strong>：Java虚拟机中synchronized关键字的实现，按照代价由高到低可以分为重量级锁、轻量锁和偏向锁三种。</p>
-<h1 id="生产者消费者模型"><a href="#生产者消费者模型" class="headerlink" title="生产者消费者模型"></a>生产者消费者模型</h1><p>生产者消费者模式是通过一个容器来解决生产者和消费者的强耦合问题。生产者和消费者彼此之间不直接通讯，而通过阻塞队列来进行通讯，所以生产者生产完数据之后不用等待消费者处理，直接扔给阻塞队列，消费者不找生产者要数据，而是直接从阻塞队列里取，阻塞队列就相当于一个缓冲区，平衡了生产者和消费者的处理能力。</p>
+<h1><span id="生产者消费者模型">生产者消费者模型</span></h1><p>生产者消费者模式是通过一个容器来解决生产者和消费者的强耦合问题。生产者和消费者彼此之间不直接通讯，而通过阻塞队列来进行通讯，所以生产者生产完数据之后不用等待消费者处理，直接扔给阻塞队列，消费者不找生产者要数据，而是直接从阻塞队列里取，阻塞队列就相当于一个缓冲区，平衡了生产者和消费者的处理能力。</p>
 <p>这个阻塞队列就是用来给生产者和消费者解耦的。纵观大多数设计模式，都会找一个第三者出来进行解耦，如工厂模式的第三者是工厂类，模板模式的第三者是模板类。<br><img src="https://img.zouchanglin.cn/blog/20200822/1cj1Y5dHjGXV.png" alt="mark"></p>
-<h2 id="wait-与notify-方法"><a href="#wait-与notify-方法" class="headerlink" title="wait()与notify()方法"></a>wait()与notify()方法</h2><p>wait()作用：使得当前线程立刻停止运行，处于等待状态（wait），并将当前线程置入锁对象的等待队列中，直到被通知（notify()）或被中断为止，<strong>wait()调用后立即释放对象锁</strong>。</p>
+<h2><span id="wait与notify方法">wait()与notify()方法</span></h2><p>wait()作用：使得当前线程立刻停止运行，处于等待状态（wait），并将当前线程置入锁对象的等待队列中，直到被通知（notify()）或被中断为止，<strong>wait()调用后立即释放对象锁</strong>。</p>
 <p><strong>wait()使用条件：只能在同步方法或同步代码块中使用，必须是内建锁。</strong></p>
 <p>痴汉方法1.0版本 —— 死等，直到被唤醒或中断：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">wait</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span></span><br></pre></td></tr></table></figure>
@@ -298,9 +298,9 @@
 </ul>
 <p>每个锁对象都有两个队列，一个等待队列一个同步队列，同步队列存储获取锁失败的线程，等待队列存储调用wait()等待的线程，<strong>将线程唤醒实际上是将处于等待队列的线程移动到同步队列去竞争锁</strong></p>
 <p><img src="https://img.zouchanglin.cn/blog/20200822/zudfaPiBmVAb.png" alt="mark"><br>生产者与消费者一般需要第三者来解耦的，所以现在就模拟一个简单的商品的生产者与消费者，由生产者线程生产出一个商品之后将由消费者线程开始消费！首先创建一个商品类Goods，类中有商品库存以及生产&amp;消费方法。</p>
-<h2 id="多生产多消费模型"><a href="#多生产多消费模型" class="headerlink" title="多生产多消费模型"></a>多生产多消费模型</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Goods</span></span>&#123;</span><br><span class="line">    <span class="comment">//商品名称</span></span><br><span class="line">    <span class="keyword">private</span> String goodsName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//商品数量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//生产商品的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setGoodsName</span><span class="params">(String goodsName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//当前还有商品,需要等待消费者消费</span></span><br><span class="line">        <span class="keyword">while</span>(count &gt; <span class="number">5</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                wait();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.goodsName = goodsName;</span><br><span class="line">        <span class="keyword">this</span>.count++;</span><br><span class="line">        System.out.println(Thread.currentThread().</span><br><span class="line">                getName()+<span class="string">"生产"</span>+toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//生产商品后唤醒消费者可以消费了</span></span><br><span class="line">        notify();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//消费商品的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">getGoods</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//还没有商品,消费者需要等待</span></span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">this</span>.count == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                wait();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.count--;</span><br><span class="line">        System.out.println(Thread.currentThread().</span><br><span class="line">                getName()+<span class="string">"消费"</span>+toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//消费完商品后唤醒生产者该继续生产了</span></span><br><span class="line">        notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Goods&#123;"</span> +</span><br><span class="line">                <span class="string">"goodsName='"</span> + goodsName + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", count="</span> + count +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//生产者</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Goods goods;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Producer</span><span class="params">(Goods goods)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.goods = goods;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)</span><br><span class="line">            <span class="keyword">this</span>.goods.setGoodsName(<span class="string">"生产纪梵希限量套装"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//消费者</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Goods goods;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Consumer</span><span class="params">(Goods goods)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.goods = goods;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)</span><br><span class="line">            goods.getGoods();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Goods goods = <span class="keyword">new</span> Goods();</span><br><span class="line"></span><br><span class="line">        Producer producer = <span class="keyword">new</span> Producer(goods);</span><br><span class="line">        Consumer consumer = <span class="keyword">new</span> Consumer(goods);</span><br><span class="line"></span><br><span class="line">        List&lt;Thread&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="comment">//创建5个生产者</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(producer, <span class="string">"生产者"</span>+i);</span><br><span class="line">            list.add(thread);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建10个消费者</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(consumer, <span class="string">"消费者"</span>+i);</span><br><span class="line">            list.add(thread);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Thread thread:list)&#123;</span><br><span class="line">            thread.start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="需要注意的问题"><a href="#需要注意的问题" class="headerlink" title="需要注意的问题"></a>需要注意的问题</h1><h2 id="一、sleep和wait的区别是什么？"><a href="#一、sleep和wait的区别是什么？" class="headerlink" title="一、sleep和wait的区别是什么？"></a>一、sleep和wait的区别是什么？</h2><p>1、sleep()是Thread类中定义的方法，到了一定的时间后该线程自动唤醒，不会释放对象锁。<br>2、wait()是Object类中定义的方法，要想唤醒必须使用notify()、notifyAll()方法才能唤醒，会释放对象锁。</p>
-<h2 id="二、什么时候使用notify-和notifyAll-？"><a href="#二、什么时候使用notify-和notifyAll-？" class="headerlink" title="二、什么时候使用notify()和notifyAll()？"></a>二、什么时候使用notify()和notifyAll()？</h2><p>如果是单生产者或者单消费者，那么使用notify();是没问题的，但是如果是多生产者或多消费者，肯定要使用notifyAll()，否则容易造成相互等待，出现死锁！</p>
+<h2><span id="多生产多消费模型">多生产多消费模型</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Goods</span></span>&#123;</span><br><span class="line">    <span class="comment">//商品名称</span></span><br><span class="line">    <span class="keyword">private</span> String goodsName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//商品数量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//生产商品的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setGoodsName</span><span class="params">(String goodsName)</span></span>&#123;</span><br><span class="line">        <span class="comment">//当前还有商品,需要等待消费者消费</span></span><br><span class="line">        <span class="keyword">while</span>(count &gt; <span class="number">5</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                wait();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.goodsName = goodsName;</span><br><span class="line">        <span class="keyword">this</span>.count++;</span><br><span class="line">        System.out.println(Thread.currentThread().</span><br><span class="line">                getName()+<span class="string">"生产"</span>+toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//生产商品后唤醒消费者可以消费了</span></span><br><span class="line">        notify();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//消费商品的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">getGoods</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//还没有商品,消费者需要等待</span></span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">this</span>.count == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                wait();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.count--;</span><br><span class="line">        System.out.println(Thread.currentThread().</span><br><span class="line">                getName()+<span class="string">"消费"</span>+toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//消费完商品后唤醒生产者该继续生产了</span></span><br><span class="line">        notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Goods&#123;"</span> +</span><br><span class="line">                <span class="string">"goodsName='"</span> + goodsName + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", count="</span> + count +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//生产者</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Producer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Goods goods;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Producer</span><span class="params">(Goods goods)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.goods = goods;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)</span><br><span class="line">            <span class="keyword">this</span>.goods.setGoodsName(<span class="string">"生产纪梵希限量套装"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//消费者</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Goods goods;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Consumer</span><span class="params">(Goods goods)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.goods = goods;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)</span><br><span class="line">            goods.getGoods();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Goods goods = <span class="keyword">new</span> Goods();</span><br><span class="line"></span><br><span class="line">        Producer producer = <span class="keyword">new</span> Producer(goods);</span><br><span class="line">        Consumer consumer = <span class="keyword">new</span> Consumer(goods);</span><br><span class="line"></span><br><span class="line">        List&lt;Thread&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="comment">//创建5个生产者</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(producer, <span class="string">"生产者"</span>+i);</span><br><span class="line">            list.add(thread);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建10个消费者</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(consumer, <span class="string">"消费者"</span>+i);</span><br><span class="line">            list.add(thread);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Thread thread:list)&#123;</span><br><span class="line">            thread.start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1><span id="需要注意的问题">需要注意的问题</span></h1><h2><span id="一-sleep和wait的区别是什么">一、sleep和wait的区别是什么？</span></h2><p>1、sleep()是Thread类中定义的方法，到了一定的时间后该线程自动唤醒，不会释放对象锁。<br>2、wait()是Object类中定义的方法，要想唤醒必须使用notify()、notifyAll()方法才能唤醒，会释放对象锁。</p>
+<h2><span id="二-什么时候使用notify和notifyall">二、什么时候使用notify()和notifyAll()？</span></h2><p>如果是单生产者或者单消费者，那么使用notify();是没问题的，但是如果是多生产者或多消费者，肯定要使用notifyAll()，否则容易造成相互等待，出现死锁！</p>
 
 	
 
@@ -490,7 +490,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#线程状态与锁的回顾"><span class="toc-number">1.</span> <span class="toc-text">线程状态与锁的回顾</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#生产者消费者模型"><span class="toc-number">2.</span> <span class="toc-text">生产者消费者模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#wait-与notify-方法"><span class="toc-number">2.1.</span> <span class="toc-text">wait()与notify()方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#多生产多消费模型"><span class="toc-number">2.2.</span> <span class="toc-text">多生产多消费模型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#需要注意的问题"><span class="toc-number">3.</span> <span class="toc-text">需要注意的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、sleep和wait的区别是什么？"><span class="toc-number">3.1.</span> <span class="toc-text">一、sleep和wait的区别是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、什么时候使用notify-和notifyAll-？"><span class="toc-number">3.2.</span> <span class="toc-text">二、什么时候使用notify()和notifyAll()？</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">线程状态与锁的回顾</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">生产者消费者模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">wait()与notify()方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">多生产多消费模型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">需要注意的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">一、sleep和wait的区别是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">二、什么时候使用notify()和notifyAll()？</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -649,18 +649,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -673,6 +661,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -681,15 +673,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -706,6 +706,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -813,15 +821,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -829,11 +829,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -845,11 +849,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -858,6 +862,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -909,10 +921,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -941,6 +949,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -961,6 +973,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -974,6 +990,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1013,15 +1033,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1038,22 +1058,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

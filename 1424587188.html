@@ -29,9 +29,9 @@
 <meta property="article:published_time" content="2020-06-23T07:19:20.000Z">
 <meta property="article:modified_time" content="2020-09-19T13:53:26.000Z">
 <meta property="article:author" content="Tim">
+<meta property="article:tag" content="消息通信">
 <meta property="article:tag" content="微服务">
 <meta property="article:tag" content="RabbitMQ">
-<meta property="article:tag" content="消息通信">
 <meta property="article:tag" content="服务解耦">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img.zouchanglin.cn/blog/20200723/90bry6Jfhgnc.png">
@@ -275,17 +275,17 @@
 		<p>本篇文章主要介绍了RabbitMQ这种消息队列，从消息队列的概念、应用场景、安装方式到它的核心概念、五种工作模式。在安装的时候推荐使用Docker方式进行安装。重点需要理解的就是消息队列的应用场景、核心概念和RabbitMQ的五种工作模式，其中用的比较多的就是发布订阅模式、主题模式。</p>
 <a id="more"></a>
 
-<h1 id="Message-Queue"><a href="#Message-Queue" class="headerlink" title="Message Queue"></a>Message Queue</h1><p>队列(Queue)是一种常见的数据结构，其最大的特性就是先进先出(Firist In First Out)，作为最基础的数据结构，队列应用很广泛，比如我们熟知的Redis基础数据类型List，其底层数据结构就是队列。</p>
+<h1><span id="message-queue">Message Queue</span></h1><p>队列(Queue)是一种常见的数据结构，其最大的特性就是先进先出(Firist In First Out)，作为最基础的数据结构，队列应用很广泛，比如我们熟知的Redis基础数据类型List，其底层数据结构就是队列。</p>
 <p>消息队列(Messaeg Queue)是一种使用队列(Queue)作为底层存储数据结构，可用于解决不同进程与应用之间通讯的分布式消息容器，也称为消息中间件。</p>
 <p>目前使用得比较多的消息队列有ActiveMQ，RabbitMQ，Kafka，RocketMQ等。本文主要讲述的是RabbitMQ，RabbitMQ是用Erlang语言开发的一个实现了AMQP协议的消息队列服务器，相比其他同类型的消息队列，最大的特点在保证可观的单机吞吐量的同时，延时方面非常出色。</p>
 <p>RabbitMQ支持多种客户端，比如：Python、Ruby、.NET、Java、JMS、C、PHP、ActionScript、XMPP、STOMP等。</p>
 <blockquote>
 <p>AMQP，即Advanced Message Queuing Protocol，高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计，它是一种应用程序之间的通信方法，消息队列在分布式系统开发中应用非常广泛。这里是AMQP官网 <a href="https://amqp.org" target="_blank" rel="noopener">https://amqp.org</a></p>
 </blockquote>
-<h1 id="MQ应用场景"><a href="#MQ应用场景" class="headerlink" title="MQ应用场景"></a>MQ应用场景</h1><p>消息队列使用广泛，其应用场景有很多，下面我们列举比较常见的四个场景：</p>
-<h2 id="1、消息通讯"><a href="#1、消息通讯" class="headerlink" title="1、消息通讯"></a>1、消息通讯</h2><p>消息队列最主要功能收发消息，其内部有高效的通讯机制，因此非常适合用于消息通讯。</p>
+<h1><span id="mq应用场景">MQ应用场景</span></h1><p>消息队列使用广泛，其应用场景有很多，下面我们列举比较常见的四个场景：</p>
+<h2><span id="1-消息通讯">1、消息通讯</span></h2><p>消息队列最主要功能收发消息，其内部有高效的通讯机制，因此非常适合用于消息通讯。</p>
 <p>我们可以基于消息队列开发点对点聊天系统，也可以开发广播系统，用于将消息广播给大量接收者。</p>
-<h2 id="2、异步处理"><a href="#2、异步处理" class="headerlink" title="2、异步处理"></a>2、异步处理</h2><p>一般我们写的程序都是顺序执行(同步执行)，比如一个用户注册函数，其执行顺序如下：</p>
+<h2><span id="2-异步处理">2、异步处理</span></h2><p>一般我们写的程序都是顺序执行(同步执行)，比如一个用户注册函数，其执行顺序如下：</p>
 <ul>
 <li>1、写入用户注册数据。</li>
 <li>2、发送注册邮件。</li>
@@ -293,26 +293,26 @@
 <li>4、更新统计数据。</li>
 </ul>
 <p>按照上面的执行顺序，要全部执行完毕，才能返回成功，但其实在第1步执行成功后，其他的步骤完全可以异步执行，我们可以将后面的逻辑发给消息队列，再由其他程序异步执行。使用消息队列进行异步处理，可以更快地返回结果，加快服务器的响应速度，提升了服务器的性能。</p>
-<h2 id="3、服务解耦"><a href="#3、服务解耦" class="headerlink" title="3、服务解耦"></a>3、服务解耦</h2><p>在我们的系统中，应用与应用之间的通讯是很常见的，一般我们应用之间直接调用，比如说应用A调用应用B的接口，这时候应用之间的关系是强耦合的。</p>
+<h2><span id="3-服务解耦">3、服务解耦</span></h2><p>在我们的系统中，应用与应用之间的通讯是很常见的，一般我们应用之间直接调用，比如说应用A调用应用B的接口，这时候应用之间的关系是强耦合的。</p>
 <p>如果应用B处于不可用的状态，那么应用A也会受影响。</p>
 <p>在应用A与应用B之间引入消息队列进行服务解耦，如果应用B挂掉，也不会影响应用A的使用。</p>
-<h2 id="4、流量削峰"><a href="#4、流量削峰" class="headerlink" title="4、流量削峰"></a>4、流量削峰</h2><p>对于高并发的系统来说，在访问高峰时，突发的流量就像洪水般向应用系统涌过来，尤其是一些高并发写操作，随时会导致数据库服务器瘫痪，无法继续提供服务。</p>
+<h2><span id="4-流量削峰">4、流量削峰</span></h2><p>对于高并发的系统来说，在访问高峰时，突发的流量就像洪水般向应用系统涌过来，尤其是一些高并发写操作，随时会导致数据库服务器瘫痪，无法继续提供服务。</p>
 <p>而引入消息队列则可以减少突发流量对应用系统的冲击。消息队列就像水库一样，拦蓄上游的洪水，削减进入下游河道的洪峰流量，从而达到减免洪水灾害的目的。而在旱季水流量小的时候又可以把水放出来灌溉庄稼。</p>
 <p>这方面最常见的例子就是秒杀系统，一般秒杀活动瞬间流量很高，如果流量全部涌向秒杀系统，会压垮秒杀系统，通过引入消息队列，可以有效缓冲突发流量，达到削峰填谷的作用。</p>
-<h1 id="RabbitMQ安装"><a href="#RabbitMQ安装" class="headerlink" title="RabbitMQ安装"></a>RabbitMQ安装</h1><p>Docker安装方式如下：</p>
+<h1><span id="rabbitmq安装">RabbitMQ安装</span></h1><p>Docker安装方式如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management</span><br></pre></td></tr></table></figure>
 
-<h1 id="RabbitMQ核心概念"><a href="#RabbitMQ核心概念" class="headerlink" title="RabbitMQ核心概念"></a>RabbitMQ核心概念</h1><p>RabbitMQ有属于自己的一套核心概念，对这些概念的理解很重要，只有理解了这些核心概念，才有可能建立对RabbitMQ的全面理解：</p>
-<h2 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h2><p>Broker概念比较简单，我们可以把Broker理解为一个RabitMQ Server。</p>
-<h3 id="Producer与Consumer"><a href="#Producer与Consumer" class="headerlink" title="Producer与Consumer"></a>Producer与Consumer</h3><p>生产者与消费者相对于RabbitMQ服务器来说，都是RabbitMQ服务器的客户端。</p>
+<h1><span id="rabbitmq核心概念">RabbitMQ核心概念</span></h1><p>RabbitMQ有属于自己的一套核心概念，对这些概念的理解很重要，只有理解了这些核心概念，才有可能建立对RabbitMQ的全面理解：</p>
+<h2><span id="broker">Broker</span></h2><p>Broker概念比较简单，我们可以把Broker理解为一个RabitMQ Server。</p>
+<h3><span id="producer与consumer">Producer与Consumer</span></h3><p>生产者与消费者相对于RabbitMQ服务器来说，都是RabbitMQ服务器的客户端。</p>
 <ul>
 <li>生产者(Producer)：连到RabbitMQ服务器，将消息发送到RabbitMQ服务器的队列，是消息的发送方。</li>
 <li>消费者(Consumer)：连接到RabbitMQ则是为了消费队列中的消息，是消息的接收方。</li>
 </ul>
 <p>生产者与消费者一般由我们的应用程序充当。</p>
-<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><p>Connection是RabbitMQ内部对象之一，用于管理每个到RabbitMQ的TCP网络连接。</p>
-<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>Channel是我们与RabbitMQ打交道的最重要的一个接口，我们大部分的业务操作是在Channel这个接口中完成的，包括定义Queue、定义Exchange、绑定Queue与Exchange、发布消息等。</p>
-<h3 id="Exchnage"><a href="#Exchnage" class="headerlink" title="Exchnage"></a>Exchnage</h3><p>消息交换机，作用是接收来自生产者的消息，并根据路由键转发消息到所绑定的队列。</p>
+<h3><span id="connection">Connection</span></h3><p>Connection是RabbitMQ内部对象之一，用于管理每个到RabbitMQ的TCP网络连接。</p>
+<h3><span id="channel">Channel</span></h3><p>Channel是我们与RabbitMQ打交道的最重要的一个接口，我们大部分的业务操作是在Channel这个接口中完成的，包括定义Queue、定义Exchange、绑定Queue与Exchange、发布消息等。</p>
+<h3><span id="exchnage">Exchnage</span></h3><p>消息交换机，作用是接收来自生产者的消息，并根据路由键转发消息到所绑定的队列。</p>
 <p>生产者发送上的消息，就是先通过Exchnage按照绑定(binding)规则转发到队列的。</p>
 <p>交换机类型(Exchange Type)有四种：fanout、direct、topic，headers，其中headers并不常用。</p>
 <ul>
@@ -324,16 +324,16 @@
 <p>路由模式，发布订阅模式，主题模式，这些工作模式我们下面会讲。</p>
 </blockquote>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/90bry6Jfhgnc.png" alt="mark"></p>
-<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>Queue即队列，RabbitMQ内部用于存储消息的对象，是真正用存储消息的结构，在生产端，生产者的消息最终发送到指定队列，而消费者也是通过订阅某个队列，达到获取消息的目的。</p>
-<h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><p>Binding是一种操作，其作用是建立消息从Exchange转发到Queue的规则，在进行Exchange与Queue的绑定时，需要指定一个BindingKey，Binding操作一般用于RabbitMQ的路由工作模式和主题工作模式。</p>
+<h3><span id="queue">Queue</span></h3><p>Queue即队列，RabbitMQ内部用于存储消息的对象，是真正用存储消息的结构，在生产端，生产者的消息最终发送到指定队列，而消费者也是通过订阅某个队列，达到获取消息的目的。</p>
+<h3><span id="binding">Binding</span></h3><p>Binding是一种操作，其作用是建立消息从Exchange转发到Queue的规则，在进行Exchange与Queue的绑定时，需要指定一个BindingKey，Binding操作一般用于RabbitMQ的路由工作模式和主题工作模式。</p>
 <blockquote>
 <p>BindingKey的概念，下面在讲RabbitMQ的工作模式会详细讲解。</p>
 </blockquote>
-<h3 id="Virtual-Host"><a href="#Virtual-Host" class="headerlink" title="Virtual Host"></a>Virtual Host</h3><p>Virutal host也叫虚拟主机，一个VirtualHost下面有一组不同Exchnage与Queue，不同的Virtual host的Exchnage与Queue之间互相不影响。应用隔离与权限划分，Virtual host是RabbitMQ中最小颗粒的权限单位划分。</p>
+<h3><span id="virtual-host">Virtual Host</span></h3><p>Virutal host也叫虚拟主机，一个VirtualHost下面有一组不同Exchnage与Queue，不同的Virtual host的Exchnage与Queue之间互相不影响。应用隔离与权限划分，Virtual host是RabbitMQ中最小颗粒的权限单位划分。</p>
 <p>如果要类比的话，我们可以把Virtual host比作MySQL中的数据库，通常我们在使用MySQL时，会为不同的项目指定不同的数据库，同样的，在使用RabbitMQ时，我们可以为不同的应用程序指定不同的Virtual host。</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/eviQzhndJkm3.png" alt="mark"></p>
-<h1 id="RabbitMQ几种模式"><a href="#RabbitMQ几种模式" class="headerlink" title="RabbitMQ几种模式"></a>RabbitMQ几种模式</h1><p>请参考：<a href="https://www.rabbitmq.com/getstarted.html" target="_blank" rel="noopener">https://www.rabbitmq.com/getstarted.html</a></p>
-<h2 id="1、简单-simple-模式"><a href="#1、简单-simple-模式" class="headerlink" title="1、简单(simple)模式"></a>1、简单(simple)模式</h2><p>simple模式，是RabbitMQ几种模式中最简单的一种模式，其结构如下图所示：</p>
+<h1><span id="rabbitmq几种模式">RabbitMQ几种模式</span></h1><p>请参考：<a href="https://www.rabbitmq.com/getstarted.html" target="_blank" rel="noopener">https://www.rabbitmq.com/getstarted.html</a></p>
+<h2><span id="1-简单simple模式">1、简单(simple)模式</span></h2><p>simple模式，是RabbitMQ几种模式中最简单的一种模式，其结构如下图所示：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/C8Snon8RdF6x.png" alt="mark"></p>
 <p>从上面的示意图，我们可以看出<code>simple</code>模式有以下几个特征：</p>
 <ul>
@@ -343,7 +343,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleCustomer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitListener</span>(queuesToDeclare = <span class="meta">@Queue</span>(<span class="string">"simpleQueue"</span>))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"SimpleCustomer Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleProducer</span> <span class="keyword">extends</span> <span class="title">MqStudyApplicationTests</span></span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AmqpTemplate amqpTemplate;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span></span>&#123;</span><br><span class="line">        amqpTemplate.convertAndSend(<span class="string">"simpleQueue"</span>, <span class="string">"This is a simpleQueue's massage"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn/blog/20200723/jOdd4RExAGbc.png" alt="mark"></p>
-<h2 id="2、工作-work-模式"><a href="#2、工作-work-模式" class="headerlink" title="2、工作(work)模式"></a>2、工作(work)模式</h2><p>在simple模式下只有一个生产者和消费者，当生产者生产消息的速度大于消费者的消费速度时，我们可以添加一个或多个消费者来加快消费速度，这种在simple模式下增加消费者的模式，称为work模式，如下图所示：</p>
+<h2><span id="2-工作work模式">2、工作(work)模式</span></h2><p>在simple模式下只有一个生产者和消费者，当生产者生产消息的速度大于消费者的消费速度时，我们可以添加一个或多个消费者来加快消费速度，这种在simple模式下增加消费者的模式，称为work模式，如下图所示：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/eeNCgqidtOXN.png" alt="mark"></p>
 <p>work模式有以下两个特征：</p>
 <ul>
@@ -353,7 +353,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkCustomerA</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitListener</span>(queuesToDeclare = <span class="meta">@Queue</span>(<span class="string">"workQueue"</span>))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"WorkCustomerA Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkCustomerB</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitListener</span>(queuesToDeclare = <span class="meta">@Queue</span>(<span class="string">"workQueue"</span>))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"WorkCustomerB Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkProducer</span> <span class="keyword">extends</span> <span class="title">MqStudyApplicationTests</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AmqpTemplate amqpTemplate;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            amqpTemplate.convertAndSend(<span class="string">"workQueue"</span>, <span class="string">"This is a workQueue's massage"</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn/blog/20200723/UoBdhQuoypzH.png" alt="mark"></p>
-<h2 id="3、发布-订阅-pub-sub-模式"><a href="#3、发布-订阅-pub-sub-模式" class="headerlink" title="3、发布/订阅(pub/sub)模式"></a>3、发布/订阅(pub/sub)模式</h2><p>work模式可以将消息转到多个消费者，但每条消息只能由一个消费者获取，如果我们想一条消息可以同时给多个消费者消费呢？</p>
+<h2><span id="3-发布订阅pubsub模式">3、发布/订阅(pub/sub)模式</span></h2><p>work模式可以将消息转到多个消费者，但每条消息只能由一个消费者获取，如果我们想一条消息可以同时给多个消费者消费呢？</p>
 <p>这时候就需要发布/订阅模式，其示意图如下所示：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/A3DlDh20VYkg.png" alt="mark"></p>
 <p>从上面的示意图我们可以看出来，在发布/订阅模式下，需要指定发送到哪个Exchange中，上面图中的X表示Exchange。</p>
@@ -370,7 +370,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PubSubCustomerOne</span> </span>&#123;</span><br><span class="line">    <span class="comment">//AExchange</span></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"pubSubQueueOne"</span>),</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"AExchange"</span>, type = ExchangeTypes.FANOUT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process1</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"PubSubCustomer process1 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//BExchange</span></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"pubSubQueueTwo"</span>),</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"BExchange"</span>, type = ExchangeTypes.FANOUT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process2</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"PubSubCustomer process2 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//BExchange</span></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"pubSubQueueTwo"</span>),</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"BExchange"</span>, type = ExchangeTypes.FANOUT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process3</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"PubSubCustomer process3 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>相同Exchange，不同队列的情况下，一条消息可以被多个消费者获取。</p>
-<h2 id="4、路由-routing-模式"><a href="#4、路由-routing-模式" class="headerlink" title="4、路由(routing)模式"></a>4、路由(routing)模式</h2><p>前面几种模式，消息的目标队列无法由生产者指定，而在路由模式下，消息的目标队列，可以由生产者指定，其示意图如下所示：</p>
+<h2><span id="4-路由routing模式">4、路由(routing)模式</span></h2><p>前面几种模式，消息的目标队列无法由生产者指定，而在路由模式下，消息的目标队列，可以由生产者指定，其示意图如下所示：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/h9KJ4rTRWrmW.png" alt="mark"></p>
 <ul>
 <li>路由模式下<code>Exchange</code>的type为<code>direct</code>。</li>
@@ -384,7 +384,7 @@
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 消费者</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RoutingCustomer</span> </span>&#123;</span><br><span class="line">    <span class="comment">//AExchange</span></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"routingQueueOne"</span>),</span><br><span class="line">            key = <span class="string">"routingQueueOne"</span>,</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"AExchange"</span>, type = ExchangeTypes.DIRECT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process1</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"Customer process1 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"routingQueueTwo"</span>),</span><br><span class="line">            key = <span class="string">"routingQueueTwo1"</span>,</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"AExchange"</span>, type = ExchangeTypes.DIRECT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process2</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"Customer process2 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">            value = <span class="meta">@Queue</span>(<span class="string">"routingQueueTwo"</span>),</span><br><span class="line">            key = <span class="string">"routingQueueTwo2"</span>,</span><br><span class="line">            exchange = <span class="meta">@Exchange</span>(value = <span class="string">"AExchange"</span>, type = ExchangeTypes.DIRECT)</span><br><span class="line">    ))</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process3</span><span class="params">(String message)</span></span>&#123;</span><br><span class="line">        log.info(<span class="string">"Customer process3 Message: &#123;&#125;"</span>, message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生产者</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PubSubProducer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AmqpTemplate amqpTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">20</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(i % <span class="number">2</span> == <span class="number">0</span>)&#123;</span><br><span class="line">                amqpTemplate.convertAndSend(<span class="string">"AExchange"</span>, <span class="string">"routingQueueTwo1"</span>, <span class="string">"hello"</span> + i);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                amqpTemplate.convertAndSend(<span class="string">"AExchange"</span>, <span class="string">"routingQueueTwo2"</span>, <span class="string">"hello"</span> + i);</span><br><span class="line">            &#125;</span><br><span class="line">            amqpTemplate.convertAndSend(<span class="string">"AExchange"</span>, <span class="string">"routingQueueOne"</span>, <span class="string">"hello"</span> + i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="5、主题-Topic-模式"><a href="#5、主题-Topic-模式" class="headerlink" title="5、主题(Topic)模式"></a>5、主题(Topic)模式</h2><p>主题模式是在路由模式的基础上，将路由键和某模式进行匹配。其中<code>#</code>表示匹配多个词，<code>*</code>表示匹配一个词，消费者可以通过某种模式的BindKey来达到订阅某个主题消息的目的，如示意图如下所示：</p>
+<h2><span id="5-主题topic模式">5、主题(Topic)模式</span></h2><p>主题模式是在路由模式的基础上，将路由键和某模式进行匹配。其中<code>#</code>表示匹配多个词，<code>*</code>表示匹配一个词，消费者可以通过某种模式的BindKey来达到订阅某个主题消息的目的，如示意图如下所示：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200723/4e2CT5mA01U9.png" alt="mark"></p>
 <ul>
 <li>主题模式Exchange的type取值为topic。</li>
@@ -459,15 +459,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">消息通信</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">微服务</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RabbitMQ</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">消息通信</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
@@ -591,7 +591,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Message-Queue"><span class="toc-number">1.</span> <span class="toc-text">Message Queue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MQ应用场景"><span class="toc-number">2.</span> <span class="toc-text">MQ应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、消息通讯"><span class="toc-number">2.1.</span> <span class="toc-text">1、消息通讯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、异步处理"><span class="toc-number">2.2.</span> <span class="toc-text">2、异步处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、服务解耦"><span class="toc-number">2.3.</span> <span class="toc-text">3、服务解耦</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、流量削峰"><span class="toc-number">2.4.</span> <span class="toc-text">4、流量削峰</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RabbitMQ安装"><span class="toc-number">3.</span> <span class="toc-text">RabbitMQ安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RabbitMQ核心概念"><span class="toc-number">4.</span> <span class="toc-text">RabbitMQ核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Broker"><span class="toc-number">4.1.</span> <span class="toc-text">Broker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Producer与Consumer"><span class="toc-number">4.1.1.</span> <span class="toc-text">Producer与Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Connection"><span class="toc-number">4.1.2.</span> <span class="toc-text">Connection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Channel"><span class="toc-number">4.1.3.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exchnage"><span class="toc-number">4.1.4.</span> <span class="toc-text">Exchnage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Queue"><span class="toc-number">4.1.5.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binding"><span class="toc-number">4.1.6.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Virtual-Host"><span class="toc-number">4.1.7.</span> <span class="toc-text">Virtual Host</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RabbitMQ几种模式"><span class="toc-number">5.</span> <span class="toc-text">RabbitMQ几种模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、简单-simple-模式"><span class="toc-number">5.1.</span> <span class="toc-text">1、简单(simple)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、工作-work-模式"><span class="toc-number">5.2.</span> <span class="toc-text">2、工作(work)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、发布-订阅-pub-sub-模式"><span class="toc-number">5.3.</span> <span class="toc-text">3、发布&#x2F;订阅(pub&#x2F;sub)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、路由-routing-模式"><span class="toc-number">5.4.</span> <span class="toc-text">4、路由(routing)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、主题-Topic-模式"><span class="toc-number">5.5.</span> <span class="toc-text">5、主题(Topic)模式</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Message Queue</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">MQ应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、消息通讯</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、异步处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、服务解耦</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">4、流量削峰</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">RabbitMQ安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">RabbitMQ核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">Broker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.1.</span> <span class="toc-text">Producer与Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.2.</span> <span class="toc-text">Connection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.3.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.4.</span> <span class="toc-text">Exchnage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.5.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.6.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.7.</span> <span class="toc-text">Virtual Host</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">RabbitMQ几种模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">1、简单(simple)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.2.</span> <span class="toc-text">2、工作(work)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.3.</span> <span class="toc-text">3、发布&#x2F;订阅(pub&#x2F;sub)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.4.</span> <span class="toc-text">4、路由(routing)模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.5.</span> <span class="toc-text">5、主题(Topic)模式</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -750,18 +750,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -774,6 +762,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -782,15 +774,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -807,6 +807,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -914,15 +922,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -930,11 +930,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -946,11 +950,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -959,6 +963,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1010,10 +1022,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1042,6 +1050,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1062,6 +1074,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1075,6 +1091,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1114,15 +1134,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1139,22 +1159,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

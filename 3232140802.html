@@ -276,14 +276,14 @@
     
 
 	
-		<h2 id="阻塞式IO与非阻塞式IO"><a href="#阻塞式IO与非阻塞式IO" class="headerlink" title="阻塞式IO与非阻塞式IO"></a>阻塞式IO与非阻塞式IO</h2><p>传统的IO流都是阻塞式的。也就是说，当一个线程调用read() 或write()时，该线程被阻塞，直到有一些数据被读取或写入，该线程在此期间不能执行其他任务。因此，在完成网络通信进行IO操作时，由于线程会阻塞，所以服务器端必须为每个客户端都提供一个独立的线程进行处理，当服务器端需要处理大量客户端时，性能急剧下降。</p>
+		<h2><span id="阻塞式io与非阻塞式io">阻塞式IO与非阻塞式IO</span></h2><p>传统的IO流都是阻塞式的。也就是说，当一个线程调用read() 或write()时，该线程被阻塞，直到有一些数据被读取或写入，该线程在此期间不能执行其他任务。因此，在完成网络通信进行IO操作时，由于线程会阻塞，所以服务器端必须为每个客户端都提供一个独立的线程进行处理，当服务器端需要处理大量客户端时，性能急剧下降。</p>
 <p>Java NIO是非阻塞模式的。当线程从某通道进行读写数据时，若没有数据可用时，该线程可以进行其他任务。线程通常将非阻塞IO的空闲时间用于在其他通道上执行I0操作，所以单独的线程可以管理多个输入和输出通道。因此，NIO可以让服务器端使用一个或有限几个线程来同时处理连接到服务器端的所有客户端。</p>
 <p><img src="https://img.zouchanglin.cn///20200209/KXe8DDICWRg6.png" alt="mark"></p>
 <a id="more"></a>
 
 <p>选择器和通道的关系：通道注册到选择器上，选择器监控通道。当某一个通道上，某一个事件准备就绪时，那么选择器才会将这个通道分配到服务器端一个或多个线程上，再继续运行。比如说当客户端发送一些数据给服务器端，只有当客户端的所有数据都准备就绪时，选择器才会将这个注册的通道分配到服务器端的一个或者多个线程上。如果客户端的线程没有将数据准备就绪时，服务器端的线程可以执行其他任务，就不会阻塞在那里。</p>
 <p>原先的传统的阻塞IO模式，相当于你没有手机去等快递，算准了EMS每天中午13:00会到你们公司门口，所以你12:50在那里等着他们来，在这10分钟里你被这件事情阻塞着，什么事情都做不了，真是浪费时间；而NIO的这种通道注册选择器，选择器监控通道，等到数据准备就绪才会占用服务器线程的非阻塞IO方式，更像是带着手机等外卖，我在饿了么注册了一个用户（通道在选择器上注册了），然后定完外卖就忙自己的去了，等到外卖送来之后我接到电话下去取就可以了。如果你学习过Linux内核的epoll多路复用模型，这一点应该不难理解，无非就是IO事件就绪通知！</p>
-<h2 id="选择器-Selector"><a href="#选择器-Selector" class="headerlink" title="选择器 Selector"></a>选择器 Selector</h2><p>选择器（ Selector） 是 SelectableChannle 对象的多路复用器， Selector 可以同时监控多个 SelectableChannel 的 IO 状况，也就是说，利用 Selector可使一个单独的线程管理多个 Channel。 Selector 是非阻塞 IO 的核心。</p>
+<h2><span id="选择器-selector">选择器 Selector</span></h2><p>选择器（ Selector） 是 SelectableChannle 对象的多路复用器， Selector 可以同时监控多个 SelectableChannel 的 IO 状况，也就是说，利用 Selector可使一个单独的线程管理多个 Channel。 Selector 是非阻塞 IO 的核心。</p>
 <p>SelectableChannle 的结构如下图（注意：FileChannel不是可作为选择器复用的通道！FileChannel不能注册到选择器Selector！FileChannel不能切换到非阻塞模式！FileChannel不是SelectableChannel的子类！）</p>
 <p><img src="https://img.zouchanglin.cn///20200209/L1XXFe1koCDd.png" alt="mark"></p>
 <p>当调用 register(Selector sel, int ops) 将通道注册选择器时，选择器对通道的监听事件，需要通过第二个参数 ops 指定，可以监听的事件类型，可使用 SelectionKey 的四个常量表示： </p>
@@ -294,15 +294,15 @@
 <p><img src="https://img.zouchanglin.cn///20200209/iiHChySw3m33.png" alt="mark"></p>
 <p>Selector的常用API</p>
 <p><img src="https://img.zouchanglin.cn///20200209/sUtuDgTxOgY0.png" alt="mark"></p>
-<h2 id="阻塞式IO示例"><a href="#阻塞式IO示例" class="headerlink" title="阻塞式IO示例"></a>阻塞式IO示例</h2><p>阻塞式网络通信</p>
+<h2><span id="阻塞式io示例">阻塞式IO示例</span></h2><p>阻塞式网络通信</p>
 <p><img src="https://img.zouchanglin.cn///20200209/lpp3Ix8tFriF.png" alt="mark"></p>
 <p>有反馈的阻塞式通信</p>
 <p><img src="https://img.zouchanglin.cn///20200209/FE4OQxWL2Xg4.png" alt="mark"></p>
-<h2 id="非阻塞式IO示例"><a href="#非阻塞式IO示例" class="headerlink" title="非阻塞式IO示例"></a>非阻塞式IO示例</h2><p>非阻塞式通信，其实与epoll的编程模式很像</p>
+<h2><span id="非阻塞式io示例">非阻塞式IO示例</span></h2><p>非阻塞式通信，其实与epoll的编程模式很像</p>
 <p><img src="https://img.zouchanglin.cn///20200209/1bCXK9huSKSW.png" alt="mark"></p>
 <p>上面的功能类似于一个群聊，由于IDEA不支持junit控制台，所以我直接拿eclipse试了一下</p>
-<p><img src="https://img.zouchanglin.cn/01.gif" alt=""></p>
-<h2 id="UDP使用NIO"><a href="#UDP使用NIO" class="headerlink" title="UDP使用NIO"></a>UDP使用NIO</h2><p>其实和上面的示例没啥区别， UDP非阻塞网络，NIO中信息的接收端和发送端都是直接用DatagramChannel的open方法生成一个数据报通道，发送的时候指明地址和端口；接收的一方需要先bind一个端口号，监听着。接收方可能监听到多个发送端向其发送数据，为了单个线程能够处理多个客户端发送的数据，并且在发送的过程中不被某个发送端全程阻塞，同样需要用到选择器。 </p>
+<p><img src="https://img.zouchanglin.cn/01.gif" alt></p>
+<h2><span id="udp使用nio">UDP使用NIO</span></h2><p>其实和上面的示例没啥区别， UDP非阻塞网络，NIO中信息的接收端和发送端都是直接用DatagramChannel的open方法生成一个数据报通道，发送的时候指明地址和端口；接收的一方需要先bind一个端口号，监听着。接收方可能监听到多个发送端向其发送数据，为了单个线程能够处理多个客户端发送的数据，并且在发送的过程中不被某个发送端全程阻塞，同样需要用到选择器。 </p>
 <p> 使用选择器仍然需要将通道注册到选择器上，并指明需要监听的事件，即选择键。 </p>
 <p><img src="https://img.zouchanglin.cn///20200209/KhWnhT9Ok2Bt.png" alt="mark"></p>
 <p>一旦向Selector注册了一或多个通道，就可以调用几个重载的select()方法。这些方法返回你所感兴趣的事件（如连接、接受、读或写）已经准备就绪的那些通道。换句话说，如果你对”读就绪”的通道感兴趣，select()方法会返回读事件已经就绪的那些通道。 </p>
@@ -311,18 +311,18 @@
 <li>int select(long timeout):select(long timeout)和select()一样，除了最长会阻塞timeout毫秒(参数)</li>
 <li>int selectNow():selectNow()不会阻塞，不管什么通道就绪都立刻返回，此方法执行非阻塞的选择操作。如果自从前一次选择操作后，没有通道变成可选择的，则此方法直接返回零。</li>
 </ul>
-<h2 id="管道-Pipe"><a href="#管道-Pipe" class="headerlink" title="管道 Pipe"></a>管道 Pipe</h2><p>Java NIO 管道是2个线程之间的单向数据连接。Pipe有一个source通道和一个sink通道。数据会被写到sink通道，从source通道读取 </p>
+<h2><span id="管道-pipe">管道 Pipe</span></h2><p>Java NIO 管道是2个线程之间的单向数据连接。Pipe有一个source通道和一个sink通道。数据会被写到sink通道，从source通道读取 </p>
 <p><img src="https://img.zouchanglin.cn///20200209/kijhEN89dvuq.png" alt="mark"></p>
 <p>通过一个管道，在发送数据的源头线程内获取SinkChannel，将数据写入缓冲区，缓冲区切换成读模式，写入SinkChannel；通过该管道在接收数据的线程内获取SourceChannel，然后从SourceChannel读取数据放到缓冲区，然后切换缓冲区为读模式，将数据取出。 </p>
 <p><img src="https://img.zouchanglin.cn///20200209/djmIAinIvKcC.png" alt="mark"></p>
-<h2 id="NIO2中的几个实用类"><a href="#NIO2中的几个实用类" class="headerlink" title="NIO2中的几个实用类"></a>NIO2中的几个实用类</h2><p>随着 JDK 7 的发布， Java对NIO进行了极大的扩展，增强了对文件处理和文件系统特性的支持，以至于我们称他们为 NIO.2。因为 NIO 提供的一些功能， NIO已经成为文件处理中越来越重要的部分。 </p>
+<h2><span id="nio2中的几个实用类">NIO2中的几个实用类</span></h2><p>随着 JDK 7 的发布， Java对NIO进行了极大的扩展，增强了对文件处理和文件系统特性的支持，以至于我们称他们为 NIO.2。因为 NIO 提供的一些功能， NIO已经成为文件处理中越来越重要的部分。 </p>
 <p>java.nio.file.Path 接口代表一个平台无关的平台路径，描述了目录结构中文件的位置。 </p>
 <p><img src="https://img.zouchanglin.cn///20200209/rkEJPSbFjE6l.png" alt="mark"></p>
 <p>java.nio.file.Files 用于操作文件或目录的工具类。 </p>
 <p><img src="https://img.zouchanglin.cn///20200209/qfefHGnX8DdJ.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200209/Jf221zkQhs98.png" alt="mark"></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://tutorials.jenkov.com/java-nio/index.html" target="_blank" rel="noopener">http://tutorials.jenkov.com/java-nio/index.html</a> </p>
-<p><a href="http://hg.openjdk.java.net/jdk/jdk/file/d8327f838b88/src/java.base/linux/classes/sun/nio/ch/EPollSelectorImpl.java" target="_blank" rel="noopener">http://hg.openjdk.java.net/jdk/jdk/file/d8327f838b88/src/java.base/linux/classes/sun/nio/ch/EPollSelectorImpl.java</a> </p>
+<h2><span id="参考资料">参考资料</span></h2><p><a href="http://tutorials.jenkov.com/java-nio/index.html" target="_blank" rel="noopener">http://tutorials.jenkov.com/java-nio/index.html</a> </p>
+<p><a href="http://hg.openjdk.java.net/jdk/jdk/file/d8327f838b88/src/java.base/linux/classes/sun/nio/ch/EPollSelectorImpl.java" target="_blank" rel="noopener">http://hg.openjdk.java.net/jdk/jdk/file/d8327f838b88/src/java.base/linux/classes/sun/nio/ch/EPollSelectorImpl.java</a></p>
 
 	
 
@@ -512,7 +512,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞式IO与非阻塞式IO"><span class="toc-number">1.</span> <span class="toc-text">阻塞式IO与非阻塞式IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选择器-Selector"><span class="toc-number">2.</span> <span class="toc-text">选择器 Selector</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞式IO示例"><span class="toc-number">3.</span> <span class="toc-text">阻塞式IO示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#非阻塞式IO示例"><span class="toc-number">4.</span> <span class="toc-text">非阻塞式IO示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UDP使用NIO"><span class="toc-number">5.</span> <span class="toc-text">UDP使用NIO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#管道-Pipe"><span class="toc-number">6.</span> <span class="toc-text">管道 Pipe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NIO2中的几个实用类"><span class="toc-number">7.</span> <span class="toc-text">NIO2中的几个实用类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">8.</span> <span class="toc-text">参考资料</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">阻塞式IO与非阻塞式IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">选择器 Selector</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">阻塞式IO示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">非阻塞式IO示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">UDP使用NIO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">管道 Pipe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">NIO2中的几个实用类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">参考资料</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -671,18 +671,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -695,6 +683,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -703,15 +695,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -728,6 +728,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -835,15 +843,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -851,11 +851,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,11 +871,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,6 +884,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -931,10 +943,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -963,6 +971,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -983,6 +995,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -996,6 +1012,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1035,15 +1055,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1060,22 +1080,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

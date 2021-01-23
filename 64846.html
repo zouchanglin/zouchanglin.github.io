@@ -268,7 +268,7 @@
 		<p>在Android中使用HTTPS的场景比较频繁，所以对于HTTPS的证书应该如何校验呢？关于HTTPS的校验原理可以参考我之前写的一篇文章：<a href="https://zouchanglin.cn/2020/02/25/1436780387.html">《 HTTPS协议实现原理 》</a>，相信看完后应该对HTTPS有一个比较大致的了解。而且对HTTP(s)请求的工具进行了封装，需要体会这种封装工具类的思路，也就是编码中常见的Listener机制。然后是Android中TCP、UDP通信的例子，主要是把Android设备作为Client端，如果对Java的Socket编程比较熟悉的话，这些都是特别简单的示例程序，非常容易看懂。</p>
 <a id="more"></a>
 
-<h1 id="TCP-UDP-简单示例"><a href="#TCP-UDP-简单示例" class="headerlink" title="TCP/UDP 简单示例"></a>TCP/UDP 简单示例</h1><p>下面的例子演示了Client向Server发送了一串小写英文，Server返回大写字符串的功能：</p>
+<h1><span id="tcpudp-简单示例">TCP/UDP 简单示例</span></h1><p>下面的例子演示了Client向Server发送了一串小写英文，Server返回大写字符串的功能：</p>
 <p>UDPServer.java：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UDPServer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> SimpleDateFormat format = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"HH:mm:ss"</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        DatagramSocket datagramSocket;</span><br><span class="line">        datagramSocket = <span class="keyword">new</span> DatagramSocket(<span class="number">8090</span>);</span><br><span class="line">        <span class="keyword">byte</span>[] buf;</span><br><span class="line">        DatagramPacket packet;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            buf = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            packet = <span class="keyword">new</span> DatagramPacket(buf, buf.length);</span><br><span class="line">            datagramSocket.receive(packet);</span><br><span class="line">            String content = <span class="keyword">new</span> String(packet.getData());</span><br><span class="line">            InetAddress address = packet.getAddress();</span><br><span class="line">            System.out.println(format.format(<span class="keyword">new</span> Date()) + <span class="string">"-"</span> + address + <span class="string">"-"</span> + content);</span><br><span class="line">            <span class="keyword">int</span> port = packet.getPort();</span><br><span class="line">            String replyContent = content.toUpperCase();</span><br><span class="line">            <span class="keyword">byte</span>[] sendData = replyContent.getBytes();</span><br><span class="line">            DatagramPacket sendPacket = <span class="keyword">new</span> DatagramPacket(sendData, sendData.length, address, port);</span><br><span class="line">            datagramSocket.send(sendPacket);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>UDPClient.java：</p>
@@ -280,7 +280,7 @@
 <p>TCPClient.java：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TCPClient</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> SimpleDateFormat format = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"HH:mm:ss"</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"请输入一句英文，服务器会返回其大写形式[exit退出]"</span>);</span><br><span class="line">        Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">            Socket socket = <span class="keyword">new</span> Socket(<span class="string">"127.0.0.1"</span>, <span class="number">9090</span>);</span><br><span class="line">            String line = scanner.nextLine();</span><br><span class="line">            <span class="keyword">if</span>(<span class="string">"exit"</span>.equals(line)) <span class="keyword">break</span>;</span><br><span class="line">            OutputStream os = socket.getOutputStream();</span><br><span class="line">            os.write(line.getBytes());</span><br><span class="line">            InputStream is = socket.getInputStream();</span><br><span class="line">            <span class="keyword">byte</span>[] readBuf = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            String recv = <span class="keyword">new</span> String(readBuf, <span class="number">0</span>, is.read(readBuf));</span><br><span class="line">            InetAddress address = socket.getInetAddress();</span><br><span class="line">            System.out.println(format.format(<span class="keyword">new</span> Date()) + <span class="string">"-"</span> + address + <span class="string">"-"</span> + recv);</span><br><span class="line">            socket.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="Client移植到Android"><a href="#Client移植到Android" class="headerlink" title="Client移植到Android"></a>Client移植到Android</h1><p>将两个Client移植到Android：</p>
+<h1><span id="client移植到android">Client移植到Android</span></h1><p>将两个Client移植到Android：</p>
 <p>activity_main.xml</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:padding</span>=<span class="string">"10dp"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">".MainActivity"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:hint</span>=<span class="string">"输入发送内容"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/et_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"192.168.1.113:8090"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/et_udp_server"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">EditText</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"UDP发送"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"sendUdpMessage"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"192.168.1.113:9090"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/et_tcp_server"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">EditText</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"TCP发送"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"sendTcpMessage"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/tv_show"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">"收到回复："</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -290,19 +290,19 @@
 <p>AndroidManifest.xml：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.INTERNET"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20201211153841.gif-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201211153841.gif-zouchanglin.cn" alt></p>
 <p>注意点：1、网络访问权限 2、子线程代码中使用runOnUiThread()方法可更新UI</p>
-<h1 id="Android访问HTTPS"><a href="#Android访问HTTPS" class="headerlink" title="Android访问HTTPS"></a>Android访问HTTPS</h1><p>对于一个普通的HTTP请求，我们可以使用如下方式来发起请求，下面是一个简易的Http请求工具类：</p>
+<h1><span id="android访问https">Android访问HTTPS</span></h1><p>对于一个普通的HTTP请求，我们可以使用如下方式来发起请求，下面是一个简易的Http请求工具类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpUtils</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Handler mUIHandler = <span class="keyword">new</span> Handler(Looper.getMainLooper());</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">HttpListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(String content)</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onFail</span><span class="params">(Exception e)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(String urlStr, HttpListener listener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            Looper.prepare();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                URL url = <span class="keyword">new</span> URL(urlStr);</span><br><span class="line">                HttpURLConnection conn = (HttpURLConnection) url.openConnection();</span><br><span class="line">                conn.setRequestMethod(<span class="string">"GET"</span>);</span><br><span class="line">                conn.setConnectTimeout(<span class="number">5000</span>);</span><br><span class="line">                conn.setReadTimeout(<span class="number">5000</span>);</span><br><span class="line">                conn.connect();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span> (InputStream is = conn.getInputStream();</span><br><span class="line">                     InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(is)</span><br><span class="line">                ) &#123;</span><br><span class="line">                    <span class="keyword">char</span>[] buf = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">4096</span>];</span><br><span class="line">                    <span class="keyword">int</span> len;</span><br><span class="line">                    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">                    <span class="keyword">while</span> ((len = reader.read(buf)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                        sb.append(<span class="keyword">new</span> String(buf, <span class="number">0</span>, len));</span><br><span class="line">                    &#125;</span><br><span class="line">                    mUIHandler.post(() -&gt; listener.onSuccess(sb.toString()));</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    listener.onFail(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">catch</span> (IOException e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                listener.onFail(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="1、不校验证书（不推荐）"><a href="#1、不校验证书（不推荐）" class="headerlink" title="1、不校验证书（不推荐）"></a>1、不校验证书（不推荐）</h2><p>MyX509TrustManager.java，MyX509TrustManager实现不做任何事情：</p>
+<h2><span id="1-不校验证书不推荐">1、不校验证书（不推荐）</span></h2><p>MyX509TrustManager.java，MyX509TrustManager实现不做任何事情：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">import</span> java.security.cert.CertificateException;</span><br><span class="line"><span class="keyword">import</span> java.security.cert.X509Certificate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.net.ssl.X509TrustManager;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyX509TrustManager</span> <span class="keyword">implements</span> <span class="title">X509TrustManager</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkClientTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span> <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line">		<span class="comment">// TODO...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkServerTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span> <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line">        <span class="comment">// TODO...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> X509Certificate[] getAcceptedIssuers() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> X509Certificate[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>HttpsUtils.java</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpsUtils</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Handler mUIHandler = <span class="keyword">new</span> Handler(Looper.getMainLooper());</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">HttpListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(String content)</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onFail</span><span class="params">(Exception e)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(Context context, String urlStr, HttpListener listener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            Looper.prepare();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                URL url = <span class="keyword">new</span> URL(urlStr);</span><br><span class="line">                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();</span><br><span class="line">                SSLContext sslContext = SSLContext.getInstance(<span class="string">"TLS"</span>);</span><br><span class="line">                <span class="comment">// 放入自定义的MyX509TrustManager对象即可</span></span><br><span class="line">                TrustManager[] trustManagers = &#123;<span class="keyword">new</span> MyX509TrustManager()&#125;;</span><br><span class="line">                sslContext.init(<span class="keyword">null</span>, trustManagers, <span class="keyword">new</span> SecureRandom());</span><br><span class="line">                conn.setSSLSocketFactory(sslContext.getSocketFactory());</span><br><span class="line">                conn.setRequestMethod(<span class="string">"GET"</span>);</span><br><span class="line">                conn.setConnectTimeout(<span class="number">5000</span>);</span><br><span class="line">                conn.setReadTimeout(<span class="number">5000</span>);</span><br><span class="line">                conn.connect();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span> (InputStream is = conn.getInputStream();</span><br><span class="line">                     InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(is)</span><br><span class="line">                ) &#123;</span><br><span class="line">                    <span class="keyword">char</span>[] buf = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">4096</span>];</span><br><span class="line">                    <span class="keyword">int</span> len;</span><br><span class="line">                    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">                    <span class="keyword">while</span> ((len = reader.read(buf)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                        sb.append(<span class="keyword">new</span> String(buf, <span class="number">0</span>, len));</span><br><span class="line">                    &#125;</span><br><span class="line">                    mUIHandler.post(() -&gt; listener.onSuccess(sb.toString()));</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    listener.onFail(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">                listener.onFail(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="2、校验证书（推荐）"><a href="#2、校验证书（推荐）" class="headerlink" title="2、校验证书（推荐）"></a>2、校验证书（推荐）</h2><p>拿我自己的博客站点来说，想要获得证书只需要在浏览器下载对应的证书即可（选择DER编码二进制和Base64编码均可），保存了一个名为srca.cer的文件到桌面：</p>
-<p><img src="https://img.zouchanglin.cn/20201211214125.png-zouchanglin.cn" alt=""></p>
+<h2><span id="2-校验证书推荐">2、校验证书（推荐）</span></h2><p>拿我自己的博客站点来说，想要获得证书只需要在浏览器下载对应的证书即可（选择DER编码二进制和Base64编码均可），保存了一个名为srca.cer的文件到桌面：</p>
+<p><img src="https://img.zouchanglin.cn/20201211214125.png-zouchanglin.cn" alt></p>
 <p>将这份证书文件复制到项目的src/main/assets/目录下，没有assets就新建，所以完整路径为src/main/assets/srca.cer。</p>
 <p>接下来需要实现MyX509TrustManager.java中的方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyX509TrustManager</span> <span class="keyword">implements</span> <span class="title">X509TrustManager</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MyX509TrustManager"</span>;</span><br><span class="line">    <span class="comment">// 证书对象</span></span><br><span class="line">    <span class="keyword">private</span> X509Certificate serverCert;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyX509TrustManager</span><span class="params">(X509Certificate serverCert)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.serverCert = serverCert;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkClientTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span> <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkServerTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span> <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line">        <span class="comment">// 遍历证书</span></span><br><span class="line">        <span class="keyword">for</span> (X509Certificate certificate: chain)&#123;</span><br><span class="line">            <span class="comment">// 校验合法性与是否过期</span></span><br><span class="line">            certificate.checkValidity();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 校验公钥</span></span><br><span class="line">                PublicKey publicKey = serverCert.getPublicKey();</span><br><span class="line">                certificate.verify(publicKey);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> CertificateException(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> X509Certificate[] getAcceptedIssuers() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> X509Certificate[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -313,7 +313,7 @@
 <p>在MainActivity中使用也很简单：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> EditText etUrl;</span><br><span class="line">    <span class="keyword">private</span> TextView tvShow;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        etUrl = findViewById(R.id.et_url);</span><br><span class="line">        tvShow = findViewById(R.id.tv_show);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadContent</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        String url = etUrl.getText().toString();</span><br><span class="line">        Https2Utils.doGet(<span class="keyword">this</span>, url, <span class="keyword">new</span> Https2Utils.HttpListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(String content)</span> </span>&#123;</span><br><span class="line">                tvShow.setText(content);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFail</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">                Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"Failed！"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20201211215138.gif-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201211215138.gif-zouchanglin.cn" alt></p>
 <blockquote>
 <p>原文地址<a href="https://zouchanglin.cn/2020/12/11/64846.html">《Android Socket与HTTPS校验》</a></p>
 </blockquote>
@@ -514,7 +514,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TCP-UDP-简单示例"><span class="toc-number">1.</span> <span class="toc-text">TCP&#x2F;UDP 简单示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Client移植到Android"><span class="toc-number">2.</span> <span class="toc-text">Client移植到Android</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Android访问HTTPS"><span class="toc-number">3.</span> <span class="toc-text">Android访问HTTPS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、不校验证书（不推荐）"><span class="toc-number">3.1.</span> <span class="toc-text">1、不校验证书（不推荐）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、校验证书（推荐）"><span class="toc-number">3.2.</span> <span class="toc-text">2、校验证书（推荐）</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">TCP&#x2F;UDP 简单示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Client移植到Android</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Android访问HTTPS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、不校验证书（不推荐）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、校验证书（推荐）</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -673,18 +673,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -697,6 +685,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -705,15 +697,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -730,6 +730,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -837,15 +845,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -853,11 +853,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -869,11 +873,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -882,6 +886,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -933,10 +945,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -965,6 +973,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -985,6 +997,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -998,6 +1014,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1037,15 +1057,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1062,22 +1082,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

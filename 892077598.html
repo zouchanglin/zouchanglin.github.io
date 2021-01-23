@@ -266,21 +266,21 @@
 		<p>我们在使用锁时，线程获取锁是一种悲观锁策略，即假设每一次执行临界区代码都会产生冲突， 所以当前线程获取到锁的时候同时也会阻塞其他线程获取该锁。而CAS操作(又称为无锁操作)是一种乐观锁策略，它假设所有线程访问共享资源的时候不会出现冲突，既然不会出现冲突自然而然就不会阻塞其他线程的操作。因此，线程就不会出现阻塞停顿的状态。那么，如果出现冲突了怎么办？无锁操作是使用CAS(compare and swap)又叫做比较交换来鉴别线程是否出现冲突，出现冲突就重试当前操作直到没有冲突为止。</p>
 <a id="more"></a>
 
-<h1 id="CAS的操作过程"><a href="#CAS的操作过程" class="headerlink" title="CAS的操作过程"></a>CAS的操作过程</h1><p>CAS即Compare and Swap，CAS比较交换的过程可以通俗的理解为CAS(V、A、B)，包含三个值分别为: V内存中实际值、 A预期原值(旧值) 、B更新的新值。当V和A相同时，也就是说旧值和内存中实际的值相同表明该值没有被其他线程更改过，即该旧值A就是目前来说最新的值了，自然而然可以将新值B赋值给V。反之，V和A不相同，表明该值已经被其他线程改过了则该旧值A不是最新版本的值了，所以不能将新值B赋给V，返回V即可。当多个线程使用CAS操作一个变量时，只有一个线程会成功，并成功更新，其余会失败。失败的线程会重新尝试，当然也可以选择挂起线程。</p>
+<h1><span id="cas的操作过程">CAS的操作过程</span></h1><p>CAS即Compare and Swap，CAS比较交换的过程可以通俗的理解为CAS(V、A、B)，包含三个值分别为: V内存中实际值、 A预期原值(旧值) 、B更新的新值。当V和A相同时，也就是说旧值和内存中实际的值相同表明该值没有被其他线程更改过，即该旧值A就是目前来说最新的值了，自然而然可以将新值B赋值给V。反之，V和A不相同，表明该值已经被其他线程改过了则该旧值A不是最新版本的值了，所以不能将新值B赋给V，返回V即可。当多个线程使用CAS操作一个变量时，只有一个线程会成功，并成功更新，其余会失败。失败的线程会重新尝试，当然也可以选择挂起线程。</p>
 <p>CAS的实现需要硬件指令集的支撑，在JDK1.5后虚拟机才可以使用处理器提供的CMPXCHG指令实现。CAS支持原子更新操作，适用于计数器，序列发生器等场景（序列发生器就是用来给变量自增的工具），CAS属于乐观锁机制，号称lock-free（其实只是上层感知无锁，底层还是有加锁操作的）。CAS操作失败时由开发者决定是继续尝试还是执行别的操作。</p>
-<h1 id="基于CAS实现的工具"><a href="#基于CAS实现的工具" class="headerlink" title="基于CAS实现的工具"></a>基于CAS实现的工具</h1><p>java.util.concurrent包都中的实现类都是基于volatile和CAS来实现的。尤其java.util.concurrent.atomic包下的原子类。 就拿AtomicInteger来说：</p>
+<h1><span id="基于cas实现的工具">基于CAS实现的工具</span></h1><p>java.util.concurrent包都中的实现类都是基于volatile和CAS来实现的。尤其java.util.concurrent.atomic包下的原子类。 就拿AtomicInteger来说：</p>
 <p><img src="https://img.zouchanglin.cn///20200401/v7toTPE76qrG.png" alt="mark"></p>
 <p>可以看到 AtomicInteger 底层用的是volatile的变量和CAS来进行更改数据的。volatile保证可见性，多线程并发时，一个线程修改数据，可以保证其它线程立马看到修改后的值，CAS则保证数据更新的原子性。</p>
 <p>CAS多数情况下对开发者来说是透明的。J.U.C的atomic包提供了常用的原子性数据类型以及引用、数组等相关原子类型和更新操作工具，是很多线程安全程序的首选。Unsafe类虽提供CAS服务，但因能够操纵任意内存地址读写而有隐患。JDK9以后，可以使用Variable Handle API来替代Unsafe</p>
-<h1 id="模拟实现CAS"><a href="#模拟实现CAS" class="headerlink" title="模拟实现CAS"></a>模拟实现CAS</h1><p>CAS需要硬件层面的支持，所以模拟还是用synchronized来实现一下：</p>
+<h1><span id="模拟实现cas">模拟实现CAS</span></h1><p>CAS需要硬件层面的支持，所以模拟还是用synchronized来实现一下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestImplementCAS</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> CompareAndSwap cas = <span class="keyword">new</span> CompareAndSwap();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                <span class="keyword">int</span> expectedValue = cas.get();</span><br><span class="line">                <span class="keyword">boolean</span> b = cas.compareAndSet(expectedValue, (<span class="keyword">int</span>)(Math.random() * <span class="number">101</span>));</span><br><span class="line">                System.out.println(b);</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompareAndSwap</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取内存值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//比较</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">compareAndSwap</span><span class="params">(<span class="keyword">int</span> expectedValue, <span class="keyword">int</span> newValue)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> oldValue = value;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(oldValue == expectedValue)&#123;</span><br><span class="line">            <span class="keyword">this</span>.value = newValue;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> oldValue;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">compareAndSet</span><span class="params">(<span class="keyword">int</span> expectedValue, <span class="keyword">int</span> newValue)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> expectedValue == compareAndSwap(expectedValue, newValue);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200402/tmjCLH5oLt2J.png" alt="mark"></p>
-<h1 id="CAS的缺点"><a href="#CAS的缺点" class="headerlink" title="CAS的缺点"></a>CAS的缺点</h1><p>1、ABA问题</p>
+<h1><span id="cas的缺点">CAS的缺点</span></h1><p>1、ABA问题</p>
 <p>因为CAS会检查旧值有没有变化，这里存在这样一个有意思的问题。比如一个旧值A变为了成B，然后再变成A，刚好在做CAS时检查发现旧值并没有变化依然为A，但是实际上的确发生了变化。解决方案可以沿袭数据库中常用的乐观锁方式，添加一个版本号可以解决。在JDK1.5后的atomic包中提供 了AtomicStampedReference来解决ABA问题，解决思路就是这样的。如果需要解决ABA问题，互斥与同步可能比CAS更高效。</p>
 <p>2、自旋会浪费大量的处理器资源<br>与线程阻塞相比，自旋会浪费大量的处理器资源。这是因为当前线程仍处于运行状况，只不过跑的是无用指令。它<br>期望在运行无用指令的过程中，锁能够被释放出来。JVM给出的方案是自适应自旋，根据以往自旋等待时能否获取锁，来动态调整自旋的时间。</p>
 <p>3、公平性问题<br>自旋状态还带来另外一个副作用，不公平的锁机制。处于阻塞状态的线程，无法立刻竞争被释放的锁。然而，处于<br>自旋状态的线程，则很有可能优先获得这把锁。内建锁无法实现公平机制，而lock体系可以实现公平锁。</p>
-<h1 id="解决ABA问题"><a href="#解决ABA问题" class="headerlink" title="解决ABA问题"></a>解决ABA问题</h1><p>在JDK1.5后的atomic包中提供 了AtomicStampedReference来解决ABA问题， 它通过包装[E，Integer]的元组来对对象标记版本stamp，从而避免ABA问题。在了解AtomicStampedReference之前我们可以先分析一下AtomicReference。</p>
+<h1><span id="解决aba问题">解决ABA问题</span></h1><p>在JDK1.5后的atomic包中提供 了AtomicStampedReference来解决ABA问题， 它通过包装[E，Integer]的元组来对对象标记版本stamp，从而避免ABA问题。在了解AtomicStampedReference之前我们可以先分析一下AtomicReference。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicReference;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AtomicReferenceDemo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        AtomicReference&lt;String&gt; atomicReference = <span class="keyword">new</span> AtomicReference&lt;&gt;();</span><br><span class="line">        atomicReference.set(<span class="string">"AAA"</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//CAS操作更新</span></span><br><span class="line">        <span class="keyword">boolean</span> result = atomicReference.compareAndSet(<span class="string">"AAA"</span>, <span class="string">"BBB"</span>);</span><br><span class="line">        System.out.println(result + <span class="string">" "</span> + atomicReference.get());</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//CAS操作更新</span></span><br><span class="line">        result = atomicReference.compareAndSet(<span class="string">"AAA"</span>, <span class="string">"CCC"</span>);</span><br><span class="line">        System.out.println(result + <span class="string">" "</span> + atomicReference.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p> AtomicReference的成员变量 </p>
@@ -482,7 +482,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CAS的操作过程"><span class="toc-number">1.</span> <span class="toc-text">CAS的操作过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#基于CAS实现的工具"><span class="toc-number">2.</span> <span class="toc-text">基于CAS实现的工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#模拟实现CAS"><span class="toc-number">3.</span> <span class="toc-text">模拟实现CAS</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CAS的缺点"><span class="toc-number">4.</span> <span class="toc-text">CAS的缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解决ABA问题"><span class="toc-number">5.</span> <span class="toc-text">解决ABA问题</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">CAS的操作过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">基于CAS实现的工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">模拟实现CAS</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">CAS的缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">解决ABA问题</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -641,18 +641,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -665,6 +653,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -673,15 +665,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -698,6 +698,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -805,15 +813,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,11 +821,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -837,11 +841,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -850,6 +854,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -901,10 +913,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -933,6 +941,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -953,6 +965,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -966,6 +982,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1005,15 +1025,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1030,22 +1050,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

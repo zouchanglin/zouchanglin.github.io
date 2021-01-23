@@ -279,13 +279,13 @@
     
 
 	
-		<h1 id="1、CPU多核心缓存架构分析"><a href="#1、CPU多核心缓存架构分析" class="headerlink" title="1、CPU多核心缓存架构分析"></a>1、CPU多核心缓存架构分析</h1><p>并发编程：肯定是为了更合理充分的利用多核CPU架构的性能</p>
+		<h1><span id="1-cpu多核心缓存架构分析">1、CPU多核心缓存架构分析</span></h1><p>并发编程：肯定是为了更合理充分的利用多核CPU架构的性能</p>
 <p>CPU 主频率远远高于主存，所以引入CPU缓存，CPU加载数据无法绕过缓存，而且对于多核CPU，一级缓存不是共享的，二级和三级缓存是线程共享的！CPU计算的数据并不是直接从主存中去拿，而且通过层层在缓存中寻找。</p>
 <a id="more"></a>
 
 <p>下图是一个单CPU多核心的架构图：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/24FFIEvLSVIm.png" alt="mark"></p>
-<h1 id="2、CPU缓存一致性协议"><a href="#2、CPU缓存一致性协议" class="headerlink" title="2、CPU缓存一致性协议"></a>2、CPU缓存一致性协议</h1><p>先看这样一段代码：</p>
+<h1><span id="2-cpu缓存一致性协议">2、CPU缓存一致性协议</span></h1><p>先看这样一段代码：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/iDRYlT3KP4bK.png" alt="mark"></p>
 <p>加载过程就是ThreadA通过read指令读取到flag，在通过load指令加载到缓存，也就是JMM中的本地内存，CPU再通过寄存器去使用flag，ThreadB也是同样的流程，通过assign指令为本地内存中的flag赋值，再写入主存：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/iPetMyQrMYAi.png" alt="mark"></p>
@@ -304,11 +304,11 @@
 <p>这里还有一个机制叫做总线嗅探机制，嗅探通过总线的数据，如果只有一个核心用到，那么就会给这个缓存行一个状态叫做E状态（独占状态），当另一个线程也用到了这个变量的时候，CPU就会通过广播机制通知其他的核心把这个缓存行的状态修改为S状态（共享状态），接下来其中一个线程对这个变量进行了修改，那么对于这个线程来说，这个变量的缓存行变成了M状态（修改状态），回写的时候会通过总线，总线嗅探机制嗅探到这个变量的缓存行已经是M状态，它就会通过其他的核心，说缓存无效，则其他核心上的缓存行就会变成I状态（无效状态），变成无效状态后如果还需要使用这个变量，那么肯定只能重新从主存中去加载这个变量到缓存，而且必须等待修改核心修改（回写主存）完成！</p>
 <p><img src="https://img.zouchanglin.cn///20200201/Id5pv2ES62r4.png" alt="mark"></p>
 <p>这里锁的缓存行最大值为 64 byte ，总线锁主要是用到了lock原语</p>
-<h1 id="3、内存模型JMM实现原理"><a href="#3、内存模型JMM实现原理" class="headerlink" title="3、内存模型JMM实现原理"></a>3、内存模型JMM实现原理</h1><p>JMM描述的是一种抽象的概念，一组规则，通过这组规则控制程序中各个变量在共享数据区域和私有数据区域的访问方式，JMM是围绕原子性、有序性、可见性展开的</p>
+<h1><span id="3-内存模型jmm实现原理">3、内存模型JMM实现原理</span></h1><p>JMM描述的是一种抽象的概念，一组规则，通过这组规则控制程序中各个变量在共享数据区域和私有数据区域的访问方式，JMM是围绕原子性、有序性、可见性展开的</p>
 <p><img src="https://img.zouchanglin.cn///20200201/SoIbOydo9ypK.png" alt="mark"></p>
 <p>这个JMM模型只是一个抽象的概念，图上画出的也只是逻辑空间，通过对应到硬件内存架构是这样的：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/oXWAj2CVMNxg.png" alt="mark"></p>
-<h1 id="4、Volatile关键字原理剖析"><a href="#4、Volatile关键字原理剖析" class="headerlink" title="4、Volatile关键字原理剖析"></a>4、Volatile关键字原理剖析</h1><p>在上面的例子中，我们明显可以通过volatile关键字来解决这个问题，那么volatile又是如何实现的呢？</p>
+<h1><span id="4-volatile关键字原理剖析">4、Volatile关键字原理剖析</span></h1><p>在上面的例子中，我们明显可以通过volatile关键字来解决这个问题，那么volatile又是如何实现的呢？</p>
 <p>通过汇编指令来看看就知道了，运行时加虚拟机运行参数：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly -Xcomp</span><br></pre></td></tr></table></figure>
 
@@ -328,7 +328,7 @@
 <p><img src="https://img.zouchanglin.cn///20200201/UlVphp4q2knW.png" alt="mark"></p>
 <p>这个加上内存屏障的方法定义是 public native void storeFence(); 因此是原生实现，可以看看OpenJDK的虚拟机实现，可以看到对于64位机器使用的是rsp寄存器，对于非64位用的是esp寄存器</p>
 <p><img src="https://img.zouchanglin.cn///20200201/vAA6EPpKUhth.png" alt="mark"></p>
-<h1 id="5、可见性、有序性、原子性详解"><a href="#5、可见性、有序性、原子性详解" class="headerlink" title="5、可见性、有序性、原子性详解"></a>5、可见性、有序性、原子性详解</h1><p>并发编程的三大特性：</p>
+<h1><span id="5-可见性-有序性-原子性详解">5、可见性、有序性、原子性详解</span></h1><p>并发编程的三大特性：</p>
 <p>可见性、有序性、原子性</p>
 <p>volatile保证可见性与有序性，但是不能保证原子性，要保证原子性需要借助 synchronized、Lock锁机制，同理也能保证有序性与可见性，因为 synchronized和Lock能够保证任一时刻只有个线程访问该代码块。关于volatile不保证原子性这个其实很好证明：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/HA5SKqo66Jcm.png" alt="mark"></p>
@@ -528,7 +528,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、CPU多核心缓存架构分析"><span class="toc-number">1.</span> <span class="toc-text">1、CPU多核心缓存架构分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、CPU缓存一致性协议"><span class="toc-number">2.</span> <span class="toc-text">2、CPU缓存一致性协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、内存模型JMM实现原理"><span class="toc-number">3.</span> <span class="toc-text">3、内存模型JMM实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、Volatile关键字原理剖析"><span class="toc-number">4.</span> <span class="toc-text">4、Volatile关键字原理剖析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5、可见性、有序性、原子性详解"><span class="toc-number">5.</span> <span class="toc-text">5、可见性、有序性、原子性详解</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">1、CPU多核心缓存架构分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">2、CPU缓存一致性协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">3、内存模型JMM实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">4、Volatile关键字原理剖析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">5、可见性、有序性、原子性详解</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -687,18 +687,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -711,6 +699,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -719,15 +711,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -744,6 +744,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -851,15 +859,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,11 +867,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -883,11 +887,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -896,6 +900,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -947,10 +959,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -979,6 +987,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -999,6 +1011,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1012,6 +1028,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1051,15 +1071,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1076,22 +1096,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

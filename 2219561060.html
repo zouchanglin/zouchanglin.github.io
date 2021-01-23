@@ -267,7 +267,7 @@
 		<p><img src="https://img.zouchanglin.cn/blog/20200822/5o2oFKtABWqy.png" alt="mark"><br>这是几个由二维数组构成的迷宫，简单的迷宫，多通路不带环的迷宫，多通路带环的迷宫！对于简单迷宫我们需要判断是否有出口！对于多通路不带环的迷宫我们需要确定出口并且判断最短路径，对于通路间带环的迷宫我们需要找出最短路径！</p>
 <a id="more"></a>
 
-<h1 id="算法思想：回溯"><a href="#算法思想：回溯" class="headerlink" title="算法思想：回溯"></a>算法思想：回溯</h1><p>回溯算法实际上一个类似枚举的搜索尝试过程，主要是在搜索尝试过程中寻找问题的解，当发现已不满足求解条件时，就“回溯”返回，尝试别的路径。回溯法是一种选优搜索法，按选优条件向前搜索，以达到目标。但当探索到某一步时，发现原先选择并不优或达不到目标，就退回一步重新选择，这种走不通就退回再走的技术为回溯法，而满足回溯条件的某个状态的点称为“回溯点”。<br>在本题中也用到的就是回溯， 就是把走过的点坐标压栈，遇到无路可走的情况就开始回溯，也就是出栈！<br>总体思路就是：</p>
+<h1><span id="算法思想回溯">算法思想：回溯</span></h1><p>回溯算法实际上一个类似枚举的搜索尝试过程，主要是在搜索尝试过程中寻找问题的解，当发现已不满足求解条件时，就“回溯”返回，尝试别的路径。回溯法是一种选优搜索法，按选优条件向前搜索，以达到目标。但当探索到某一步时，发现原先选择并不优或达不到目标，就退回一步重新选择，这种走不通就退回再走的技术为回溯法，而满足回溯条件的某个状态的点称为“回溯点”。<br>在本题中也用到的就是回溯， 就是把走过的点坐标压栈，遇到无路可走的情况就开始回溯，也就是出栈！<br>总体思路就是：</p>
 <ul>
 <li>现将入口点压栈，走过的地方标记为2</li>
 <li>每走一步就将坐标压栈，判断下一步可以走的地方，如果能走就压栈</li>
@@ -276,7 +276,7 @@
 <li>使用一个方法判断坐标点是否合法的，注意数组越界的情况，首先不越界，其次坐标点值为1的时候才是合法的</li>
 <li>对于多通路迷宫首先需要明白当右边出现两个入口点的时候只需要判断<code>列 == N</code>即可认为是找到了出口</li>
 <li>首先下一个点可以走的条件是：该点值为1或者该点值比上一个+1还大</li>
-<li>每走一步值就+1，入口点值设置为2<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1>所有代码位于GitHub：<a href="https://github.com/zouchanglin/VSworkspace/tree/master/67_Maze，对于简单迷宫的核心代码：" target="_blank" rel="noopener">https://github.com/zouchanglin/VSworkspace/tree/master/67_Maze，对于简单迷宫的核心代码：</a><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CheckAccess</span><span class="params">(Pos next)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//判断越界的情况</span></span><br><span class="line">	<span class="keyword">if</span>(next._col &gt;= <span class="number">0</span> &amp;&amp;next._row&gt;=<span class="number">0</span></span><br><span class="line">		&amp;&amp; next._col&lt;N &amp;&amp; next._row&lt;N)</span><br><span class="line">	&#123; </span><br><span class="line">		<span class="comment">//1才是表示通路</span></span><br><span class="line">		<span class="keyword">if</span> (maze[next._row][next._col] == <span class="number">1</span>) </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//return 0表示不可以通过</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MazeGetPath</span><span class="params">(Pos entry,Pos <span class="built_in">exit</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Pos cur = entry;<span class="comment">//cur记录起始位置</span></span><br><span class="line">	</span><br><span class="line">	Stack path;</span><br><span class="line">	StackInit(&amp;path);</span><br><span class="line">	StackPush(&amp;path, entry);<span class="comment">//将起始坐标压栈</span></span><br><span class="line">	<span class="keyword">while</span> (StackEmpty(&amp;path))</span><br><span class="line">	&#123;</span><br><span class="line">		cur = StackTop(&amp;path);</span><br><span class="line">		<span class="keyword">if</span> ((cur._row == <span class="built_in">exit</span>._row) &amp;&amp; (cur._col == <span class="built_in">exit</span>._col))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		<span class="comment">//探测下一次可以去的地方</span></span><br><span class="line">		maze[cur._row][cur._col] = <span class="number">2</span>;<span class="comment">//标记上一次走过的位置</span></span><br><span class="line">		<span class="comment">//上</span></span><br><span class="line">		Pos next = cur;</span><br><span class="line">		next._row -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next)) </span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//下</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._row += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//左</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//右</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//回溯</span></span><br><span class="line">		StackPop(&amp;path);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li>每走一步值就+1，入口点值设置为2<h1><span id="代码实现">代码实现</span></h1>所有代码位于GitHub：<a href="https://github.com/zouchanglin/VSworkspace/tree/master/67_Maze，对于简单迷宫的核心代码：" target="_blank" rel="noopener">https://github.com/zouchanglin/VSworkspace/tree/master/67_Maze，对于简单迷宫的核心代码：</a><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CheckAccess</span><span class="params">(Pos next)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//判断越界的情况</span></span><br><span class="line">	<span class="keyword">if</span>(next._col &gt;= <span class="number">0</span> &amp;&amp;next._row&gt;=<span class="number">0</span></span><br><span class="line">		&amp;&amp; next._col&lt;N &amp;&amp; next._row&lt;N)</span><br><span class="line">	&#123; </span><br><span class="line">		<span class="comment">//1才是表示通路</span></span><br><span class="line">		<span class="keyword">if</span> (maze[next._row][next._col] == <span class="number">1</span>) </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//return 0表示不可以通过</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MazeGetPath</span><span class="params">(Pos entry,Pos <span class="built_in">exit</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Pos cur = entry;<span class="comment">//cur记录起始位置</span></span><br><span class="line">	</span><br><span class="line">	Stack path;</span><br><span class="line">	StackInit(&amp;path);</span><br><span class="line">	StackPush(&amp;path, entry);<span class="comment">//将起始坐标压栈</span></span><br><span class="line">	<span class="keyword">while</span> (StackEmpty(&amp;path))</span><br><span class="line">	&#123;</span><br><span class="line">		cur = StackTop(&amp;path);</span><br><span class="line">		<span class="keyword">if</span> ((cur._row == <span class="built_in">exit</span>._row) &amp;&amp; (cur._col == <span class="built_in">exit</span>._col))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		<span class="comment">//探测下一次可以去的地方</span></span><br><span class="line">		maze[cur._row][cur._col] = <span class="number">2</span>;<span class="comment">//标记上一次走过的位置</span></span><br><span class="line">		<span class="comment">//上</span></span><br><span class="line">		Pos next = cur;</span><br><span class="line">		next._row -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next)) </span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//下</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._row += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//左</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//右</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//回溯</span></span><br><span class="line">		StackPop(&amp;path);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 对于稍复杂的迷宫的核心代码<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CheckAccess</span><span class="params">(Pos next)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//判断越界的情况</span></span><br><span class="line">	<span class="keyword">if</span>(next._col &gt;= <span class="number">0</span> &amp;&amp;next._row&gt;=<span class="number">0</span></span><br><span class="line">		&amp;&amp; next._col&lt;N &amp;&amp; next._row&lt;N)</span><br><span class="line">	&#123; </span><br><span class="line">		<span class="comment">//1才是表示通路</span></span><br><span class="line">		<span class="keyword">if</span> (maze[next._row][next._col] == <span class="number">1</span>) </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//return 0表示不可以通过</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MazeCheckIsAccess</span><span class="params">(Pos cur, Pos next)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//判断越界的情况</span></span><br><span class="line">	<span class="keyword">if</span> ((next._col &gt;= <span class="number">0</span> &amp;&amp; next._row &gt;= <span class="number">0</span> &amp;&amp; next._col&lt;N &amp;&amp; next._row&lt;N)</span><br><span class="line">		&amp;&amp;(maze[next._row][next._col] == <span class="number">1</span> || maze[next._row][next._col]&gt;maze[cur._row][cur._col]+<span class="number">1</span>))</span><br><span class="line">	&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//return 0表示不可以通过</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> pathsize = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MazeGetPath</span><span class="params">(Pos entry,Pos <span class="built_in">exit</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Pos cur = entry;<span class="comment">//cur记录起始位置</span></span><br><span class="line">	</span><br><span class="line">	Stack path;</span><br><span class="line">	StackInit(&amp;path);</span><br><span class="line">	StackPush(&amp;path, entry);<span class="comment">//将起始坐标压栈</span></span><br><span class="line"></span><br><span class="line">	maze[entry._row][entry._col] = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">while</span> (StackEmpty(&amp;path))</span><br><span class="line">	&#123;</span><br><span class="line">		cur = StackTop(&amp;path);</span><br><span class="line">		maze[cur._row][cur._col] = <span class="number">2</span>;<span class="comment">//标记上一次走过的位置</span></span><br><span class="line">		<span class="comment">//if ((cur._row == exit._row) &amp;&amp; (cur._col == exit._col))</span></span><br><span class="line">		<span class="keyword">if</span> (cur._col == <span class="number">5</span>) </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">//如果只找一条通路则返回</span></span><br><span class="line">			<span class="comment">//return 1;</span></span><br><span class="line">			<span class="comment">//StackDestory(&amp;path);</span></span><br><span class="line">			<span class="keyword">if</span> (pathsize == <span class="number">0</span>||</span><br><span class="line">				StackSize(&amp;path) &lt; pathsize)</span><br><span class="line">			&#123;</span><br><span class="line">				pathsize = StackSize(&amp;path);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//探测下一次可以去的地方</span></span><br><span class="line">		<span class="comment">//上</span></span><br><span class="line">		Pos next = cur;</span><br><span class="line">		next._row -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next)) </span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//下</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._row += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//左</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//右</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (CheckAccess(next))</span><br><span class="line">		&#123;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//回溯</span></span><br><span class="line">		StackPop(&amp;path);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MazeGetShortPath</span><span class="params">(Pos entry, Pos <span class="built_in">exit</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Pos cur = entry;<span class="comment">//cur记录起始位置</span></span><br><span class="line"></span><br><span class="line">	Stack path;</span><br><span class="line">	StackInit(&amp;path);</span><br><span class="line">	StackPush(&amp;path, entry);<span class="comment">//将起始坐标压栈</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	maze[entry._row][entry._col] = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">while</span> (StackEmpty(&amp;path))</span><br><span class="line">	&#123;</span><br><span class="line">		cur = StackTop(&amp;path);</span><br><span class="line">		<span class="keyword">if</span> (cur._col == <span class="number">5</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">//如果只找一条通路则返回</span></span><br><span class="line">			<span class="comment">//return 1;</span></span><br><span class="line">			<span class="comment">//StackDestory(&amp;path);</span></span><br><span class="line">			<span class="keyword">if</span> (pathsize == <span class="number">0</span> ||</span><br><span class="line">				StackSize(&amp;path) &lt; pathsize)</span><br><span class="line">			&#123;</span><br><span class="line">				pathsize = StackSize(&amp;path);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//探测下一次可以去的地方</span></span><br><span class="line">		<span class="comment">//上</span></span><br><span class="line">		Pos next = cur;</span><br><span class="line">		next._row -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (MazeCheckIsAccess(cur, next))</span><br><span class="line">		&#123;</span><br><span class="line">			maze[next._row][next._col] = maze[cur._row][cur._col] + <span class="number">1</span>;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//下</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._row += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (MazeCheckIsAccess(cur, next))</span><br><span class="line">		&#123;</span><br><span class="line">			maze[next._row][next._col] = maze[cur._row][cur._col] + <span class="number">1</span>;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//左</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col -= <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (MazeCheckIsAccess(cur, next))</span><br><span class="line">		&#123;</span><br><span class="line">			maze[next._row][next._col] = maze[cur._row][cur._col] + <span class="number">1</span>;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//右</span></span><br><span class="line">		next = cur;</span><br><span class="line">		next._col += <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">if</span> (MazeCheckIsAccess(cur, next))</span><br><span class="line">		&#123;</span><br><span class="line">			maze[next._row][next._col] = maze[cur._row][cur._col] + <span class="number">1</span>;</span><br><span class="line">			StackPush(&amp;path, next);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//回溯</span></span><br><span class="line">		StackPop(&amp;path);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <img src="https://img.zouchanglin.cn/blog/20200822/FqEOSVYbSXAB.png" alt="mark"><br><img src="https://img.zouchanglin.cn/blog/20200822/Eti1EhiAJhfw.png" alt="mark"></li>
 </ul>
@@ -473,7 +473,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#算法思想：回溯"><span class="toc-number">1.</span> <span class="toc-text">算法思想：回溯</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#代码实现"><span class="toc-number">2.</span> <span class="toc-text">代码实现</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">算法思想：回溯</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">代码实现</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -632,18 +632,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -656,6 +644,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -664,15 +656,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -689,6 +689,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -796,15 +804,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -812,11 +812,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -828,11 +832,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -841,6 +845,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -892,10 +904,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -924,6 +932,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -944,6 +956,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -957,6 +973,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -996,15 +1016,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1021,22 +1041,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

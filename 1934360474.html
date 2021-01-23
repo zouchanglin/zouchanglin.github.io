@@ -269,13 +269,13 @@
 		<p>微服务是当下非常热门的话题，微服务发展到现在，已经不再单单局限于微服务架构本身，还与容器化、DevOps等新的理念相结合，成为当前移动互联网时代最先进的业务架构解决方案，能更好地迎合移动互联网业务快速迭代的要求。 本篇文章中我主要探讨的是什么时候适合微服务改造，如何做服务拆分等问题。</p>
 <a id="more"></a>
 
-<h1 id="微服务适用场景"><a href="#微服务适用场景" class="headerlink" title="微服务适用场景"></a>微服务适用场景</h1><p>这些年关于服务拆分的理论层出不穷，在我看来我们首先需要搞明白起点和终点，然后还需要考虑的因素与坚持的原则。什么是起点和终点呢？第一种由于历史原因，公司的产品不得不从传统应用架构转为微服务架构，第二种原因呢就是马上开发一个全新的系统，需要用上微服务架构（当然不排除是BOSS装B，要追求新技术，因为微服务比较潮流嘛）。我们自己无论如何还是需要审视一下起点，也就是现有的架构是个什么样子，要考虑是否真的需要转成为微服务架构。至于终点呢，以一言蔽之：<strong>好的架构不是设计出来的，而是进化出来的</strong>，而且是一直在演进，生命不息，进化不止。吾生也有涯，而知也无涯。</p>
+<h1><span id="微服务适用场景">微服务适用场景</span></h1><p>这些年关于服务拆分的理论层出不穷，在我看来我们首先需要搞明白起点和终点，然后还需要考虑的因素与坚持的原则。什么是起点和终点呢？第一种由于历史原因，公司的产品不得不从传统应用架构转为微服务架构，第二种原因呢就是马上开发一个全新的系统，需要用上微服务架构（当然不排除是BOSS装B，要追求新技术，因为微服务比较潮流嘛）。我们自己无论如何还是需要审视一下起点，也就是现有的架构是个什么样子，要考虑是否真的需要转成为微服务架构。至于终点呢，以一言蔽之：<strong>好的架构不是设计出来的，而是进化出来的</strong>，而且是一直在演进，生命不息，进化不止。吾生也有涯，而知也无涯。</p>
 <p>我们可以看看Dubbo架构路线图：从单一应用架构 -&gt; 垂直应用架构 -&gt; 分布式服务架构 -&gt; 流动计算架构</p>
 <p><img src="https://img.zouchanglin.cn///20200514/reUxUKbU80SK.png" alt="mark"></p>
 <p>微服务与SOA之间就只是差了个ESB企业服务总线，如果此时的已经是SOA的架构，那么此时需要关心的也就是ESB了。从单体应用迁移到微服务架构的过程中，需要关注的重点是不一样的。微服务系统很可能是异构的，那么当前Java在整个系统中的占比是多少呢，有没有已经包含了服务注册与发现相关的组件呢，负载均衡的组件是弃用还是保留，如何以最小的代价切换过去。不过我们最需要优先考虑的就是，这个系统是否真的那么适合用微服务架构呢？在我看来，下列业务形态是不适合使用微服务架构的：</p>
 <p>1、系统中包含很多很多强事务场景的不适合使用微服务架构。因为微服务是分布式的，如果是强事务场景，是不适合用微服务架构的。<br>2、业务相对稳定，迭代周期长。比如系统本来就是一个非常稳定的系统，几乎也没什么变更迭代，几个月代码都不会更新一次，如果一定要切换到微服务的话代价还是比较大的。<br>3、访问压力不高，可用性要求不高。比如中小型企业的内部OA系统，没啥访问量，偶尔出问题挂了个把小时其实也所谓，这样的项目如果用微服务架构岂不是杀鸡用牛刀。</p>
 <p><strong>所以微服务也不是放之四海而皆准的。</strong></p>
-<h1 id="服务拆分方法论"><a href="#服务拆分方法论" class="headerlink" title="服务拆分方法论"></a>服务拆分方法论</h1><p>我们可以先看看什么是扩展立方模型 (Scale Cube)，Scale Cube是用于定义微服务和扩展技术产品的模型。AKF Partners于2007年发明了Scale Cube，最初于2017年在博客上发布<a href="https://akfpartners.com/growth-blog/splitting-applications-or-services-for-scale" target="_blank" rel="noopener">《SPLITTING APPLICATIONS OR SERVICES FOR SCALE》</a> ，在《可扩展的艺术》一书中也出现过扩展立方模型：</p>
+<h1><span id="服务拆分方法论">服务拆分方法论</span></h1><p>我们可以先看看什么是扩展立方模型 (Scale Cube)，Scale Cube是用于定义微服务和扩展技术产品的模型。AKF Partners于2007年发明了Scale Cube，最初于2017年在博客上发布<a href="https://akfpartners.com/growth-blog/splitting-applications-or-services-for-scale" target="_blank" rel="noopener">《SPLITTING APPLICATIONS OR SERVICES FOR SCALE》</a> ，在《可扩展的艺术》一书中也出现过扩展立方模型：</p>
 <p><img src="https://img.zouchanglin.cn///20200514/N52DzjtuPpNM.png" alt="mark"></p>
 <p>立方体有三个轴线，每个轴线描述扩展性的一个维度！<br>X轴：代表无差别的克隆服务和数据，通过负载均衡工作可以很均匀的分散在不同的服务实例上；<br>Y轴：关注应用中职责的划分，比如数据类型，交易执行类型的划分；<br>Z轴：关注服务和数据的优先级划分，如分地域划分。</p>
 <p>通过这三个维度上的扩展，可以快速提高产品的扩展能力，适应不同场景下产品的快速增长。不同维度上的扩展，有着不同的优缺点： </p>
@@ -302,14 +302,14 @@
 <p><img src="https://img.zouchanglin.cn///20200514/2bownxzH4MxK.png" alt="mark"></p>
 <p>三个维度拆分后，微服务的架构图就如下图所示： </p>
 <p><img src="https://img.zouchanglin.cn///20200514/KLOAOiqXTJR8.png" alt="mark"></p>
-<h1 id="功能拆分的角度"><a href="#功能拆分的角度" class="headerlink" title="功能拆分的角度"></a>功能拆分的角度</h1><p>1、单一职责、松耦合、高内聚</p>
+<h1><span id="功能拆分的角度">功能拆分的角度</span></h1><p>1、单一职责、松耦合、高内聚</p>
 <p>2、关注点分离</p>
 <ul>
 <li>按职责分离</li>
 <li>按通用性分离</li>
 <li>按粒度级别</li>
 </ul>
-<h1 id="将理论付诸实践"><a href="#将理论付诸实践" class="headerlink" title="将理论付诸实践"></a>将理论付诸实践</h1><p>1、为扩展分割应用</p>
+<h1><span id="将理论付诸实践">将理论付诸实践</span></h1><p>1、为扩展分割应用</p>
 <ul>
 <li>X轴：从单体系统或服务，水平克隆出许多系统，通过负载均衡平均分配请求；</li>
 <li>Y轴 ：面向服务分割，基于功能或者服务分割，例如电商网站可以将登陆、搜索、下单等服务进行Y轴的拆分，每一组服务再进行X轴的扩展；</li>
@@ -516,7 +516,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#微服务适用场景"><span class="toc-number">1.</span> <span class="toc-text">微服务适用场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#服务拆分方法论"><span class="toc-number">2.</span> <span class="toc-text">服务拆分方法论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#功能拆分的角度"><span class="toc-number">3.</span> <span class="toc-text">功能拆分的角度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#将理论付诸实践"><span class="toc-number">4.</span> <span class="toc-text">将理论付诸实践</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">微服务适用场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">服务拆分方法论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">功能拆分的角度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">将理论付诸实践</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -675,18 +675,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -699,6 +687,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -707,15 +699,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -732,6 +732,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,15 +847,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -855,11 +855,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -871,11 +875,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -884,6 +888,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -935,10 +947,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -967,6 +975,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -987,6 +999,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1000,6 +1016,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1039,15 +1059,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1064,22 +1084,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

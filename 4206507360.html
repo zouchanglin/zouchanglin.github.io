@@ -264,14 +264,14 @@
     
 
 	
-		<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>消息队列提供了一个从一个进程向另外一个进程发送一块数据的方法<br>每个数据块都被认为是有一个类型，接收者进程接收的数据块可以有不同的类型值<br>消息队列也有管道一样的不足，就是<strong>每个消息的最大长度是有上限的</strong>（MSGMAX），每个消息队列的总的字节数是有上限的（MSGMNB），系统上消息队列的总数也有一个上限（MSGMNI）</p>
+		<h2><span id="消息队列">消息队列</span></h2><p>消息队列提供了一个从一个进程向另外一个进程发送一块数据的方法<br>每个数据块都被认为是有一个类型，接收者进程接收的数据块可以有不同的类型值<br>消息队列也有管道一样的不足，就是<strong>每个消息的最大长度是有上限的</strong>（MSGMAX），每个消息队列的总的字节数是有上限的（MSGMNB），系统上消息队列的总数也有一个上限（MSGMNI）</p>
 <p><strong>消息队列不提供同步与互斥</strong></p>
 <p><strong>消息队列不提供同步与互斥</strong></p>
 <p><strong>消息队列不提供同步与互斥</strong></p>
 <p><img src="https://img.zouchanglin.cn///20200201/rdHW6qDct3mF.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="IPC对象数据结构"><a href="#IPC对象数据结构" class="headerlink" title="IPC对象数据结构"></a>IPC对象数据结构</h2><p>IPC全称是：Inter Process Communication (进程间通信)<br>IPC的源码：/include/linux/ipc.h<br><strong>PS:这个链接可以下载到1.0版本的源码<br><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/</a></strong></p>
+<h2><span id="ipc对象数据结构">IPC对象数据结构</span></h2><p>IPC全称是：Inter Process Communication (进程间通信)<br>IPC的源码：/include/linux/ipc.h<br><strong>PS:这个链接可以下载到1.0版本的源码<br><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/</a></strong></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ipc_perm</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">key_t</span>  key;</span><br><span class="line">  ushort uid;   <span class="comment">/* owner euid and egid */</span></span><br><span class="line">  ushort gid;</span><br><span class="line">  ushort cuid;  <span class="comment">/* creator euid and egid */</span></span><br><span class="line">  ushort cgid;</span><br><span class="line">  ushort mode;  <span class="comment">/* access modes see mode flags below */</span></span><br><span class="line">  ushort seq;   <span class="comment">/* sequence number */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p> 消息队列结构源码：/include/linux/msg.h </p>
@@ -279,19 +279,19 @@
 
 <p><img src="https://img.zouchanglin.cn///20200201/1o4GMc90tHYA.png" alt="mark"></p>
 <p>在管道的通信方式中，两个进程需要看到同一份资源那就是管道文件，具有亲缘关系的进程之间其实很容易使用匿名管道进行通信，没有亲缘关系的进程也可以使用文件名来识别同一块资源(管道)，<strong>因为Linux下，同一个目录下不可能出现同名文件，根据这个道理，每个文件的路径+自身的文件名就会形成唯一的标识</strong>，那么对于两个不相干的进程如何看到同一份消息队列呢？其实<code>ipc_perm</code>结构体的<code>key_t key</code>值解决了这个问题，可以把这个消息队列的唯一标识存储在<code>key_t key</code>中，这样只要是<code>key_t key</code>一致，那么看到的消息对列就是一致的！</p>
-<h2 id="ftok"><a href="#ftok" class="headerlink" title="ftok"></a>ftok</h2><p>根据指定的路径和一个8位的整数来生成一个唯一的识别码</p>
+<h2><span id="ftok">ftok</span></h2><p>根据指定的路径和一个8位的整数来生成一个唯一的识别码</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">key_t</span> <span class="title">ftok</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> proj_id)</span></span></span><br></pre></td></tr></table></figure>
 
 <p><code>pathname</code>:指定的文件路径<br><code>proj_id</code>:自己设定的序列号<br><code>return</code>:唯一标识ID<br>The ftok() function uses the identity of the file named by the given pathname (which must refer to an existing, accessible file) and the least significant 8 bits of proj_id (which must be nonzero) to generate a key_t type System V IPC key, suitable for use with msgget(2),semget(2), or shmget(2).<br>The resulting value is the same for all pathnames that name the same file, when the same value of proj_id is used. The value returned should be different when the (simultaneously existing) files or the project IDs differ.<br>On success, the generated key_t value is returned. On failure -1 is returned, with errno indicating the error as for the stat(2) system call.<br>ftok()函数使用由给定路径名命名的文件的标识(必须引用现有的可访问文件)和proj_id的最低8位（必须非零）来生成key_t类型System V IPC密钥 ，适用于msgget，semget或shmget。<br>当使用相同的proj_id值时，对于命名同一文件的所有路径名，结果值是相同的。 当（同时存在的）文件或项目ID不同时，返回的值应该不同。<br>成功时，返回生成的key_t值。 失败时返回-1，errno指示stat系统调用的错误。</p>
 <p>共享内存，信号量，消息队列都是通过共享文件的方式进行通信，但是这些共享文件的区分方式就是需要一个识别码，你可以理解为每个人都有自己的身份证号码一样，都是唯一的，简言之就是：ftok函数可以根据指定的路径和一个8位的整数来生成一个唯一的识别码，一般在UNIX中，通常是将文件的索引节点取出，然后在前面加上子序号就得到key_t的值。<br><strong>注意：ftok根据文件路径生成ID和文件的权限无关</strong></p>
-<h2 id="msgget"><a href="#msgget" class="headerlink" title="msgget"></a>msgget</h2><p>用来创建和访问一个消息队列</p>
+<h2><span id="msgget">msgget</span></h2><p>用来创建和访问一个消息队列</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span><span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> msgflg)</span></span></span><br></pre></td></tr></table></figure>
 
 <p> <code>key</code>: 某个消息队列的名字<br><code>msgflg</code>:由九个权限标志构成，用法和创建文件时使用的mode模式标志一致<br><code>return</code>：成功返回一个非负整数，即该消息队列的标识码；失败返回-1 </p>
 <p><img src="https://img.zouchanglin.cn///20200201/t5K4a2riMLgs.png" alt="mark"></p>
 <p>关键点：<br>IPC_CREAT：如果内核中不存在键值与key相等的消息队列，则新建一个消息队列；如果存在这样的消息队列，返回此消息队列的标识符<br>IPC_CREAT|IPC_EXCL：如果内核中不存在键值与key相等的消息队列，则新建一个消息队列；如果存在这样的消息队列则报错</p>
 <p>错误代码：<br>EACCES：指定的消息队列已存在，但调用进程没有权限访问它<br>EEXIST：key指定的消息队列已存在，而msgflg中同时指定IPC_CREAT和IPC_EXCL标志<br>ENOENT：key指定的消息队列不存在同时msgflg中没有指定IPC_CREAT标志<br>ENOMEM：需要建立消息队列，但内存不足<br>ENOSPC：需要建立消息队列，但已达到系统的限制</p>
-<h2 id="msgctl"><a href="#msgctl" class="headerlink" title="msgctl"></a>msgctl</h2><p>控制消息队列</p>
+<h2><span id="msgctl">msgctl</span></h2><p>控制消息队列</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgctl</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">int</span> cmd, struct msqid_ds *buf)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p><code>msqid</code>: 由msgget函数返回的消息队列标识码<br><code>cmd</code>:是将要采取的动作,（有三个可取值）<br><code>return</code>：成功返回0，失败返回-1 </p>
@@ -319,7 +319,7 @@
 </tr>
 </tbody></table>
 <p>错误代码：<br>EACCESS：参数cmd为IPC_STAT，确无权限读取该消息队列<br>EFAULT：参数buf指向无效的内存地址<br>EIDRM：标识符为msqid的消息队列已被删除<br>EINVAL：无效的参数cmd或msqid<br>EPERM：参数cmd为IPC_SET或IPC_RMID，却无足够的权限执行 </p>
-<h2 id="msgsnd函数"><a href="#msgsnd函数" class="headerlink" title="msgsnd函数"></a>msgsnd函数</h2><p>把一条消息添加到消息队列中</p>
+<h2><span id="msgsnd函数">msgsnd函数</span></h2><p>把一条消息添加到消息队列中</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *msgp, <span class="keyword">size_t</span> msgsz, <span class="keyword">int</span> msgflg)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p><code>msgid</code>: 由msgget函数返回的消息队列标识码<br><code>msgp</code>:是一个指向结构体的指针，指针指向准备发送的消息</p>
@@ -336,7 +336,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msgbuf</span> &#123;</span></span><br><span class="line">	<span class="keyword">long</span> mtype;</span><br><span class="line">	<span class="keyword">char</span> mtext[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p> msgsnd()解除阻塞的三个条件：<br>① 不满足消息队列满或个数满两个条件，即消息队列中有容纳该消息的空间。<br>② msqid代表的消息队列被删除。<br>③ 调用msgsnd函数的进程被信号中断。 </p>
-<h2 id="msgrcv"><a href="#msgrcv" class="headerlink" title="msgrcv"></a>msgrcv</h2><p>从标识符为msqid的消息队列读取消息并存于msgp中，读取后把此消息从消息队列中删除</p>
+<h2><span id="msgrcv">msgrcv</span></h2><p>从标识符为msqid的消息队列读取消息并存于msgp中，读取后把此消息从消息队列中删除</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *msgp, <span class="keyword">size_t</span> msgsz, <span class="keyword">int</span> msgflg)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p><code>msgid</code>: 由msgget函数返回的消息队列标识码<br><code>msgp</code>:是一个指针，指针指向准备接收的消息，<br><code>msgsz</code>:是msgp指向的消息长度，这个长度不含保存消息类型的那个long int长整型<br><code>msgtype</code>:它可以实现接收优先级的简单形式<br><code>msgflg</code>:控制着队列中没有相应类型的消息可供接收时将要发生的事</p>
@@ -348,10 +348,10 @@
 </ul>
 <p><code>return</code>:成功返回实际放到接收缓冲区里去的字符个数，失败返回-1</p>
 <p>msgtype=0返回队列第一条信息<br>msgtype&gt;0返回队列第一条类型等于msgtype的消息　<br>msgtype&lt;0返回队列第一条类型小于等于msgtype绝对值的消息，并且是满足条件的消息类型最小的消息 </p>
-<h2 id="ipcs、ipcrm"><a href="#ipcs、ipcrm" class="headerlink" title="ipcs、ipcrm"></a>ipcs、ipcrm</h2><p>这是两个命令，ipcs:可以显示IPC资源，ipcrm用于手动删除IPC资源<br>管道虽然也可以用于进程间通信，但是管道的声明周期是随进程的，但是消息队列、信号量、共享内存的声明周期是随内核，需要我们自己调用函数或者命令手动清除，所以当每次使用消息队列的时候不要忘记删除IPC资源：</p>
-<h3 id="ipcs"><a href="#ipcs" class="headerlink" title="ipcs"></a>ipcs</h3><p>显示 IPC 设施的信息。<br><code>ipcs [资源选项...] [输出选项]</code><br><code>ipcs -m|-q|-s -i</code><br>选项：<br>-i, –id 打印由标识的资源的详细信息<br>-h, –help display this help<br>-V, –version display version</p>
+<h2><span id="ipcs-ipcrm">ipcs、ipcrm</span></h2><p>这是两个命令，ipcs:可以显示IPC资源，ipcrm用于手动删除IPC资源<br>管道虽然也可以用于进程间通信，但是管道的声明周期是随进程的，但是消息队列、信号量、共享内存的声明周期是随内核，需要我们自己调用函数或者命令手动清除，所以当每次使用消息队列的时候不要忘记删除IPC资源：</p>
+<h3><span id="ipcs">ipcs</span></h3><p>显示 IPC 设施的信息。<br><code>ipcs [资源选项...] [输出选项]</code><br><code>ipcs -m|-q|-s -i</code><br>选项：<br>-i, –id 打印由标识的资源的详细信息<br>-h, –help display this help<br>-V, –version display version</p>
 <p>资源选项：<br>-m, –shmems 共享内存段<br>-q, –queues 消息队列<br>-s, –semaphores 信号量<br>-a, –all 全部(默认)<br>输出选项：<br>-t, –time 显示附加、脱离和更改时间<br>-p, –pid 显示创建者和最后操作者的 PID<br>-c, –creator 显示创建者和拥有者<br>-l, –limits 显示资源限制<br>-u, –summary 显示状态摘要<br>-h, –human 以易读格式显示大小<br>-b, –bytes 以字节数显示大小</p>
-<h3 id="ipcrm"><a href="#ipcrm" class="headerlink" title="ipcrm"></a>ipcrm</h3><p>移除某个 IPC 资源。<br>ipcrm [选项]<br><code>ipcrm shm|msg|sem ...</code><br>选项：<br>-m, –shmem-id 按 id 号移除共享内存段<br>-M, –shmem-key &lt;键&gt; 按键值移除共享内存段<br>-q, –queue-id 按 id 号移除消息队列<br>-Q, –queue-key &lt;键&gt; 按键值移除消息队列<br>-s, –semaphore-id 按 id 号移除信号量<br>-S, –semaphore-key &lt;键&gt; 按键值移除信号量<br>-a, –all[=&lt;shm|msg|sem&gt;] (将指定类别中的)全部移除<br>-v, –verbose 解释正在进行的操作</p>
+<h3><span id="ipcrm">ipcrm</span></h3><p>移除某个 IPC 资源。<br>ipcrm [选项]<br><code>ipcrm shm|msg|sem ...</code><br>选项：<br>-m, –shmem-id 按 id 号移除共享内存段<br>-M, –shmem-key &lt;键&gt; 按键值移除共享内存段<br>-q, –queue-id 按 id 号移除消息队列<br>-Q, –queue-key &lt;键&gt; 按键值移除消息队列<br>-s, –semaphore-id 按 id 号移除信号量<br>-S, –semaphore-key &lt;键&gt; 按键值移除信号量<br>-a, –all[=&lt;shm|msg|sem&gt;] (将指定类别中的)全部移除<br>-v, –verbose 解释正在进行的操作</p>
 <p>方式一：使用ipcs -q命令查询IPC资源中消息队列的msqid，再使用ipcrm</p>
 <p><img src="https://img.zouchanglin.cn///20200201/lrKOvaHJ1fBe.png" alt="mark"></p>
 <p> 方式二：在代码中使用消息队列控制函数msgctl设置参数为IPC_RMID<br>下面是两个进程之间使用消息队列通信的代码：<br>comm.c </p>
@@ -555,7 +555,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#消息队列"><span class="toc-number">1.</span> <span class="toc-text">消息队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IPC对象数据结构"><span class="toc-number">2.</span> <span class="toc-text">IPC对象数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ftok"><span class="toc-number">3.</span> <span class="toc-text">ftok</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msgget"><span class="toc-number">4.</span> <span class="toc-text">msgget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msgctl"><span class="toc-number">5.</span> <span class="toc-text">msgctl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msgsnd函数"><span class="toc-number">6.</span> <span class="toc-text">msgsnd函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msgrcv"><span class="toc-number">7.</span> <span class="toc-text">msgrcv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ipcs、ipcrm"><span class="toc-number">8.</span> <span class="toc-text">ipcs、ipcrm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ipcs"><span class="toc-number">8.1.</span> <span class="toc-text">ipcs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ipcrm"><span class="toc-number">8.2.</span> <span class="toc-text">ipcrm</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">消息队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">IPC对象数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">ftok</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">msgget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">msgctl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">msgsnd函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">msgrcv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">ipcs、ipcrm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.1.</span> <span class="toc-text">ipcs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.2.</span> <span class="toc-text">ipcrm</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -714,18 +714,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -738,6 +726,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -746,15 +738,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -771,6 +771,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,15 +886,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,11 +894,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -910,11 +914,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -923,6 +927,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -974,10 +986,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1006,6 +1014,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1026,6 +1038,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1039,6 +1055,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1078,15 +1098,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1103,22 +1123,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

@@ -275,7 +275,7 @@
 <p>Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或者并发执行任务的程序都可以使用线程池。开发<br>中使用线程池的三个优点如下：<br>1、降低资源消耗：通过重复利用已创建的线程降低线程创建和销毁带来的消耗。<br>2、提高响应速度：当任务到达时，任务可以不需要等待线程创建就能立即执行。<br>3、提高线程的可管理性：使用线程池可以统一进行线程分配、调度和监控。</p>
 <a id="more"></a>
 
-<h1 id="Executors创建的五种线程池"><a href="#Executors创建的五种线程池" class="headerlink" title="Executors创建的五种线程池"></a>Executors创建的五种线程池</h1><p>利用Executors创建不同的线程池满足不同场景的需求</p>
+<h1><span id="executors创建的五种线程池">Executors创建的五种线程池</span></h1><p>利用Executors创建不同的线程池满足不同场景的需求</p>
 <p>1、newFixedThreadPool(int nThreads)： 指定工作线程数量的线程池， 如果线程池中正在执行的任务达到设置的线程最大数（无可用线程），则新得任务会放到阻塞队列里等待，有可用线程时按顺序执行。 </p>
 <p>2、newCachedThreadPool()：处理大量短时间工作任务的线程池</p>
 <ul>
@@ -286,9 +286,9 @@
 <p>3、newSingleThreadExecutor()：创建唯一的工作线程来执行任务，如果线程异常结束，会有另一个线程取代它</p>
 <p>4、newSingleThreadScheduledExecutor()与newScheduledThreadPool(int corePoolSize)：定时或者周期性的工作调度，两者的区别在于单一工作线程还是多个线程</p>
 <p>5、newWorkStealingPool()：内部会构建ForkJoinPool，利用working-stealing算法，并行地处理任务，不保证处理顺序</p>
-<h1 id="Fork-Join框架"><a href="#Fork-Join框架" class="headerlink" title="Fork/Join框架"></a>Fork/Join框架</h1><p>把大任务分割成若干个小任务并行执行，最终汇总每个小任务结果后得到大任务结果的框架。newWorkStealingPool()就是实现了Fork/Join框架的线程池，什么时working-stealing算法呢？简单来说就是某个线程从其他队列里窃取任务来执行。</p>
+<h1><span id="forkjoin框架">Fork/Join框架</span></h1><p>把大任务分割成若干个小任务并行执行，最终汇总每个小任务结果后得到大任务结果的框架。newWorkStealingPool()就是实现了Fork/Join框架的线程池，什么时working-stealing算法呢？简单来说就是某个线程从其他队列里窃取任务来执行。</p>
 <p><img src="https://img.zouchanglin.cn///20200401/ev4mrVPM6Hq1.png" alt="mark"></p>
-<h1 id="Executor框架"><a href="#Executor框架" class="headerlink" title="Executor框架"></a>Executor框架</h1><p>在 Java 5 之后，并发编程引入了一堆新的启动、调度和管理线程的API。Executor 框架便是 Java 5 中引入的，其内部使用了线程池机制，它在 java.util.cocurrent 包下，通过该框架来控制线程的启动、执行和关闭，可以简化并发编程的操作。 </p>
+<h1><span id="executor框架">Executor框架</span></h1><p>在 Java 5 之后，并发编程引入了一堆新的启动、调度和管理线程的API。Executor 框架便是 Java 5 中引入的，其内部使用了线程池机制，它在 java.util.cocurrent 包下，通过该框架来控制线程的启动、执行和关闭，可以简化并发编程的操作。 </p>
 <p><img src="https://img.zouchanglin.cn///20200401/IWUdnySIiVQS.png" alt="mark"></p>
 <p>J.U.C的三个Executor接口</p>
 <ul>
@@ -296,14 +296,14 @@
 <li>ExecutorService：具备管理执行器和任务生命周期的方法，提交任务机制更完善</li>
 <li>ScheduledExecutorService：支持Future和定期执行任务</li>
 </ul>
-<h1 id="ThreadPoolExecutor"><a href="#ThreadPoolExecutor" class="headerlink" title="ThreadPoolExecutor"></a>ThreadPoolExecutor</h1><p>ThreadPoolExecutor顾名思义，是一个线程池管理工具类，该类主要提供了任务管理，线程的调度和相关的hook方法来控制线程池的状态。 </p>
+<h1><span id="threadpoolexecutor">ThreadPoolExecutor</span></h1><p>ThreadPoolExecutor顾名思义，是一个线程池管理工具类，该类主要提供了任务管理，线程的调度和相关的hook方法来控制线程池的状态。 </p>
 <p><img src="https://img.zouchanglin.cn///20200402/1RKDW9iG8m8Y.png" alt="mark"></p>
 <p>如上图，有新的任务提交的时候，如果线程池已经处于shutdown状态，此时新任务会被拒绝，用户可以通过实现RejectExecutionHandler来自定义处理逻辑。如果没有被拒绝，那么新任务将被放置在WorkQueue中，WorkQueue就是工作队列，里面存储了将要执行的任务，任务将被添加到线程池的工作线程中去执行。WorkQueue的数据结构各不相同，但是作用都是暂时存储用户提交的任务：</p>
 <p><img src="https://img.zouchanglin.cn///20200402/A5S4dGhb6Ecg.png" alt="mark"></p>
 <p>然后由线程池对象去执行调度这些任务，我们可以再看看Worker：</p>
 <p><img src="https://img.zouchanglin.cn///20200402/3a62rthGwRSp.png" alt="mark"></p>
 <p>这里的线程由线程工厂所创建。</p>
-<h1 id="ThreadPoolExecutor构造函数"><a href="#ThreadPoolExecutor构造函数" class="headerlink" title="ThreadPoolExecutor构造函数"></a>ThreadPoolExecutor构造函数</h1><p>下面我们可以看看ThreadPoolExecutor的构造函数</p>
+<h1><span id="threadpoolexecutor构造函数">ThreadPoolExecutor构造函数</span></h1><p>下面我们可以看看ThreadPoolExecutor的构造函数</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSize,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue,</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">        keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">    <span class="keyword">if</span> (workQueue == <span class="keyword">null</span> || threadFactory == <span class="keyword">null</span> || handler == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">this</span>.acc = System.getSecurityManager() == <span class="keyword">null</span> ?</span><br><span class="line">        <span class="keyword">null</span> :</span><br><span class="line">    AccessController.getContext();</span><br><span class="line">    <span class="keyword">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">    <span class="keyword">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">    <span class="keyword">this</span>.workQueue = workQueue;</span><br><span class="line">    <span class="keyword">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">    <span class="keyword">this</span>.threadFactory = threadFactory;</span><br><span class="line">    <span class="keyword">this</span>.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>corePoolSize</strong>：核心线程数，默认情况下核心线程会一直存活，即使处于闲置状态也不会受存keepAliveTime限制，除非将allowCoreThreadTimeOut设置为true。</p>
@@ -324,7 +324,7 @@
 <li>DiscardOldestPolicy：当任务添加到线程池中被拒绝时，线程池会放弃等待队列中最旧的未处理任务，然后将被拒绝的任务添加到等待队列中。</li>
 <li>DiscardPolicy：当任务添加到线程池中被拒绝时，线程池将丢弃被拒绝的任务。</li>
 </ul>
-<h1 id="为什么不推荐Executors创建线程池"><a href="#为什么不推荐Executors创建线程池" class="headerlink" title="为什么不推荐Executors创建线程池"></a>为什么不推荐Executors创建线程池</h1><p>1、对于SingleThreadExecutor，SingleThreadExecutor是单线程线程池，只有一个核心线程：</p>
+<h1><span id="为什么不推荐executors创建线程池">为什么不推荐Executors创建线程池</span></h1><p>1、对于SingleThreadExecutor，SingleThreadExecutor是单线程线程池，只有一个核心线程：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</span><br><span class="line">        (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>所以当一个任务提交时，首先会创建一个核心线程来执行任务，如果超过核心线程的数量，将会放入队列中，因为LinkedBlockingQueue是长度为Integer.MAX_VALUE的队列，可以认为是无界队列，因此往队列中可以插入无限多的任务，在资源有限的时候容易引起OOM异常，同时因为无界队列，maximumPoolSize和keepAliveTime参数将无效，压根就不会创建非核心线程。</p>
@@ -339,18 +339,18 @@
 <p>当一个任务提交时，corePoolSize为0不创建核心线程，SynchronousQueue是一个不存储元素的队列，可以理解为队里永远是满的，其中每个插入操作必须等待另一个线程进行相应的删除操作，反之亦然。因此最终会创建非核心线程来执行任务。</p>
 <p>对于非核心线程空闲60s时将被回收，第二个参数是线程池所能容纳的最大线程数，因为Integer.MAX_VALUE非常大，可以认为是可以无限创建线程的，在资源有限的情况下容易引起OOM异常。</p>
 <p><strong>综上所述，不推荐使用Executors创建线程池，自己把控线程池参数比较好！</strong></p>
-<h1 id="线程池大小如何选定"><a href="#线程池大小如何选定" class="headerlink" title="线程池大小如何选定"></a>线程池大小如何选定</h1><p>既然不推荐Executors创建线程池，那么我们应该如何选择创建线程池的参数呢？</p>
+<h1><span id="线程池大小如何选定">线程池大小如何选定</span></h1><p>既然不推荐Executors创建线程池，那么我们应该如何选择创建线程池的参数呢？</p>
 <p>CPU密集型：线程数 = 按照核数或者核数 + 1 ,  CPU数量可以根据Runtime.availableProcessors方法获取。</p>
 <p>I/O密集型：线程数 = CPU核数 * (1 + 平均等待时间/平均工作时间)。</p>
 <p>混合型： 将任务分为CPU密集型和IO密集型，然后分别使用不同的线程池去处理，从而使每个线程池可以根据各自的工作负载来调整。</p>
 <p>创建线程池的阻塞队列推荐使用有界队列，有界队列有助于避免资源耗尽的情况发生。</p>
 <p>拒绝策略可以默认，也可以根据需要自定义策略。</p>
-<h1 id="新任务提交execute执行后的判断"><a href="#新任务提交execute执行后的判断" class="headerlink" title="新任务提交execute执行后的判断"></a>新任务提交execute执行后的判断</h1><p>1、如果运行的线程少于corePoolSize，则创建新线程来处理任务，即使线程池中的其他线程是空闲的；</p>
+<h1><span id="新任务提交execute执行后的判断">新任务提交execute执行后的判断</span></h1><p>1、如果运行的线程少于corePoolSize，则创建新线程来处理任务，即使线程池中的其他线程是空闲的；</p>
 <p>2、如果线程池中的线程数量大于等于corePoolSize且小于maximumPoolSize，则只有当workQueue满时才创建新的线程去处理任务；</p>
 <p>3、如果设置的corePoolSize和maximumPoolSize相同，则创建的线程池的大小是固定的，这时如果有新任务提交，若workQueue未满，则将请求放入workQueue中，等待有空闲的线程去从workQueue中取任务并处理；</p>
 <p>4、如果运行的线程数量大于等于maximumPoolSize，这时如果workQueue已经满了，则通过handler所指定的策略来处理任务；</p>
 <p><img src="https://img.zouchanglin.cn///20200402/tWVDuDzDIyKU.png" alt="mark"></p>
-<h1 id="线程池的5种状态"><a href="#线程池的5种状态" class="headerlink" title="线程池的5种状态"></a>线程池的5种状态</h1><ul>
+<h1><span id="线程池的5种状态">线程池的5种状态</span></h1><ul>
 <li>RUNNING：能接受新提交的任务, 并且也能处理阻塞队列中的任务</li>
 <li>SHUTDOWN：不再接受新提交的任务，但可以处理存量任务</li>
 <li>STOP：不再接受新提交的任务，也不处理存量任务</li>
@@ -551,7 +551,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Executors创建的五种线程池"><span class="toc-number">1.</span> <span class="toc-text">Executors创建的五种线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Fork-Join框架"><span class="toc-number">2.</span> <span class="toc-text">Fork&#x2F;Join框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Executor框架"><span class="toc-number">3.</span> <span class="toc-text">Executor框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ThreadPoolExecutor"><span class="toc-number">4.</span> <span class="toc-text">ThreadPoolExecutor</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ThreadPoolExecutor构造函数"><span class="toc-number">5.</span> <span class="toc-text">ThreadPoolExecutor构造函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么不推荐Executors创建线程池"><span class="toc-number">6.</span> <span class="toc-text">为什么不推荐Executors创建线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程池大小如何选定"><span class="toc-number">7.</span> <span class="toc-text">线程池大小如何选定</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#新任务提交execute执行后的判断"><span class="toc-number">8.</span> <span class="toc-text">新任务提交execute执行后的判断</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程池的5种状态"><span class="toc-number">9.</span> <span class="toc-text">线程池的5种状态</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Executors创建的五种线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Fork&#x2F;Join框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Executor框架</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">ThreadPoolExecutor</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">ThreadPoolExecutor构造函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">为什么不推荐Executors创建线程池</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">线程池大小如何选定</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">新任务提交execute执行后的判断</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">线程池的5种状态</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -710,18 +710,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -734,6 +722,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -742,15 +734,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -767,6 +767,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -874,15 +882,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -890,11 +890,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -906,11 +910,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -919,6 +923,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -970,10 +982,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1002,6 +1010,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1022,6 +1034,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1035,6 +1051,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1074,15 +1094,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1099,22 +1119,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

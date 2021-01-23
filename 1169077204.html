@@ -262,11 +262,11 @@
     
 
 	
-		<h2 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h2><p>共享内存按照页为基本单位分配的，一页是4K<br>共享内存无同步与互斥，生命周期随内核<br>共享内存无同步与互斥，生命周期随内核<br>共享内存无同步与互斥，生命周期随内核<br>共享内存区是最快的IPC形式，一旦这样的内存映射到共享它的进程的地址空间，这些进程间数据传递不再涉及到内核，换句话说是进程不再通过执行进入内核的系统调用来传递彼此的数据：<br><img src="https://img.zouchanglin.cn///20200201/D8CVw9IzlGql.png" alt="mark"></p>
+		<h2><span id="共享内存">共享内存</span></h2><p>共享内存按照页为基本单位分配的，一页是4K<br>共享内存无同步与互斥，生命周期随内核<br>共享内存无同步与互斥，生命周期随内核<br>共享内存无同步与互斥，生命周期随内核<br>共享内存区是最快的IPC形式，一旦这样的内存映射到共享它的进程的地址空间，这些进程间数据传递不再涉及到内核，换句话说是进程不再通过执行进入内核的系统调用来传递彼此的数据：<br><img src="https://img.zouchanglin.cn///20200201/D8CVw9IzlGql.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="共享内存的数据结构"><a href="#共享内存的数据结构" class="headerlink" title="共享内存的数据结构"></a>共享内存的数据结构</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">shmid_ds</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ipc_perm</span> <span class="title">shm_perm</span>;</span> <span class="comment">/* operation perms */</span></span><br><span class="line">	<span class="keyword">int</span> shm_segsz; <span class="comment">/* size of segment (bytes) */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_atime; <span class="comment">/* last attach time */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_dtime; <span class="comment">/* last detach time */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_ctime; <span class="comment">/* last change time */</span></span><br><span class="line">	<span class="keyword">__kernel_ipc_pid_t</span> shm_cpid; <span class="comment">/* pid of creator */</span></span><br><span class="line">	<span class="keyword">__kernel_ipc_pid_t</span> shm_lpid; <span class="comment">/* pid of last operator */</span></span><br><span class="line">	<span class="keyword">unsigned</span> short shm_nattch; <span class="comment">/* no. of current attaches */</span></span><br><span class="line">	<span class="keyword">unsigned</span> short shm_unused; <span class="comment">/* compatibility */</span></span><br><span class="line">	<span class="keyword">void</span> *shm_unused2; <span class="comment">/* ditto - used by DIPC */</span></span><br><span class="line">	<span class="keyword">void</span> *shm_unused3; <span class="comment">/* unused */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="shmget"><a href="#shmget" class="headerlink" title="shmget"></a>shmget</h2><p>得到一个共享内存标识符或创建一个共享内存对象并返回共享内存标识符</p>
+<h2><span id="共享内存的数据结构">共享内存的数据结构</span></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">shmid_ds</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ipc_perm</span> <span class="title">shm_perm</span>;</span> <span class="comment">/* operation perms */</span></span><br><span class="line">	<span class="keyword">int</span> shm_segsz; <span class="comment">/* size of segment (bytes) */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_atime; <span class="comment">/* last attach time */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_dtime; <span class="comment">/* last detach time */</span></span><br><span class="line">	<span class="keyword">__kernel_time_t</span> shm_ctime; <span class="comment">/* last change time */</span></span><br><span class="line">	<span class="keyword">__kernel_ipc_pid_t</span> shm_cpid; <span class="comment">/* pid of creator */</span></span><br><span class="line">	<span class="keyword">__kernel_ipc_pid_t</span> shm_lpid; <span class="comment">/* pid of last operator */</span></span><br><span class="line">	<span class="keyword">unsigned</span> short shm_nattch; <span class="comment">/* no. of current attaches */</span></span><br><span class="line">	<span class="keyword">unsigned</span> short shm_unused; <span class="comment">/* compatibility */</span></span><br><span class="line">	<span class="keyword">void</span> *shm_unused2; <span class="comment">/* ditto - used by DIPC */</span></span><br><span class="line">	<span class="keyword">void</span> *shm_unused3; <span class="comment">/* unused */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2><span id="shmget">shmget</span></h2><p>得到一个共享内存标识符或创建一个共享内存对象并返回共享内存标识符</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmget</span><span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">size_t</span> <span class="built_in">size</span>, <span class="keyword">int</span> shmflg)</span></span></span><br></pre></td></tr></table></figure>
 <p><code>key</code>:此值来源于ftok返回的IPC键值<br><code>size</code>大于0的整数：新建的共享内存大小，以字节为单位<br><code>shmflg</code> 取共享内存标识符，若不存在则函数会报错</p>
 <ul>
@@ -276,15 +276,15 @@
 </li>
 </ul>
 <p><code>return</code>:成功返回共享内存的标识符,出错返回-1，错误原因存于error中<br>错误代码：<br>EINVAL：参数size小于SHMMIN或大于SHMMAX<br>EEXIST：预建立key所指的共享内存，但已经存在<br>EIDRM：参数key所指的共享内存已经删除<br>ENOSPC：超过了系统允许建立的共享内存的最大值(SHMALL)<br>ENOENT：参数key所指的共享内存不存在，而参数shmflg未设IPC_CREAT位<br>EACCES：没有权限<br>ENOMEM：核心内存不足</p>
-<h2 id="shmat"><a href="#shmat" class="headerlink" title="shmat"></a>shmat</h2><p>把共享内存区对象映射到调用进程的地址空间，其实就是将共享内存绑定到当前进程</p>
+<h2><span id="shmat">shmat</span></h2><p>把共享内存区对象映射到调用进程的地址空间，其实就是将共享内存绑定到当前进程</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">shmat</span><span class="params">(<span class="keyword">int</span> shmid, <span class="keyword">const</span> <span class="keyword">void</span> *shmaddr, <span class="keyword">int</span> shmflg)</span></span></span><br></pre></td></tr></table></figure>
 <p><code>msqid</code>:共享内存标识符<br><code>shmaddr</code>指定共享内存出现在进程内存地址的什么位置，直接指定为NULL让内核自己决定一个合适的地址位置<br><code>shmflg</code>:SHM_RDONLY：为只读模式，其他为读写模式，默认写0即可<br><code>return</code>:成功：附加好的共享内存地址,出错：-1，错误原因存于error中</p>
 <p>错误代码<br>EACCES：无权限以指定方式连接共享内存<br>EINVAL：无效的参数shmid或shmaddr<br>ENOMEM：核心内存不足<br>注意：fork后子进程继承已连接的共享内存地址。exec后该子进程与已连接的共享内存地址自动脱离。进程结束后，已连接的共享内存地址会自动脱离</p>
-<h2 id="shmdt"><a href="#shmdt" class="headerlink" title="shmdt"></a>shmdt</h2><p>与shmat函数相反，解除当前进程与共享内存的绑定</p>
+<h2><span id="shmdt">shmdt</span></h2><p>与shmat函数相反，解除当前进程与共享内存的绑定</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmdt</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *shmaddr)</span></span></span><br></pre></td></tr></table></figure>
 <p><code>msqid</code>:共享内存标识符<br><code>return</code>:成功：0 出错：-1，错误原因存于error中</p>
 <p>错误代码<br>EINVAL：无效的参数shmaddr<br>函数调用并不删除所指定的共享内存区，而只是将之前绑定的共享内存解除绑定</p>
-<h2 id="shmctl"><a href="#shmctl" class="headerlink" title="shmctl"></a>shmctl</h2><p>控制共享内存</p>
+<h2><span id="shmctl">shmctl</span></h2><p>控制共享内存</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmctl</span><span class="params">(<span class="keyword">int</span> shmid, <span class="keyword">int</span> cmd, struct shmid_ds *buf)</span></span>;</span><br></pre></td></tr></table></figure>
 <p><code>msqid</code>:共享内存标识符<br><code>cmd</code>:对共享内存的控制选项</p>
 <ul>
@@ -294,8 +294,8 @@
 </ul>
 <p><code>buf</code>:共享内存管理结构体，不关心则设置为NULL<br><code>return</code>:成功：0,出错：-1，错误原因存于error中</p>
 <p>错误代码<br>EACCESS：参数cmd为IPC_STAT，确无权限读取该共享内存<br>EFAULT：参数buf指向无效的内存地址<br>EIDRM：标识符为msqid的共享内存已被删除<br>EINVAL：无效的参数cmd或shmid<br>EPERM：参数cmd为IPC_SET或IPC_RMID，却无足够的权限执行</p>
-<h2 id="ipcs与ipcrm"><a href="#ipcs与ipcrm" class="headerlink" title="ipcs与ipcrm"></a>ipcs与ipcrm</h2><p>与消息队列一致，由于共享内存的生命周期随内核，要么使用共享内存控制函数将其释放，那么通过命令手动释放，<code>ipcs -m</code>就可以查看IPC资源中的共享内存，<code>iprm -m shmid</code>就可以释放对应shmid号的共享内存<br><img src="https://img.zouchanglin.cn///20200201/5x68x7UjW3H5.png" alt="mark"></p>
-<h2 id="通信示例"><a href="#通信示例" class="headerlink" title="通信示例"></a>通信示例</h2><p>writer.c</p>
+<h2><span id="ipcs与ipcrm">ipcs与ipcrm</span></h2><p>与消息队列一致，由于共享内存的生命周期随内核，要么使用共享内存控制函数将其释放，那么通过命令手动释放，<code>ipcs -m</code>就可以查看IPC资源中的共享内存，<code>iprm -m shmid</code>就可以释放对应shmid号的共享内存<br><img src="https://img.zouchanglin.cn///20200201/5x68x7UjW3H5.png" alt="mark"></p>
+<h2><span id="通信示例">通信示例</span></h2><p>writer.c</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">key_t</span> k = ftok(<span class="string">"."</span>, <span class="number">0x7777</span>);<span class="comment">//.表示当前目录</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(k &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"ftok error\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//申请共享内存</span></span><br><span class="line">    <span class="keyword">int</span> shmid = shmget(k, <span class="number">4096</span>,IPC_CREAT|IPC_EXCL|<span class="number">0666</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(shmid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"shmget error\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//绑定共享内存</span></span><br><span class="line">    <span class="keyword">char</span> *buf = shmat(shmid, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(buf == <span class="literal">NULL</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"shmar error\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i =<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">'\0'</span>, <span class="number">4096</span>);</span><br><span class="line">    <span class="keyword">while</span>(i &lt; <span class="number">26</span>)&#123;</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        buf[i] = <span class="string">'A'</span>+i;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//取消绑定共享内存</span></span><br><span class="line">    shmdt(shmid);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//释放共享内存</span></span><br><span class="line">    shmctl(shmid, IPC_RMID, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>reder.c</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">key_t</span> k = ftok(<span class="string">"."</span>, <span class="number">0x7777</span>);<span class="comment">//.表示当前目录</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(k &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"ftok error\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//申请共享内存</span></span><br><span class="line">    <span class="keyword">int</span> shmid = shmget(k, <span class="number">4096</span>,IPC_CREAT);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(shmid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"shmget error\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//绑定共享内存</span></span><br><span class="line">    <span class="keyword">char</span> *buf = shmat(shmid, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(buf == <span class="literal">NULL</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"shmar error\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%s\n"</span>, buf);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//取消绑定共享内存</span></span><br><span class="line">    shmdt(shmid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -487,7 +487,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#共享内存"><span class="toc-number">1.</span> <span class="toc-text">共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#共享内存的数据结构"><span class="toc-number">2.</span> <span class="toc-text">共享内存的数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shmget"><span class="toc-number">3.</span> <span class="toc-text">shmget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shmat"><span class="toc-number">4.</span> <span class="toc-text">shmat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shmdt"><span class="toc-number">5.</span> <span class="toc-text">shmdt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shmctl"><span class="toc-number">6.</span> <span class="toc-text">shmctl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ipcs与ipcrm"><span class="toc-number">7.</span> <span class="toc-text">ipcs与ipcrm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通信示例"><span class="toc-number">8.</span> <span class="toc-text">通信示例</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">共享内存的数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">shmget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">shmat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">shmdt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">shmctl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">ipcs与ipcrm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">通信示例</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -646,18 +646,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -670,6 +658,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -678,15 +670,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -703,6 +703,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -810,15 +818,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -826,11 +826,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -842,11 +846,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -855,6 +859,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -906,10 +918,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -938,6 +946,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -958,6 +970,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -971,6 +987,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1010,15 +1030,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1035,22 +1055,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

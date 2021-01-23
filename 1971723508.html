@@ -274,7 +274,7 @@
 <p>我的环境是CentOS7_x64，Docker版本是 Client: Docker Engine - Community 19.03.7、Server: Docker Engine - Community 19.03.7、Nginx源码包的版本是nginx-1.9.9.tar.gz。</p>
 <a id="more"></a>
 
-<h1 id="1、获取HTTPS证书"><a href="#1、获取HTTPS证书" class="headerlink" title="1、获取HTTPS证书"></a>1、获取HTTPS证书</h1><p>就以我的域名为例吧，这是我准备的二级域名 docker.zouchanglin.cn：<br><img src="https://img.zouchanglin.cn///20200321/lmro1eOePhdb.png" alt="mark"></p>
+<h1><span id="1-获取https证书">1、获取HTTPS证书</span></h1><p>就以我的域名为例吧，这是我准备的二级域名 docker.zouchanglin.cn：<br><img src="https://img.zouchanglin.cn///20200321/lmro1eOePhdb.png" alt="mark"></p>
 <p>如何获得这个二级域名的HTTPS的证书呢？进入这个网站可以申请免费的HTTPS证书： <strong><a href="https://freessl.cn/" target="_blank" rel="noopener">https://freessl.cn/</a></strong> ，点击创建，于是就会提示安装一个KeyManager的软件，下载之后安装即可，设置密码即可运行。</p>
 <p><img src="https://img.zouchanglin.cn///20200321/qxiFIwjJqIx7.png" alt="mark"></p>
 <p>按照提示的需求配置好解析即可，配置完成之后测试一下是否正常解析，网页上有工具的点一下就行</p>
@@ -283,7 +283,7 @@
 <p><img src="https://img.zouchanglin.cn///20200321/Ol8am03G8QW5.png" alt="mark"></p>
 <p>接下来导出一个Nginx用的证书就好了：</p>
 <p><img src="https://img.zouchanglin.cn///20200321/wrEmWxK723tu.png" alt="mark"></p>
-<h1 id="2、安装并配置Nginx"><a href="#2、安装并配置Nginx" class="headerlink" title="2、安装并配置Nginx"></a>2、安装并配置Nginx</h1><p>关于Nginx的安装可以参考我之前的博客<a href="https://zouchanglin.cn/2020/01/29/3245705396.html">《CentOS7编译安装nginx》</a> 可以一开始就把HTTPS模块包含进去，不然得二次编译，如何配置Nginx呢？</p>
+<h1><span id="2-安装并配置nginx">2、安装并配置Nginx</span></h1><p>关于Nginx的安装可以参考我之前的博客<a href="https://zouchanglin.cn/2020/01/29/3245705396.html">《CentOS7编译安装nginx》</a> 可以一开始就把HTTPS模块包含进去，不然得二次编译，如何配置Nginx呢？</p>
 <p>我已经把下载好的证书上传至Linux服务器并解压，解压后得到crt和key两个文件，我把它们放在了/usr/local/certs下面。</p>
 <p>还是先给原来的Nginx备份一下，再做修改：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">user</span> root;</span><br><span class="line"></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line">	</span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line">    <span class="attribute">gzip</span>  <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># HTTPS server</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">443</span> ssl;</span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line">		<span class="attribute">client_max_body_size</span> <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">ssl_certificate</span>      /usr/local/certs/docker.zouchanglin.cn_chain.crt;</span><br><span class="line">        <span class="attribute">ssl_certificate_key</span>  /usr/local/certs/docker.zouchanglin.cn_key.key;</span><br><span class="line">        <span class="attribute">ssl</span> <span class="literal">on</span>;</span><br><span class="line">        <span class="attribute">ssl_session_cache</span>    shared:SSL:<span class="number">1m</span>;</span><br><span class="line">        <span class="attribute">ssl_session_timeout</span>  <span class="number">5m</span>;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">ssl_ciphers</span>  HIGH:!aNULL:!MD5;</span><br><span class="line">        <span class="attribute">ssl_prefer_server_ciphers</span>  <span class="literal">on</span>;</span><br><span class="line">        <span class="attribute">location</span> <span class="regexp">~ </span>&#123;</span><br><span class="line">                <span class="attribute">proxy_pass_header</span> Server;</span><br><span class="line">                <span class="attribute">proxy_pass</span> https://registry;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">    <span class="attribute">upstream</span> registry &#123;</span><br><span class="line">                <span class="attribute">server</span> <span class="number">127.0.0.1:5000</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -292,11 +292,11 @@
 <p>最后，nginx启动一下！</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx</span><br></pre></td></tr></table></figure>
 
-<h1 id="3、Docker私服运行"><a href="#3、Docker私服运行" class="headerlink" title="3、Docker私服运行"></a>3、Docker私服运行</h1><p>直接一条命令就很OK了：</p>
+<h1><span id="3-docker私服运行">3、Docker私服运行</span></h1><p>直接一条命令就很OK了：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  -p 5000:5000 \</span><br><span class="line">  -v /usr/<span class="built_in">local</span>/registry:/var/lib/registry \</span><br><span class="line">  -v /usr/<span class="built_in">local</span>/certs:/certs \</span><br><span class="line">  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/docker.zouchanglin.cn_chain.crt \</span><br><span class="line">  -e REGISTRY_HTTP_TLS_KEY=/certs/docker.zouchanglin.cn_key.key \</span><br><span class="line">  -e REGISTRY_STORAGE_DELETE_ENABLED=<span class="literal">true</span> \</span><br><span class="line">  --restart=always \</span><br><span class="line">  --name registry \</span><br><span class="line">  registry:2</span><br></pre></td></tr></table></figure>
 
 <p><code>-e REGISTRY_STORAGE_DELETE_ENABLED=true</code> 这条指令主要是打开删除镜像的限制！</p>
-<h1 id="4、检验是否配置成功"><a href="#4、检验是否配置成功" class="headerlink" title="4、检验是否配置成功"></a>4、检验是否配置成功</h1><p><img src="https://img.zouchanglin.cn///20200321/vL5w2LvCRPhV.png" alt="mark"></p>
+<h1><span id="4-检验是否配置成功">4、检验是否配置成功</span></h1><p><img src="https://img.zouchanglin.cn///20200321/vL5w2LvCRPhV.png" alt="mark"></p>
 
 	
 
@@ -494,7 +494,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1、获取HTTPS证书"><span class="toc-number">1.</span> <span class="toc-text">1、获取HTTPS证书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2、安装并配置Nginx"><span class="toc-number">2.</span> <span class="toc-text">2、安装并配置Nginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3、Docker私服运行"><span class="toc-number">3.</span> <span class="toc-text">3、Docker私服运行</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4、检验是否配置成功"><span class="toc-number">4.</span> <span class="toc-text">4、检验是否配置成功</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">1、获取HTTPS证书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">2、安装并配置Nginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">3、Docker私服运行</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">4、检验是否配置成功</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -653,18 +653,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -677,6 +665,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -685,15 +677,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -710,6 +710,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -817,15 +825,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -833,11 +833,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -849,11 +853,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -862,6 +866,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -913,10 +925,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -945,6 +953,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -965,6 +977,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -978,6 +994,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1017,15 +1037,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1042,22 +1062,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

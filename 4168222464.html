@@ -276,7 +276,7 @@
 <p>在上次的文章<a href="[https://zouchanglin.cn/2020/02/18/2859918246.html](https://zouchanglin.cn/2020/02/18/2859918246.html)">《虚拟化的基石——Namespace》</a> 中主要讲述了Namespace的作用，却没有详细的拿代码举证，上次仅仅证明了UTS Namespace，剩下五个命名空间全在这篇文章了，主要是IPC Namespace、PID Namespace、Mount Namespace、User Namespace、Network Namespace的概念的理解以及使用代码证明！</p>
 <a id="more"></a>
 
-<h2 id="IPC-Namespace"><a href="#IPC-Namespace" class="headerlink" title="IPC Namespace"></a>IPC Namespace</h2><p>IPC Namespace用来隔离System V IPC和POSIX message queues。每一个 IPC Namespace，都有自己的System V IPC和POSIX message queue。所谓System V IPC即系统IPC资源，其实主要是共享内存、信号量（ System V信号量 ）、消息队列；POSIX message queues其实就是随文件系统的消息队列</p>
+<h2><span id="ipc-namespace">IPC Namespace</span></h2><p>IPC Namespace用来隔离System V IPC和POSIX message queues。每一个 IPC Namespace，都有自己的System V IPC和POSIX message queue。所谓System V IPC即系统IPC资源，其实主要是共享内存、信号量（ System V信号量 ）、消息队列；POSIX message queues其实就是随文件系统的消息队列</p>
 <ul>
 <li><p>随进程持续的（Process-Persistent IPC）<br>IPC对象一直存在，直到最后拥有他的进程被关闭为止，典型的IPC有pipes（管道）和FIFOs（先进先出对象）</p>
 </li>
@@ -290,20 +290,20 @@
 <p>现在go run IPNamespace.go</p>
 <p><img src="https://img.zouchanglin.cn///20200219/E1VdMPPgEXVp.png" alt="mark"></p>
 <p>通过以上实验，可以发现在新创建的Namespace里，看不到宿主机上已经创建的message queue，说明IPC Namespace创建成功，IPC 已经被隔离。</p>
-<h2 id="PID-Namespace"><a href="#PID-Namespace" class="headerlink" title="PID Namespace"></a>PID Namespace</h2><p>PID Namespace是用来隔离进程ID的。同样一个进程在不同的PID Namespace里可以拥有不同的PID。这样就可以理解，在docker container里面，使用ps -ef经常会发现，在容器内，前台运行的那个进程PID是1，但是在容器外，使用ps -ef会发现同样的进程却有不同的PID，这就是PID Namespace做的事情。</p>
+<h2><span id="pid-namespace">PID Namespace</span></h2><p>PID Namespace是用来隔离进程ID的。同样一个进程在不同的PID Namespace里可以拥有不同的PID。这样就可以理解，在docker container里面，使用ps -ef经常会发现，在容器内，前台运行的那个进程PID是1，但是在容器外，使用ps -ef会发现同样的进程却有不同的PID，这就是PID Namespace做的事情。</p>
 <p><img src="https://img.zouchanglin.cn///20200219/dTzR2F9yw4n4.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200219/EA2RRx6aFsWt.png" alt="mark"></p>
-<h2 id="Mount-Namespace"><a href="#Mount-Namespace" class="headerlink" title="Mount Namespace"></a>Mount Namespace</h2><p>Mount Namespace用来隔离各个进程看到的挂载点视图。在不同Namespace的进程中到的文件系统层次是不一样的。在Mount Namespace中调用mount()和umount()仅仅只会影当前Namespace内的文件系统，而对全局的文件系统是没有影响的。</p>
+<h2><span id="mount-namespace">Mount Namespace</span></h2><p>Mount Namespace用来隔离各个进程看到的挂载点视图。在不同Namespace的进程中到的文件系统层次是不一样的。在Mount Namespace中调用mount()和umount()仅仅只会影当前Namespace内的文件系统，而对全局的文件系统是没有影响的。</p>
 <p>看到这里，也许就会想到chroot()。它也是将某一个子目录变成根节点。但是，MountNamespace不仅能实现这个功能，而且能以更加灵活和安全的方式实现。MountNamespace是Linux第一个实现的Namespace类型，因此，它的系统调用参是NEWNS (New Namespace的缩写)。当时人们貌似没有意识到，以后还会有很多类型Namespace加入Linux大家庭。代码做了一点改动，增加了NEWNS标识，如下。</p>
 <p><img src="https://img.zouchanglin.cn///20200219/mOGGxzoKckah.png" alt="mark"></p>
 <p>运行代码，然后查看一下／proc 的文件内容。proc 是一个文件系统，提供额外的机制，可以通过内核和内核模块将信息发送给进程。这里的／proc 还是宿主机的， 所以看到里面会比较乱，下面将／proc mount 到我们自己的Namespace 下面来。</p>
 <p><img src="https://img.zouchanglin.cn///20200219/EnCgnVKYDQUk.png" alt="mark"></p>
 <p>Mount Namespace 中的mount 和外部空间是隔离的， mount 操作并没有影响到外部。Docker volume 也是利用了这个特性。</p>
-<h2 id="User-Namespace"><a href="#User-Namespace" class="headerlink" title="User Namespace"></a>User Namespace</h2><p>User Namespace主要是隔离用户的用户组ID。也就是说，一个进程的UserID和GroupID在User Namespace内外可以是不同的。比较常用的是，在宿主机上以一个非root用户运行创建一个User Namespace，然后在User Namespace里面却映射成root用户。</p>
+<h2><span id="user-namespace">User Namespace</span></h2><p>User Namespace主要是隔离用户的用户组ID。也就是说，一个进程的UserID和GroupID在User Namespace内外可以是不同的。比较常用的是，在宿主机上以一个非root用户运行创建一个User Namespace，然后在User Namespace里面却映射成root用户。</p>
 <p>这意味着，这个进程在User Namespace里面有root权限，但是在User Namespace外面却没有root的权限。从LinuxKernel3.8开始，非root进程也可以创建UserNamespace，并且此用户在Namespace里面可以被映射成root，且在Namespace内有root权限。</p>
 <p><img src="https://img.zouchanglin.cn///20200219/6QYm76yv3yzs.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200219/bUQdkg6dbCWw.png" alt="mark"></p>
-<h2 id="Network-Namespace"><a href="#Network-Namespace" class="headerlink" title="Network Namespace"></a>Network Namespace</h2><p>Network Namespace是用来隔离网络设备、IP 地址端口等网络栈的Namespace。Network Namespace可以让每个容器拥有自己独立的(虚拟的)网络设备，而且容器内的应用可以绑定到自己的端口，每个Namespace内的端口都不会互相冲突。在宿主机上搭建网桥后，就能很方便地实现容器之间的通信，而且不同容器上的应用可以使用相同的端口。</p>
+<h2><span id="network-namespace">Network Namespace</span></h2><p>Network Namespace是用来隔离网络设备、IP 地址端口等网络栈的Namespace。Network Namespace可以让每个容器拥有自己独立的(虚拟的)网络设备，而且容器内的应用可以绑定到自己的端口，每个Namespace内的端口都不会互相冲突。在宿主机上搭建网桥后，就能很方便地实现容器之间的通信，而且不同容器上的应用可以使用相同的端口。</p>
 <p><img src="https://img.zouchanglin.cn///20200219/IMWQnzNqWf00.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200219/G7SGfaiNtKbT.png" alt="mark"></p>
 <p>在Namespace 里面什么网络设备都没有。这样就能断定Network Namespace 与宿主机之间的网络是处于隔离状态了，是不是离Docker的实现更进一步了呢？</p>
@@ -500,7 +500,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IPC-Namespace"><span class="toc-number">1.</span> <span class="toc-text">IPC Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PID-Namespace"><span class="toc-number">2.</span> <span class="toc-text">PID Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mount-Namespace"><span class="toc-number">3.</span> <span class="toc-text">Mount Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#User-Namespace"><span class="toc-number">4.</span> <span class="toc-text">User Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Network-Namespace"><span class="toc-number">5.</span> <span class="toc-text">Network Namespace</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">IPC Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">PID Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Mount Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">User Namespace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">Network Namespace</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -659,18 +659,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -683,6 +671,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -691,15 +683,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -716,6 +716,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -823,15 +831,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,11 +839,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -855,11 +859,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -868,6 +872,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -919,10 +931,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -951,6 +959,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -971,6 +983,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -984,6 +1000,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1023,15 +1043,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1048,22 +1068,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

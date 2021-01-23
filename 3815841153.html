@@ -277,7 +277,7 @@
 <p>在之前为文章<a href="https://zouchanglin.cn/2020/02/27/1164259380.html">《分析事务隔离的实现》</a>中我们提到：如果是可重复读隔离级别，事务T启动的时候会创建一个视图 read-view，之后事务 T 执行期间，即使有其他事务修改了数据，事务 T 看到的仍然跟在启动时看到的一样。也就是说，一个在可重复读隔离级别下执行的事务，好像与世无争，不受外界影响。但是，我在介绍MySQL锁机制的文章中<a href="https://zouchanglin.cn/2019/10/25/2652162611.html">《探究MySQL锁机制》</a> 的时候，一个事务要更新一行，如果刚好有另外一个事务拥有这一行的行锁，它会被锁住，进入等待状态。问题是，既然进入了等待状态，那么等到这个事务自己获取到行锁要更新数据的时候，它读到的值又是什么呢？</p>
 <a id="more"></a>
 
-<h1 id="开始事务的两种方式"><a href="#开始事务的两种方式" class="headerlink" title="开始事务的两种方式"></a>开始事务的两种方式</h1><p>需要注意的是：<strong>begin/start transaction 命令并不是一个事务的起点，在执行到它们之后的第一个操作InnoDB 表的语句，事务才真正启动。</strong> 如果你想要马上启动一个事务，可以使用transaction with consistent snapshot 这个命令！</p>
+<h1><span id="开始事务的两种方式">开始事务的两种方式</span></h1><p>需要注意的是：<strong>begin/start transaction 命令并不是一个事务的起点，在执行到它们之后的第一个操作InnoDB 表的语句，事务才真正启动。</strong> 如果你想要马上启动一个事务，可以使用transaction with consistent snapshot 这个命令！</p>
 <p>第一种启动方式，一致性视图是在第执行第一个快照读语句时创建的；</p>
 <p>第二种启动方式，一致性视图是在执行 start transaction with consistent snapshot 时创建的；</p>
 <p>事务 C 没有显式地使用 begin/commit，表示这个 update 语句本身就是一个事务，语句完成的时候会自动提交。事务 B 在更新了行之后查询 ; 事务 A 在一个只读事务中查询，并且时间顺序上是在事务 B 的查询之后。但是结果却是：事务 B 查到的 k 的值是 3，而事务 A 查到的 k 的值是 1</p>
@@ -288,7 +288,7 @@
 <p>需要注意的是，在 MySQL 里，有两个<code>视图</code>的概念：</p>
 <p>1、一个是view，它是一个用查询语句定义的虚拟表，在调用的时候执行查询语句并生成结果。创建视图的语法是 create view … ，而它的查询方法与表一样。</p>
 <p>2、另一个是 InnoDB 在实现 MVCC(Multi-Version Concurrency Control，多版本并发控制)时用到的一致性读视图，即 consistent read view，用于支持 RC（Read Committed，读提交）和 RR（Repeatable Read，可重复读）隔离级别的实现。</p>
-<h1 id="InnoDB创建秒级快照原理"><a href="#InnoDB创建秒级快照原理" class="headerlink" title="InnoDB创建秒级快照原理"></a>InnoDB创建秒级快照原理</h1><p>本文的首图即是MVCC的实现原理，在可重复读隔离级别下，事务在启动的时候就”拍了个快照”。注意，这个快照是基于整库的。如果一个库有 100G，那么我启动一个事务，MySQL就要拷贝 100G 的数据出来，这个过程得多慢啊。可是平时的事务执行起来很快啊，实际上，我们并不需要拷贝出这 100G 的数据。我们先来看看这个快照是怎么实现的：</p>
+<h1><span id="innodb创建秒级快照原理">InnoDB创建秒级快照原理</span></h1><p>本文的首图即是MVCC的实现原理，在可重复读隔离级别下，事务在启动的时候就”拍了个快照”。注意，这个快照是基于整库的。如果一个库有 100G，那么我启动一个事务，MySQL就要拷贝 100G 的数据出来，这个过程得多慢啊。可是平时的事务执行起来很快啊，实际上，我们并不需要拷贝出这 100G 的数据。我们先来看看这个快照是怎么实现的：</p>
 <blockquote>
 <p><strong>InnoDB 里面每个事务有一个唯一的事务 ID，叫作 transaction id。它是在事务开始的时候向 InnoDB 的事务系统申请的，是按申请顺序严格递增的。而每行数据也都是有多个版本的。每次事务更新数据的时候，都会生成一个新的数据版本，并且把 transaction id 赋值给这个数据版本的事务 ID，记为 row trx_id。同时，旧的数据版本要保留，并且在新的数据版本中，能够有信息可以直接拿到它。也就是说，数据表中的一行记录，其实可能有多个版本 (即row中的每个数据)，每个版本有自己的 row trx_id。</strong></p>
 </blockquote>
@@ -315,7 +315,7 @@
 <p>4、如果一个数据版本的事务ID落在黄色部分并且还在事务数组中就判定此数据版本是其他未提交事务对数据修改产生的数据新版本；如果一个数据版本的事务ID落在黄色部分并且不在自己的事务数组中，那么说明事务已经提交，是合法数据</p>
 <p>所以InnoDB的秒级快照的创建能力的原理无非和Linux的AUFS文件系统如出一撤，那就是你只要改了某一条数据，我就复制那一条让你改，并且不会影响其他人的数据：</p>
 <p><img src="https://img.zouchanglin.cn///20200227/WzMLU8s5xwpq.png" alt="mark"></p>
-<h1 id="都是”当前读”惹的祸"><a href="#都是”当前读”惹的祸" class="headerlink" title="都是”当前读”惹的祸"></a>都是”当前读”惹的祸</h1><p>我们在明白了InnoDB如何实现的创建秒级快照的原理后，开篇的疑惑其实很好解答：</p>
+<h1><span id="都是当前读惹的祸">都是”当前读”惹的祸</span></h1><p>我们在明白了InnoDB如何实现的创建秒级快照的原理后，开篇的疑惑其实很好解答：</p>
 <p>我们不妨做如下假设，事务 A 开始前，系统里面只有一个活跃事务 ID 是 99；事务 A、B、C 的版本号分别是 100、101、102，且当前系统里只有这四个事务；三个事务开始前，(1,1）这一行数据的 row trx_id 是 90</p>
 <p>这样，事务 A 的视图数组就是 [99,100]，事务 B 的视图数组是 [99,100,101]，事务 C 的视图数组是 [99,100,101,102]。</p>
 <p><img src="https://img.zouchanglin.cn///20200227/zNXilTegqBxX.png" alt="mark"></p>
@@ -339,7 +339,7 @@
 <p>事务 C’没提交，也就是说 (1,2) 这个版本上的写锁还没释放。而事务 B 是当前读，必须要读最新版本，而且必须加锁，因此就被锁住了，必须等到事务 C’ 释放这个锁，才能继续它的当前读。</p>
 <p><img src="https://img.zouchanglin.cn///20200227/e7vVHLTMF4bq.png" alt="mark"></p>
 <p>到这里，我们把一致性读、当前读和行锁就串起来了。</p>
-<h1 id="可重复读的实现"><a href="#可重复读的实现" class="headerlink" title="可重复读的实现"></a>可重复读的实现</h1><p>可重复读的核心就是一致性读（consistent read）；而事务更新数据的时候，只能用当前读。如果当前的记录的行锁被其他事务占用的话，就需要进入锁等待。</p>
+<h1><span id="可重复读的实现">可重复读的实现</span></h1><p>可重复读的核心就是一致性读（consistent read）；而事务更新数据的时候，只能用当前读。如果当前的记录的行锁被其他事务占用的话，就需要进入锁等待。</p>
 <p>而读提交的逻辑和可重复读的逻辑类似，它们最主要的区别是：在可重复读隔离级别下，只需要在事务开始的时候创建一致性视图，之后事务里的其他查询都共用这个一致性视图；在读提交隔离级别下，每一个语句执行前都会重新算出一个新的视图。</p>
 <p>InnoDB 的行数据有多个版本，每个数据版本有自己的 row trx_id，每个事务或者语句有自己的一致性视图。普通查询语句是一致性读，一致性读会根据 row trx_id 和一致性视图确定数据版本的可见性。<strong>对于可重复读，查询只承认在事务启动前就已经提交完成的数据；对于读提交，查询只承认在语句启动前就已经提交完成的数据；而当前读，总是读取已经提交完成的最新版本。</strong></p>
 
@@ -539,7 +539,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#开始事务的两种方式"><span class="toc-number">1.</span> <span class="toc-text">开始事务的两种方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#InnoDB创建秒级快照原理"><span class="toc-number">2.</span> <span class="toc-text">InnoDB创建秒级快照原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#都是”当前读”惹的祸"><span class="toc-number">3.</span> <span class="toc-text">都是”当前读”惹的祸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#可重复读的实现"><span class="toc-number">4.</span> <span class="toc-text">可重复读的实现</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">开始事务的两种方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">InnoDB创建秒级快照原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">都是”当前读”惹的祸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">可重复读的实现</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -698,18 +698,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -722,6 +710,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -730,15 +722,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -755,6 +755,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -862,15 +870,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,11 +878,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,11 +898,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -907,6 +911,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -958,10 +970,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -990,6 +998,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1010,6 +1022,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1023,6 +1039,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1062,15 +1082,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1087,22 +1107,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

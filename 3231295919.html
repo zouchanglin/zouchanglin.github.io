@@ -259,24 +259,24 @@
     
 
 	
-		<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>可变参数，顾名思义即参数类型不确定，参数个数不确定(只是表面上个数不确定，实际上还是需要直接或者间接的将参数个数传入)。可变参数的应用场景非常多，例如：求n个数字之和，如果写成普通函数，那么将永远也实现不了这个函数的功能，如果写成可变参数的话就会变得非常简单，不至于出现代码冗余。我们最常用的printf()就是一个实现了可变参数的函数，这种函数基本上不可能写成常规函数，可变参数便成最佳选择！printf函数是个经典的可变参数的例子！</p>
+		<h2><span id="前言">前言</span></h2><p>可变参数，顾名思义即参数类型不确定，参数个数不确定(只是表面上个数不确定，实际上还是需要直接或者间接的将参数个数传入)。可变参数的应用场景非常多，例如：求n个数字之和，如果写成普通函数，那么将永远也实现不了这个函数的功能，如果写成可变参数的话就会变得非常简单，不至于出现代码冗余。我们最常用的printf()就是一个实现了可变参数的函数，这种函数基本上不可能写成常规函数，可变参数便成最佳选择！printf函数是个经典的可变参数的例子！</p>
 <a id="more"></a>
 
-<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>虽然我们对像printf()这样的库函数是如何实现可变参数原理不是很了解，但是我们可以从最简单的示例入手，接下来这个例子演示了如何利用可变参数求n个数字之和：</p>
+<h2><span id="示例">示例</span></h2><p>虽然我们对像printf()这样的库函数是如何实现可变参数原理不是很了解，但是我们可以从最简单的示例入手，接下来这个例子演示了如何利用可变参数求n个数字之和：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">get_add</span><span class="params">(<span class="keyword">int</span> num, ...)</span></span>&#123;</span><br><span class="line">	va_list arg;</span><br><span class="line">	va_start(arg, num);</span><br><span class="line">	<span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; num; i++)&#123;</span><br><span class="line">		ret += va_arg(arg, <span class="keyword">int</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret = get_add(<span class="number">3</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>);  <span class="comment">//第一个参数为后面的参数个数</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"ret = %d\n"</span>,ret);</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><h3 id="va-list"><a href="#va-list" class="headerlink" title="va_list"></a>va_list</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *  va_list;</span><br></pre></td></tr></table></figure>
+<h2><span id="分析">分析</span></h2><h3><span id="va_list">va_list</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *  va_list;</span><br></pre></td></tr></table></figure>
 
 <p>先看看 va_list 的类型,从源码中我们看到 va_list 其实是一个 char * 类型 ，这就像是可变参数列表的表头一样</p>
-<h3 id="va-start"><a href="#va-start" class="headerlink" title="va_start"></a>va_start</h3><p>接下来看看 va_start(arg,num) ，这里把上面得到的字符指针，后移动4个字节，就是跳过num的内存地址</p>
+<h3><span id="va_start">va_start</span></h3><p>接下来看看 va_start(arg,num) ，这里把上面得到的字符指针，后移动4个字节，就是跳过num的内存地址</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> va_start _crt_va_start</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _crt_va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _ADDRESSOF(v)   ( &amp;(v) )</span></span><br></pre></td></tr></table></figure>
 
 <p>通过 va_arg(arg, int) 是怎么拿到后面的参数的呢？ap表示可变参数指针，而t表示数据类型。使用 ((sizeof(n) + sizeof(int) - 1) &amp; ~(sizeof(int) - 1)) ，传入char，float，double等小于4字节的类型，都会返回4。相应的传入如果类型大小是,5,6,7的话，则返回8。即返回当前一组数中靠近4的倍数的值。 ( (t )((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) ) 该表达式先让指针ap加上4字节的大小，再把减去4字节大小处所对应的值返回。用t强制类型转换，再解引用,注意此处 t是传入参数的数据类型</p>
-<h3 id="va-end"><a href="#va-end" class="headerlink" title="va_end"></a>va_end</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> va_end _crt_va_end</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _crt_va_end(ap)      ( ap = (va_list)0 )</span></span><br></pre></td></tr></table></figure>
+<h3><span id="va_end">va_end</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> va_end _crt_va_end</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _crt_va_end(ap)      ( ap = (va_list)0 )</span></span><br></pre></td></tr></table></figure>
 
 <p>该语句把整型0强制转换为字符0,然后传给指针ap，由此可知将ap指向空！</p>
 <p>从第一个参数就可以访问到后面的参数，这比较依赖于函数栈帧，后面的参数先压栈，我们只需要得到最后一个压栈的参数得出参数的总体个数和类型，这样就可以逐个访问到后面的参数了，这就是可变参数的实现原理！</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>可变参数让函数的灵活性大大增加，避免了冗长的函数，也实现了普通函数所不能达到的功能，需要注意的是：有时候第一个参数显示的告诉了后面的参数个数和类型，有时候只是隐式的告诉参数个数和类型（就比如printf（）函数一样），在使用可变参数构造自己的函数的时候务必想清楚是否能根据第一个参数正确访问到后面的参数！</p>
+<h2><span id="结语">结语</span></h2><p>可变参数让函数的灵活性大大增加，避免了冗长的函数，也实现了普通函数所不能达到的功能，需要注意的是：有时候第一个参数显示的告诉了后面的参数个数和类型，有时候只是隐式的告诉参数个数和类型（就比如printf（）函数一样），在使用可变参数构造自己的函数的时候务必想清楚是否能根据第一个参数正确访问到后面的参数！</p>
 
 	
 
@@ -466,7 +466,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#va-list"><span class="toc-number">3.1.</span> <span class="toc-text">va_list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#va-start"><span class="toc-number">3.2.</span> <span class="toc-text">va_start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#va-end"><span class="toc-number">3.3.</span> <span class="toc-text">va_end</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语"><span class="toc-number">4.</span> <span class="toc-text">结语</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">va_list</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">va_start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">va_end</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">结语</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -625,18 +625,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -649,6 +637,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -657,15 +649,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -682,6 +682,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -789,15 +797,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -805,11 +805,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,11 +825,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -834,6 +838,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -885,10 +897,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -917,6 +925,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -937,6 +949,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -950,6 +966,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -989,15 +1009,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1014,22 +1034,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

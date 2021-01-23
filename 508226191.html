@@ -271,7 +271,7 @@
 <p><img src="https://img.zouchanglin.cn///20200202/nEb0SX6ve9rT.png" alt="img"></p>
 <p>根据列字段信息的特点，去用一种数据结构存储这些特点，这就是索引，如上图：我们需要把第二列的值通过二叉查找树存储起来，每一个节点都是以Key-Vlaue的形式存在，把值当做Key，把物理地址当做Value，那么只要根据二叉查找树的特性，很快就可以找到对应的物理地址，从而取出数据。</p>
 <p>数据库常见的索引有Btree、B+tree、Hash索引等等，今天主要探讨的是BTree和B+Tree</p>
-<h2 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B Tree"></a>B Tree</h2><p>先看看Btree的定义：</p>
+<h2><span id="b-tree">B Tree</span></h2><p>先看看Btree的定义：</p>
 <ul>
 <li>根节点至少包括两个孩子</li>
 <li>树中每个节点最多含有m个孩子( m&gt;=2 )</li>
@@ -288,7 +288,7 @@
 <p><img src="https://img.zouchanglin.cn///20200226/oIYNGCJNhnBE.png" alt="mark"></p>
 <p>由于B-Tree的特性，在B-Tree中按key检索数据的算法非常直观：首先从根节点进行二分查找，如果找到则返回对应节点的data，否则对相应区间的指针指向的节点递归进行查找，直到找到节点或找到null指针，前者查找成功，后者查找失败。 </p>
 <p>但是由于插入删除新的数据记录会破坏B-Tree的性质，因此在插入删除时，需要对树进行一个分裂、合并、转移等操作以保持B-Tree性质，在这里先不讨论插入删除新的数据记录的问题。</p>
-<h2 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h2><p>B+树是B树的变体， B-Tree有许多变种，其中最常见的是B+Tree，例如MySQL就普遍使用B+Tree实现其索引结构。 B+树的定义基本与B树相同，除了:</p>
+<h2><span id="btree">B+Tree</span></h2><p>B+树是B树的变体， B-Tree有许多变种，其中最常见的是B+Tree，例如MySQL就普遍使用B+Tree实现其索引结构。 B+树的定义基本与B树相同，除了:</p>
 <ul>
 <li>非叶子节点的子树指针与关键字个数相同</li>
 <li>非叶子节点的子树指针P[i]，指向关键字值[K[i]，K[i+1])的子树</li>
@@ -296,14 +296,14 @@
 <li>所有叶子节点均有一个链指针指向下一个叶子结点</li>
 </ul>
 <p><img src="https://img.zouchanglin.cn///20200226/QA1FKx5yBV04.png" alt="mark"></p>
-<h2 id="B-Tree更适合做索引"><a href="#B-Tree更适合做索引" class="headerlink" title="B+Tree更适合做索引"></a>B+Tree更适合做索引</h2><p><strong>1、B+Tree的磁盘读写代价更低</strong></p>
+<h2><span id="btree更适合做索引">B+Tree更适合做索引</span></h2><p><strong>1、B+Tree的磁盘读写代价更低</strong></p>
 <p>B+Tree内部并没有指向关键字具体信息的指针，也就是不存放数据，只存放索引信息，所能容纳的关键字数量也就越多，一次性读入内存需要查找的关键字也就越多，相对来说IO读写次数也就降低了</p>
 <p><strong>2、B+Tree的查询效率更加稳定</strong></p>
 <p>由于B+Tree内部节点并不是直接指向文件内容的节点，而只是叶子节点中关键字的索引，所以任何关键字的查找必须走一条从根节点到叶子节点的路，所有关键字查询的路径长度相同，导致每一个数据的查询效率也几乎是相同的，所以查询效率更稳定</p>
 <p><strong>3、B+Tree更有利于对数据库的扫描</strong></p>
 <p>B Tree在提高了磁盘IO性能的同时，并没有解决元素遍历的效率底下的问题，而B+Tree只需要遍历叶子节点就可以解决对全部关键字信息的扫描，所以对于数据库频繁使用的范围查询是非常有利的</p>
 <p>这也就是选择B+Tree作为主流索引数据结构的原因</p>
-<h2 id="Hash索引"><a href="#Hash索引" class="headerlink" title="Hash索引"></a>Hash索引</h2><p>有些数据库存储引擎还支持Hash这个数据结构作为其索引哈希结构，想必大家已经非常熟悉了，就是根据哈希函数的运算，那只需经过一次定位便能找到需要的数据，相比起B+Tree索引，需要从根节点到非叶子节点，再到叶子节点才能访问到我们需要的数据，这样可能会经过多次的IO访问，所以呢，哈希索引的查询效率理论上要高于B+Tree索引。</p>
+<h2><span id="hash索引">Hash索引</span></h2><p>有些数据库存储引擎还支持Hash这个数据结构作为其索引哈希结构，想必大家已经非常熟悉了，就是根据哈希函数的运算，那只需经过一次定位便能找到需要的数据，相比起B+Tree索引，需要从根节点到非叶子节点，再到叶子节点才能访问到我们需要的数据，这样可能会经过多次的IO访问，所以呢，哈希索引的查询效率理论上要高于B+Tree索引。</p>
 <p><img src="https://img.zouchanglin.cn///20200226/HKLsLzXXqLMw.png" alt="mark"></p>
 <p>但是Hash也是有非常明显的缺点的：</p>
 <p>1、仅仅能满足“=” 、“IN”，不能使用范围查询</p>
@@ -504,7 +504,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#B-Tree"><span class="toc-number">1.</span> <span class="toc-text">B Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B-Tree-1"><span class="toc-number">2.</span> <span class="toc-text">B+Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B-Tree更适合做索引"><span class="toc-number">3.</span> <span class="toc-text">B+Tree更适合做索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hash索引"><span class="toc-number">4.</span> <span class="toc-text">Hash索引</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">B Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">B+Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">B+Tree更适合做索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Hash索引</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -663,18 +663,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -687,6 +675,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -695,15 +687,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -720,6 +720,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -827,15 +835,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -843,11 +843,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -859,11 +863,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -872,6 +876,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -923,10 +935,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -955,6 +963,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -975,6 +987,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -988,6 +1004,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1027,15 +1047,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1052,22 +1072,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

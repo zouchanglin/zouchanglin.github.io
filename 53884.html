@@ -277,22 +277,22 @@
 <p><strong>4、支持自己的评论被别人回复后可以邮件通知</strong></p>
 <p><strong>5、支持评论后台管理系统，可以设置对应属性</strong></p>
 <p><strong>6、支持评论导出，且高度100%可恢复数据</strong></p>
-<h1 id="界面与UI设计"><a href="#界面与UI设计" class="headerlink" title="界面与UI设计"></a>界面与UI设计</h1><p><img src="https://img.zouchanglin.cn/20201127161834.png-zouchanglin.cn" alt=""></p>
+<h1><span id="界面与ui设计">界面与UI设计</span></h1><p><img src="https://img.zouchanglin.cn/20201127161834.png-zouchanglin.cn" alt></p>
 <p>第一版得UI就长这样了，整体看起来风格比较简单，这也是我比较喜欢的风格。在文章加载后评论者会获得一个随机的昵称与头像，点击昵称可以切换昵称和头像，不过都是随机的而已。然后就是三个输入框，邮箱输入框、评论内容、文章评分。所以从整体上分成了两部分，一部分是用户信息和评论框，另一部分是具体评论展示区域，只要思考清楚了那么就可以开始了。</p>
 <p>反正是做PC的Web端UI嘛，直接上ElementUI了，其实还真的挺适合的，尤其是在展示具体评论的时候按照时间线来展示最合适不过了，而且评分组件也很OK，挺好看的，以后有时间再拿其他的组件库试试！</p>
-<h1 id="交互流程设计"><a href="#交互流程设计" class="headerlink" title="交互流程设计"></a>交互流程设计</h1><p>首先用户要一打开博客就可以获得随机头像和昵称，并且要保持这个用户的状态，所以整体思路如下：</p>
-<p><img src="https://img.zouchanglin.cn/20201127170329.png-zouchanglin.cn" alt=""></p>
+<h1><span id="交互流程设计">交互流程设计</span></h1><p>首先用户要一打开博客就可以获得随机头像和昵称，并且要保持这个用户的状态，所以整体思路如下：</p>
+<p><img src="https://img.zouchanglin.cn/20201127170329.png-zouchanglin.cn" alt></p>
 <p>首先对于一个从未打开过某篇博客的页面的用户来说，在浏览器端存储的clientID肯定是没有这个字段的，直接可以判定为新用户，所以去请求后台给一个ClientID，并且分配随机的昵称和头像，把这个用户信息给落库，即使用户点击了刷新昵称和头像，但是ClientID并没有变，用户信息就这样得以保存了下来。如果浏览器已经存在了ClientID，那么数据库里面也应该有对应的用户信息，所以就直接请求后台拿到用户数据即可。</p>
 <p>第二个问题，后端怎么知道哪些评论是哪些博客的呢？其实这里使用了一个比较简略的方式，那就是直接根据URL来判断，相同的URL肯定是同一篇博客，但是这样做也是有缺陷的，就是在本地调试的时候是localhost:8080开头，但是远程是zouchanglin.cn，这样在本地的测试数据就不会展示在正式的博客评论上。而且zouchanglin.cn和zouchanglin.gitee.io的评论并不相通，其实这是不合理的，应该把域名和剩余部分URL分离出来，这样通用性才会更好，这一点以后有时间了我会进行重构。</p>
 <p>第三个问题，用户设置了邮箱那么怎么才能回复的时候相互通知呢？其实对这样的Client端设计，只要在用户填写了邮箱后，进行评论或者回复的操作，都可以设置邮箱，因为这样可以从很大程度上减少业务复杂度，只要你的邮箱出现变更，你的下一次评论想到得到通知的时候肯定会填写新的邮箱，这样就可以直接更新整个用户的邮箱，非常方便。</p>
-<h1 id="数据库设计"><a href="#数据库设计" class="headerlink" title="数据库设计"></a>数据库设计</h1><p>数据库使用MySQL 8.0。首先是设计客户端信息表，也就是代表了用户信息(主要包括了客户端ID、Email、昵称、创建时间、头像、客户端OS等信息，其他字段等有需要再添加就OK)：</p>
-<p><img src="https://img.zouchanglin.cn/20201127172526.png-zouchanglin.cn" alt="">然后是文章信息表（主要字段是文章URL、文章评论数），一条数据对应着一条博客，其中还有博客的评论总计数目，其实完全可以拿URL做主键，但是为了以后改动方便，目前还是决定自定义生成主键比较好一些。</p>
+<h1><span id="数据库设计">数据库设计</span></h1><p>数据库使用MySQL 8.0。首先是设计客户端信息表，也就是代表了用户信息(主要包括了客户端ID、Email、昵称、创建时间、头像、客户端OS等信息，其他字段等有需要再添加就OK)：</p>
+<p><img src="https://img.zouchanglin.cn/20201127172526.png-zouchanglin.cn" alt>然后是文章信息表（主要字段是文章URL、文章评论数），一条数据对应着一条博客，其中还有博客的评论总计数目，其实完全可以拿URL做主键，但是为了以后改动方便，目前还是决定自定义生成主键比较好一些。</p>
 <p>然后是评论表，在这里我把评论分成了两种类型，一种是文章评论（主要字段是文章ID、comment_parent是无效字段、评论客户端ID、评论内容、点赞数、创建时间、文章评分），也就是直接在文章下面的评论；另一种是子评论（主要字段是所在的文章评论ID、评论客户端ID、评论内容、点赞数、回复的客户端ID、创建时间），这个就是文章评论的回复而已，当然无论是文章评论的子评论还是子评论的回复评论都被当作子评论来存储，所有分了两张表。唯一不同之处在于文章评论会存储自己是那一篇文章下的评论，而子评论会存储自己位于哪一条文章评论底下，而且会存储回复的Client是谁，所以还存储了reply_client这个字段。</p>
-<h1 id="后端系统设计"><a href="#后端系统设计" class="headerlink" title="后端系统设计"></a>后端系统设计</h1><p>点击此处直到后端代码仓库：<a href="https://gitee.com/zouchanglin/comment-box" target="_blank" rel="noopener">https://gitee.com/zouchanglin/comment-box</a></p>
+<h1><span id="后端系统设计">后端系统设计</span></h1><p>点击此处直到后端代码仓库：<a href="https://gitee.com/zouchanglin/comment-box" target="_blank" rel="noopener">https://gitee.com/zouchanglin/comment-box</a></p>
 <p>后端系统还是基于SpringBoot搭建的后端服务，其实用的都是比较常见的技术，SpringMVC、SpringDataJPA等，平时用的比较少的就是邮件发送服务，其实使用spring-boot-starter-mail来发送邮件简直不要太容易。需要注意的就是后端的跨域问题，需要配置一个允许跨域的配置类，但是后面部署的时候推荐使用Nginx同域部署，跨域问题也就不存在了，这是我目前最喜欢的方案。</p>
-<h1 id="项目部署问题"><a href="#项目部署问题" class="headerlink" title="项目部署问题"></a>项目部署问题</h1><h2 id="1、云服务购买"><a href="#1、云服务购买" class="headerlink" title="1、云服务购买"></a>1、云服务购买</h2><p>还是比较推荐腾讯云88/年，百度云太贵、阿里云用过了。腾讯云学生及还是可以买一买的，1核2G的配置，其实完全够用了。刚开始脑子抽搐了买个天翼云，虽然才77元/年，但是难用的要死，而且最高速度也就130K/s，这谁受得了这么慢的速度。还是宁愿多花几块钱买个好一点的呀，毕竟大厂靠谱。<strong>千万别买天翼云呀，千万别买天翼云呀，千万别买天翼云呀</strong>，重要的事情说三遍。</p>
-<h2 id="2、解决HTTPS问题"><a href="#2、解决HTTPS问题" class="headerlink" title="2、解决HTTPS问题"></a>2、解决HTTPS问题</h2><p>整个代码其实都已经写好了，就剩一个部署了，但是由于我的网站全是HTTPS的，所以评论系统也必须是HTTPS的，否则由于浏览器的安全策略会导致评论模块无法加载。于是乎通过域名解析了一个二级域名comment.zouchanglin.cn到服务器上，为这个二级域名申请一个证书，这样就完全OK了。</p>
-<h2 id="3、Nginx部署"><a href="#3、Nginx部署" class="headerlink" title="3、Nginx部署"></a>3、Nginx部署</h2><p>前端项目打包后直接使用Nginx部署一下，顺便把HTTPS证书配置一下，这样前端项目就可以HTTPS访问了，那么后端呢？不可能有<code>https://comment.zouchanglin.cn:8080</code>这种URL存在吧，所以还是通过Nginx很轻松的解决了这个问题，只要通过Nginx配置一个代理，100%搞定，而且彻底、一劳永逸地解决了跨域问题，并且共享域名，还利用反向代理隐藏了后端地址，比较方便集中管理。</p>
+<h1><span id="项目部署问题">项目部署问题</span></h1><h2><span id="1-云服务购买">1、云服务购买</span></h2><p>还是比较推荐腾讯云88/年，百度云太贵、阿里云用过了。腾讯云学生及还是可以买一买的，1核2G的配置，其实完全够用了。刚开始脑子抽搐了买个天翼云，虽然才77元/年，但是难用的要死，而且最高速度也就130K/s，这谁受得了这么慢的速度。还是宁愿多花几块钱买个好一点的呀，毕竟大厂靠谱。<strong>千万别买天翼云呀，千万别买天翼云呀，千万别买天翼云呀</strong>，重要的事情说三遍。</p>
+<h2><span id="2-解决https问题">2、解决HTTPS问题</span></h2><p>整个代码其实都已经写好了，就剩一个部署了，但是由于我的网站全是HTTPS的，所以评论系统也必须是HTTPS的，否则由于浏览器的安全策略会导致评论模块无法加载。于是乎通过域名解析了一个二级域名comment.zouchanglin.cn到服务器上，为这个二级域名申请一个证书，这样就完全OK了。</p>
+<h2><span id="3-nginx部署">3、Nginx部署</span></h2><p>前端项目打包后直接使用Nginx部署一下，顺便把HTTPS证书配置一下，这样前端项目就可以HTTPS访问了，那么后端呢？不可能有<code>https://comment.zouchanglin.cn:8080</code>这种URL存在吧，所以还是通过Nginx很轻松的解决了这个问题，只要通过Nginx配置一个代理，100%搞定，而且彻底、一劳永逸地解决了跨域问题，并且共享域名，还利用反向代理隐藏了后端地址，比较方便集中管理。</p>
 <p>所以我个人还是非常推荐采用Nginx将前后端同域部署的，Nginx真的帮了大忙！</p>
 <p>后端项目application.yml配置如下，其实就是访问路径都变成了<code>http://127.0.0.1:8080/api/....</code></p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">    <span class="attr">servlet:</span></span><br><span class="line">        <span class="attr">context-path:</span> <span class="string">/api</span></span><br></pre></td></tr></table></figure>
@@ -303,7 +303,7 @@
 <p>Nginx的配置文件如下：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">user</span>  root;</span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line">	</span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">gzip</span>  <span class="literal">on</span>;</span><br><span class="line">	</span><br><span class="line">    <span class="comment"># HTTPS server</span></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">443</span> ssl;</span><br><span class="line">        <span class="attribute">server_name</span>  comment.zpuchanglin.cn;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 配置证书</span></span><br><span class="line">        <span class="attribute">ssl_certificate</span>      /opt/ssl_file/cn_chain.crt;</span><br><span class="line">        <span class="attribute">ssl_certificate_key</span>  /opt/ssl_file/cn_key.key;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">ssl_session_cache</span>    shared:SSL:<span class="number">1m</span>;</span><br><span class="line">        <span class="attribute">ssl_session_timeout</span>  <span class="number">5m</span>;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">ssl_ciphers</span>  HIGH:!aNULL:!MD5;</span><br><span class="line">        <span class="attribute">ssl_prefer_server_ciphers</span>  <span class="literal">on</span>;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">location</span> / &#123;           </span><br><span class="line">            <span class="attribute">root</span> /root/dist;</span><br><span class="line">			<span class="attribute">try_files</span> <span class="variable">$uri</span> <span class="variable">$uri</span>/ /index.html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">		<span class="attribute">location</span><span class="regexp"> ^~/api/</span> &#123;</span><br><span class="line">			<span class="attribute">proxy_pass</span> http://127.0.0.1:8080;</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="需要改进之处"><a href="#需要改进之处" class="headerlink" title="需要改进之处"></a>需要改进之处</h1><p>集思广益，大家也可以评论留言…</p>
+<h1><span id="需要改进之处">需要改进之处</span></h1><p>集思广益，大家也可以评论留言…</p>
 <ul>
 <li>支持后台管理</li>
 <li>支持自适应移动端(宽高度需调整)</li>
@@ -512,7 +512,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#界面与UI设计"><span class="toc-number">1.</span> <span class="toc-text">界面与UI设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#交互流程设计"><span class="toc-number">2.</span> <span class="toc-text">交互流程设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#数据库设计"><span class="toc-number">3.</span> <span class="toc-text">数据库设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#后端系统设计"><span class="toc-number">4.</span> <span class="toc-text">后端系统设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#项目部署问题"><span class="toc-number">5.</span> <span class="toc-text">项目部署问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、云服务购买"><span class="toc-number">5.1.</span> <span class="toc-text">1、云服务购买</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、解决HTTPS问题"><span class="toc-number">5.2.</span> <span class="toc-text">2、解决HTTPS问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、Nginx部署"><span class="toc-number">5.3.</span> <span class="toc-text">3、Nginx部署</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#需要改进之处"><span class="toc-number">6.</span> <span class="toc-text">需要改进之处</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">界面与UI设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">交互流程设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">数据库设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">后端系统设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">项目部署问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">1、云服务购买</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.2.</span> <span class="toc-text">2、解决HTTPS问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.3.</span> <span class="toc-text">3、Nginx部署</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">需要改进之处</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -671,18 +671,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -695,6 +683,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -703,15 +695,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -728,6 +728,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -835,15 +843,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -851,11 +851,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,11 +871,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,6 +884,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -931,10 +943,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -963,6 +971,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -983,6 +995,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -996,6 +1012,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1035,15 +1055,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1060,22 +1080,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

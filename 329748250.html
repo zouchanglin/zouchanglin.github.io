@@ -271,23 +271,23 @@
 <p>Netty是一个异步事件驱动的网络应用程序框架，用于快速开发可维护的高性能协议服务器和客户端。上面是官方对Netty的解释，<a href="https://netty.io/" target="_blank" rel="noopener">https://netty.io/</a> 这是它的官网。 最近由于看了京东的JSF服务框架后，发现京东的RPC框架是基于Netty实现的，于是自己想通过Netty去实现一个高效轻量级的RPC框架，开启我的Netty实战之路吧。</p>
 <a id="more"></a>
 
-<h2 id="Netty简介"><a href="#Netty简介" class="headerlink" title="Netty简介"></a>Netty简介</h2><p>很多并发量很高的场景，传统的BIO服务器基本上都会因为资源耗尽而挂掉，因为来一个请求就会开启一个线程，然后很多请求同时涌来就意味着需要开很多线程来处理这些请求，但是这些线程并不都是活动的，大量的线程在等待IO就绪。于是乎想到了NIO，有没有遇到过自动手动编写NIO服务器的难堪呢，Java提供的NIO的API晦涩难用，简单的场景暂能应付，但是遇到复杂场景时编码的复杂度呈直线上涨，Netty解决了这个问题，基于Netty我们轻松实现NIO或者AIO模式的服务器，简化编码，可以使我们非常快速的开发出高性能的服务器。</p>
+<h2><span id="netty简介">Netty简介</span></h2><p>很多并发量很高的场景，传统的BIO服务器基本上都会因为资源耗尽而挂掉，因为来一个请求就会开启一个线程，然后很多请求同时涌来就意味着需要开很多线程来处理这些请求，但是这些线程并不都是活动的，大量的线程在等待IO就绪。于是乎想到了NIO，有没有遇到过自动手动编写NIO服务器的难堪呢，Java提供的NIO的API晦涩难用，简单的场景暂能应付，但是遇到复杂场景时编码的复杂度呈直线上涨，Netty解决了这个问题，基于Netty我们轻松实现NIO或者AIO模式的服务器，简化编码，可以使我们非常快速的开发出高性能的服务器。</p>
 <p>可是很多人会问了，Web服务器不是有Tomcat嘛，而且Tomcat现在也支持了NIO，为什么需要Netty呢？Netty又能做什么呢？我们都知道，Tomcat是一个Servlet容器，支持Servlet规范，而且Tomcat是一个HTTP(s)协议的Web服务器。Netty与Tomcat不同之处就在于Netty可以自定义任何协议，因为Netty可以以自定义方式对字节流进行编码和解码，不然还怎么能叫做网络应用程序框架呢？</p>
-<h2 id="BIO、NIO与AIO"><a href="#BIO、NIO与AIO" class="headerlink" title="BIO、NIO与AIO"></a>BIO、NIO与AIO</h2><p>关于这几种IO其实要理解下起来并不难，首先看看五种IO模型吧:<a href="https://zouchanglin.cn/2020/02/29/26607628.html">《通俗理解五种IO模型》</a>，这是我之前写的一篇博客，结合下图更容易理解：</p>
+<h2><span id="bio-nio与aio">BIO、NIO与AIO</span></h2><p>关于这几种IO其实要理解下起来并不难，首先看看五种IO模型吧:<a href="https://zouchanglin.cn/2020/02/29/26607628.html">《通俗理解五种IO模型》</a>，这是我之前写的一篇博客，结合下图更容易理解：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200726/JR4FgPxLAqQ8.png" alt="mark"></p>
-<h2 id="Reactor线程模型"><a href="#Reactor线程模型" class="headerlink" title="Reactor线程模型"></a>Reactor线程模型</h2><p>Netty的线程模型是基于Reactor模型的。Reactor是一种设计模式，基于事件驱动，然后通过事件分发器，将事件分发给对应的处理器进行处理。该设计模式可以分三个角色：</p>
+<h2><span id="reactor线程模型">Reactor线程模型</span></h2><p>Netty的线程模型是基于Reactor模型的。Reactor是一种设计模式，基于事件驱动，然后通过事件分发器，将事件分发给对应的处理器进行处理。该设计模式可以分三个角色：</p>
 <ul>
 <li>Acceptor：负责接收Accep事件，然后将连接注册成读事件，传递给dispatch</li>
 <li>Dispatch：负责分发事件，如果是接收到Accept事件，则分发给Acceptor。如果是Read事件，将请求交给ReadHandler处理；</li>
 <li>Handler：负责处理具体事件；</li>
 </ul>
-<h3 id="1、单线程模型"><a href="#1、单线程模型" class="headerlink" title="1、单线程模型"></a>1、单线程模型</h3><p>单线程模型：所有的IO操作都由同一个NIO线程处理的。Reactor单线程模型，是指所有的 I/O 操作都在同一个NIO 线程上面完成的，此时NIO线程职责包括：接收新建连接请求、读写操作等。 </p>
+<h3><span id="1-单线程模型">1、单线程模型</span></h3><p>单线程模型：所有的IO操作都由同一个NIO线程处理的。Reactor单线程模型，是指所有的 I/O 操作都在同一个NIO 线程上面完成的，此时NIO线程职责包括：接收新建连接请求、读写操作等。 </p>
 <p><img src="https://img.zouchanglin.cn/blog/20200726/QiFeioSIbcC4.png" alt="mark"></p>
 <p>单线程的缺点很明显，一个线程需要执行处理所有的accept、read、decode、process、encode、send事件，处理成百上千的链路时性能上无法支撑；单线程模型是串行的，当其中某个Handler阻塞时， 其它Client的Handler得不到执行，无法接收新的Client请求，而且单线程模型不能充分利用多核资源。</p>
-<h3 id="2、多线程模型"><a href="#2、多线程模型" class="headerlink" title="2、多线程模型"></a>2、多线程模型</h3><p>多线程模型：单线程接受TCP连接，由一组NIO线程处理IO操作</p>
+<h3><span id="2-多线程模型">2、多线程模型</span></h3><p>多线程模型：单线程接受TCP连接，由一组NIO线程处理IO操作</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200726/4jwgWBGNOLXF.png" alt="mark"></p>
 <p>对于多线程模型，有专门一个Reactor单线程用于监听服务端ServerSocketChannel，接收客户端的TCP连接请求；而网络IO的读/写操作等由一个worker reactor线程池负责，由线程池中的NIO线程负责监听SocketChannel事件，进行消息的读取、解码、编码和发送。一个NIO线程可以同时处理N条链路，但是一个链路只注册在一个NIO线程上处理，防止发生并发操作问题。</p>
-<h3 id="3、主从多线程模型"><a href="#3、主从多线程模型" class="headerlink" title="3、主从多线程模型"></a>3、主从多线程模型</h3><p>主从线程模型：一组线程池接受请求，—组线程池处理IO操作，这也是Netty官方比较推荐的线程模型：</p>
+<h3><span id="3-主从多线程模型">3、主从多线程模型</span></h3><p>主从线程模型：一组线程池接受请求，—组线程池处理IO操作，这也是Netty官方比较推荐的线程模型：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200726/5V55Sn1fPxsJ.png" alt="mark"></p>
 <p>在绝大多数场景下，Reactor多线程模型都可以满足性能需求；但是在极个别特殊场景中，一个NIO线程负责监听和处理所有的客户端连接可能会存在性能问题。 </p>
 <p>于是服务端用于接收客户端连接的不再是一个单独的Reactor线程，而是一个Boss Reactor线程池；服务端启用多个ServerSocketChannel监听不同端口时，每个ServerSocketChannel的监听工作可以由线程池中的一个NIO线程完成。</p>
@@ -484,7 +484,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Netty简介"><span class="toc-number">1.</span> <span class="toc-text">Netty简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BIO、NIO与AIO"><span class="toc-number">2.</span> <span class="toc-text">BIO、NIO与AIO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reactor线程模型"><span class="toc-number">3.</span> <span class="toc-text">Reactor线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、单线程模型"><span class="toc-number">3.1.</span> <span class="toc-text">1、单线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、多线程模型"><span class="toc-number">3.2.</span> <span class="toc-text">2、多线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、主从多线程模型"><span class="toc-number">3.3.</span> <span class="toc-text">3、主从多线程模型</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Netty简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">BIO、NIO与AIO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Reactor线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、单线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、多线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">3、主从多线程模型</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -643,18 +643,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -667,6 +655,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -675,15 +667,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -700,6 +700,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -807,15 +815,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -823,11 +823,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,11 +843,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -852,6 +856,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -903,10 +915,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -935,6 +943,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -955,6 +967,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -968,6 +984,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1007,15 +1027,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1032,22 +1052,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

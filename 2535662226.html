@@ -261,7 +261,7 @@
     
 
 	
-		<h2 id="0、浏览器跨域问题"><a href="#0、浏览器跨域问题" class="headerlink" title="0、浏览器跨域问题"></a>0、浏览器跨域问题</h2><p>看到浏览器报Access-Control-Allow-Origin毫无疑问了，看来是跨域问题</p>
+		<h2><span id="0-浏览器跨域问题">0、浏览器跨域问题</span></h2><p>看到浏览器报Access-Control-Allow-Origin毫无疑问了，看来是跨域问题</p>
 <p><img src="https://img.zouchanglin.cn///20200202/2n3Iw8bl3nIN.png" alt="mark"></p>
 <p>CORS是一种访问机制，英文全称是Cross-Origin Resource Sharing，即我们常说的跨域资源共享，通过在服务器端设置响应头，把发起跨域的原始域名添加到Access-Control-Allow-Origin 即可</p>
 <p>浏览器端：发送AJAX请求前需设置通信对象XHR的withCredentials 属性为true。</p>
@@ -273,11 +273,11 @@
 <p><code>Access-Control-Allow-Headers</code>  表示跨域请求的头部的允许范围。</p>
 <p><code>Access-Control-Expose-Headers</code> 表示允许暴露哪些头部信息给客户端。</p>
 <p><code>Access-Control-Max-Age</code> 表示预检请求的最大缓存时间。</p>
-<h2 id="1、返回新的CorsFilter"><a href="#1、返回新的CorsFilter" class="headerlink" title="1、返回新的CorsFilter"></a>1、返回新的CorsFilter</h2><p>这是一种全局跨域的方式</p>
+<h2><span id="1-返回新的corsfilter">1、返回新的CorsFilter</span></h2><p>这是一种全局跨域的方式</p>
 <p>在任意配置类，返回一个新的CorsFilter Bean，并添加映射路径和具体的CORS配置信息。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> edu.xpu.cors.config;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GlobalCorsConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CorsFilter <span class="title">corsFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1.添加CORS配置信息</span></span><br><span class="line">        CorsConfiguration config = <span class="keyword">new</span> CorsConfiguration();</span><br><span class="line">          <span class="comment">//放行哪些原始域</span></span><br><span class="line">          config.addAllowedOrigin(<span class="string">"*"</span>);</span><br><span class="line">          <span class="comment">//是否发送Cookie信息</span></span><br><span class="line">          config.setAllowCredentials(<span class="keyword">true</span>);</span><br><span class="line">          <span class="comment">//放行哪些原始域(请求方式)</span></span><br><span class="line">          config.addAllowedMethod(<span class="string">"*"</span>);</span><br><span class="line">          <span class="comment">//放行哪些原始域(头部信息)</span></span><br><span class="line">          config.addAllowedHeader(<span class="string">"*"</span>);</span><br><span class="line">          <span class="comment">//暴露哪些头部信息（因为跨域访问默认不能获取全部头部信息）</span></span><br><span class="line">          config.addExposedHeader(<span class="string">"*"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.添加映射路径</span></span><br><span class="line">        UrlBasedCorsConfigurationSource configSource = <span class="keyword">new</span> UrlBasedCorsConfigurationSource();</span><br><span class="line">        configSource.registerCorsConfiguration(<span class="string">"/**"</span>, config);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//3.返回新的CorsFilter.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CorsFilter(configSource);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="2、重写WebMvcConfigurer"><a href="#2、重写WebMvcConfigurer" class="headerlink" title="2、重写WebMvcConfigurer"></a>2、重写WebMvcConfigurer</h2><p>在任意配置类，返回一个新的WebMvcConfigurer Bean，并重写其提供的跨域请求处理的接口，目的是添加映射路径和具体的CORS配置信息。</p>
+<h2><span id="2-重写webmvcconfigurer">2、重写WebMvcConfigurer</span></h2><p>在任意配置类，返回一个新的WebMvcConfigurer Bean，并重写其提供的跨域请求处理的接口，目的是添加映射路径和具体的CORS配置信息。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> edu.xpu.cors.config;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GlobalCorsConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> WebMvcConfigurer <span class="title">corsConfigurer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> WebMvcConfigurer() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="comment">//重写父类提供的跨域请求处理的接口</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCorsMappings</span><span class="params">(CorsRegistry registry)</span> </span>&#123;</span><br><span class="line">                <span class="comment">//添加映射路径</span></span><br><span class="line">                registry.addMapping(<span class="string">"/**"</span>)</span><br><span class="line">                        <span class="comment">//放行哪些原始域</span></span><br><span class="line">                        .allowedOrigins(<span class="string">"*"</span>)</span><br><span class="line">                        <span class="comment">//是否发送Cookie信息</span></span><br><span class="line">                        .allowCredentials(<span class="keyword">true</span>)</span><br><span class="line">                        <span class="comment">//放行哪些原始域(请求方式)</span></span><br><span class="line">                        .allowedMethods(<span class="string">"GET"</span>,<span class="string">"POST"</span>, <span class="string">"PUT"</span>, <span class="string">"DELETE"</span>)</span><br><span class="line">                        <span class="comment">//放行哪些原始域(头部信息)</span></span><br><span class="line">                        .allowedHeaders(<span class="string">"*"</span>)</span><br><span class="line">                        <span class="comment">//暴露哪些头部信息（因为跨域访问默认不能获取全部头部信息）</span></span><br><span class="line">                        .exposedHeaders(<span class="string">"Header1"</span>, <span class="string">"Header2"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
@@ -470,7 +470,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0、浏览器跨域问题"><span class="toc-number">1.</span> <span class="toc-text">0、浏览器跨域问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1、返回新的CorsFilter"><span class="toc-number">2.</span> <span class="toc-text">1、返回新的CorsFilter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、重写WebMvcConfigurer"><span class="toc-number">3.</span> <span class="toc-text">2、重写WebMvcConfigurer</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">0、浏览器跨域问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">1、返回新的CorsFilter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">2、重写WebMvcConfigurer</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -629,18 +629,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -653,6 +641,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -661,15 +653,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -686,6 +686,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -793,15 +801,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -809,11 +809,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -825,11 +829,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -838,6 +842,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -889,10 +901,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -921,6 +929,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -941,6 +953,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -954,6 +970,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -993,15 +1013,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1018,22 +1038,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

@@ -278,13 +278,13 @@
     
 
 	
-		<h2 id="再谈谈数据库优化"><a href="#再谈谈数据库优化" class="headerlink" title="再谈谈数据库优化"></a>再谈谈数据库优化</h2><p>如图，MySQL优化呢无非就是从这几个方面入手，第一是数据库设计，第二是SQL优化！但是随着数据表的增长，数据会越来越多，通过MySQL优化是可以解决部分性能问题的，但是一台服务器的资源是有限的，无论怎么优化始终无法解决MySQL的性能瓶颈问题。</p>
+		<h2><span id="再谈谈数据库优化">再谈谈数据库优化</span></h2><p>如图，MySQL优化呢无非就是从这几个方面入手，第一是数据库设计，第二是SQL优化！但是随着数据表的增长，数据会越来越多，通过MySQL优化是可以解决部分性能问题的，但是一台服务器的资源是有限的，无论怎么优化始终无法解决MySQL的性能瓶颈问题。</p>
 <p><img src="https://img.zouchanglin.cn///20200202/m0IRlVYIt0Rj.png" alt="mark"></p>
 <a id="more"></a>
 
 <p>举一个经典的例子，一个卡车无论再怎么优化发动机，优化传动结构，优化材料设计都没办法拉着金字塔这种沉重的负载，这种情况就属于MySQL的瓶颈，无论如何优化，只要数据量达到一定的规模，一台MySQL肯定是撑不住的：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/ppDlRXjccWon.png" alt="mark"></p>
-<h2 id="如何用架构进行优化"><a href="#如何用架构进行优化" class="headerlink" title="如何用架构进行优化"></a>如何用架构进行优化</h2><p>对于千万级的表如何进行优化呢？见下图，加索引，优化SQL都是之前的优化方法，至于不解决问题，把问题留给后面的程序员这种做法最好还是放弃吧，啊哈哈，其中加缓存和数据库拆分是很常见的解决方案，下面说一下如何通过MySQL主从复制来解决MySQL的性能瓶颈问题：<br><img src="https://img.zouchanglin.cn///20200202/P2t01iDe4FxQ.png" alt="mark"></p>
+<h2><span id="如何用架构进行优化">如何用架构进行优化</span></h2><p>对于千万级的表如何进行优化呢？见下图，加索引，优化SQL都是之前的优化方法，至于不解决问题，把问题留给后面的程序员这种做法最好还是放弃吧，啊哈哈，其中加缓存和数据库拆分是很常见的解决方案，下面说一下如何通过MySQL主从复制来解决MySQL的性能瓶颈问题：<br><img src="https://img.zouchanglin.cn///20200202/P2t01iDe4FxQ.png" alt="mark"></p>
 <p>主从复制（又叫做读写分离），主从复制的目的：<strong>分散压力</strong></p>
 <p>为什么要读写分离呢？如果对数据库的读操作和写操作都在同一个数据库服务器中进行，业务系统性能会降低，所以需要进行读写分离，通常情况下遵循二八原则，即20%的时候进行写操作，80%的时候进行读操作：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/2fA0uB87LiLf.png" alt="mark"></p>
@@ -295,7 +295,7 @@
 <p>所以主从复制的简单原理图如下：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/0iVx6NtTi19n.png" alt="mark"></p>
 <p>一台MySQL作为写服务器，另外几台MySQL作为读服务器，这样便完成了分散压力，为了几台服务器之间的数据一致，所以需要做一个数据库主从复制，即读写分离！</p>
-<h2 id="Docker实现MySQL主从复制"><a href="#Docker实现MySQL主从复制" class="headerlink" title="Docker实现MySQL主从复制"></a>Docker实现MySQL主从复制</h2><p>那么如何使用Docker实现MySQL主从复制呢？我先在Docker里面跑了两个MySQL：</p>
+<h2><span id="docker实现mysql主从复制">Docker实现MySQL主从复制</span></h2><p>那么如何使用Docker实现MySQL主从复制呢？我先在Docker里面跑了两个MySQL：</p>
 <p>Docker命令是：<code>docker run -p 3306:3306 --restart=always --name mysql_master -v /root/mysql/conf:/etc/mysql/conf.d -v /root/mysql/logs:/logs -v /root/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql</code></p>
 <p><img src="https://img.zouchanglin.cn///20200202/cmIEm35mrwFD.png" alt="mark"></p>
 <p>接着查看一下两台机器的IP地址</p>
@@ -315,7 +315,7 @@
 <p><img src="https://img.zouchanglin.cn///20200202/MjvmOyPjvO8G.png" alt="mark"></p>
 <p>接下来测试一下，主机新建数据库，从机自动同步，主机新建表，从机自动同步，主机插入数据，从机自动同步：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/OVao7zPEMYeC.png" alt="mark"></p>
-<h2 id="主从复制的原理"><a href="#主从复制的原理" class="headerlink" title="主从复制的原理"></a>主从复制的原理</h2><p>上面已经完成了MySQL的主从复制，接下来看看主从复制究竟是怎么实现的？</p>
+<h2><span id="主从复制的原理">主从复制的原理</span></h2><p>上面已经完成了MySQL的主从复制，接下来看看主从复制究竟是怎么实现的？</p>
 <p><img src="https://img.zouchanglin.cn///20200202/LJgSe0fMUAbb.png" alt="mark"></p>
 <p>上面的图其实很能说明问题，主机的数据发生更改的时候会产生一个BinaryLog文件，然后从机的IO线程会去取这个二进制文件，取回来之后会将主机的BinaryLog拷贝到中继日志中，SQL线程直接通过中继日志来改变自身的数据。那么说到这里可能很多人会有疑问，不是说主机用来写，从机用来读吗？为啥还是需要从机的写操作，事实上这并不是写操作，而且直接修改数据的操作，举一个很简单的例子，如果是普通的修改数据，会首先找到要修改的数据的二进制位置，这样才能发生更改，如果直接告诉你在哪个位置要修改成什么数据，会不会更快呢？很明显，主从复制是非常能提交数据库系统的效率的。</p>
 <p>一个小坑：如果主机上面的并发量特别高的话，从机同步数据的能力会下降，甚至一个数据插入到主机几小时后才能同步到从机，这种情况的根本原因就是从机的IO线程是单线程的，如果配置为多线程就能解决这种问题！</p>
@@ -512,7 +512,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#再谈谈数据库优化"><span class="toc-number">1.</span> <span class="toc-text">再谈谈数据库优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何用架构进行优化"><span class="toc-number">2.</span> <span class="toc-text">如何用架构进行优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker实现MySQL主从复制"><span class="toc-number">3.</span> <span class="toc-text">Docker实现MySQL主从复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主从复制的原理"><span class="toc-number">4.</span> <span class="toc-text">主从复制的原理</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">再谈谈数据库优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">如何用架构进行优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Docker实现MySQL主从复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">主从复制的原理</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -671,18 +671,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -695,6 +683,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -703,15 +695,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -728,6 +728,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -835,15 +843,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -851,11 +851,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,11 +871,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,6 +884,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -931,10 +943,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -963,6 +971,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -983,6 +995,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -996,6 +1012,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1035,15 +1055,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1060,22 +1080,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

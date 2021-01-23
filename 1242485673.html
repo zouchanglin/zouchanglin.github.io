@@ -273,10 +273,10 @@
     
 
 	
-		<h1 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h1><h2 id="什么是Dockerfile"><a href="#什么是Dockerfile" class="headerlink" title="什么是Dockerfile"></a>什么是Dockerfile</h2><p>Dockerfile是用来构建Docker镜像的构建文件，是由一系列命令和参数构成的脚本。通俗的理解，和Maven一样，只需要写好pom文件就可以定义整个工程的构建，DockerFile是一样的，通过这个脚本可以构建出自己想要的容器！</p>
+		<h1><span id="dockerfile">Dockerfile</span></h1><h2><span id="什么是dockerfile">什么是Dockerfile</span></h2><p>Dockerfile是用来构建Docker镜像的构建文件，是由一系列命令和参数构成的脚本。通俗的理解，和Maven一样，只需要写好pom文件就可以定义整个工程的构建，DockerFile是一样的，通过这个脚本可以构建出自己想要的容器！</p>
 <a id="more"></a>
 
-<h2 id="Dockerfile构建步骤"><a href="#Dockerfile构建步骤" class="headerlink" title="Dockerfile构建步骤"></a>Dockerfile构建步骤</h2><ul>
+<h2><span id="dockerfile构建步骤">Dockerfile构建步骤</span></h2><ul>
 <li>编写Dockerfile文件</li>
 <li>docker build</li>
 <li>docker run</li>
@@ -301,7 +301,7 @@
 <p>1 Dockerfile，需要定义一个Dockerfile，Dockerfile定义了进程需要的一切东西。Dockerfile涉及的内容包括执行代码或者是文件、环境变量、依赖包、运行时环境、动态链接库、操作系统的发行版、服务进程和内核进程(当应用进程需要和系统服务和内核进程打交道，这时需要考虑如何设计namespace的权限控制)等等;</p>
 <p>2 Docker镜像，在用Dockerfile定义一个文件之后，docker build时会产生一个Docker镜像，当运行 Docker镜像时，会真正开始提供服务;</p>
 <p>3 Docker容器，容器是直接提供服务的。</p>
-<h2 id="DockerFile体系结构"><a href="#DockerFile体系结构" class="headerlink" title="DockerFile体系结构"></a>DockerFile体系结构</h2><p>FROM</p>
+<h2><span id="dockerfile体系结构">DockerFile体系结构</span></h2><p>FROM</p>
 <p>基础镜像，当前新镜像是基于哪个镜像的</p>
 <p>MAINTAINER</p>
 <p>镜像维护者的姓名和邮箱地址</p>
@@ -329,8 +329,8 @@
 <p>ONBUILD</p>
 <p>当构建一个被继承的Dockerfile时运行命令，父镜像在被子继承后父镜像的onbuild被触发</p>
 <p><img src="https://img.zouchanglin.cn///20200202/4G3sNG4z3bIW.png" alt="mark"></p>
-<h2 id="Dockerfile案例"><a href="#Dockerfile案例" class="headerlink" title="Dockerfile案例"></a>Dockerfile案例</h2><p>Docker Hub 中 99% 的镜像都是通过在 base 镜像中安装和配置需要的软件构建出来的</p>
-<h3 id="一、自定义一个CentOS"><a href="#一、自定义一个CentOS" class="headerlink" title="一、自定义一个CentOS"></a>一、自定义一个CentOS</h3><p><img src="https://img.zouchanglin.cn///20200202/LluLKUas0LJW.png" alt="mark"></p>
+<h2><span id="dockerfile案例">Dockerfile案例</span></h2><p>Docker Hub 中 99% 的镜像都是通过在 base 镜像中安装和配置需要的软件构建出来的</p>
+<h3><span id="一-自定义一个centos">一、自定义一个CentOS</span></h3><p><img src="https://img.zouchanglin.cn///20200202/LluLKUas0LJW.png" alt="mark"></p>
 <p>现在我们需要自定义一个镜像来支持vim、ifconfig、并且登录后的默认路径改做修改</p>
 <p>编写Dockerfile：</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从标准centos构建</span></span><br><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义作者信息</span></span><br><span class="line"><span class="keyword">MAINTAINER</span> tim&lt;<span class="number">15291418231</span>@<span class="number">163</span>.com&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个变量</span></span><br><span class="line"><span class="keyword">ENV</span> mypath /tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置登录后的落脚点</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> <span class="variable">$mypath</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装vim和net-tools工具</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install vim</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install net-tools</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> <span class="built_in">echo</span> <span class="variable">$mypath</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"success----------ok"</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> /bin/bash</span></span><br></pre></td></tr></table></figure>
@@ -343,7 +343,7 @@
 <p><img src="https://img.zouchanglin.cn///20200202/GtAujGTT6x7Y.png" alt="mark"></p>
 <p>看看构建过程是否是如前面所说，这也证实了镜像的分层：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/7VMhR0cwrDMI.png" alt="mark"></p>
-<h3 id="二、制作可以查询IP信息的镜像"><a href="#二、制作可以查询IP信息的镜像" class="headerlink" title="二、制作可以查询IP信息的镜像"></a>二、制作可以查询IP信息的镜像</h3><p>Dockerfile 中可以有多个 CMD 指令，但只有最后一个生效，CMD 会被 docker run 之后的参数替换，这是什么意思呢？</p>
+<h3><span id="二-制作可以查询ip信息的镜像">二、制作可以查询IP信息的镜像</span></h3><p>Dockerfile 中可以有多个 CMD 指令，但只有最后一个生效，CMD 会被 docker run 之后的参数替换，这是什么意思呢？</p>
 <p><img src="https://img.zouchanglin.cn///20200202/2iJF1mRar04N.png" alt="mark"></p>
 <p>Tomcat 并没有运行起来，就是因为Docker的run命令后面加了参数！所以ENTRYPOINT命令就更好用了，ENTRYPOINT不会覆盖，只是追加命令！</p>
 <p>首先解释一下curl命令</p>
@@ -360,7 +360,7 @@
 
 <p>果然，在ENTRYPOINT指令下加参数是可用的</p>
 <p><img src="https://img.zouchanglin.cn///20200202/wjt4KANNXyVr.png" alt="mark"></p>
-<h3 id="三、ONBUILD指令的使用"><a href="#三、ONBUILD指令的使用" class="headerlink" title="三、ONBUILD指令的使用"></a>三、ONBUILD指令的使用</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"father build finished! 886"</span></span></span><br></pre></td></tr></table></figure>
+<h3><span id="三-onbuild指令的使用">三、ONBUILD指令的使用</span></h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"father build finished! 886"</span></span></span><br></pre></td></tr></table></figure>
 
 <p>在父镜像构建完成的时候执行ONBUILD的指令，执行构建，构建出父镜像为mycentos:1.6</p>
 <p><img src="https://img.zouchanglin.cn///20200202/9lizdqu6hQq1.png" alt="mark"></p>
@@ -369,7 +369,7 @@
 
 <p><img src="https://img.zouchanglin.cn///20200202/SXWQq58ChX0v.png" alt="mark"></p>
 <p>可以看到，在构建父镜像完成后执行了ONBUILD的后面的内容！</p>
-<h3 id="四、自定义构建Tomcat"><a href="#四、自定义构建Tomcat" class="headerlink" title="四、自定义构建Tomcat"></a>四、自定义构建Tomcat</h3><p>新建一个文件夹，里面包含（apache-tomcat-9.0.8.tar.gz、jdk-8u171-linux-x64.tar.gz、a.txt）</p>
+<h3><span id="四-自定义构建tomcat">四、自定义构建Tomcat</span></h3><p>新建一个文件夹，里面包含（apache-tomcat-9.0.8.tar.gz、jdk-8u171-linux-x64.tar.gz、a.txt）</p>
 <p>编写Dockerfile</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span>         centos</span><br><span class="line"><span class="keyword">MAINTAINER</span>    tim&lt;<span class="number">15291418231</span>@<span class="number">163</span>.com&gt;</span><br><span class="line"><span class="comment">#把宿主机当前上下文的a.txt拷贝到容器/usr/local/路径下</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> a.txt /usr/<span class="built_in">local</span>/cincontainer.txt</span></span><br><span class="line"><span class="comment">#把java与tomcat添加到容器中</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash"> jdk-8u171-linux-x64.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash"> apache-tomcat-9.0.8.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="comment">#安装vim编辑器</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install vim</span></span><br><span class="line"><span class="comment">#设置工作访问时候的WORKDIR路径，登录落脚点</span></span><br><span class="line"><span class="keyword">ENV</span> MYPATH /usr/local</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> <span class="variable">$MYPATH</span></span></span><br><span class="line"><span class="comment">#配置java与tomcat环境变量</span></span><br><span class="line"><span class="keyword">ENV</span> JAVA_HOME /usr/local/jdk1.<span class="number">8.0</span>_171</span><br><span class="line"><span class="keyword">ENV</span> CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar</span><br><span class="line"><span class="keyword">ENV</span> CATALINA_HOME /usr/local/apache-tomcat-<span class="number">9.0</span>.<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> CATALINA_BASE /usr/local/apache-tomcat-<span class="number">9.0</span>.<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin</span><br><span class="line"><span class="comment">#容器运行时监听的端口</span></span><br><span class="line"><span class="keyword">EXPOSE</span>  <span class="number">8080</span></span><br><span class="line"><span class="comment">#启动时运行tomcat</span></span><br><span class="line"><span class="comment"># ENTRYPOINT ["/usr/local/apache-tomcat-9.0.8/bin/startup.sh" ]</span></span><br><span class="line"><span class="comment"># CMD ["/usr/local/apache-tomcat-9.0.8/bin/catalina.sh","run"]</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> /usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/bin/startup.sh &amp;&amp; tail -F /usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/bin/logs/catalina.out</span></span><br></pre></td></tr></table></figure>
 
@@ -380,7 +380,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 --name mytomcat9 -v /tim/mydockerfile/tomcat9/<span class="built_in">test</span>:/usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/webapps/<span class="built_in">test</span> -v /tim/mydockerfile/tomcat9/tomcat9logs/:/usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/logs --privileged=<span class="literal">true</span> mytomcat9</span><br></pre></td></tr></table></figure>
 
 <p>其实这条命令虽然看起来很长，但是无非是启动镜像并且添加了两个数据卷，privileged 是Docker挂载主机目录Docker访问出现cannot open directory .: Permission denied的时候需要加上的参数！</p>
-<h2 id="Dockerfile的总结"><a href="#Dockerfile的总结" class="headerlink" title="Dockerfile的总结"></a>Dockerfile的总结</h2><p><img src="https://img.zouchanglin.cn///20200202/uukKNghPmbDw.png" alt="mark"></p>
+<h2><span id="dockerfile的总结">Dockerfile的总结</span></h2><p><img src="https://img.zouchanglin.cn///20200202/uukKNghPmbDw.png" alt="mark"></p>
 
 	
 
@@ -570,7 +570,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Dockerfile"><span class="toc-number">1.</span> <span class="toc-text">Dockerfile</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Dockerfile"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile构建步骤"><span class="toc-number">1.2.</span> <span class="toc-text">Dockerfile构建步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DockerFile体系结构"><span class="toc-number">1.3.</span> <span class="toc-text">DockerFile体系结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile案例"><span class="toc-number">1.4.</span> <span class="toc-text">Dockerfile案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、自定义一个CentOS"><span class="toc-number">1.4.1.</span> <span class="toc-text">一、自定义一个CentOS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、制作可以查询IP信息的镜像"><span class="toc-number">1.4.2.</span> <span class="toc-text">二、制作可以查询IP信息的镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、ONBUILD指令的使用"><span class="toc-number">1.4.3.</span> <span class="toc-text">三、ONBUILD指令的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、自定义构建Tomcat"><span class="toc-number">1.4.4.</span> <span class="toc-text">四、自定义构建Tomcat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile的总结"><span class="toc-number">1.5.</span> <span class="toc-text">Dockerfile的总结</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Dockerfile</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">Dockerfile构建步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">DockerFile体系结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">Dockerfile案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.1.</span> <span class="toc-text">一、自定义一个CentOS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.2.</span> <span class="toc-text">二、制作可以查询IP信息的镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.3.</span> <span class="toc-text">三、ONBUILD指令的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.4.</span> <span class="toc-text">四、自定义构建Tomcat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">Dockerfile的总结</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -729,18 +729,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -753,6 +741,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -761,15 +753,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -786,6 +786,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -893,15 +901,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -909,11 +909,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -925,11 +929,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -938,6 +942,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -989,10 +1001,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1021,6 +1029,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1041,6 +1053,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1054,6 +1070,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1093,15 +1113,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1118,22 +1138,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

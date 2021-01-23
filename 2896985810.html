@@ -262,13 +262,13 @@
     
 
 	
-		<h2 id="性能常见分析步骤"><a href="#性能常见分析步骤" class="headerlink" title="性能常见分析步骤"></a>性能常见分析步骤</h2><p>1、慢查询的开启并捕获 </p>
+		<h2><span id="性能常见分析步骤">性能常见分析步骤</span></h2><p>1、慢查询的开启并捕获 </p>
 <p>2、explain+慢 SQL 分析</p>
 <p>3、show profile 查询 SQL 在 MySQL 服务器里面的执行细节和生命周期情况</p>
 <p>4、SQL数据库服务器的参数调优。</p>
 <a id="more"></a>
 
-<h2 id="小表驱动大表"><a href="#小表驱动大表" class="headerlink" title="小表驱动大表"></a>小表驱动大表</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++)&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++)&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">5</span>; j++)&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2><span id="小表驱动大表">小表驱动大表</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++)&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++)&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">5</span>; j++)&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>用上面的代码举例子，如果是第一种for，那么就比如我们只建立了5次链接，而第二个for建立了1000次链接，毫无疑问，建立少的链接次数才是更优的选择！</p>
 <p>优化原则：小表驱动大表，即小的数据集驱动大的数据集。</p>
@@ -284,7 +284,7 @@
 <p>1、exists（subquery）只返回true或者false，因此子査询中的 select * 也可以是 select 1 或其他，官方说法是实际执行时会忽略 SELECT 清单，因此没有区别</p>
 <p>2、exists 子查询的实际执行过程可能经过了忧化而不是我们理解上的逐条对比，如果担忧效率问題，可进行实际检验以确定是否有效率问题</p>
 <p>3、exists 子査询往往也可以用条件表达式、其他子査询或者 JOIN 来替代，何种最优需要具体回题具体分析</p>
-<h2 id="order-by优化"><a href="#order-by优化" class="headerlink" title="order by优化"></a>order by优化</h2><p>ORDER BY子句，尽量使用Index方式排序，避免使用FileSort方式排序</p>
+<h2><span id="order-by优化">order by优化</span></h2><p>ORDER BY子句，尽量使用Index方式排序，避免使用FileSort方式排序</p>
 <p>建表 + 插入数据 + 新建索引示例：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> day_07;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tblA(</span><br><span class="line">    <span class="comment">#id int primary key not null auto_increment,</span></span><br><span class="line">    age <span class="built_in">int</span>,</span><br><span class="line">    birth <span class="built_in">TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line">);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tblA(age, birth) <span class="keyword">VALUES</span> (<span class="number">22</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tblA(age, birth) <span class="keyword">VALUES</span> (<span class="number">23</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tblA(age, birth) <span class="keyword">VALUES</span> (<span class="number">24</span>, <span class="keyword">NOW</span>());</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_A_ageBirth <span class="keyword">ON</span> tblA(age, birth);</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> tblA;</span><br></pre></td></tr></table></figure>
 
@@ -296,12 +296,12 @@
 <p>1、order by语句使用索引最左前列，这其实就是最佳左前缀法则</p>
 <p>2、使用where子句与order by子句条件列组合满足索引最左前列，这同样也是符合最佳左前缀法则</p>
 <p>所以，尽可能在索引列上完成排序操作，遵照索引建的最佳左前缀</p>
-<h3 id="FileSort两种排序"><a href="#FileSort两种排序" class="headerlink" title="FileSort两种排序"></a>FileSort两种排序</h3><p>如果不在索引列上，filesort有两种算法：双路排序和单路排序</p>
+<h3><span id="filesort两种排序">FileSort两种排序</span></h3><p>如果不在索引列上，filesort有两种算法：双路排序和单路排序</p>
 <p>双路排序：MySQL4.1 之前是使用双路排序，字面意思是两次扫描磁盘，最终得到数据。读取行指针和orderby列，对他们进行排序，然后扫描已经排序好的列表，按照列表中的值重新从列表中读取对应的数据传输。磁盘IO是非常耗时的，从磁盘取排序字段，在buffer进行排序，再从磁盘取其他字段。所以这就是两次磁盘扫描，也就是双路排序。</p>
 <p>取一批数据，要对磁盘进行两次扫描，IO很耗时的，所以在mysql4.1之后，出现了第二张改进的算法，就是单路排序。</p>
 <p>单路排序：从磁盘读取查询需要的所有列，按照orderby列在buffer对它们进行排序，然后扫描排序后的列表进行输出，它的效率更快一些，避免了第二次读取数据，并且把随机IO变成顺序IO，但是它会使用更多的空间，因为它把每一行都保存在内存中了。但是这种情况就害怕遇到一次拿数据拿不完的情况，那这样的话需要拿取多次数据，也就是多次IO，还不如以前的双路算法！</p>
-<h3 id="两种排序的坑"><a href="#两种排序的坑" class="headerlink" title="两种排序的坑"></a>两种排序的坑</h3><p>在 sort_buffer 中，方法B比方法A要多占用很多空间，因为方法B是把所有字段都取出，所以有可能取出的数据的总大小超出了sort_buffer的容量，导致每次只能取 sort_buffer容量大小的数据，进行排序（创建 tmp 文件，多路合并），排完再去取sort_buffer容量大小， 再排…从而多次IO，本来想省一次IO操作，反而导致了大量的O 操作，反而得不偿失</p>
-<h3 id="order-by优化策略"><a href="#order-by优化策略" class="headerlink" title="order by优化策略"></a>order by优化策略</h3><p>优化策略：增大sort_buffer_size参数的设置、增大max_length_for_sort_data参数的设置</p>
+<h3><span id="两种排序的坑">两种排序的坑</span></h3><p>在 sort_buffer 中，方法B比方法A要多占用很多空间，因为方法B是把所有字段都取出，所以有可能取出的数据的总大小超出了sort_buffer的容量，导致每次只能取 sort_buffer容量大小的数据，进行排序（创建 tmp 文件，多路合并），排完再去取sort_buffer容量大小， 再排…从而多次IO，本来想省一次IO操作，反而导致了大量的O 操作，反而得不偿失</p>
+<h3><span id="order-by优化策略">order by优化策略</span></h3><p>优化策略：增大sort_buffer_size参数的设置、增大max_length_for_sort_data参数的设置</p>
 <p>1、order by时 select * 是一个大忌，只Query 需要的字段，这点非常重要。在这里的影响是：</p>
 <ul>
 <li><p>当 Query 的字段大小总和小于 max_ length_for_ sort data 而且排序字段不是 TEXT|BLOB 类型时，会用改进后的算法——单路排序，否则用老算法一一多路排序</p>
@@ -313,7 +313,7 @@
 <p>不管用哪种算法，提高这个参数都会提高效率，当然，要根据系统的能力去提高，因为这个参数是针对每个进程的</p>
 <p>3、尝试提高 max_ length_for_sort_data</p>
 <p>提高这个参数，会增加用改进算法的概率。但是如果设的太高，数据总容量超出 sort_buffer_size 的概率就增大，明显症状是高的磁盘IO活动和低的处理器使用率。</p>
-<h3 id="order-by优化总结"><a href="#order-by优化总结" class="headerlink" title="order by优化总结"></a>order by优化总结</h3><p>Mysq 两种排序方式：文件排序或扫描有序索引排序， Mysql 能为排序与查询使用相同的索引</p>
+<h3><span id="order-by优化总结">order by优化总结</span></h3><p>Mysq 两种排序方式：文件排序或扫描有序索引排序， Mysql 能为排序与查询使用相同的索引</p>
 <p>KEY a_b_c (a, b, c）</p>
 <p>Order by 能使用索引最左前缀</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">order by a</span><br><span class="line"></span><br><span class="line">order by a, b</span><br><span class="line"></span><br><span class="line">order by a, b, c</span><br><span class="line"></span><br><span class="line">order by a DESC, b DESC, c DESC</span><br></pre></td></tr></table></figure>
@@ -326,7 +326,7 @@
 
 
 
-<h2 id="group-by优化"><a href="#group-by优化" class="headerlink" title="group by优化"></a>group by优化</h2><p>group by的优化和order by如出一辙， group by实质是先排序后进行分组，遵照索引建的最佳左前缀。当无法使用索引列，增大max_length_for_sort_data参数的设置或者增大sort_buffer_size参数的设置。where高于having，能写在where限定的条件就不要去having限定了。</p>
+<h2><span id="group-by优化">group by优化</span></h2><p>group by的优化和order by如出一辙， group by实质是先排序后进行分组，遵照索引建的最佳左前缀。当无法使用索引列，增大max_length_for_sort_data参数的设置或者增大sort_buffer_size参数的设置。where高于having，能写在where限定的条件就不要去having限定了。</p>
 
 	
 
@@ -516,7 +516,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#性能常见分析步骤"><span class="toc-number">1.</span> <span class="toc-text">性能常见分析步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小表驱动大表"><span class="toc-number">2.</span> <span class="toc-text">小表驱动大表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#order-by优化"><span class="toc-number">3.</span> <span class="toc-text">order by优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FileSort两种排序"><span class="toc-number">3.1.</span> <span class="toc-text">FileSort两种排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#两种排序的坑"><span class="toc-number">3.2.</span> <span class="toc-text">两种排序的坑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#order-by优化策略"><span class="toc-number">3.3.</span> <span class="toc-text">order by优化策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#order-by优化总结"><span class="toc-number">3.4.</span> <span class="toc-text">order by优化总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#group-by优化"><span class="toc-number">4.</span> <span class="toc-text">group by优化</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">性能常见分析步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">小表驱动大表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">order by优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">FileSort两种排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">两种排序的坑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">order by优化策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">order by优化总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">group by优化</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -675,18 +675,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -699,6 +687,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -707,15 +699,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -732,6 +732,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,15 +847,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -855,11 +855,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -871,11 +875,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -884,6 +888,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -935,10 +947,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -967,6 +975,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -987,6 +999,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1000,6 +1016,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1039,15 +1059,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1064,22 +1084,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

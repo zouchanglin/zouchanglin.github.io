@@ -273,26 +273,26 @@
 		<p>Android常用数据存储方式有SharedPreferences存储数据(虽然还是属于内部存储)、文件存储（内部，外部)、SQLite数据库存储、ContentProvider存储数据、网络存储数据等几种。本篇博客主要是介绍Shared Preference的原理与使用，区分内部与外部文件存储，以及它们的使用方式。那就从清除缓存与清除数据到底清除了什么这个问题开始吧！</p>
 <a id="more"></a>
 
-<h1 id="内部存储-InternalStorage"><a href="#内部存储-InternalStorage" class="headerlink" title="内部存储 InternalStorage"></a>内部存储 InternalStorage</h1><p>在Android开发中，内存 Memory、内部存储 InternalStorage、外部存储 ExternalStorage这三者有啥区别呢？ 在我们打开手机设置 -&gt; 应用管理，随便选择一个软件，然后会看到一个是清除缓存的按钮，一个清除数据的按钮，那么当点击清除缓存的时候清除的是哪里的数据？当点击清除数据的时候又是清除的哪里的数据呢？ 打开Device File Explorer会看到如下目录结构：</p>
-<p><img src="https://img.zouchanglin.cn/20201202163454.png-zouchanglin.cn" alt=""></p>
+<h1><span id="内部存储-internalstorage">内部存储 InternalStorage</span></h1><p>在Android开发中，内存 Memory、内部存储 InternalStorage、外部存储 ExternalStorage这三者有啥区别呢？ 在我们打开手机设置 -&gt; 应用管理，随便选择一个软件，然后会看到一个是清除缓存的按钮，一个清除数据的按钮，那么当点击清除缓存的时候清除的是哪里的数据？当点击清除数据的时候又是清除的哪里的数据呢？ 打开Device File Explorer会看到如下目录结构：</p>
+<p><img src="https://img.zouchanglin.cn/20201202163454.png-zouchanglin.cn" alt></p>
 <p>其实在使用SharedPreferenced的时候，将数据持久化存储于本地，其实就是存在这个文件中的xml文件里，App里边的数据库文件就存储于databases文件夹中，还有我们的普通数据存储在files中，缓存文件存储在cache文件夹中，存储在这里的文件我们都称之为内部存储。 </p>
 <p>下面来说说使用内部存储的代表——SharedPreferences，SharedPreferences也是在开发中使用的比较多的一种方案，用于存放一些类似登录的配置等信息。</p>
-<h1 id="SharedPreferences"><a href="#SharedPreferences" class="headerlink" title="SharedPreferences"></a>SharedPreferences</h1><p>1、用于存放一些类似登录的配置信息<br>2、本质上是一个xml文件，是通过类似键值对的方式存放信息<br>3、位于程序私有目录中，即data/data/[packageName]/shared_prefs</p>
+<h1><span id="sharedpreferences">SharedPreferences</span></h1><p>1、用于存放一些类似登录的配置信息<br>2、本质上是一个xml文件，是通过类似键值对的方式存放信息<br>3、位于程序私有目录中，即data/data/[packageName]/shared_prefs</p>
 <p>SharedPreferences的操作模式<br>1、MODE_APPEND：追加方式存储<br>2、MODE_PRIVATE：私有方式存储，其他应用无法访问<br>3、MODE_WORLD_READABLE：可被其他应用读取<br>4、MODE_WORLD_WRITEABLE：可被其他应用写入</p>
 <p>SharedPreferences使用方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 取数据</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_main);</span><br><span class="line">    etUserName = findViewById(R.id.et_username);</span><br><span class="line">    etPassword = findViewById(R.id.et_password);</span><br><span class="line">    SharedPreferences login_info = getSharedPreferences(<span class="string">"login_info"</span>, MODE_PRIVATE);</span><br><span class="line">	<span class="comment">// 第一个参数为Key，第二个是默认值</span></span><br><span class="line">    etUserName.setText(login_info.getString(<span class="string">"user_name"</span>, <span class="string">""</span>));</span><br><span class="line">    etPassword.setText(login_info.getString(<span class="string">"password"</span>, <span class="string">""</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 存储据</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">userLogin</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    String userName = etUserName.getText().toString();</span><br><span class="line">    String password = etPassword.getText().toString();</span><br><span class="line">    <span class="keyword">if</span>(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password))&#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"输入不完整"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存储输入的信息</span></span><br><span class="line">    <span class="comment">// 1、拿到SharedPreference对象</span></span><br><span class="line">    SharedPreferences loginInfoSP = getSharedPreferences(<span class="string">"login_info"</span>, MODE_PRIVATE);</span><br><span class="line">    <span class="comment">// 2、获取Editor对象</span></span><br><span class="line">    SharedPreferences.Editor editor = loginInfoSP.edit();</span><br><span class="line">    <span class="comment">// 3、通过Editor存储数据</span></span><br><span class="line">    editor.putString(<span class="string">"user_name"</span>, userName);</span><br><span class="line">    editor.putString(<span class="string">"password"</span>, password);</span><br><span class="line">    <span class="comment">// 3、调用提交方法</span></span><br><span class="line">    <span class="keyword">boolean</span> commit = editor.commit();</span><br><span class="line">    Log.i(TAG, <span class="string">"userLogin: commitRet = "</span> + commit);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 校验登录结果</span></span><br><span class="line">    <span class="keyword">if</span>(!(<span class="string">"admin"</span>.equals(userName) &amp;&amp; <span class="string">"123456"</span>.equals(password)))&#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"用户名或密码错误"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"登录成功"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">        <span class="comment">// TODO ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>所以其实不难发现，SharedPreference存取数据非常简单，存数据只需要四步，取数据只要两步。</p>
-<p><img src="https://img.zouchanglin.cn/20201201220518.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201201220518.png-zouchanglin.cn" alt></p>
 <p>通过查看设备上的文件也可以发现，SharedPreference本质上就是一个xml文件而已，是通过类似键值对的方式存放信息。</p>
-<h1 id="获得内部存储目录"><a href="#获得内部存储目录" class="headerlink" title="获得内部存储目录"></a>获得内部存储目录</h1><p>Context.getFileDir()，获取/data/data/包名/files<br>Context.getCacheDir()，获取/data/data/包名/cache，下面通过代码演示一下：</p>
-<p><img src="https://img.zouchanglin.cn/20201202174912.png-zouchanglin.cn" alt=""></p>
+<h1><span id="获得内部存储目录">获得内部存储目录</span></h1><p>Context.getFileDir()，获取/data/data/包名/files<br>Context.getCacheDir()，获取/data/data/包名/cache，下面通过代码演示一下：</p>
+<p><img src="https://img.zouchanglin.cn/20201202174912.png-zouchanglin.cn" alt></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveToFileDir</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    File filesDir = MainActivity.<span class="keyword">this</span>.getFilesDir();</span><br><span class="line">    File myFileTxt = <span class="keyword">new</span> File(filesDir, <span class="string">"myFile.txt"</span>);</span><br><span class="line">    <span class="keyword">try</span> (BufferedWriter writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(myFileTxt)))&#123;</span><br><span class="line">        writer.write(<span class="string">"这是内部存储文件目录的文件内容！"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveToCacheDir</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    File cacheDir = MainActivity.<span class="keyword">this</span>.getCacheDir();</span><br><span class="line">    File myCacheTxt = <span class="keyword">new</span> File(cacheDir, <span class="string">"myCache.txt"</span>);</span><br><span class="line">    <span class="keyword">try</span> (BufferedWriter writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(myCacheTxt)))&#123;</span><br><span class="line">        writer.write(<span class="string">"这是内部存储缓存文件内容！"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="外部存储ExternalStorage"><a href="#外部存储ExternalStorage" class="headerlink" title="外部存储ExternalStorage"></a>外部存储ExternalStorage</h1><p>ExternalStorage是我们平时操作最多的，外部存储一般就是我们上面看到的storage或者mnt文件夹，不同厂家有可能不一样，请见下图：</p>
-<p><img src="https://img.zouchanglin.cn/20201202164854.png-zouchanglin.cn" alt=""></p>
+<h1><span id="外部存储externalstorage">外部存储ExternalStorage</span></h1><p>ExternalStorage是我们平时操作最多的，外部存储一般就是我们上面看到的storage或者mnt文件夹，不同厂家有可能不一样，请见下图：</p>
+<p><img src="https://img.zouchanglin.cn/20201202164854.png-zouchanglin.cn" alt></p>
 <p>一般来说，在storage文件夹中有一个sdcard文件夹，这个文件夹中的文件又分为两类，一类是公有目录，还有一类是私有目录，其中的公有目录有九大类，比如DCIM、DOWNLOAD等这种系统为我们创建的文件夹，私有目录就是Android这个文件夹，这个文件夹打开之后里边有一个data文件夹，打开这个data文件夹，里面有许多应用包名组成的文件夹，那些就是对应的应用程序的私有外部存储区域(Android/data/应用包名)。比如浏览器的私有外部存储空间：</p>
-<p><img src="https://img.zouchanglin.cn/20201202165236.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201202165236.png-zouchanglin.cn" alt></p>
 <p>下面是一个存储与读取的例子：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:padding</span>=<span class="string">"20dp"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">".MainActivity"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/et_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:minLines</span>=<span class="string">"10"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/btn_save"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:onClick</span>=<span class="string">"save"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">"保存"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:onClick</span>=<span class="string">"read"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/btn_read"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">"读取"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/tv_show"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tools:text</span>=<span class="string">"Content Text！"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -302,15 +302,15 @@
 <p>manifest文件中别忘记声明权限：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 在SDCard中创建与删除文件的权限 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.READ_EXTERNAL_STORAGE"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20201202160950.gif" alt=""></p>
-<h1 id="获得外部存储目录"><a href="#获得外部存储目录" class="headerlink" title="获得外部存储目录"></a>获得外部存储目录</h1><p>通过Environment.getExternalStorageDirectory()，我们很容易获得外部存储的根目录，通过拼接，很容易拿到DOWNLOAD、DCIM、MUSIC、MOVIES、LOST.DIR等公有目录，如何拿到外部存储的私有目录呢？</p>
+<p><img src="https://img.zouchanglin.cn/20201202160950.gif" alt></p>
+<h1><span id="获得外部存储目录">获得外部存储目录</span></h1><p>通过Environment.getExternalStorageDirectory()，我们很容易获得外部存储的根目录，通过拼接，很容易拿到DOWNLOAD、DCIM、MUSIC、MOVIES、LOST.DIR等公有目录，如何拿到外部存储的私有目录呢？</p>
 <p>Context.getExternalFilesDir(String type)，通常用于需要长时间保存的数据，获取到SDCard/Android/data/包名/files/目录。</p>
 <p>Context.getExternalCacheDir()，通常用于需要临时保存的数据，获取到SDCard/Android/data/包名/cache/目录。下面演示一下向私有空间和缓存空间分别存入一个文件：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 存储一个字符串到私有外部存储空间 Downloads</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveToPrivate</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    File externalPrivateDir = MainActivity.<span class="keyword">this</span>.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);</span><br><span class="line">    File myDownloadTxt = <span class="keyword">new</span> File(externalPrivateDir, <span class="string">"myDownload.txt"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        BufferedWriter writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(myDownloadTxt));</span><br><span class="line">        writer.write(<span class="string">"这是下载目录的文件内容！"</span>);</span><br><span class="line">        writer.close();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 存储一个字符串到私有外部存储空间 cache</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveToCache</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    File externalPrivateDir = MainActivity.<span class="keyword">this</span>.getExternalCacheDir();</span><br><span class="line">    File myCacheTxt = <span class="keyword">new</span> File(externalPrivateDir, <span class="string">"myCache.txt"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        BufferedWriter writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(myCacheTxt));</span><br><span class="line">        writer.write(<span class="string">"这是缓存文件内容！"</span>);</span><br><span class="line">        writer.close();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20201202172820.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201202172820.png-zouchanglin.cn" alt></p>
 <p>所以总结一下就是：要获取外部存储就公用空间就用Environment，获取外部存储私有空间就用Context对象。</p>
-<h1 id="清除缓存与清除数据"><a href="#清除缓存与清除数据" class="headerlink" title="清除缓存与清除数据"></a>清除缓存与清除数据</h1><blockquote>
+<h1><span id="清除缓存与清除数据">清除缓存与清除数据</span></h1><blockquote>
 <p>清除缓存</p>
 </blockquote>
 <p>反射调用接口：PackageManager.deleteApplicationCacheFiles</p>
@@ -327,7 +327,7 @@
 <p>2、清除mnt/sdcard/Android/data/应用包名</p>
 <p>3、清除mnt/sdcard/Android/media/应用包名</p>
 <p>4、清除应用包名对应的App所有运行时权限的授权</p>
-<h1 id="总结一下内部存储与外部存储"><a href="#总结一下内部存储与外部存储" class="headerlink" title="总结一下内部存储与外部存储"></a>总结一下内部存储与外部存储</h1><p><img src="https://img.zouchanglin.cn/20201202180249.png-zouchanglin.cn" alt=""></p>
+<h1><span id="总结一下内部存储与外部存储">总结一下内部存储与外部存储</span></h1><p><img src="https://img.zouchanglin.cn/20201202180249.png-zouchanglin.cn" alt></p>
 
 	
 
@@ -525,7 +525,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内部存储-InternalStorage"><span class="toc-number">1.</span> <span class="toc-text">内部存储 InternalStorage</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SharedPreferences"><span class="toc-number">2.</span> <span class="toc-text">SharedPreferences</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#获得内部存储目录"><span class="toc-number">3.</span> <span class="toc-text">获得内部存储目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#外部存储ExternalStorage"><span class="toc-number">4.</span> <span class="toc-text">外部存储ExternalStorage</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#获得外部存储目录"><span class="toc-number">5.</span> <span class="toc-text">获得外部存储目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#清除缓存与清除数据"><span class="toc-number">6.</span> <span class="toc-text">清除缓存与清除数据</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结一下内部存储与外部存储"><span class="toc-number">7.</span> <span class="toc-text">总结一下内部存储与外部存储</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">内部存储 InternalStorage</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">SharedPreferences</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">获得内部存储目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">外部存储ExternalStorage</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">获得外部存储目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">清除缓存与清除数据</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">总结一下内部存储与外部存储</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -684,18 +684,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -708,6 +696,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -716,15 +708,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -741,6 +741,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -848,15 +856,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -864,11 +864,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,11 +884,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -893,6 +897,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -944,10 +956,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -976,6 +984,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -996,6 +1008,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1009,6 +1025,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1048,15 +1068,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1073,22 +1093,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

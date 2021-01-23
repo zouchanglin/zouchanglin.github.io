@@ -279,13 +279,13 @@
 
 <p>Java 更快的发布周期意味着开发者将不需要像以前一样为主要发布版本望眼欲穿。这也意味着开发者将可能跳过 Java 9和它的不成熟的模块化功能，只需要再等待 6 个月就可以迎来新版本，这将可能解决开发者的纠结。反正Java11已经支持正式商用了，Java 11将会获得Oracle提供的长期支持服务，直至2026年的9月。所以想用上稳定的、最新的JDK还是选择Java11吧，我将在后面的文章记述Java11的新特性以及Java14的部分新特性。</p>
 <p>在这个网站上可以看到JavaSE9的新特性 <a href="https://docs.oracle.com/javase/9/whatsnew/" target="_blank" rel="noopener">《Overview of What’s New in JDK 9》</a>  </p>
-<h1 id="JEP与JSR"><a href="#JEP与JSR" class="headerlink" title="JEP与JSR"></a>JEP与JSR</h1><p>JEP(JDK Enhancement Proposals)：jdk 改进提案，每当需要有新的设想时候, JEP可以在JCP(java community Process)之前或者同时提出非正式的规范(specification)，被正式认可的JEP正式写进JDK的发展路线图并分配版本号。<br>JSR(Java Specification Requests): java 规范提案，新特性的规范出现在这一阶段，是指向JCP(Java Community Process)提出新增一个标准化技术规范的正式请求。请求可以来自于小组/项目、JEP、JCP成员或者Java社区(community)成员的提案，每个Java版本都由相应的JSR支持。</p>
+<h1><span id="jep与jsr">JEP与JSR</span></h1><p>JEP(JDK Enhancement Proposals)：jdk 改进提案，每当需要有新的设想时候, JEP可以在JCP(java community Process)之前或者同时提出非正式的规范(specification)，被正式认可的JEP正式写进JDK的发展路线图并分配版本号。<br>JSR(Java Specification Requests): java 规范提案，新特性的规范出现在这一阶段，是指向JCP(Java Community Process)提出新增一个标准化技术规范的正式请求。请求可以来自于小组/项目、JEP、JCP成员或者Java社区(community)成员的提案，每个Java版本都由相应的JSR支持。</p>
 <ul>
 <li>小组：对特定技术内容，比如安全、网络、HotSpot 等有共同兴趣的组织和个人</li>
 <li>项目： 编写代码、文档以及其他工作，至少由一个小组赞助支持，比如最近的Lambda计划，JigSaw 计划等</li>
 </ul>
-<h1 id="目录结构变化"><a href="#目录结构变化" class="headerlink" title="目录结构变化"></a>目录结构变化</h1><p><img src="https://img.zouchanglin.cn///20200417/K9mSMMvuiYBe.png" alt="mark"></p>
-<h1 id="模块化系统"><a href="#模块化系统" class="headerlink" title="模块化系统"></a>模块化系统</h1><p>谈到 Java 9 大家往往第一个想到的就是Jigsaw项目。众所周知，Java 已经发展超过 20 年（95 年最初发布），Java 和相关生态在不断丰富的同时也越来越暴露出一些问题：</p>
+<h1><span id="目录结构变化">目录结构变化</span></h1><p><img src="https://img.zouchanglin.cn///20200417/K9mSMMvuiYBe.png" alt="mark"></p>
+<h1><span id="模块化系统">模块化系统</span></h1><p>谈到 Java 9 大家往往第一个想到的就是Jigsaw项目。众所周知，Java 已经发展超过 20 年（95 年最初发布），Java 和相关生态在不断丰富的同时也越来越暴露出一些问题：</p>
 <ul>
 <li>问题一：Java 运行环境的膨胀和臃肿。每次JVM启动的至少会加载30-60MB内存，原因是JVM需要加载rt.jar，不管其中的类是否被classloader加载，整个jar都会被JVM加载到内存当中去（而模块化可以根据模块的需要加载程序运行需要的class）</li>
 <li>问题二：当代码库越来越大，创建复杂。不同版本的类库交叉依赖导致让人头疼的问题，这些都阻碍了 Java 开发和运行效率的提升。</li>
@@ -314,7 +314,7 @@
 <p>接下来测试一下，之所以无法用User，就是因为在java9demo模块中的module-info.java中并未指定把xpu.tim.entity这个包给导出，所以使用User类报Error：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 测试Java9模块化特性</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ModuleTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOGGER = Logger.getLogger(<span class="string">"Tim"</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Person person = <span class="keyword">new</span> Person(<span class="string">"Tim"</span>, <span class="number">20</span>);</span><br><span class="line">        System.out.println(person);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//User user = new User(); // Error</span></span><br><span class="line">        </span><br><span class="line">        LOGGER.info(<span class="string">"This one log"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="Java的REPl工具-jShell"><a href="#Java的REPl工具-jShell" class="headerlink" title="Java的REPl工具 jShell"></a>Java的REPl工具 jShell</h1><p>像Python和Scala 之类的语言早就有交互式编程环境REPL (read - evaluate - print- loop)了，以交互式的方式对语句和表达式进行求值。开发者只需要输入一些代码，就可以在编译前获得对程序的反馈。而之前的Java 版本要想执行代码，必须创建文件、声明类、提供测试方法方可实现。</p>
+<h1><span id="java的repl工具-jshell">Java的REPl工具 jShell</span></h1><p>像Python和Scala 之类的语言早就有交互式编程环境REPL (read - evaluate - print- loop)了，以交互式的方式对语句和表达式进行求值。开发者只需要输入一些代码，就可以在编译前获得对程序的反馈。而之前的Java 版本要想执行代码，必须创建文件、声明类、提供测试方法方可实现。</p>
 <blockquote>
 <p><strong>jShell的实现目标 &gt;</strong> </p>
 </blockquote>
@@ -334,7 +334,7 @@
 <p><img src="https://img.zouchanglin.cn///20200418/In914TqRBElm.png" alt="mark"></p>
 <p>jShell没有受检异常（编译时异常），本来应该强迫我们捕获一个IOException，但却没有出现。因为jShell在后台为我们隐藏了。</p>
 <p><img src="https://img.zouchanglin.cn///20200418/XIBCGMH1q0fQ.png" alt="mark"></p>
-<h1 id="多版本兼容jar包"><a href="#多版本兼容jar包" class="headerlink" title="多版本兼容jar包"></a>多版本兼容jar包</h1><p>新版本的Java出现时，用户要花费数年时间才会切换到这个新的版本。这就意味着库得去向后兼容你想要支持的最老的Java版本（许多情况下就是Java 6 或者 Java7）。这实际上意味着未来的很长一段时间，你都不能在库中运用Java 9所提供的新特性。幸运的是，多版本兼容jar功能能让你创建仅在特定版本的Java环境中运行库程序选择使用的class版本。</p>
+<h1><span id="多版本兼容jar包">多版本兼容jar包</span></h1><p>新版本的Java出现时，用户要花费数年时间才会切换到这个新的版本。这就意味着库得去向后兼容你想要支持的最老的Java版本（许多情况下就是Java 6 或者 Java7）。这实际上意味着未来的很长一段时间，你都不能在库中运用Java 9所提供的新特性。幸运的是，多版本兼容jar功能能让你创建仅在特定版本的Java环境中运行库程序选择使用的class版本。</p>
 <p><img src="https://img.zouchanglin.cn///20200418/cIWAAdnRyLPS.png" alt="mark"></p>
 <p>如上图所示：root.jar 可以在Java9 中使用，不过A或B类使用的不是顶层的root.A或root.B这两个class, 而是处在<code>META-INF/versions/9</code>下面的这两个。这是特别为 Java 9 准备的 class 版本，可以运用 Java 9 所提供的特性和库。同时，在早期的 Java 诸版本中使用这个JAR也是能运行的，因为较老版本的Java只会看到顶层的A类或B 类。</p>
 <p>现有目录结构如下：</p>
@@ -347,17 +347,17 @@
 <p><img src="https://img.zouchanglin.cn///20200418/cPyPTM7cAncA.png" alt="mark"></p>
 <p>接下来分别在JDK8和JDK9的环境中调用Jar包中的方法，结果如下图：</p>
 <p><img src="https://img.zouchanglin.cn///20200419/vf171pK2JAou.png" alt="mark"></p>
-<h1 id="接口的私有方法"><a href="#接口的私有方法" class="headerlink" title="接口的私有方法"></a>接口的私有方法</h1><p>Java 8中规定接口中的方法除了抽象方法之外，还可以定义静态方法和默认的方法。一定程度上，扩展了接口的功能，此时的接口更像是一个抽象类。</p>
+<h1><span id="接口的私有方法">接口的私有方法</span></h1><p>Java 8中规定接口中的方法除了抽象方法之外，还可以定义静态方法和默认的方法。一定程度上，扩展了接口的功能，此时的接口更像是一个抽象类。</p>
 <p>在Java 9中，接口更加的灵活和强大，连方法的访问权限修饰符都可以声明为private的了，此时方法将不会成为你对外暴露的API的一部分。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MyInterface</span> </span>&#123;</span><br><span class="line">    <span class="comment">//JDK7</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JDK8: 静态方法</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"method2"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JDK8：默认方法</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"method3"</span>);</span><br><span class="line">        method4();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JDK9：私有方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">method4</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"method"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyInterfaceImpl</span> <span class="keyword">implements</span> <span class="title">MyInterface</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyInterfaceTest</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyInterface myInterface = <span class="keyword">new</span> MyInterfaceImpl();</span><br><span class="line">        myInterface.method3();</span><br><span class="line">        <span class="comment">//myInterface.method4(); Error</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="钻石操作符使用升级"><a href="#钻石操作符使用升级" class="headerlink" title="钻石操作符使用升级"></a>钻石操作符使用升级</h1><p>我们将能够与匿名实现类共同使用钻石操作符（diamond operator）在java 8中如下的操作是会报错的：</p>
+<h1><span id="钻石操作符使用升级">钻石操作符使用升级</span></h1><p>我们将能够与匿名实现类共同使用钻石操作符（diamond operator）在java 8中如下的操作是会报错的：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyOperatorTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;String&gt; <span class="title">flattenStrings</span><span class="params">(List&lt;String&gt;... lists)</span> </span>&#123;</span><br><span class="line">        Set&lt;String&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;()&#123;&#125;; </span><br><span class="line">        <span class="keyword">for</span>(List&lt;String&gt; list : lists) &#123; </span><br><span class="line">        set.addAll(list); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;&gt;(set); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>那么在JDK9中呢？其实就是我们的匿名子类和泛型可以一起使用了：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyOperatorTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Set&lt;String&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;()&#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.size() * <span class="number">100</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        set.addAll(Arrays.asList(<span class="string">"AAA"</span>, <span class="string">"BBB"</span>, <span class="string">"CCC"</span>));</span><br><span class="line">        System.out.println(set.size()); <span class="comment">// 300</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="try语句升级"><a href="#try语句升级" class="headerlink" title="try语句升级"></a>try语句升级</h1><p>JDK7之前的版本如何进行资源关闭呢？无非就是try-catch-finally这种结构，在finally中保证资源关闭：</p>
+<h1><span id="try语句升级">try语句升级</span></h1><p>JDK7之前的版本如何进行资源关闭呢？无非就是try-catch-finally这种结构，在finally中保证资源关闭：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTryCatchTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        InputStreamReader reader = <span class="keyword">null</span>;</span><br><span class="line">        reader = <span class="keyword">new</span> InputStreamReader(System.in);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//数据读取过程..</span></span><br><span class="line">            reader.read();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                reader.close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>JDK7出现了try-with-resource，不用显式处理资源的关闭，但是要求执行后必须关闭的所有资源必须在try子句中初始化，否则编译不通过：</p>
@@ -366,12 +366,12 @@
 <p>JDK9 中，用资源语句编写try将更容易，我们可以在try子句中使用已经初始化过的资源，此时的资源是final的：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTryCatchTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        InputStreamReader reader = <span class="keyword">new</span> InputStreamReader(System.in);</span><br><span class="line">        OutputStreamWriter writer = <span class="keyword">new</span> OutputStreamWriter(System.out);</span><br><span class="line">        <span class="keyword">try</span>(reader; writer) &#123;</span><br><span class="line">            <span class="comment">//数据读取过程..</span></span><br><span class="line">            reader.read();</span><br><span class="line">            <span class="comment">//reader = null;   //Error 此时reader和writer是final的，不可再次赋值</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="UnderScore使用限制"><a href="#UnderScore使用限制" class="headerlink" title="UnderScore使用限制"></a>UnderScore使用限制</h1><p>UnderScore其实就是下划线，在java 8 中，标识符可以独立使用<code>_</code>来命名：</p>
+<h1><span id="underscore使用限制">UnderScore使用限制</span></h1><p>UnderScore其实就是下划线，在java 8 中，标识符可以独立使用<code>_</code>来命名：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String _ = <span class="string">"HelloWorld"</span>;</span><br></pre></td></tr></table></figure>
 
 <p>但是在java 9 中规定<code>_</code>不再可以单独命名标识符了，如果使用则报错：</p>
 <p><img src="https://img.zouchanglin.cn///20200419/jfoRH4jknUka.png" alt="mark"></p>
-<h1 id="String存储结构变更"><a href="#String存储结构变更" class="headerlink" title="String存储结构变更"></a>String存储结构变更</h1><p>String 再也不用 char[] 来存储啦，改成了 byte[] 加上编码标记，节约了一些空间。在这里可以看到官方文档的说明： <a href="http://openjdk.java.net/jeps/254" target="_blank" rel="noopener">http://openjdk.java.net/jeps/254</a> </p>
+<h1><span id="string存储结构变更">String存储结构变更</span></h1><p>String 再也不用 char[] 来存储啦，改成了 byte[] 加上编码标记，节约了一些空间。在这里可以看到官方文档的说明： <a href="http://openjdk.java.net/jeps/254" target="_blank" rel="noopener">http://openjdk.java.net/jeps/254</a> </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Motivation (修改动机)</span><br><span class="line">The current implementation of the String class stores characters in a char array, using two bytes (sixteen bits) for each character. Data gathered from many different applications indicates that strings are a major component of heap usage and, moreover, that most String objects contain only Latin-1 characters. Such characters require only one byte of storage, hence half of the space in the internal char arrays of such String objects is going unused.</span><br><span class="line"></span><br><span class="line">Description</span><br><span class="line">We propose to change the internal representation of the String class from a UTF-16 char array to a byte array plus an encoding-flag field. The new String class will store characters encoded either as ISO-8859-1&#x2F;Latin-1 (one byte per character), or as UTF-16 (two bytes per character), based upon the contents of the string. The encoding flag will indicate which encoding is used.</span><br><span class="line"></span><br><span class="line">String-related classes such as AbstractStringBuilder, StringBuilder, and StringBuffer will be updated to use the same representation, as will the HotSpot VM&#39;s intrinsic string operations.</span><br><span class="line"></span><br><span class="line">This is purely an implementation change, with no changes to existing public interfaces. There are no plans to add any new public APIs or other interfaces.</span><br><span class="line"></span><br><span class="line">The prototyping work done to date confirms the expected reduction in memory footprint, substantial reductions of GC activity, and minor performance regressions in some corner cases.</span><br></pre></td></tr></table></figure>
 
 <p>String类的当前实现将字符存储在char数组中，每个字符使用两个字节（十六个比特位）。从许多不同应用程序收集的数据表明，字符串是堆使用的主要组成部分，而且大多数String对象仅包含拉丁字符。 这样的字符只需要存储一个字节，因此此类String对象的内部char数组中的一半空间都没有使用。 </p>
@@ -383,7 +383,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Constructs a string buffer with no characters in it and an</span></span><br><span class="line"><span class="comment"> * initial capacity of 16 characters.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@HotSpotIntrinsicCandidate</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StringBuffer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(<span class="number">16</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Constructs a string builder with no characters in it and an</span></span><br><span class="line"><span class="comment"> * initial capacity of 16 characters.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@HotSpotIntrinsicCandidate</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StringBuilder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(<span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>JDK的源码中，被@HotSpotIntrinsicCandidate标注的方法，在HotSpot中都有一套高效的实现，该高效实现基于CPU指令，运行时，HotSpot维护的高效实现会替代JDK的源码实现，从而获得更高的效率。 所以可见StringBuffer和StringBuilder都是通过HotSpot的高效实现，其还也就是底层通过byte[]来实现的。</p>
-<h1 id="集合工厂方法：快速创建只读集合"><a href="#集合工厂方法：快速创建只读集合" class="headerlink" title="集合工厂方法：快速创建只读集合"></a>集合工厂方法：快速创建只读集合</h1><p>要创建一个只读、不可改变的集合，必须构造和分配它，然后添加元素，最后包装成一个不可修改的集合。可以参考这些， <a href="http://openjdk.java.net/jeps/269" target="_blank" rel="noopener">http://openjdk.java.net/jeps/269</a> 。</p>
+<h1><span id="集合工厂方法快速创建只读集合">集合工厂方法：快速创建只读集合</span></h1><p>要创建一个只读、不可改变的集合，必须构造和分配它，然后添加元素，最后包装成一个不可修改的集合。可以参考这些， <a href="http://openjdk.java.net/jeps/269" target="_blank" rel="noopener">http://openjdk.java.net/jeps/269</a> 。</p>
 <p>在JDK1.8中创建只读集合的方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CollectionTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; namesList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        namesList.add(<span class="string">"Joe"</span>);</span><br><span class="line">        namesList.add(<span class="string">"Bob"</span>);</span><br><span class="line">        namesList.add(<span class="string">"Bill"</span>);</span><br><span class="line">        namesList = Collections.unmodifiableList(namesList);</span><br><span class="line">        </span><br><span class="line">        List&lt;String&gt; namesList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        namesList.addAll(Arrays.asList(<span class="string">"Joe"</span>, <span class="string">"Bob"</span>, <span class="string">"Bill"</span>));</span><br><span class="line">        namesList = Collections.unmodifiableList(namesList);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -391,7 +391,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, Integer&gt; map = Collections.unmodifiableMap(<span class="keyword">new</span> HashMap&lt;&gt;()&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        put(<span class="string">"AAA"</span>, <span class="number">1</span>);</span><br><span class="line">        put(<span class="string">"BBB"</span>, <span class="number">1</span>);</span><br><span class="line">        put(<span class="string">"CCC"</span>, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//甚至如下的写法更简单</span></span><br><span class="line">List&lt;String&gt; namesList = List.of(<span class="string">"Joe"</span>, <span class="string">"Bob"</span>, <span class="string">"Bill"</span>);</span><br><span class="line">Map&lt;String, Integer&gt; map = Map.of(<span class="string">"AAA"</span>, <span class="number">1</span>, <span class="string">"BBB"</span>, <span class="number">1</span>, <span class="string">"CCC"</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
 
 <p>在创建后，继续添加元素到这些集合会导致 UnsupportedOperationException。由于Java 8中接口方法的实现，可以直接在List，Set和Map的接口内定义这些方法，便于调用。</p>
-<h1 id="StreamAPI增强"><a href="#StreamAPI增强" class="headerlink" title="StreamAPI增强"></a>StreamAPI增强</h1><p>Java 的 Steam API 是java标准库最好的改进之一，让开发者能够快速运算，从而能够有效的利用数据并行计算。Java 8 提供的 Steam 能够利用多核架构实现声明式的数据处理。在 Java 9 中，Stream API 变得更好，Stream 接口中添加了 4 个新的方法：dropWhile, takeWhile, ofNullable，还有个 iterator方法的新重载方法，可以让你提供一个 Predicate (判断条件)来指定什么时候结束迭代。</p>
+<h1><span id="streamapi增强">StreamAPI增强</span></h1><p>Java 的 Steam API 是java标准库最好的改进之一，让开发者能够快速运算，从而能够有效的利用数据并行计算。Java 8 提供的 Steam 能够利用多核架构实现声明式的数据处理。在 Java 9 中，Stream API 变得更好，Stream 接口中添加了 4 个新的方法：dropWhile, takeWhile, ofNullable，还有个 iterator方法的新重载方法，可以让你提供一个 Predicate (判断条件)来指定什么时候结束迭代。</p>
 <p>除了对 Stream 本身的扩展，Optional 和 Stream 之间的结合也得到了改进。现在可以通过 Optional 的新方法stream() 将一个 Optional 对象转换为一个(可能是空的) Stream对象。</p>
 <p>takeWhile()的使用：用于从 Stream 中获取一部分数据，接收一个 Predicate 来进行选择。在有序的 Stream 中，takeWhile 返回从开头开始的尽量多的元素。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StreamAPITest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        List&lt;Integer&gt; list = Arrays.asList(<span class="number">45</span>, <span class="number">43</span>, <span class="number">76</span>, <span class="number">87</span>, <span class="number">42</span>, <span class="number">77</span>);</span><br><span class="line">        list.stream().takeWhile(x -&gt; x &lt; <span class="number">50</span>)</span><br><span class="line">                .forEach(System.out::println);</span><br><span class="line">        System.out.println();</span><br><span class="line">        list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>);</span><br><span class="line">        list.stream().takeWhile(x -&gt; x &lt; <span class="number">5</span>)</span><br><span class="line">                .forEach(System.out::println);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -605,7 +605,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JEP与JSR"><span class="toc-number">1.</span> <span class="toc-text">JEP与JSR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#目录结构变化"><span class="toc-number">2.</span> <span class="toc-text">目录结构变化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#模块化系统"><span class="toc-number">3.</span> <span class="toc-text">模块化系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Java的REPl工具-jShell"><span class="toc-number">4.</span> <span class="toc-text">Java的REPl工具 jShell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#多版本兼容jar包"><span class="toc-number">5.</span> <span class="toc-text">多版本兼容jar包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#接口的私有方法"><span class="toc-number">6.</span> <span class="toc-text">接口的私有方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#钻石操作符使用升级"><span class="toc-number">7.</span> <span class="toc-text">钻石操作符使用升级</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#try语句升级"><span class="toc-number">8.</span> <span class="toc-text">try语句升级</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#UnderScore使用限制"><span class="toc-number">9.</span> <span class="toc-text">UnderScore使用限制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#String存储结构变更"><span class="toc-number">10.</span> <span class="toc-text">String存储结构变更</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#集合工厂方法：快速创建只读集合"><span class="toc-number">11.</span> <span class="toc-text">集合工厂方法：快速创建只读集合</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#StreamAPI增强"><span class="toc-number">12.</span> <span class="toc-text">StreamAPI增强</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">JEP与JSR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">目录结构变化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">模块化系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Java的REPl工具 jShell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">多版本兼容jar包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">接口的私有方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">钻石操作符使用升级</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">try语句升级</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">UnderScore使用限制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">10.</span> <span class="toc-text">String存储结构变更</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">11.</span> <span class="toc-text">集合工厂方法：快速创建只读集合</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">12.</span> <span class="toc-text">StreamAPI增强</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -764,18 +764,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -788,6 +776,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -796,15 +788,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,6 +821,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -928,15 +936,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -944,11 +944,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -960,11 +964,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -973,6 +977,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1024,10 +1036,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1056,6 +1064,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1076,6 +1088,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1089,6 +1105,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1128,15 +1148,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1153,22 +1173,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

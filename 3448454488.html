@@ -283,19 +283,19 @@
 <p>poll翻译过来是轮询的意思， 可以看到poll和epoll都有轮询的过程， 不同点在于：poll轮询的是所有的socket，而epoll只轮询就绪的socket。 epoll是开发linux高性能服务器的必备技术至，epoll本质，是服务端程序员的必须掌握的知识。 本文主要是利用图文讲述了select的原理和epoll相对于做出的优化，以及epoll的部分细节问题。</p>
 <a id="more"></a>
 
-<h2 id="从硬件理解网卡接收数据过程"><a href="#从硬件理解网卡接收数据过程" class="headerlink" title="从硬件理解网卡接收数据过程"></a>从硬件理解网卡接收数据过程</h2><p>下图是一个典型的计算机结构图，计算机由CPU、存储器（内存）、网络接口等部件组成。了解epoll本质的第一步，要从硬件的角度看计算机怎样接收网络数据。 下面这幅图在我的另一篇文章里也用到了，<a href="https://zouchanglin.cn/2018/06/18/3293372011.html">《冯诺依曼架构》</a></p>
+<h2><span id="从硬件理解网卡接收数据过程">从硬件理解网卡接收数据过程</span></h2><p>下图是一个典型的计算机结构图，计算机由CPU、存储器（内存）、网络接口等部件组成。了解epoll本质的第一步，要从硬件的角度看计算机怎样接收网络数据。 下面这幅图在我的另一篇文章里也用到了，<a href="https://zouchanglin.cn/2018/06/18/3293372011.html">《冯诺依曼架构》</a></p>
 <p><img src="https://img.zouchanglin.cn///20200201/YJ2jWtPtuzRW.png" alt="img"></p>
 <p> 网卡收到网线传来的数据，通过硬件电路传输，网卡接收的数据存放到内存中，操作系统就可以去读取它们。 </p>
-<h2 id="正确理解CPU中断"><a href="#正确理解CPU中断" class="headerlink" title="正确理解CPU中断"></a>正确理解CPU中断</h2><p>一般而言，由硬件产生的信号需要CPU立马做出处理，不然数据可能就丢失，所以它的优先级很高。CPU理应中断掉正在执行的程序，去做出响应；当CPU完成对硬件的响应后，再重新执行用户程序。 比如我们按下键盘上的按键，会触发中断即（键盘会给cpu的中断引脚发出一个高电平，CPU能够捕获这个信号，然后执行键盘中断程序。）网卡也是硬件设备，和键盘不同的是我们用键盘可以主动触发中断，而网卡是收到数据之后向CPU发出信号，触发中断程序，即CPU去处理网卡设备的数据！</p>
+<h2><span id="正确理解cpu中断">正确理解CPU中断</span></h2><p>一般而言，由硬件产生的信号需要CPU立马做出处理，不然数据可能就丢失，所以它的优先级很高。CPU理应中断掉正在执行的程序，去做出响应；当CPU完成对硬件的响应后，再重新执行用户程序。 比如我们按下键盘上的按键，会触发中断即（键盘会给cpu的中断引脚发出一个高电平，CPU能够捕获这个信号，然后执行键盘中断程序。）网卡也是硬件设备，和键盘不同的是我们用键盘可以主动触发中断，而网卡是收到数据之后向CPU发出信号，触发中断程序，即CPU去处理网卡设备的数据！</p>
 <p><img src="https://img.zouchanglin.cn///20200301/d7L8UwJVxShU.png" alt="mark"></p>
-<h2 id="什么是一切皆文件"><a href="#什么是一切皆文件" class="headerlink" title="什么是一切皆文件"></a>什么是一切皆文件</h2><p>在Java的学习中，我们可以有深刻的体会，那就是一切皆对象；在Linux的学习中，一切皆文件的理念无处不在，文档、目录、磁盘驱动器、CD-ROM、调制解调器、键盘、打印机、显示器、终端，甚至是一些进程间通信和网络通信。所有这些资源拥有一个通用的抽象，在Linux中将其称为“文件”，其实Unix就是这种思想，所以Linux也借鉴了这个思想，因为每个“文件”都通过相同的 API 暴露出来，所以你可以使用同一组基本命令来读取和写入磁盘、键盘、文档或网络设备， “一切皆文件”的思想提供了一个强大而简单的抽象，那就是无论是硬件设备、还是网络连接、还是我们日常解除的文件，都是文件，这样使得API的设计可以化繁为简，用户可以使用通用的方式去访问任何资源，自有相应的中间件做好对底层的适配。 所以在Linux操作系统看来，一切都是文件，也就意味着，网卡设备也是文件，Socket连接也是文件，文件的统一抽象使得都有共同的属性，我们这里只谈最重要的文件属性——文件描述符（file descriptor，简写fd）！</p>
+<h2><span id="什么是一切皆文件">什么是一切皆文件</span></h2><p>在Java的学习中，我们可以有深刻的体会，那就是一切皆对象；在Linux的学习中，一切皆文件的理念无处不在，文档、目录、磁盘驱动器、CD-ROM、调制解调器、键盘、打印机、显示器、终端，甚至是一些进程间通信和网络通信。所有这些资源拥有一个通用的抽象，在Linux中将其称为“文件”，其实Unix就是这种思想，所以Linux也借鉴了这个思想，因为每个“文件”都通过相同的 API 暴露出来，所以你可以使用同一组基本命令来读取和写入磁盘、键盘、文档或网络设备， “一切皆文件”的思想提供了一个强大而简单的抽象，那就是无论是硬件设备、还是网络连接、还是我们日常解除的文件，都是文件，这样使得API的设计可以化繁为简，用户可以使用通用的方式去访问任何资源，自有相应的中间件做好对底层的适配。 所以在Linux操作系统看来，一切都是文件，也就意味着，网卡设备也是文件，Socket连接也是文件，文件的统一抽象使得都有共同的属性，我们这里只谈最重要的文件属性——文件描述符（file descriptor，简写fd）！</p>
 <p><img src="https://img.zouchanglin.cn///20200301/BBK836Te3uLx.png" alt="mark"></p>
-<h2 id="内核接收网络数据过程"><a href="#内核接收网络数据过程" class="headerlink" title="内核接收网络数据过程"></a>内核接收网络数据过程</h2><p>数据经由网卡传送到内存，然后网卡通过中断信号通知CPU有数据到达，CPU执行中断程序。此处的中断程序主要有两项功能，先将网络数据写入到对应socket的接收缓冲区里面，再唤醒进程A，重新将进程A放入工作队列中。 </p>
+<h2><span id="内核接收网络数据过程">内核接收网络数据过程</span></h2><p>数据经由网卡传送到内存，然后网卡通过中断信号通知CPU有数据到达，CPU执行中断程序。此处的中断程序主要有两项功能，先将网络数据写入到对应socket的接收缓冲区里面，再唤醒进程A，重新将进程A放入工作队列中。 </p>
 <p><img src="https://img.zouchanglin.cn///20200301/wtDoDUaxYAlG.png" alt="mark"></p>
 <p> 唤醒进程的过程如图所示：</p>
 <p><img src="https://img.zouchanglin.cn///20200301/zxRkGSAoCT86.png" alt="mark"></p>
 <p>操作系统如何知道网络数据对应于哪个socket呢？因为一个socket对应着一个端口号，而网络数据包中包含了ip和端口的信息，内核可以通过端口号找到对应的socket。当然，为了提高处理速度，操作系统会维护端口号到socket的索引结构，以快速读取。 </p>
-<h2 id="select如何同时监视多个socket"><a href="#select如何同时监视多个socket" class="headerlink" title="select如何同时监视多个socket"></a>select如何同时监视多个socket</h2><p>假如能够预先传入一个Socket列表，<strong>如果列表中的socket都没有数据，挂起进程，直到有一个socket收到数据，唤醒进程</strong>。这种方法很直接，也是select的设计思想。 </p>
+<h2><span id="select如何同时监视多个socket">select如何同时监视多个socket</span></h2><p>假如能够预先传入一个Socket列表，<strong>如果列表中的socket都没有数据，挂起进程，直到有一个socket收到数据，唤醒进程</strong>。这种方法很直接，也是select的设计思想。 </p>
 <p>先复习select的用法。在如下的代码中，先准备一个数组（下面代码中的fds），让fds存放着所有需要监视的socket。然后调用select，如果fds中的所有socket都没有数据，select会阻塞，直到有一个socket接收到数据，select返回，唤醒进程。用户可以遍历fds，通过FD_ISSET判断具体哪个socket收到数据，然后做出处理。 </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> s = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);  </span><br><span class="line">bind(s, ...)</span><br><span class="line"><span class="built_in">listen</span>(s, ...)</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> fds[] = 存放需要监听的socket</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">    <span class="keyword">int</span> n = select(..., fds, ...)</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i &lt; fds.count; i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(FD_ISSET(fds[i], ...))&#123;</span><br><span class="line">            <span class="comment">//fds[i]的数据处理</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -314,7 +314,7 @@
 <li>如果有错误返回的是-1，错误原因存于errno。</li>
 </ul>
 </blockquote>
-<h2 id="epoll如何改进效率的"><a href="#epoll如何改进效率的" class="headerlink" title="epoll如何改进效率的"></a>epoll如何改进效率的</h2><p><strong>措施一：功能分离</strong></p>
+<h2><span id="epoll如何改进效率的">epoll如何改进效率的</span></h2><p><strong>措施一：功能分离</strong></p>
 <p>还记得select的输入输出型参数吗fd_set吗？fd_set是一个位图，使用位图中对应的位来表示要监视的文件描述符。所以select能监视的socket有上限，我的centos支持的描述符上限是1024个。</p>
 <p>select低效的原因之一是将<code>维护等待队列</code>和<code>阻塞进程</code>两个步骤合二为一。如下图所示，每次调用select都需要这两步操作</p>
 <p><img src="https://img.zouchanglin.cn///20200301/XeF41rdW1jst.png" alt="mark"></p>
@@ -326,7 +326,7 @@
 <p>select低效的另一个原因在于程序不知道哪些socket收到数据，只能一个个遍历。如果内核维护一个“就绪列表”，引用收到数据的socket，就能避免遍历。 </p>
 <p>如下图所示，计算机共有三个socket，收到数据的sock2和sock3被rdlist（就绪列表）所引用。当进程被唤醒后，只要获取rdlist的内容，就能够知道哪些socket收到数据。 </p>
 <p><img src="https://img.zouchanglin.cn///20200301/41WhBthGNuqA.png" alt="mark"></p>
-<h2 id="epoll的原理的流程"><a href="#epoll的原理的流程" class="headerlink" title="epoll的原理的流程"></a>epoll的原理的流程</h2><blockquote>
+<h2><span id="epoll的原理的流程">epoll的原理的流程</span></h2><blockquote>
 <p><strong>创建epoll对象</strong></p>
 </blockquote>
 <p>如下图所示，当某个进程调用epoll_create方法时，内核会创建一个eventpoll对象（也就是程序中epfd所代表的对象）。eventpoll对象也是文件系统中的一员，和socket一样，它也会有等待队列。</p>
@@ -351,14 +351,14 @@
 <p><img src="https://img.zouchanglin.cn///20200301/oQk0xcRJ31dx.png" alt="mark"></p>
 <p>当socket接收到数据，中断程序一方面修改rdlist，另一方面唤醒eventpoll等待队列中的进程，进程A再次进入运行状态（如下图）。也因为rdlist的存在，进程A可以知道哪些socket发生了变化。 </p>
 <p><img src="https://img.zouchanglin.cn///20200301/0KheJ8728zVM.png" alt="mark"></p>
-<h2 id="epoll的实现细节"><a href="#epoll的实现细节" class="headerlink" title="epoll的实现细节"></a>epoll的实现细节</h2><p> eventpoll的数据结构是什么样子？  就绪队列应该应使用什么数据结构？eventpoll应使用什么数据结构来管理通过epoll_ctl添加或删除的socket？ </p>
+<h2><span id="epoll的实现细节">epoll的实现细节</span></h2><p> eventpoll的数据结构是什么样子？  就绪队列应该应使用什么数据结构？eventpoll应使用什么数据结构来管理通过epoll_ctl添加或删除的socket？ </p>
 <p>如下图所示，eventpoll包含了lock、mtx、wq（等待队列）、rdlist等成员。rdlist和rbr是我们所关心的。 </p>
 <p><img src="https://img.zouchanglin.cn///20200301/XRBaHLJHUMvD.png" alt="mark"></p>
 <p>就绪列表引用着就绪的socket，所以它应能够快速的插入数据。 程序可能随时调用epoll_ctl添加监视socket，也可能随时删除。当删除时，若该socket已经存放在就绪列表中，它也应该被移除。</p>
 <p>所以就绪列表应是一种能够快速插入和删除的数据结构。双向链表就是这样一种数据结构，epoll使用双向链表来实现就绪队列（对应上图的rdllist）</p>
 <p>既然epoll将<code>维护监视队列</code>和<code>进程阻塞</code>分离，也意味着需要有个数据结构来保存监视的socket。至少要方便的添加和移除，还要便于搜索，以避免重复添加。红黑树是一种自平衡二叉查找树，搜索、插入和删除时间复杂度都是O(log(N))，效率较好。epoll使用了红黑树作为索引结构（对应上图的rbr）。 </p>
 <p>因为操作系统要兼顾多种功能，以及由更多需要保存的数据，rdlist并非直接引用socket，而是通过epitem间接引用，红黑树的节点也是epitem对象。同样，文件系统也并非直接引用着socket。为方便理解，本文中省略了一些间接结构。 </p>
-<h2 id="总结3种多路复用"><a href="#总结3种多路复用" class="headerlink" title="总结3种多路复用"></a>总结3种多路复用</h2><p><img src="https://img.zouchanglin.cn///20200301/Cs5TAReWJe1F.png" alt="mark"></p>
+<h2><span id="总结3种多路复用">总结3种多路复用</span></h2><p><img src="https://img.zouchanglin.cn///20200301/Cs5TAReWJe1F.png" alt="mark"></p>
 
 	
 
@@ -524,8 +524,8 @@
     </a>
   
   
-    <a href="/26607628.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">通俗理解五种IO模型</div>
+    <a href="/3141995360.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">select、poll和epoll多路复用</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -552,7 +552,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从硬件理解网卡接收数据过程"><span class="toc-number">1.</span> <span class="toc-text">从硬件理解网卡接收数据过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正确理解CPU中断"><span class="toc-number">2.</span> <span class="toc-text">正确理解CPU中断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是一切皆文件"><span class="toc-number">3.</span> <span class="toc-text">什么是一切皆文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内核接收网络数据过程"><span class="toc-number">4.</span> <span class="toc-text">内核接收网络数据过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#select如何同时监视多个socket"><span class="toc-number">5.</span> <span class="toc-text">select如何同时监视多个socket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll如何改进效率的"><span class="toc-number">6.</span> <span class="toc-text">epoll如何改进效率的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll的原理的流程"><span class="toc-number">7.</span> <span class="toc-text">epoll的原理的流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll的实现细节"><span class="toc-number">8.</span> <span class="toc-text">epoll的实现细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结3种多路复用"><span class="toc-number">9.</span> <span class="toc-text">总结3种多路复用</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">从硬件理解网卡接收数据过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">正确理解CPU中断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">什么是一切皆文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">内核接收网络数据过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">select如何同时监视多个socket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">epoll如何改进效率的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">epoll的原理的流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">epoll的实现细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">总结3种多路复用</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -711,18 +711,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -735,6 +723,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -743,15 +735,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -768,6 +768,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -875,15 +883,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -891,11 +891,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -907,11 +911,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -920,6 +924,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -971,10 +983,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1003,6 +1011,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1023,6 +1035,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1036,6 +1052,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1075,15 +1095,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1100,22 +1120,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

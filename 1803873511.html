@@ -267,13 +267,13 @@
 
 	
 		<p><strong>Linux进程间通信的基本思想是：让两个进程看到一份公共的资源！</strong></p>
-<h2 id="Linux进程间通信的目的"><a href="#Linux进程间通信的目的" class="headerlink" title="Linux进程间通信的目的"></a>Linux进程间通信的目的</h2><ul>
+<h2><span id="linux进程间通信的目的">Linux进程间通信的目的</span></h2><ul>
 <li>数据传输：⼀个进程需要将它的数据发送给另⼀个进程</li>
 <li>资源共享：多个进程之间共享同样的资源。</li>
 <li>通知事件：⼀个进程需要向另⼀个或⼀组进程发送消息，通知它们发生了某种事件（如进程终止时要通知父进程）。</li>
 <li>进程控制：有些进程希望完全控制另⼀个进程的执行（如Debug进程），此时控制进程希望能够拦截另一个进程的所有陷入和异常，并能够及时知道它的状态改变</li>
 </ul>
-<h2 id="通信方式之管道"><a href="#通信方式之管道" class="headerlink" title="通信方式之管道"></a>通信方式之管道</h2><p>管道是Unix中最古老的进程间通信的形式。<br>我们把从⼀个进程连接到另⼀个进程的⼀个数据流称为⼀个”管道”</p>
+<h2><span id="通信方式之管道">通信方式之管道</span></h2><p>管道是Unix中最古老的进程间通信的形式。<br>我们把从⼀个进程连接到另⼀个进程的⼀个数据流称为⼀个”管道”</p>
 <ul>
 <li>管道是面向字节流的</li>
 <li>管道的生命周期：与进程一致</li>
@@ -286,14 +286,14 @@
 
 <p>接下来看看管道的使用：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/RBhiiWDUdm70.png" alt="mark"></p>
-<h2 id="匿名管道"><a href="#匿名管道" class="headerlink" title="匿名管道"></a>匿名管道</h2><h3 id="pipe函数"><a href="#pipe函数" class="headerlink" title="pipe函数"></a>pipe函数</h3><p>功能：创建匿名管道</p>
+<h2><span id="匿名管道">匿名管道</span></h2><h3><span id="pipe函数">pipe函数</span></h3><p>功能：创建匿名管道</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pipe</span><span class="params">(<span class="keyword">int</span> pipefd[<span class="number">2</span>])</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>返回值：<br>On success, zero is returned. On error, -1 is returned, and errno is set appropriately.<br>成功返回0，失败返回错误代码！<br>参数说明：<br>pipe() creates a pipe, a unidirectional data channel that can be used for interprocess communication. The array pipefd is used to return two file descriptors referring to the ends of the pipe. pipefd[0] refers to the read end of the pipe. pipefd[1] refers to the write end of the pipe. Data written to the write end of the pipe is buffered by the kernel until it is read from the read end of the pipe.<br>pipe() 创建一个管道，一个可用于进程间通信的单向数据通道。该文件描述符数组用于返回引用管道末端的两个文件描述符。 pipefd [0]指的是管道的读端。 pipefd [1]指的是管道的写端。写入结束的数据管道由内核缓冲，直到从管道的读取端读取。</p>
 <p>管道简单使用示例：从键盘读取数据，写⼊管道，读取管道，写到屏幕</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> fds[<span class="number">2</span>];</span><br><span class="line">	<span class="keyword">char</span> buf[<span class="number">100</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	<span class="keyword">size_t</span> len;</span><br><span class="line">	<span class="keyword">ssize_t</span> r_len;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (pipe(fds) == <span class="number">-1</span>) &#123;</span><br><span class="line">		perror(<span class="string">"make pipe"</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//read from stdin</span></span><br><span class="line">	<span class="keyword">while</span> (fgets(buf, <span class="number">100</span>, <span class="built_in">stdin</span>)) &#123;</span><br><span class="line">		len = <span class="built_in">strlen</span>(buf);</span><br><span class="line">		<span class="comment">//write to pipe</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">write</span>(fds[<span class="number">1</span>], buf, len) != len) &#123;</span><br><span class="line">			perror(<span class="string">"write to pipe"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">//read from pipe</span></span><br><span class="line">		<span class="keyword">if</span> ((r_len = <span class="built_in">read</span>(fds[<span class="number">0</span>], buf, (<span class="keyword">size_t</span>)<span class="number">100</span>)) == <span class="number">-1</span>) &#123;</span><br><span class="line">			perror(<span class="string">"read form pipe"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//write to stdout</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">write</span>(<span class="number">1</span>, buf, len) != len) &#123;</span><br><span class="line">			perror(<span class="string">"write to stdout"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="亲缘关系进程直接的通信"><a href="#亲缘关系进程直接的通信" class="headerlink" title="亲缘关系进程直接的通信"></a>亲缘关系进程直接的通信</h3><p>上面的示例演示了管道的基本使用方式，但是不包含进程之间的通信！接下来看看父子进程之间的通信：</p>
+<h3><span id="亲缘关系进程直接的通信">亲缘关系进程直接的通信</span></h3><p>上面的示例演示了管道的基本使用方式，但是不包含进程之间的通信！接下来看看父子进程之间的通信：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/ln71rk9fc6Sy.png" alt="mark"></p>
 <p> 从文件描述符理解管道： </p>
 <p><img src="https://img.zouchanglin.cn///20200201/eJCO0T3Yzevi.png" alt="mark"></p>
@@ -302,7 +302,7 @@
 <p>所以可以看到，管道其实也是文件，在Linux下一切皆文件！ </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pipefd[<span class="number">2</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//创建一个匿名管道，失败直接退出</span></span><br><span class="line">    <span class="keyword">if</span>(pipe(pipefd) == <span class="number">-1</span>)&#123;</span><br><span class="line">        perror(<span class="string">"pipe"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pid_t</span> pid;</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">-1</span>)&#123;</span><br><span class="line">        perror(<span class="string">"pipe"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	 <span class="comment">//父进程</span></span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">close</span>(pipefd[<span class="number">0</span>]);</span><br><span class="line">        <span class="built_in">write</span>(pipefd[<span class="number">1</span>], <span class="string">"hello"</span>, <span class="number">5</span>);</span><br><span class="line">        <span class="built_in">close</span>(pipefd[<span class="number">1</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(pipefd[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">10</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="built_in">read</span>(pipefd[<span class="number">0</span>], buf, <span class="number">10</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"buf = %s\n"</span>, buf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="管道的读写规则"><a href="#管道的读写规则" class="headerlink" title="管道的读写规则"></a>管道的读写规则</h3><ul>
+<h3><span id="管道的读写规则">管道的读写规则</span></h3><ul>
 <li>当没有数据可读时<ul>
 <li>O_NONBLOCK disable：read调用阻塞，即进程暂停执行，一直等到有数据来到为止</li>
 <li>O_NONBLOCK enable：read调用返回-1，errno值为EAGAIN</li>
@@ -317,21 +317,21 @@
 <li>当要写入的数据量不大于<code>PIPE_BUF</code>时，linux将保证写入的原子性。</li>
 <li>当要写入的数据量大于<code>PIPE_BUF</code>时，linux将不再保证写入的原子性。</li>
 </ul>
-<h3 id="管道的特点"><a href="#管道的特点" class="headerlink" title="管道的特点"></a>管道的特点</h3><ul>
+<h3><span id="管道的特点">管道的特点</span></h3><ul>
 <li>只能用于具有共同祖先的进程（具有亲缘关系的进程）之间进行通信；通常一个管道由一个进程创建，然后该进程调用fork，此后父、子进程之间就可应用该管道。</li>
 <li>管道提供流式服务</li>
 <li>一般而言，进程退出，管道释放，所以管道的生命周期随进程</li>
 <li>一般而言，内核会对管道操作进行同步与互斥</li>
 <li>管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道</li>
 </ul>
-<h2 id="命名管道"><a href="#命名管道" class="headerlink" title="命名管道"></a>命名管道</h2><p>管道应用的一个限制就是只能在具有共同祖先（具有亲缘关系）的进程间通信。<br>如果我们想在不相关的进程之间交换数据，可以使用FIFO文件来做这项工作，它经常被称为命名管道。命名管道是一种特殊类型的文件!<br>接下来使用一个脚本来演示用管道进行通信：</p>
-<p><img src="https://img.zouchanglin.cn/EsNpWTx35vd.gif" alt=""></p>
+<h2><span id="命名管道">命名管道</span></h2><p>管道应用的一个限制就是只能在具有共同祖先（具有亲缘关系）的进程间通信。<br>如果我们想在不相关的进程之间交换数据，可以使用FIFO文件来做这项工作，它经常被称为命名管道。命名管道是一种特殊类型的文件!<br>接下来使用一个脚本来演示用管道进行通信：</p>
+<p><img src="https://img.zouchanglin.cn/EsNpWTx35vd.gif" alt></p>
 <p>如果此时我们关闭读端，那么写端就会退出，道理很简单，和匿名管道一样，如果读端都关闭了那么此时如果写端还在写的话其实是一种资源浪费，于是操作系统直接向写端发信号终止写端进程！</p>
-<h3 id="匿名管道和命名管道之间的区别"><a href="#匿名管道和命名管道之间的区别" class="headerlink" title="匿名管道和命名管道之间的区别"></a>匿名管道和命名管道之间的区别</h3><ul>
+<h3><span id="匿名管道和命名管道之间的区别">匿名管道和命名管道之间的区别</span></h3><ul>
 <li>匿名管道由pipe函数创建并打开，命名管道由mkfifo函数创建，打开用open函数</li>
 <li>FIFO(命名管道)与pipe(匿名管道)之间唯一的区别在它们创建与打开的方式不同</li>
 </ul>
-<h3 id="命名管道的打开规则"><a href="#命名管道的打开规则" class="headerlink" title="命名管道的打开规则"></a>命名管道的打开规则</h3><p>如果当前打开操作是为读而打开FIFO时：</p>
+<h3><span id="命名管道的打开规则">命名管道的打开规则</span></h3><p>如果当前打开操作是为读而打开FIFO时：</p>
 <ul>
 <li>O_NONBLOCK disable：阻塞直到有相应进程为写而打开该FIFO</li>
 <li>O_NONBLOCK enable：立刻返回失败，错误码为ENXIO<br>如果当前打开操作是为写而打开FIFO时：</li>
@@ -346,7 +346,7 @@
 <p> server.c </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FIFONAME <span class="meta-string">"mypipe"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建一个命名管道</span></span><br><span class="line">    mkfifo(FIFONAME, <span class="number">0664</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打开这个命名管道</span></span><br><span class="line">    <span class="keyword">int</span> fd = <span class="built_in">open</span>(FIFONAME, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">ssize_t</span> s = <span class="built_in">read</span>(fd, buf, <span class="keyword">sizeof</span>(buf)<span class="number">-1</span>);</span><br><span class="line">        <span class="keyword">if</span>(s &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//读取成功</span></span><br><span class="line">            buf[s] = <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"client# %s\n"</span>, buf);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(s == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//写端把文件描述符关闭</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"client quit！server quit too!\n"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p> Bash中的管道是采用匿名管道的方式进行通信，由于匿名管道只能用于在具有亲缘关系之间通信，但是由Bash开启的进程之间是属于兄弟关系，自然就可以通过匿名管道进行通信，多个进程(多个管道)的情况下只要每个进程关闭或打开相应的读写端，形成链式数据结构便可以进行通信了(再次佩写服Bash的大佬) </p>
+<p> Bash中的管道是采用匿名管道的方式进行通信，由于匿名管道只能用于在具有亲缘关系之间通信，但是由Bash开启的进程之间是属于兄弟关系，自然就可以通过匿名管道进行通信，多个进程(多个管道)的情况下只要每个进程关闭或打开相应的读写端，形成链式数据结构便可以进行通信了(再次佩写服Bash的大佬)</p>
 
 	
 
@@ -536,7 +536,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux进程间通信的目的"><span class="toc-number">1.</span> <span class="toc-text">Linux进程间通信的目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通信方式之管道"><span class="toc-number">2.</span> <span class="toc-text">通信方式之管道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#匿名管道"><span class="toc-number">3.</span> <span class="toc-text">匿名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pipe函数"><span class="toc-number">3.1.</span> <span class="toc-text">pipe函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#亲缘关系进程直接的通信"><span class="toc-number">3.2.</span> <span class="toc-text">亲缘关系进程直接的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管道的读写规则"><span class="toc-number">3.3.</span> <span class="toc-text">管道的读写规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管道的特点"><span class="toc-number">3.4.</span> <span class="toc-text">管道的特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命名管道"><span class="toc-number">4.</span> <span class="toc-text">命名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#匿名管道和命名管道之间的区别"><span class="toc-number">4.1.</span> <span class="toc-text">匿名管道和命名管道之间的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命名管道的打开规则"><span class="toc-number">4.2.</span> <span class="toc-text">命名管道的打开规则</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Linux进程间通信的目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">通信方式之管道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">匿名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">pipe函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">亲缘关系进程直接的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">管道的读写规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">管道的特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">命名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">匿名管道和命名管道之间的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">命名管道的打开规则</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -695,18 +695,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -719,6 +707,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -727,15 +719,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -752,6 +752,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -859,15 +867,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -875,11 +875,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -891,11 +895,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -904,6 +908,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -955,10 +967,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -987,6 +995,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1007,6 +1019,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1020,6 +1036,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1059,15 +1079,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1084,22 +1104,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

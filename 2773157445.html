@@ -269,7 +269,7 @@
     
 
 	
-		<h2 id="一、fopen函数"><a href="#一、fopen函数" class="headerlink" title="一、fopen函数"></a>一、fopen函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function">FILE *<span class="title">fopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *path, <span class="keyword">const</span> <span class="keyword">char</span> *mode)</span></span>;</span><br></pre></td></tr></table></figure>
+		<h2><span id="一-fopen函数">一、fopen函数</span></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function">FILE *<span class="title">fopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *path, <span class="keyword">const</span> <span class="keyword">char</span> *mode)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>参数说明：<br>path：要打开的文件路径+文件名<br>mode：打开模式，下面是第二个参数的说明<br><code>来自CentOS 7：man 3 fopen</code> </p>
 <a id="more"></a>
@@ -313,29 +313,29 @@
 <td align="left">打开读取和追加（在文件结尾写入）。如果文件不存在，则创建该文件。用于读取的初始文件位置在文件的开头，但是输出总是附加在文件的结尾。</td>
 </tr>
 </tbody></table>
-<h2 id="关于fseek、ftell、rewind函数"><a href="#关于fseek、ftell、rewind函数" class="headerlink" title="关于fseek、ftell、rewind函数"></a>关于fseek、ftell、rewind函数</h2><p>对于文件的读写方式，C 语言不仅支持简单地顺序读写方式，还支持随机读写（即只要求读写文件中某一指定的部分）。对顺序读写方式来说，随机读写方式需要将文件内部的位置指针移动到需要读写的位置再进行读写，这通常也被称为文件的定位。</p>
-<h3 id="rewind"><a href="#rewind" class="headerlink" title="rewind"></a>rewind</h3><p>rewind 函数用于将文件内部的位置指针重新指向一个流（数据流或者文件）的起始位置。这里需要注意的是，这里的”指针”表示的不是文件指针，而是文件内部的位置指针。即随着对文件的读写，文件的位置指针（指向当前读写字节）向后移动。而文件指针指向整个文件，如果不重新赋值，文件指针不会发生改变。</p>
+<h2><span id="关于fseek-ftell-rewind函数">关于fseek、ftell、rewind函数</span></h2><p>对于文件的读写方式，C 语言不仅支持简单地顺序读写方式，还支持随机读写（即只要求读写文件中某一指定的部分）。对顺序读写方式来说，随机读写方式需要将文件内部的位置指针移动到需要读写的位置再进行读写，这通常也被称为文件的定位。</p>
+<h3><span id="rewind">rewind</span></h3><p>rewind 函数用于将文件内部的位置指针重新指向一个流（数据流或者文件）的起始位置。这里需要注意的是，这里的”指针”表示的不是文件指针，而是文件内部的位置指针。即随着对文件的读写，文件的位置指针（指向当前读写字节）向后移动。而文件指针指向整个文件，如果不重新赋值，文件指针不会发生改变。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rewind</span><span class="params">(FILE *fp)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>从上面的函数原型可以看出，rewind 并没有返回值，因此也无法做安全性检查。因此，应该尽量使用 fseek 来替换 rewind 函数，从而以验证流已经成功地回绕。</p>
-<h3 id="fseek"><a href="#fseek" class="headerlink" title="fseek"></a>fseek</h3><p>相对于 rewind 函数而言，fseek 函数的功能更加强大，它用来设定文件的当前读写位置，从而可以实现以任意顺序访问文件的不同位置，以实现文件的随机访问。</p>
+<h3><span id="fseek">fseek</span></h3><p>相对于 rewind 函数而言，fseek 函数的功能更加强大，它用来设定文件的当前读写位置，从而可以实现以任意顺序访问文件的不同位置，以实现文件的随机访问。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fseek</span><span class="params">(FILE *fp,<span class="keyword">long</span> offset,<span class="keyword">int</span> from)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h4 id="fseek的返回值"><a href="#fseek的返回值" class="headerlink" title="fseek的返回值"></a>fseek的返回值</h4><p>如果该函数执行成功，fp 将指向以 from 为基准，偏移 offset 个字节的位置，函数的返回值为 0；如果该函数执行失败（比如 offset 超过文件自身大小），则不改变 fp 指向的位置，函数的返回值为 -1，并设置 errno 的值，可以用 perror 函数来输出错误信息。</p>
-<h4 id="fseek的参数"><a href="#fseek的参数" class="headerlink" title="fseek的参数"></a>fseek的参数</h4><p>对于 fseek 函数中的参数：第一个参数 fp 为文件指针；第二个参数 offset 为偏移量，它表示要移动的字节数，整数表示正向偏移，负数表示负向偏移；第三个参数 from 表示设定从文件的哪里开始偏移，取值范围：<br>SEEK_SET 表示从文件起始位置增加 offset 个偏移量为新的读写位置；<br>SEEK_CUR 表示从目前的读写位置增加 offset 个偏移量为新的读写位置；<br>SEEK_END 表示将读写位置指向文件尾后，再增加 offset 个偏移量为新的读写位置。</p>
+<h4><span id="fseek的返回值">fseek的返回值</span></h4><p>如果该函数执行成功，fp 将指向以 from 为基准，偏移 offset 个字节的位置，函数的返回值为 0；如果该函数执行失败（比如 offset 超过文件自身大小），则不改变 fp 指向的位置，函数的返回值为 -1，并设置 errno 的值，可以用 perror 函数来输出错误信息。</p>
+<h4><span id="fseek的参数">fseek的参数</span></h4><p>对于 fseek 函数中的参数：第一个参数 fp 为文件指针；第二个参数 offset 为偏移量，它表示要移动的字节数，整数表示正向偏移，负数表示负向偏移；第三个参数 from 表示设定从文件的哪里开始偏移，取值范围：<br>SEEK_SET 表示从文件起始位置增加 offset 个偏移量为新的读写位置；<br>SEEK_CUR 表示从目前的读写位置增加 offset 个偏移量为新的读写位置；<br>SEEK_END 表示将读写位置指向文件尾后，再增加 offset 个偏移量为新的读写位置。</p>
 <ul>
 <li>调用 fseek 函数的文件指针 fp 应该指向已经打开的文件，否则将会出现错误。</li>
 <li>fseek 函数一般用于二进制文件，当然也可以用于文本文件。需要特别注意的是，当 fseek 函数用于文本文件操作时，一定要注意回车换行的情况。因为在一般浏览工具（如 UltraEdit）中，回车换行被视为两个字符 0x0D 和 0x0A，但真实的文件读写和定位却按照一个字符 0x0A 进行处理。因此，在碰到此类问题时，可以考虑将文件整个读入内存，然后在内存中手工插入 0x0D的方法，这样可以达到较好的处理效果。</li>
 <li>fseek 函数只返回执行的结果是否成功，并不返回文件的读写位置。因此，你可以使用 ftell 函数来取得当前文件的读写位置。</li>
 </ul>
-<h3 id="ftell"><a href="#ftell" class="headerlink" title="ftell"></a>ftell</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">ftell</span><span class="params">(FILE *fp)</span></span>;</span><br></pre></td></tr></table></figure>
+<h3><span id="ftell">ftell</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">ftell</span><span class="params">(FILE *fp)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>该函数用于得到文件位置指针当前位置相对于文件首的偏移字节数。在随机方式存取文件时，由于文件位置频繁前后移动，程序不容易确定文件的当前位置。在使用 fseek 函数后，再调用函数 ftell 就能非常容易地确定文件的当前位置。示例代码: </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">getfilelength</span><span class="params">(FILE *fp)</span></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> curpos = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">long</span> length = <span class="number">0L</span>;</span><br><span class="line">    curpos = ftell(fp);</span><br><span class="line">    fseek(fp, <span class="number">0L</span>, SEEK_END);</span><br><span class="line">    length = ftell(fp);</span><br><span class="line">    fseek(fp, curpos, SEEK_SET);</span><br><span class="line">    <span class="keyword">return</span> length;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="二、Linux系统接口：open"><a href="#二、Linux系统接口：open" class="headerlink" title="二、Linux系统接口：open"></a>二、Linux系统接口：open</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line">       </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags, <span class="keyword">mode_t</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2><span id="二-linux系统接口open">二、Linux系统接口：open</span></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line">       </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> flags, <span class="keyword">mode_t</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h3 id="参数说明："><a href="#参数说明：" class="headerlink" title="参数说明："></a>参数说明：</h3><p>pathname：要打开或者要创建的文件</p>
+<h3><span id="参数说明">参数说明：</span></h3><p>pathname：要打开或者要创建的文件</p>
 <p>flags：打开文件时，可以传入多个参数选项，用下面的一个或者多个常量进行 <code>或</code> 运算，这样就可以根据二进制位来判断打开文件的模式</p>
 <ul>
 <li>O_EDONLY：只读打开</li>
@@ -344,28 +344,28 @@
 <li>O_CREAT：若文件不存在，则创建它，需要使用mode选项来指定文件的访问权限</li>
 <li>O_APPEND：追加写入</li>
 </ul>
-<h3 id="返回值："><a href="#返回值：" class="headerlink" title="返回值："></a>返回值：</h3><p>成功：新打开的文件描述符</p>
-<h3 id="mode参数"><a href="#mode参数" class="headerlink" title="mode参数"></a>mode参数</h3><p>mode参数表示设置文件访问权限的初始值，和用户掩码umask有关，比如0644表示-rw-r–r–，也可以用S_IRUSR、S_IWUSR等宏定义按位或起来表示。要注意的是，有以下几点</p>
-<h4 id="umask"><a href="#umask" class="headerlink" title="umask"></a>umask</h4><p>umask与chmod是配套使用的，umask默认情况下的umask值是002，可以直接用umask命令查看，文件权限由open的mode参数和当前进程的umask掩码共同决定。</p>
+<h3><span id="返回值">返回值：</span></h3><p>成功：新打开的文件描述符</p>
+<h3><span id="mode参数">mode参数</span></h3><p>mode参数表示设置文件访问权限的初始值，和用户掩码umask有关，比如0644表示-rw-r–r–，也可以用S_IRUSR、S_IWUSR等宏定义按位或起来表示。要注意的是，有以下几点</p>
+<h4><span id="umask">umask</span></h4><p>umask与chmod是配套使用的，umask默认情况下的umask值是002，可以直接用umask命令查看，文件权限由open的mode参数和当前进程的umask掩码共同决定。</p>
 <p><img src="https://img.zouchanglin.cn///20200201/hdjA8cW3MeBk.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200201/4o5fQCdO7iGC.png" alt="mark"></p>
 <p> 从图中可以看出，只要umask设置的为1的二进制位，在新建文件的时候就不会加上这些权限！所以第三个参数是在第二个参数中有O_CREAT时才作用，如果没有创建新文件，则第三个参数可以忽略！ </p>
-<h3 id="接口使用示例"><a href="#接口使用示例" class="headerlink" title="接口使用示例"></a>接口使用示例</h3><p>写入数据：</p>
+<h3><span id="接口使用示例">接口使用示例</span></h3><p>写入数据：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  umask(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_WRONLY|O_CREAT, <span class="number">0664</span>);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> count = <span class="number">5</span>;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg = <span class="string">"hello bit!\n"</span>;</span><br><span class="line">  <span class="keyword">int</span> len = <span class="built_in">strlen</span>(msg);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span>(count--)&#123;</span><br><span class="line">   <span class="keyword">int</span> ret =  <span class="built_in">write</span>(fd, msg, len);</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">"实际写入数据%d字节\n"</span>, ret);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200201/dSVHvTK7uy3M.png" alt="mark"></p>
 <p> 读取数据： </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_RDONLY);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg = <span class="string">"hello bit!\n"</span>;</span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">   <span class="keyword">ssize_t</span> s =  <span class="built_in">read</span>(fd, buf, <span class="built_in">strlen</span>(msg));<span class="comment">//返回实际读到的字节数</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span>(s &gt; <span class="number">0</span>)&#123;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">"%s"</span>, buf);</span><br><span class="line">   &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">     <span class="keyword">break</span>;</span><br><span class="line">   &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="三、文件描述符与FILE结构体"><a href="#三、文件描述符与FILE结构体" class="headerlink" title="三、文件描述符与FILE结构体"></a>三、文件描述符与FILE结构体</h2><p>文件描述符就是open函数成功之后的值，本质就是一个数字！<br>Linux进程默认有3个缺省打开的文件描述符，分别是标准输入0，标准输出1，标准错误2，对应的物理设备分别是：键盘、显示器、显示器</p>
-<h3 id="进程怎么知道打开了那些文件呢？下面是PCB-task-struct-的一部分"><a href="#进程怎么知道打开了那些文件呢？下面是PCB-task-struct-的一部分" class="headerlink" title="进程怎么知道打开了那些文件呢？下面是PCB(task_struct)的一部分"></a>进程怎么知道打开了那些文件呢？下面是PCB(task_struct)的一部分</h3><p>查看task_struct结构体请看：<a href="https://zouchanglin.cn/2018/09/27/1569686293.html">《深入理解进程》</a>中的task_struct，很显然，Linux的进程是通过files_struct 类型的一个属性来管理打开得文件列表：</p>
+<h2><span id="三-文件描述符与file结构体">三、文件描述符与FILE结构体</span></h2><p>文件描述符就是open函数成功之后的值，本质就是一个数字！<br>Linux进程默认有3个缺省打开的文件描述符，分别是标准输入0，标准输出1，标准错误2，对应的物理设备分别是：键盘、显示器、显示器</p>
+<h3><span id="进程怎么知道打开了那些文件呢下面是pcbtask_struct的一部分">进程怎么知道打开了那些文件呢？下面是PCB(task_struct)的一部分</span></h3><p>查看task_struct结构体请看：<a href="https://zouchanglin.cn/2018/09/27/1569686293.html">《深入理解进程》</a>中的task_struct，很显然，Linux的进程是通过files_struct 类型的一个属性来管理打开得文件列表：</p>
 <p><img src="https://img.zouchanglin.cn///20200201/eKAf9hFh3tLT.png" alt="mark"></p>
 <p>而现在知道，文件描述符就是从0开始的小整数。当我们打开文件时，操作系统在内存中要创建相应的数据结构来描述目标文件。于是就有了file结构体。表示一个已经打开的文件对象。而进程执行open系统调用，所以必须让进程和文件关联起来。每个进程都有一个指针*files，指向一张表files_ struct，该表最重要的部分就是包涵一个指针数组，每个元素都是一个指向打开文件的指针!所以，本质上，文件描述符就是该数组的下标。所以，只要拿着文件描述符，就可以找到对应的文件！</p>
-<h3 id="文件描述符的分配规则："><a href="#文件描述符的分配规则：" class="headerlink" title="文件描述符的分配规则："></a>文件描述符的分配规则：</h3><p><strong>从0开始分配最小的，可用的！</strong> 看代码理解一下：</p>
+<h3><span id="文件描述符的分配规则">文件描述符的分配规则：</span></h3><p><strong>从0开始分配最小的，可用的！</strong> 看代码理解一下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fun</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_RDONLY);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"fd = %d\n"</span>, fd);</span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fun2</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="built_in">close</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_RDONLY);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"fd = %d\n"</span>, fd);</span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="comment">//fun(); </span></span><br><span class="line">  fun2();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>调用fun()的时候打印3，调用fun2()的时候打印0，所以<strong>从0开始分配最小的，可用的！</strong></p>
-<h3 id="文件描述符与重定向"><a href="#文件描述符与重定向" class="headerlink" title="文件描述符与重定向"></a>文件描述符与重定向</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="built_in">close</span>(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_WRONLY|O_CREAT, <span class="number">00644</span>);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"fd = %d\n"</span>, fd);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3><span id="文件描述符与重定向">文件描述符与重定向</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="built_in">close</span>(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"myfile"</span>, O_WRONLY|O_CREAT, <span class="number">00644</span>);</span><br><span class="line">  <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    perror(<span class="string">"open"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"fd = %d\n"</span>, fd);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">close</span>(fd);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200201/JzMMMpjpW2Rr.png" alt="mark"></p>
 <p>从上面的代码不难看出：本来应该打印到屏幕的内容却输出到了文件中，这就实现了重定向！从下图中可以看出： </p>
@@ -377,15 +377,15 @@
 <p>运行结果</p>
 <p><img src="https://img.zouchanglin.cn///20200201/Wlxo9rktSP85.png" alt="mark"></p>
 <p>从结果不难看出，其实只要关闭了0号文件描述符，然后打开的文件就会分配到0号文件描述符，所以这样就完成了输入重定向，这样的话追加重定向输入其实也不难，只要把文件指针在写入文件的时候使用<code>O_APPEND</code>参数即可完成！</p>
-<h3 id="FILE结构体"><a href="#FILE结构体" class="headerlink" title="FILE结构体"></a>FILE结构体</h3><p>FILE结构体是C库中封装的描述文件的结构体：</p>
+<h3><span id="file结构体">FILE结构体</span></h3><p>FILE结构体是C库中封装的描述文件的结构体：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> _flags;		<span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_file_flags _flags</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//缓冲区相关</span></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_base;	<span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_ptr;	<span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_end;	<span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> _fileno; <span class="comment">//文件描述符</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  <span class="keyword">int</span> _blksize;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">int</span> _flags2;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  _IO_off_t _old_offset; <span class="comment">/* This used to be _offset but it's too small.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __HAVE_COLUMN <span class="comment">/* temporary */</span></span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="keyword">unsigned</span> short _cur_column;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">char</span> _vtable_offset;</span><br><span class="line">  <span class="keyword">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*  char* _save_gptr;  char* _save_egptr; */</span></span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>可见，FILE结构体中封装了文件描述符</p>
-<h4 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg0 = <span class="string">"hello printf\n"</span>; </span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg1 = <span class="string">"hello fwrite\n"</span>;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg2 = <span class="string">"hello write\n"</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"%s"</span>, msg0);</span><br><span class="line">  fwrite(msg1, <span class="built_in">strlen</span>(msg0), <span class="number">1</span>, <span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">write</span>(<span class="number">1</span>, msg2, <span class="built_in">strlen</span>(msg2));</span><br><span class="line"></span><br><span class="line">  fork();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4><span id="示例代码">示例代码</span></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg0 = <span class="string">"hello printf\n"</span>; </span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg1 = <span class="string">"hello fwrite\n"</span>;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *msg2 = <span class="string">"hello write\n"</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"%s"</span>, msg0);</span><br><span class="line">  fwrite(msg1, <span class="built_in">strlen</span>(msg0), <span class="number">1</span>, <span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">write</span>(<span class="number">1</span>, msg2, <span class="built_in">strlen</span>(msg2));</span><br><span class="line"></span><br><span class="line">  fork();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200201/jok5UY06qDf1.png" alt="mark"></p>
 <p>如果只是打印出来，很显然只是打印了三次，但是如果是重定向到一个文件中，printf与fwrite都输出了两次，只有write始终只输出一次，这是什么原因呢？<br><strong>肯定和缓冲区有关系！！！</strong><br>先说几种缓冲的区别：<br>行缓冲：意思就会说只是缓冲一行，当行结束的时候缓冲区就满了，就会刷新流数据，printf()就是典型的行缓冲！<br>全缓冲：意思就是只有缓冲区写满了才会刷新流，除非我们自己主动刷新<br>无缓冲：不存在缓冲区，也就是没事每刻都在刷新流！ </p>
-<h4 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h4><ul>
+<h4><span id="原因分析">原因分析</span></h4><ul>
 <li>一般写入文件的时候就是全缓冲，但是打印到显示器的时候就是行缓冲，当重定向到普通文件的时候行缓冲变成了全缓冲</li>
 <li>放在缓冲区的数据不会立即刷新，甚至fork之后也不会刷新</li>
 <li>进程退出后才刷新，写入文件中</li>
@@ -581,7 +581,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、fopen函数"><span class="toc-number">1.</span> <span class="toc-text">一、fopen函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于fseek、ftell、rewind函数"><span class="toc-number">2.</span> <span class="toc-text">关于fseek、ftell、rewind函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#rewind"><span class="toc-number">2.1.</span> <span class="toc-text">rewind</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fseek"><span class="toc-number">2.2.</span> <span class="toc-text">fseek</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fseek的返回值"><span class="toc-number">2.2.1.</span> <span class="toc-text">fseek的返回值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fseek的参数"><span class="toc-number">2.2.2.</span> <span class="toc-text">fseek的参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ftell"><span class="toc-number">2.3.</span> <span class="toc-text">ftell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Linux系统接口：open"><span class="toc-number">3.</span> <span class="toc-text">二、Linux系统接口：open</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数说明："><span class="toc-number">3.1.</span> <span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#返回值："><span class="toc-number">3.2.</span> <span class="toc-text">返回值：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mode参数"><span class="toc-number">3.3.</span> <span class="toc-text">mode参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#umask"><span class="toc-number">3.3.1.</span> <span class="toc-text">umask</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#接口使用示例"><span class="toc-number">3.4.</span> <span class="toc-text">接口使用示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、文件描述符与FILE结构体"><span class="toc-number">4.</span> <span class="toc-text">三、文件描述符与FILE结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#进程怎么知道打开了那些文件呢？下面是PCB-task-struct-的一部分"><span class="toc-number">4.1.</span> <span class="toc-text">进程怎么知道打开了那些文件呢？下面是PCB(task_struct)的一部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件描述符的分配规则："><span class="toc-number">4.2.</span> <span class="toc-text">文件描述符的分配规则：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件描述符与重定向"><span class="toc-number">4.3.</span> <span class="toc-text">文件描述符与重定向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FILE结构体"><span class="toc-number">4.4.</span> <span class="toc-text">FILE结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#示例代码"><span class="toc-number">4.4.1.</span> <span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#原因分析"><span class="toc-number">4.4.2.</span> <span class="toc-text">原因分析</span></a></li></ol></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">一、fopen函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">关于fseek、ftell、rewind函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">rewind</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">fseek</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.2.1.</span> <span class="toc-text">fseek的返回值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.2.2.</span> <span class="toc-text">fseek的参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">ftell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">二、Linux系统接口：open</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">返回值：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">mode参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">3.3.1.</span> <span class="toc-text">umask</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">接口使用示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">三、文件描述符与FILE结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">进程怎么知道打开了那些文件呢？下面是PCB(task_struct)的一部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">文件描述符的分配规则：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">文件描述符与重定向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">FILE结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">4.4.1.</span> <span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">4.4.2.</span> <span class="toc-text">原因分析</span></a></li></ol></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -740,18 +740,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -764,6 +752,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -772,15 +764,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -797,6 +797,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -904,15 +912,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -920,11 +920,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -936,11 +940,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -949,6 +953,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1000,10 +1012,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1032,6 +1040,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1052,6 +1064,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1065,6 +1081,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1104,15 +1124,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1129,22 +1149,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

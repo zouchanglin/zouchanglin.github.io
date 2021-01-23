@@ -280,23 +280,23 @@
     
 
 	
-		<h1 id="Docker镜像"><a href="#Docker镜像" class="headerlink" title="Docker镜像"></a>Docker镜像</h1><p>镜像是一种轻量级、可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。</p>
-<h2 id="UnionFS（联合文件系统）"><a href="#UnionFS（联合文件系统）" class="headerlink" title="UnionFS（联合文件系统）"></a>UnionFS（联合文件系统）</h2><p>UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。Union 文件系统是 Docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。</p>
+		<h1><span id="docker镜像">Docker镜像</span></h1><p>镜像是一种轻量级、可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。</p>
+<h2><span id="unionfs联合文件系统">UnionFS（联合文件系统）</span></h2><p>UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。Union 文件系统是 Docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。</p>
 <p>特性：一次同时加载多个文件系统，但从外面看起来，只能看到一个文件系统，联合加载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录</p>
 <a id="more"></a>
 
-<h2 id="Docker镜像加载原理"><a href="#Docker镜像加载原理" class="headerlink" title="Docker镜像加载原理"></a>Docker镜像加载原理</h2><p>docker的镜像实际上由一层一层的文件系统组成，这种层级的文件系统UnionFS。<br>bootfs(boot file system)主要包含bootloader和kernel, bootloader主要是引导加载kernel, Linux刚启动时会加载bootfs文件系统，在Docker镜像的最底层是bootfs。这一层与我们典型的Linux/Unix系统是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs。</p>
+<h2><span id="docker镜像加载原理">Docker镜像加载原理</span></h2><p>docker的镜像实际上由一层一层的文件系统组成，这种层级的文件系统UnionFS。<br>bootfs(boot file system)主要包含bootloader和kernel, bootloader主要是引导加载kernel, Linux刚启动时会加载bootfs文件系统，在Docker镜像的最底层是bootfs。这一层与我们典型的Linux/Unix系统是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs。</p>
 <p>rootfs (root file system) ，在bootfs之上。包含的就是典型 Linux 系统中的 /dev, /proc, /bin, /etc 等标准目录和文件。rootfs就是各种不同的操作系统发行版，比如Ubuntu，Centos等</p>
 <p><img src="https://img.zouchanglin.cn///20200202/yDs2QQwv8dpq.png" alt="mark"></p>
 <p>这也就解释了为什么我们开的虚拟机很大，但是Docker里面的镜像却很小：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/OX2TgKCCSt6W.png" alt="mark"></p>
 <p>对于一个精简的OS，rootfs可以很小，只需要包括最基本的命令、工具和程序库就可以了，因为底层直接用Host的kernel，自己只需要提供 rootfs 就行了。由此可见对于不同的linux发行版, bootfs基本是一致的, rootfs会有差别, 因此不同的发行版可以公用bootfs。</p>
-<h2 id="分层的镜像"><a href="#分层的镜像" class="headerlink" title="分层的镜像"></a>分层的镜像</h2><p>以pull为例，在下载的过程中可以看到docker的镜像好像是在一层一层的在下载，这也就解释了为什么Tomcat的镜像那么大</p>
+<h2><span id="分层的镜像">分层的镜像</span></h2><p>以pull为例，在下载的过程中可以看到docker的镜像好像是在一层一层的在下载，这也就解释了为什么Tomcat的镜像那么大</p>
 <p><img src="https://img.zouchanglin.cn///20200202/dAV1lInFS3Hl.png" alt="mark"></p>
 <p>最大的一个好处就是 - <strong>共享资源</strong></p>
 <p>比如：有多个镜像都从相同的 base 镜像构建而来，那么宿主机只需在磁盘上保存一份base镜像，<br>同时内存中也只需加载一份 base 镜像，就可以为所有容器服务了，而且镜像的每一层都可以被共享。</p>
-<h2 id="镜像的特点"><a href="#镜像的特点" class="headerlink" title="镜像的特点"></a>镜像的特点</h2><p>Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部。这一层通常被称作“容器层”，“容器层”之下的都叫“镜像层”。</p>
-<h2 id="Docker镜像commit操作"><a href="#Docker镜像commit操作" class="headerlink" title="Docker镜像commit操作"></a>Docker镜像commit操作</h2><p>docker commit 提交容器副本使之成为一个新的镜像</p>
+<h2><span id="镜像的特点">镜像的特点</span></h2><p>Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部。这一层通常被称作“容器层”，“容器层”之下的都叫“镜像层”。</p>
+<h2><span id="docker镜像commit操作">Docker镜像commit操作</span></h2><p>docker commit 提交容器副本使之成为一个新的镜像</p>
 <p><code>docker commit -m=&quot;提交的描述信息&quot; -a=&quot;作者&quot; 容器ID 要创建的目标镜像名:[标签名]</code></p>
 <p>演示操作</p>
 <p>1、先下载一个Tomcat镜像，并且运行Tomcat </p>
@@ -319,7 +319,7 @@
 <p>4、后台方式启动Tomcat</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 tomcat</span><br></pre></td></tr></table></figure>
 <p><img src="https://img.zouchanglin.cn///20200202/yxuAvhWknrnU.png" alt="mark"></p>
-<h1 id="Docker容器数据卷"><a href="#Docker容器数据卷" class="headerlink" title="Docker容器数据卷"></a>Docker容器数据卷</h1><p>先来看看Docker的理念：</p>
+<h1><span id="docker容器数据卷">Docker容器数据卷</span></h1><p>先来看看Docker的理念：</p>
 <p>1、将运用与运行的环境打包形成容器运行 ，运行可以伴随着容器，但是我们对数据的要求希望是持久化的</p>
 <p>2、容器之间希望有可能共享数据</p>
 <p>Docker容器产生的数据，如果不通过docker commit生成新的镜像，使得数据做为镜像的一部分保存下来，<br>那么当容器删除后，数据自然也就没有了。</p>
@@ -328,7 +328,7 @@
 <p>卷就是目录或文件，存在于一个或多个容器中，由docker挂载到容器，但不属于联合文件系统，因此能够绕过Union File System提供一些用于持续存储或共享数据的特性：</p>
 <p>卷的设计目的就是数据的持久化，完全独立于容器的生存周期，因此Docker不会在容器删除时删除其挂载的数据卷</p>
 <p>特点：<br>1：数据卷可在容器之间共享或重用数据<br>2：卷中的更改可以直接生效<br>3：数据卷中的更改不会包含在镜像的更新中<br>4：数据卷的生命周期一直持续到没有容器使用它为止</p>
-<h2 id="添加数据卷-使用-v命令"><a href="#添加数据卷-使用-v命令" class="headerlink" title="添加数据卷 _使用-v命令"></a>添加数据卷 _使用-v命令</h2><p> docker run -it -v /宿主机绝对路径目录:/容器内目录      镜像名</p>
+<h2><span id="添加数据卷-_使用-v命令">添加数据卷 _使用-v命令</span></h2><p> docker run -it -v /宿主机绝对路径目录:/容器内目录      镜像名</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -v &#x2F;myDataVolume:&#x2F;dataVolumeContainer centos</span><br></pre></td></tr></table></figure>
 
 <p>这样便添加了数据卷</p>
@@ -344,7 +344,7 @@
 
 <p>ro即是ReadOnly，只读，不允许容器修改数据卷，而宿主机才可以！</p>
 <p><img src="https://img.zouchanglin.cn///20200202/xyyIlDA90H09.png" alt="mark"></p>
-<h2 id="添加数据卷-使用Dockerfile"><a href="#添加数据卷-使用Dockerfile" class="headerlink" title="添加数据卷_使用Dockerfile"></a>添加数据卷_使用Dockerfile</h2><p>在Linux下写项目很多时候用到makefile来构建工程，或者是通过Shell脚本把一系列的操作封装起来，所以理解Dockerfile就不难，之前说过镜像是层层包裹的，就比如：Tomcat镜像肯定是依赖于JDK镜像的，所以Dockerfile还是很重要的</p>
+<h2><span id="添加数据卷_使用dockerfile">添加数据卷_使用Dockerfile</span></h2><p>在Linux下写项目很多时候用到makefile来构建工程，或者是通过Shell脚本把一系列的操作封装起来，所以理解Dockerfile就不难，之前说过镜像是层层包裹的，就比如：Tomcat镜像肯定是依赖于JDK镜像的，所以Dockerfile还是很重要的</p>
 <p>先编写Dockerfile (注意VOLUME后面有空格)</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost mydocker]<span class="comment"># cat Dockerfile </span></span><br><span class="line"><span class="comment"># volume test</span></span><br><span class="line">FROM centos</span><br><span class="line">VOLUME [<span class="string">"/dataVolume1"</span>,<span class="string">"/dataVolume2"</span>]</span><br><span class="line">CMD <span class="built_in">echo</span> <span class="string">"finished, ------success"</span></span><br><span class="line">CMD /bin/bash</span><br><span class="line">[root@localhost mydocker]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
 
@@ -355,7 +355,7 @@
 <p><img src="https://img.zouchanglin.cn///20200202/BKIGDKlQcHVm.png" alt="mark"></p>
 <p>如果Docker挂载主机目录Docker访问出现cannot open directory .: Permission denied，解决办法：在挂载目录后多加一个<code>--privileged=true</code>参数即可</p>
 <p>所以到目前为止可以吧数据卷简单的理解为虚拟机和物理机的共享文件夹，上面讲述了两种创建容器数据卷的方式，方式一不是很常用，使用Dockerfile的方式是更适合使用的！</p>
-<h2 id="数据卷容器"><a href="#数据卷容器" class="headerlink" title="数据卷容器"></a>数据卷容器</h2><p>命名的容器挂载数据卷，其它容器通过挂载这个(父容器)实现数据共享，挂载数据卷的容器，称之为数据卷容器</p>
+<h2><span id="数据卷容器">数据卷容器</span></h2><p>命名的容器挂载数据卷，其它容器通过挂载这个(父容器)实现数据共享，挂载数据卷的容器，称之为数据卷容器</p>
 <p><img src="https://img.zouchanglin.cn///20200202/soBwI9TkHVpY.png" alt="mark"></p>
 <p>先见了三个容器，dc01是之前建好的，里面有容器卷dataVolume1，dataVolume2，剩下两个容器分别是dc02，dc03，然后通过</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name dc02 --volumes-from dc01 tim&#x2F;centos</span><br></pre></td></tr></table></figure>
@@ -555,7 +555,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker镜像"><span class="toc-number">1.</span> <span class="toc-text">Docker镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#UnionFS（联合文件系统）"><span class="toc-number">1.1.</span> <span class="toc-text">UnionFS（联合文件系统）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker镜像加载原理"><span class="toc-number">1.2.</span> <span class="toc-text">Docker镜像加载原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分层的镜像"><span class="toc-number">1.3.</span> <span class="toc-text">分层的镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#镜像的特点"><span class="toc-number">1.4.</span> <span class="toc-text">镜像的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker镜像commit操作"><span class="toc-number">1.5.</span> <span class="toc-text">Docker镜像commit操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker容器数据卷"><span class="toc-number">2.</span> <span class="toc-text">Docker容器数据卷</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#添加数据卷-使用-v命令"><span class="toc-number">2.1.</span> <span class="toc-text">添加数据卷 _使用-v命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加数据卷-使用Dockerfile"><span class="toc-number">2.2.</span> <span class="toc-text">添加数据卷_使用Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据卷容器"><span class="toc-number">2.3.</span> <span class="toc-text">数据卷容器</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Docker镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">UnionFS（联合文件系统）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">Docker镜像加载原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">分层的镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">镜像的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">Docker镜像commit操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Docker容器数据卷</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">添加数据卷 _使用-v命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">添加数据卷_使用Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">数据卷容器</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -714,18 +714,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -738,6 +726,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -746,15 +738,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -771,6 +771,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,15 +886,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,11 +894,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -910,11 +914,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -923,6 +927,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -974,10 +986,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1006,6 +1014,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1026,6 +1038,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1039,6 +1055,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1078,15 +1098,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1103,22 +1123,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

@@ -279,23 +279,23 @@
 <p>新建一个SpringBoot项目，首先映入眼帘的恐怕就是下面的这个关键的Main函数与@SpringBootApplication注解吧，我们将从这个注解开始，逐步探究SpringBoot应用的启动流程：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBootStartApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringBootStartApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h1><p>@SpringBootApplication注解实际上是SpringBoot提供的一个复合注解，我们来看一看其源码： </p>
+<h1><span id="springbootapplication">@SpringBootApplication</span></h1><p>@SpringBootApplication注解实际上是SpringBoot提供的一个复合注解，我们来看一看其源码： </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@SpringBootConfiguration</span></span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span></span><br><span class="line"><span class="meta">@ComponentScan</span>(excludeFilters = &#123; <span class="meta">@Filter</span>(type = FilterType.CUSTOM, classes = TypeExcludeFilter<span class="class">.<span class="keyword">class</span>),</span></span><br><span class="line"><span class="class">		@<span class="title">Filter</span>(<span class="title">type</span> </span>= FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter<span class="class">.<span class="keyword">class</span>) &#125;)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">SpringBootApplication</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>关于这里面某些元注解的功能，可以参考我之前的写的一篇博客<a href="https://zouchanglin.cn/2020/04/12/607028132.html">《 注解的原理与实现 》</a> 。在这里我们只需要看@SpringBootConfiguration、@EnableAutoConfiguration、@ComponentScan这三个注解。在 SpringBoot 应用的启动类上用这个三个注解代替@SpringBootApplication注解其实也是没问题的： </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootConfiguration</span></span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBootStartApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringBootStartApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>那我们接下来就需要分贝探究这三个注解的功能。</p>
-<h2 id="SpringBootConfiguration"><a href="#SpringBootConfiguration" class="headerlink" title="@SpringBootConfiguration"></a>@SpringBootConfiguration</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootConfiguration &#123;</span><br><span class="line">    <span class="meta">@AliasFor</span>(</span><br><span class="line">        annotation = Configuration<span class="class">.<span class="keyword">class</span></span></span><br><span class="line"><span class="class">    )</span></span><br><span class="line"><span class="class">    <span class="title">boolean</span> <span class="title">proxyBeanMethods</span>() <span class="title">default</span> <span class="title">true</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2><span id="springbootconfiguration">@SpringBootConfiguration</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootConfiguration &#123;</span><br><span class="line">    <span class="meta">@AliasFor</span>(</span><br><span class="line">        annotation = Configuration<span class="class">.<span class="keyword">class</span></span></span><br><span class="line"><span class="class">    )</span></span><br><span class="line"><span class="class">    <span class="title">boolean</span> <span class="title">proxyBeanMethods</span>() <span class="title">default</span> <span class="title">true</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>@SpringBootConfiguration也是来源于@Configuration，二者功能都是将当前类标注为配置类，@Configuration用于定义配置类，可替换xml配置文件，被注解的类内部包含有一个或多个被@Bean注解的方法，这些方法将会被AnnotationConfigApplicationContext或AnnotationConfigWebApplicationContext类进行扫描，并用于构建Bean定义，初始化Spring容器，这个貌似一点都不新奇。</p>
-<h2 id="EnableAutoConfiguration"><a href="#EnableAutoConfiguration" class="headerlink" title="@EnableAutoConfiguration"></a>@EnableAutoConfiguration</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@AutoConfigurationPackage</span></span><br><span class="line"><span class="meta">@Import</span>(AutoConfigurationImportSelector<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">EnableAutoConfiguration</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2><span id="enableautoconfiguration">@EnableAutoConfiguration</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@AutoConfigurationPackage</span></span><br><span class="line"><span class="meta">@Import</span>(AutoConfigurationImportSelector<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">EnableAutoConfiguration</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>@EnableAutoConfiguration 注解启用自动配置，其中最关键的要属@Import(AutoConfigurationImportSelector.class)，借AutoConfigurationImportSelector，@EnableAutoConfiguration可以帮助SpringBoot应用将所有符合条件的@Configuration配置都加载到当前SpringBoot创建并使用的IoC容器。</p>
 <p>借助于Spring框架原有的一个工具类：SpringFactoriesLoader的支持，<code>@EnableAutoConfiguration</code>可以智能的自动配置功效才得以大功告成！ </p>
 <p><img src="https://img.zouchanglin.cn///20200425/i8PydmvtoSrV.png" alt="mark"></p>
 <p>关于这个注解可以参考我的另一篇文章<a href="https://zouchanglin.cn/2020/04/06/3966649780.html">《SpringBoot自动配置原理》</a> ，里面有详细介绍并且有例子。</p>
-<h2 id="ComponentScan"><a href="#ComponentScan" class="headerlink" title="@ComponentScan"></a>@ComponentScan</h2><p>@ComponentScan 对应于XML配置形式中的 context:component-scan，用于将一些标注了特定注解的bean定义批量采集注册到Spring的IoC容器之中，这些特定的注解大致包括：</p>
+<h2><span id="componentscan">@ComponentScan</span></h2><p>@ComponentScan 对应于XML配置形式中的 context:component-scan，用于将一些标注了特定注解的bean定义批量采集注册到Spring的IoC容器之中，这些特定的注解大致包括：</p>
 <ul>
 <li>@Controller</li>
 <li>@Entity</li>
@@ -306,7 +306,7 @@
 <p>对于该注解可以通过 basePackages 属性来更细粒度的控制该注解的自动扫描范围，比如： </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span>(basePackages = &#123;<span class="string">"xpu.tim.controller"</span>,<span class="string">"xpu.tim.entity"</span>&#125;)</span><br></pre></td></tr></table></figure>
 
-<h1 id="SpringApplication对象构造流程"><a href="#SpringApplication对象构造流程" class="headerlink" title="SpringApplication对象构造流程"></a>SpringApplication对象构造流程</h1><p>@SpringBootApplication这个注解看完了， 那么接下来就来看看这个SpringApplication以及run()方法究竟干了些啥。原始的SpringCore中并没有这个类，SpringApplication里面封装了一套Spring 应用的启动流程，然而这对用户完全透明，因此我们上手 SpringBoot 时感觉简洁、轻量。 </p>
+<h1><span id="springapplication对象构造流程">SpringApplication对象构造流程</span></h1><p>@SpringBootApplication这个注解看完了， 那么接下来就来看看这个SpringApplication以及run()方法究竟干了些啥。原始的SpringCore中并没有这个类，SpringApplication里面封装了一套Spring 应用的启动流程，然而这对用户完全透明，因此我们上手 SpringBoot 时感觉简洁、轻量。 </p>
 <p>通过阅读run方法的源码我们不难发现，其实是需要构造一个SpringApplication对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Static helper that can be used to run a &#123;<span class="doctag">@link</span> SpringApplication&#125; from the</span></span><br><span class="line"><span class="comment"> * specified sources using default settings and user supplied arguments.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> primarySources the primary sources to load</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> args the application arguments (usually passed from a Java main method)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the running &#123;<span class="doctag">@link</span> ApplicationContext&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ConfigurableApplicationContext <span class="title">run</span><span class="params">(Class&lt;?&gt;[] primarySources, String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SpringApplication(primarySources).run(args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -326,7 +326,7 @@
 <p>4、deduceMainApplicationClass：推断并设置main方法的定义类</p>
 <p><img src="https://img.zouchanglin.cn///20200425/63ANbvMNGdHc.png" alt="mark"></p>
 <p>通过这个几个关键步骤，SpringApplication完成了实例化。</p>
-<h1 id="run-方法探究"><a href="#run-方法探究" class="headerlink" title="run()方法探究"></a>run()方法探究</h1><p>之前我们弄清楚了SpringApplication的实例化过程，现在看看它的run方法究竟干了什么：</p>
+<h1><span id="run方法探究">run()方法探究</span></h1><p>之前我们弄清楚了SpringApplication的实例化过程，现在看看它的run方法究竟干了什么：</p>
 <p><img src="https://img.zouchanglin.cn///20200425/VMRfyb5SSFt8.png" alt="mark"></p>
 <p>1、通过 SpringFactoriesLoader 加载META-INF/spring.factories文件，获取并创建SpringApplicationRunListener对象；</p>
 <p>2、然后由SpringApplicationRunListener来发出starting消息；</p>
@@ -343,11 +343,11 @@
 <blockquote>
 <p>步骤4和5之间还有个PrintBanner，用来打印Banner</p>
 </blockquote>
-<h2 id="createApplicationContext"><a href="#createApplicationContext" class="headerlink" title="createApplicationContext()"></a>createApplicationContext()</h2><p>下面这段代码主要是根据项目类型创建上下文，并且会注入几个核心组件类：</p>
+<h2><span id="createapplicationcontext">createApplicationContext()</span></h2><p>下面这段代码主要是根据项目类型创建上下文，并且会注入几个核心组件类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> ConfigurableApplicationContext <span class="title">createApplicationContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Class&lt;?&gt; contextClass = <span class="keyword">this</span>.applicationContextClass;</span><br><span class="line">    <span class="keyword">if</span> (contextClass == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">switch</span> (<span class="keyword">this</span>.webApplicationType) &#123;</span><br><span class="line">                <span class="keyword">case</span> SERVLET:</span><br><span class="line">                    contextClass = Class.forName(DEFAULT_SERVLET_WEB_CONTEXT_CLASS);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> REACTIVE:</span><br><span class="line">                    contextClass = Class.forName(DEFAULT_REACTIVE_WEB_CONTEXT_CLASS);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line">                    contextClass = Class.forName(DEFAULT_CONTEXT_CLASS);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">                <span class="string">"Unable create a default ApplicationContext, please specify an ApplicationContextClass"</span>, ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (ConfigurableApplicationContext) BeanUtils.instantiateClass(contextClass);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>Web类型项目创建上下文对象AnnotationConfigServletWebServerApplicationContext 。这里会把ConfigurationClassPostProcessor 、AutowiredAnnotationBeanPostProcessor 等一些核心组件加入到Spring容器。</p>
-<h2 id="refreshContext"><a href="#refreshContext" class="headerlink" title="refreshContext()"></a>refreshContext()</h2><p>下面一起来看下refreshContext(context) 这个方法，这个方法启动spring的代码加载了bean，还启动了内置web容器：</p>
+<h2><span id="refreshcontext">refreshContext()</span></h2><p>下面一起来看下refreshContext(context) 这个方法，这个方法启动spring的代码加载了bean，还启动了内置web容器：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">refreshContext</span><span class="params">(ConfigurableApplicationContext context)</span> </span>&#123;</span><br><span class="line">    refresh(context);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.registerShutdownHook) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            context.registerShutdownHook();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (AccessControlException ex) &#123;</span><br><span class="line">            <span class="comment">// Not allowed in some environments.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>点击跟进后发现方法里面是spring容器启动代码：</p>
@@ -362,7 +362,7 @@
 <p>我们再去看factory.getWebServer(getSelfInitializer()) ，转到定义就会看到很熟悉的名字tomcat：</p>
 <p><img src="https://img.zouchanglin.cn///20200425/dMlWNzs44JIc.png" alt="mark"></p>
 <p>内置的Servlet容器就是在onRefresh()方法里面启动的，至此一个Servlet容器就启动OK了。 </p>
-<h1 id="SpringBoot启动过程简述"><a href="#SpringBoot启动过程简述" class="headerlink" title="SpringBoot启动过程简述"></a>SpringBoot启动过程简述</h1><p>1、new了一个SpringApplication对象，使用SPI技术加载加载 ApplicationContextInitializer、ApplicationListener 接口实例；</p>
+<h1><span id="springboot启动过程简述">SpringBoot启动过程简述</span></h1><p>1、new了一个SpringApplication对象，使用SPI技术加载加载 ApplicationContextInitializer、ApplicationListener 接口实例；</p>
 <p>2、调用SpringApplication.run()方法；</p>
 <p>3、调用createApplicationContext()方法创建上下文对象，创建上下文对象同时会注册spring的核心组件类（ConfigurationClassPostProcessor 、AutowiredAnnotationBeanPostProcessor 等）；</p>
 <p>4、调用refreshContext() 方法启动Spring容器和内置的Servlet容器；</p>
@@ -564,7 +564,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringBootApplication"><span class="toc-number">1.</span> <span class="toc-text">@SpringBootApplication</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SpringBootConfiguration"><span class="toc-number">1.1.</span> <span class="toc-text">@SpringBootConfiguration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EnableAutoConfiguration"><span class="toc-number">1.2.</span> <span class="toc-text">@EnableAutoConfiguration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ComponentScan"><span class="toc-number">1.3.</span> <span class="toc-text">@ComponentScan</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringApplication对象构造流程"><span class="toc-number">2.</span> <span class="toc-text">SpringApplication对象构造流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#run-方法探究"><span class="toc-number">3.</span> <span class="toc-text">run()方法探究</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#createApplicationContext"><span class="toc-number">3.1.</span> <span class="toc-text">createApplicationContext()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#refreshContext"><span class="toc-number">3.2.</span> <span class="toc-text">refreshContext()</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringBoot启动过程简述"><span class="toc-number">4.</span> <span class="toc-text">SpringBoot启动过程简述</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">@SpringBootApplication</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">@SpringBootConfiguration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">@EnableAutoConfiguration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">@ComponentScan</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">SpringApplication对象构造流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">run()方法探究</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">createApplicationContext()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">refreshContext()</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">SpringBoot启动过程简述</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -723,18 +723,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -747,6 +735,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -755,15 +747,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -780,6 +780,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -887,15 +895,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -903,11 +903,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -919,11 +923,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -932,6 +936,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -983,10 +995,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1015,6 +1023,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1035,6 +1047,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1048,6 +1064,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1087,15 +1107,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1112,22 +1132,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

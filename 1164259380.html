@@ -269,13 +269,13 @@
 <p>关于MySQL的锁机制问题，在之前的博客中有谈到<a href="https://zouchanglin.cn/2019/10/25/2652162611.html">《探究MySQL锁机制》</a> ，里面对锁的讲解比较详细，现在是在原来的基础上谈谈数据库事务相关的问题。简单来说事务就是要保证一组数据库操作，要么全部成功，要么全部失败。在MySQL中，事务支持是在引擎层实现的。你现在知道，MySQL是一个支持多引擎的系统，但并不是所有的引|擎都支持事务。比如MySQL原生的MyISAM引擎就不支持事务，这也是MyISAM被InnoDB取代的重要原因之一。首先要知道的是数据库事务四大特性：ACID</p>
 <a id="more"></a>
 
-<h2 id="事务四大特性ACID"><a href="#事务四大特性ACID" class="headerlink" title="事务四大特性ACID"></a>事务四大特性ACID</h2><ul>
+<h2><span id="事务四大特性acid">事务四大特性ACID</span></h2><ul>
 <li>原子性 Atomic：事务是一个原子操作单元， 其对数据的修改，要么全都执行，要么全都不执行。 </li>
 <li>一致性 Consistency：在事务开始和完成时， 数据都必须保持一致状态。这意味着所有相关的数据规则都必须应用于事务的修改，以保持数据的完整性；事务结束时，所有的内部数据结构(如B树索引或双向链表)也都必须是正确的。 </li>
 <li>隔离性 Isolation：数据库系统提供一定的隔离机制，保证事务在不受外部并发操作影响的“独立”环境执行。这意味着事务处理过程中的中间状态对外部是不可见的，反之亦然。 </li>
 <li>持久性 Durability：事务完成之后，它对于数据的修改是永久性的，即使出现系统故障也能够保持。 </li>
 </ul>
-<h2 id="并发事务处理的问题"><a href="#并发事务处理的问题" class="headerlink" title="并发事务处理的问题"></a>并发事务处理的问题</h2><p>1、更新丢失</p>
+<h2><span id="并发事务处理的问题">并发事务处理的问题</span></h2><p>1、更新丢失</p>
 <p>当两个或多个事务选择同一行，然后基于最初选定的值更新该行时，由于每个事务都不知道其他事务的存在，就会发生丢失更新问题，这就是最后的更新覆盖了由其他事务所做的更新。</p>
 <p>例如，两个程序员修改同一个Java文件。每程序员独立地更改其副本，然后保存更改后的副本，这样就覆盖了原始文档。最后保存其更改副本的编辑人员覆盖前一个程序员所做的更改。如果在一个程序员完成并提交事务之前，另一个程序员不能访问同一文件，则可避免此问题。</p>
 <p>2、脏读</p>
@@ -287,7 +287,7 @@
 <p>一个事务按相同的查询条件重新读取以前检索过的数据，却发现其他事务插入了满足其查询条件的新数据，这种现象就称为“幻读”。</p>
 <p>一句话：事务A读取到了事务B体提交的新增数据，不符合隔离性</p>
 <p>注意：幻读和脏读有点类似，脏读是事务B里面修改了数据，幻读是事务B里面新增了数据。</p>
-<h2 id="四种事务隔离级别"><a href="#四种事务隔离级别" class="headerlink" title="四种事务隔离级别"></a>四种事务隔离级别</h2><ul>
+<h2><span id="四种事务隔离级别">四种事务隔离级别</span></h2><ul>
 <li><p>读未提交：一个事务还没提交时，它做的变更就能被别的事务看到。</p>
 </li>
 <li><p>读提交：一个事务提交之后，它做的变更才会被其他事务看到。</p>
@@ -302,7 +302,7 @@
 <p>在不同的隔离级别下，数据库行为是有所不同的。Oracle 数据库的默认隔离级别其实就是<code>读提交</code>，因此对于一些从Oracle迁移到MySQL的应用为保证数据库隔离级别的一致，一定要记得将MySQL的隔离级别设置为<code>读提交</code></p>
 <p>配置的方式是，将启动参数 transaction-isolation 的值设置成 READ-COMMITTED。你可以用 show variables 来查看当前的值：</p>
 <p><img src="https://img.zouchanglin.cn///20200227/skqW5vAzw2Qz.png" alt="mark"></p>
-<h2 id="事务隔离的实现原理"><a href="#事务隔离的实现原理" class="headerlink" title="事务隔离的实现原理"></a>事务隔离的实现原理</h2><p>接下来我们看看事务隔离的实现原理，在这里我们可以简单说一下<code>可重复读</code></p>
+<h2><span id="事务隔离的实现原理">事务隔离的实现原理</span></h2><p>接下来我们看看事务隔离的实现原理，在这里我们可以简单说一下<code>可重复读</code></p>
 <p><strong>在MySQL中，实际上每条记录在更新的时候都会同时记录一条回滚操作。记录上的最新值，通过回滚操作，都可以得到前一个状态的值</strong>，假设一个值从 1 被按顺序改成了 2、3、4，在回滚日志里面就会有类似下面的记录：</p>
 <p><img src="https://img.zouchanglin.cn///20200227/a3pBOiztLcnN.png" alt="mark"></p>
 <p>当前值是 4，但是在查询这条记录的时候，不同时刻启动的事务会有不同的 read-view。如图中看到的，在视图 A、B、C 里面，这一个记录的值分别是 1、2、4，<strong>同一条记录在系统中可以存在多个版本，就是数据库的多版本并发控制（MVCC）</strong>。对于 read-view A，要得到 1，就必须将<strong>当前值依次执行图中所有的回滚操作得到</strong>。</p>
@@ -507,7 +507,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#事务四大特性ACID"><span class="toc-number">1.</span> <span class="toc-text">事务四大特性ACID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发事务处理的问题"><span class="toc-number">2.</span> <span class="toc-text">并发事务处理的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四种事务隔离级别"><span class="toc-number">3.</span> <span class="toc-text">四种事务隔离级别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务隔离的实现原理"><span class="toc-number">4.</span> <span class="toc-text">事务隔离的实现原理</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">事务四大特性ACID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">并发事务处理的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">四种事务隔离级别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">事务隔离的实现原理</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -666,18 +666,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -690,6 +678,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -698,15 +690,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -723,6 +723,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -830,15 +838,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -846,11 +846,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -862,11 +866,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -875,6 +879,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -926,10 +938,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -958,6 +966,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -978,6 +990,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -991,6 +1007,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1030,15 +1050,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1055,22 +1075,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

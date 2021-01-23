@@ -291,7 +291,7 @@
 		<p>Redis最常用的数据类型有String类型、Hash、List、Set、SortedSet（分数控制的有序Set）。<br><img src="https://img.zouchanglin.cn///20200307/gsrpCh9AXzc9.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="Redis常用数据类型"><a href="#Redis常用数据类型" class="headerlink" title="Redis常用数据类型"></a>Redis常用数据类型</h2><p>今天要介绍的是Redis的数据类型，顺便说说Redis的ping-pong：<br><img src="https://img.zouchanglin.cn///20200228/SRyi77FjHYPF.png" alt="mark"></p>
+<h2><span id="redis常用数据类型">Redis常用数据类型</span></h2><p>今天要介绍的是Redis的数据类型，顺便说说Redis的ping-pong：<br><img src="https://img.zouchanglin.cn///20200228/SRyi77FjHYPF.png" alt="mark"></p>
 <p>String类型：最基本的数据类型，二进制安全，最大存储长度为1G的字符串，String可以保存任何对象，无论是JPG图片，还是序列化的对象都是可以保存的！</p>
 <p><img src="https://img.zouchanglin.cn///20200228/CXicmm38VEae.png" alt="mark"></p>
 <p>如果要统计用户对网站的日访问量应该如何统计呢？其实很简单，如图只要把UserId+日期当成Key，并赋值为0，用户每访问一次就把key对应的值+1，这样就可以轻松统计了：</p>
@@ -309,7 +309,7 @@
 <p>SortedSet：通过分数来为集合中的成员进行从小到大的排序</p>
 <p><img src="https://img.zouchanglin.cn///20200228/TaYnzKJgBqNo.png" alt="mark"></p>
 <p>其实Redis还支持存储很多类型，用于计数的HyperLogLog，用于支持存储地理位置信息的Geo</p>
-<h2 id="Redis海量数据里查询某固定前缀的Key"><a href="#Redis海量数据里查询某固定前缀的Key" class="headerlink" title="Redis海量数据里查询某固定前缀的Key"></a>Redis海量数据里查询某固定前缀的Key</h2><p>首先看一段脚本，会向Redis插入2000万条数据：</p>
+<h2><span id="redis海量数据里查询某固定前缀的key">Redis海量数据里查询某固定前缀的Key</span></h2><p>首先看一段脚本，会向Redis插入2000万条数据：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>((i=1;i&lt;=20000000;i++)); <span class="keyword">do</span> <span class="built_in">echo</span> <span class="string">"set k<span class="variable">$i</span> v<span class="variable">$i</span>"</span> &gt;&gt; /tmp/redisTest.txt ;<span class="keyword">done</span>;</span><br></pre></td></tr></table></figure>
 
 <p>首先生成2千万条redis批量设置kv的语句(key=kn,value=vn)写入到/tmp目录下的redisTest.txt文件中，去掉行尾的^M符号：</p>
@@ -319,7 +319,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /tmp/redisTest.txt | redis-cli -h 主机ip -p 端口号 --pipe</span><br></pre></td></tr></table></figure>
 
 <p>如果使用keys指令效果是这样的：</p>
-<p><img src="https://img.zouchanglin.cn/s1ks5njied.gif" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/s1ks5njied.gif" alt></p>
 <blockquote>
 <p>使用keys对线上的业务的影响<br>KEYS pattern：查找所有符合给定模式pattern的key<br><strong>KEYS指令会一次性返回所有匹配的key，如果键的数量过大会使服务卡顿</strong></p>
 </blockquote>
@@ -328,7 +328,7 @@
 <p>基于游标的迭代器，需要基于上一次的游标延续之前的迭代过程。以0作为游标开始一次新的迭代，直到命令返回游标0时完成一次遍历。不保证每次执行都返回某个给定数量的元素，支持模糊查询。一次返回的数量不可控，只能是大概率符合count参数。</p>
 <p><img src="https://img.zouchanglin.cn///20200306/398PWfjLhsUS.png" alt="mark"></p>
 <p>虽然可能获取的Key是有重复的，但是只需要在应用中去重就好了。</p>
-<h2 id="Redis如何实现分布式锁"><a href="#Redis如何实现分布式锁" class="headerlink" title="Redis如何实现分布式锁"></a>Redis如何实现分布式锁</h2><p>这个问题其实在我之前的博客中已经说到过：<a href="https://zouchanglin.cn/2019/12/08/238802463.html">《基于Redis实现分布式锁》</a> ，现在来回顾一下，其实主要就是几个指令：SETNX key value，如果Key不存在，则创建Key、并赋值，时间复杂度为O(1)，如果设置成功则会返回1，如果失败则返回0。</p>
+<h2><span id="redis如何实现分布式锁">Redis如何实现分布式锁</span></h2><p>这个问题其实在我之前的博客中已经说到过：<a href="https://zouchanglin.cn/2019/12/08/238802463.html">《基于Redis实现分布式锁》</a> ，现在来回顾一下，其实主要就是几个指令：SETNX key value，如果Key不存在，则创建Key、并赋值，时间复杂度为O(1)，如果设置成功则会返回1，如果失败则返回0。</p>
 <p>如果一个线程成功设置了Key，那么Key岂不是一直存在，别的线程根本不可能设置成功吗？是滴，所以要给Key加上一个过期时间，就要用到了EXPIRE key seconds这条指令了，当Key过期时（生存时间为0），会被自动删除</p>
 <p><img src="https://img.zouchanglin.cn///20200306/2f28QdKG3CA0.png" alt="mark"></p>
 <p>于是乎我们可以得出伪代码如下：</p>
@@ -343,14 +343,14 @@
 <p>XX：只有在键已经存在的时候，才对键进行设置操作</p>
 <p>SET：操作完成时才会返回OK，否则返回nil</p>
 <p><img src="https://img.zouchanglin.cn///20200306/D3tHwoOSnTor.png" alt="mark"></p>
-<h2 id="Redis-雪崩问题"><a href="#Redis-雪崩问题" class="headerlink" title="Redis 雪崩问题"></a>Redis 雪崩问题</h2><p>目前电商首页以及热点数据都会去做缓存，一般缓存都是定时任务去刷新，或者查不到之后去更新缓存的，定时任务刷新就有一个问题， 如果首页所有 Key 的失效时间都是 12 小时，中午 12 点刷新的，我零点有个大促活动大量用户涌入，假设每秒 6000 个请求，本来缓存可以抗住每秒 5000 个请求，但是缓存中所有 Key 都失效了。  此时6000 个/秒的请求全部落在了数据库上，数据库必然扛不住，真实情况可能 DBA 都没反应过来直接挂了。 此时，如果没什么特别的方案来处理，DBA 很着急，重启数据库，但是数据库立马又被新流量给打死了。这就是我理解的缓存雪崩。 </p>
+<h2><span id="redis-雪崩问题">Redis 雪崩问题</span></h2><p>目前电商首页以及热点数据都会去做缓存，一般缓存都是定时任务去刷新，或者查不到之后去更新缓存的，定时任务刷新就有一个问题， 如果首页所有 Key 的失效时间都是 12 小时，中午 12 点刷新的，我零点有个大促活动大量用户涌入，假设每秒 6000 个请求，本来缓存可以抗住每秒 5000 个请求，但是缓存中所有 Key 都失效了。  此时6000 个/秒的请求全部落在了数据库上，数据库必然扛不住，真实情况可能 DBA 都没反应过来直接挂了。 此时，如果没什么特别的方案来处理，DBA 很着急，重启数据库，但是数据库立马又被新流量给打死了。这就是我理解的缓存雪崩。 </p>
 <p>简单来说就是在同一时间缓存大面积失效，瞬间 Redis 跟没有一样，那这个数量级别的请求直接打到数据库几乎是灾难性的。 </p>
 <p>那应该如何处理呢？ 在批量往 Redis 存数据的时候，把每个 Key 的失效时间都加个随机值就好了，这样可以保证数据不会再同一时间大面积失效。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setRedis（key, value, time+Math.random()*<span class="number">10000</span>）;</span><br></pre></td></tr></table></figure>
 
 <p>如果 Redis 是集群部署，将热点数据均匀分布在不同的 Redis 库中也能避免全部失效。</p>
 <p>或者设置热点数据永不过期，有更新操作就更新缓存就好了（比如运维更新了首页商品，那你刷下缓存就好了，不要设置过期时间），电商首页的数据也可以用这个操作，比较保险的做法。</p>
-<h2 id="缓存穿透和击穿"><a href="#缓存穿透和击穿" class="headerlink" title="缓存穿透和击穿"></a>缓存穿透和击穿</h2><p><strong>缓存穿透</strong>是指缓存和数据库中都没有的数据，而用户（黑客）不断发起请求。  例如我们数据库的 id 都是从1自增的，如果发起 id=-1 的数据或者 id 特别大不存在的数据，这样的不断攻击导致数据库压力很大，严重会击垮数据库。 </p>
+<h2><span id="缓存穿透和击穿">缓存穿透和击穿</span></h2><p><strong>缓存穿透</strong>是指缓存和数据库中都没有的数据，而用户（黑客）不断发起请求。  例如我们数据库的 id 都是从1自增的，如果发起 id=-1 的数据或者 id 特别大不存在的数据，这样的不断攻击导致数据库压力很大，严重会击垮数据库。 </p>
 <blockquote>
 <p><strong>缓存穿透的两种解决方式：</strong></p>
 <p>方法一：在接口层增加校验，比如用户鉴权，参数做校验，不合法的校验直接 return，比如 id 做基础校验，id&lt;=0 直接拦截；</p>
@@ -362,13 +362,13 @@
 <p>设置热点数据永不过期；或者加上互斥锁就搞定了，代码如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getData</span><span class="params">(String key)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">	<span class="comment">//从Redis查询数据</span></span><br><span class="line">	</span><br><span class="line">	String result = getDataByKV(key);</span><br><span class="line">	<span class="comment">//参数校验</span></span><br><span class="line">	<span class="keyword">if</span> (StringUtils.isBlank(result)) &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">//获得锁</span></span><br><span class="line">			<span class="keyword">if</span> (reenLock.tryLock()) &#123;</span><br><span class="line">				<span class="comment">//去数据库查询</span></span><br><span class="line">				result = getDataByDB(key);</span><br><span class="line">				<span class="comment">//校验</span></span><br><span class="line">				<span class="keyword">if</span> (StringUtils.isNotBlank(result)) &#123;</span><br><span class="line">					<span class="comment">//插进缓存</span></span><br><span class="line">					setDataToKV(key, result);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">//睡一会再拿</span></span><br><span class="line">				Thread.sleep(<span class="number">100L</span>);</span><br><span class="line">				result = getData(key);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">			<span class="comment">//释放锁</span></span><br><span class="line">			reenLock.unlock();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </blockquote>
-<h2 id="Redis如何做异步队列"><a href="#Redis如何做异步队列" class="headerlink" title="Redis如何做异步队列"></a>Redis如何做异步队列</h2><p>使用list作为队列，RPUSH生产消息，LPOP消费消息。</p>
+<h2><span id="redis如何做异步队列">Redis如何做异步队列</span></h2><p>使用list作为队列，RPUSH生产消息，LPOP消费消息。</p>
 <p><img src="https://img.zouchanglin.cn///20200307/YHSEwauzu88Y.png" alt="mark"></p>
 <p>如图所示，RPUSH生产消息，LPOP消费消息，但是当消息被消费完毕的时候LPOP不会等待，而是立即返回，通常的做法是让线程Sleep一会儿，再去尝试LPOP。有没有更好的办法呢？有的：</p>
 <p>BLPOP指令：阻塞直到队列有消息或者超时</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BLPOP key [key...] timeout</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/2k9s84jdhs74h6d.gif" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/2k9s84jdhs74h6d.gif" alt></p>
 <p>但是这样做也有一个缺点就是，只能提供一个消费者进行消费，那么怎么解决这个问题呢？</p>
 <p>pub/sub 主题订阅者模式：</p>
 <ul>
@@ -377,9 +377,9 @@
 </ul>
 <p><img src="https://img.zouchanglin.cn///20200307/wJJ9uta58rhG.png" alt="mark"></p>
 <p>下面演示一下：</p>
-<p><img src="https://img.zouchanglin.cn/2k5k84jdhs74h6x.gif" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/2k5k84jdhs74h6x.gif" alt></p>
 <p>pub/sub 订阅者模式的缺点：消息的发布是无状态的，无法保证可达，如果要解决这种问题就必须要使用专门的消息队列中间件来解决了，如Kafka等。</p>
-<h2 id="Redis如何做持久化"><a href="#Redis如何做持久化" class="headerlink" title="Redis如何做持久化"></a>Redis如何做持久化</h2><p>Redis 为了保证效率，数据缓存在了内存中，但是会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件中，以保证数据的持久化。 </p>
+<h2><span id="redis如何做持久化">Redis如何做持久化</span></h2><p>Redis 为了保证效率，数据缓存在了内存中，但是会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件中，以保证数据的持久化。 </p>
 <p>Redis 的持久化策略有两种：</p>
 <ul>
 <li><strong>RDB：</strong>快照形式是直接把内存中的数据保存到一个 dump 的文件中，定时保存，保存策略。</li>
@@ -412,7 +412,7 @@
 <p>Redis的默认持久化方式：RDB和AOF混合持久化方式的流程</p>
 <p><img src="https://img.zouchanglin.cn///20200307/d40LnJRkQcsh.png" alt="mark"></p>
 <p>BGSAVE做全量持久化，AOF做增量持久化。因为BGSAVE会耗费较长时间，不够实时，会导致大量丢失数据的问题，所以呢需要AOF来做增量持久化配合使用。</p>
-<h2 id="Pipeline以及主从同步"><a href="#Pipeline以及主从同步" class="headerlink" title="Pipeline以及主从同步"></a>Pipeline以及主从同步</h2><p>Pipeline和Linux的管道是类似的，还记得我们之前做的插入2000万条数据吗？</p>
+<h2><span id="pipeline以及主从同步">Pipeline以及主从同步</span></h2><p>Pipeline和Linux的管道是类似的，还记得我们之前做的插入2000万条数据吗？</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /tmp/redisTest.txt | redis-cli -h 主机ip -p 端口号 --pipe</span><br></pre></td></tr></table></figure>
 
 <p>Redis基于请求/响应模型，单个请求处理需要一一应答，所以如果需要批量操作数据的时候，每个数据操作都需要请求、应答的流程，那么IO负载将会变得非常高，为了提升效率，Pipeline会批量执行指令，即一次发送多条指令，节省多次IO往返时间（但是这样做的前提是批量指令之间没有依赖性）。</p>
@@ -434,14 +434,14 @@
 <p>Redis Sentinel用来解决主从同步Master宕机后的主从切换问题：<br>1、监控：检查主从服务器是否运行正常</p>
 <p>2、提醒：通过API向管理员或者其他应用程序发送故障通知</p>
 <p>3、自动故障迁移：主从切换</p>
-<h2 id="流言协议Gossip"><a href="#流言协议Gossip" class="headerlink" title="流言协议Gossip"></a>流言协议Gossip</h2><p>在杂乱无章中寻求一致</p>
+<h2><span id="流言协议gossip">流言协议Gossip</span></h2><p>在杂乱无章中寻求一致</p>
 <ul>
 <li>每个节点都随机地与对方通信,最终所有节点的状态达成一致</li>
 <li>种子节点定期随机向其他节点发送节点列表以及需要传播的消息</li>
 <li>不保证信息一定会传递给所有节点，但是最终会趋于一致</li>
 </ul>
 <p>在区块链的去中心化实现方式中便用到了这种协议。</p>
-<h2 id="Redis集群与一致性Hash"><a href="#Redis集群与一致性Hash" class="headerlink" title="Redis集群与一致性Hash"></a>Redis集群与一致性Hash</h2><p>如何从海量数据里快速找到所需?<br>分片：按照某种规则去划分数据，分散存储在多个节点上。常规的按照哈希划分无法实现节点的动态增减。</p>
+<h2><span id="redis集群与一致性hash">Redis集群与一致性Hash</span></h2><p>如何从海量数据里快速找到所需?<br>分片：按照某种规则去划分数据，分散存储在多个节点上。常规的按照哈希划分无法实现节点的动态增减。</p>
 <p>比如userId对2模，即可把用户数据分散到两台不同的数据库服务器，但是很容易出现数据分布不均匀的问题， 而且很难实现节点的动态增减。</p>
 <p>什么是一致性Hash呢？其实就是对2^32取模，将哈希值空间组织成虚拟的圆环：</p>
 <p><img src="https://img.zouchanglin.cn///20200307/CxTBrzmYbGt0.png" alt="mark">使用数据Key相同的函数Hash计算出Hash值</p>
@@ -611,11 +611,11 @@
 
 <nav id="article-nav">
   
-    <a href="/3141995360.html" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/26607628.html" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          select、poll和epoll多路复用
+          通俗理解五种IO模型
         
       </div>
     </a>
@@ -649,7 +649,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis常用数据类型"><span class="toc-number">1.</span> <span class="toc-text">Redis常用数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis海量数据里查询某固定前缀的Key"><span class="toc-number">2.</span> <span class="toc-text">Redis海量数据里查询某固定前缀的Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis如何实现分布式锁"><span class="toc-number">3.</span> <span class="toc-text">Redis如何实现分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-雪崩问题"><span class="toc-number">4.</span> <span class="toc-text">Redis 雪崩问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存穿透和击穿"><span class="toc-number">5.</span> <span class="toc-text">缓存穿透和击穿</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis如何做异步队列"><span class="toc-number">6.</span> <span class="toc-text">Redis如何做异步队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis如何做持久化"><span class="toc-number">7.</span> <span class="toc-text">Redis如何做持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pipeline以及主从同步"><span class="toc-number">8.</span> <span class="toc-text">Pipeline以及主从同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流言协议Gossip"><span class="toc-number">9.</span> <span class="toc-text">流言协议Gossip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis集群与一致性Hash"><span class="toc-number">10.</span> <span class="toc-text">Redis集群与一致性Hash</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Redis常用数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Redis海量数据里查询某固定前缀的Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Redis如何实现分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Redis 雪崩问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">缓存穿透和击穿</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">Redis如何做异步队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">Redis如何做持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">Pipeline以及主从同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">流言协议Gossip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">10.</span> <span class="toc-text">Redis集群与一致性Hash</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -808,18 +808,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -832,6 +820,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -840,15 +832,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -865,6 +865,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -972,15 +980,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -988,11 +988,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1004,11 +1008,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1017,6 +1021,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1068,10 +1080,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1100,6 +1108,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1120,6 +1132,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1133,6 +1149,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1172,15 +1192,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1197,22 +1217,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

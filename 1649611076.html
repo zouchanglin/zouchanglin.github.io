@@ -292,7 +292,7 @@
 		<p>最好是查找的值都是建立索引的字段，要遵守最佳左前缀匹配法则，第一个索引没用上其他的都用不上，中间的索引没用上后面的也用不上。索引字段不要函数计算、自动或手动的类型转换。凡是在范围条件之后的索引全部失效，like的百分号写在最后边，实在是需要两边都是百分号那么建立索引，并且别查找其他非索引字段，也就是尽量别写select * 。尽量不使用不等于、大于、小于等条件，尽量不要使用or进行连接，否则会导致索引失效。对于varchar类型的字段不要忘记写引号，避免发生隐式类型转换。</p>
 <a id="more"></a>
 
-<h2 id="索引分析"><a href="#索引分析" class="headerlink" title="索引分析"></a>索引分析</h2><h3 id="案例一-单表分析"><a href="#案例一-单表分析" class="headerlink" title="案例一 单表分析"></a>案例一 单表分析</h3><p>假设这样一张表，下面是建表语句</p>
+<h2><span id="索引分析">索引分析</span></h2><h3><span id="案例一-单表分析">案例一 单表分析</span></h3><p>假设这样一张表，下面是建表语句</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`article`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`author_id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`category_id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`views`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`comments`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`title`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`content`</span> <span class="built_in">text</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="comment">-- Records of article</span></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">'1'</span>, <span class="string">'1'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="string">'2'</span>, <span class="string">'2'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="string">'3'</span>, <span class="string">'3'</span>);</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
 
 <p> <img src="https://img.zouchanglin.cn///20200202/z9FPkCVhztO9.png" alt="mark"> </p>
@@ -323,7 +323,7 @@
 
 <p><img src="https://img.zouchanglin.cn///20200202/uuIWI57TYBvf.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200202/q5289odY7Tq8.png" alt="mark"></p>
-<h3 id="案例二-两表分析"><a href="#案例二-两表分析" class="headerlink" title="案例二 两表分析"></a>案例二 两表分析</h3><p>如下两张表，分别插入20条数据：</p>
+<h3><span id="案例二-两表分析">案例二 两表分析</span></h3><p>如下两张表，分别插入20条数据：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> <span class="keyword">class</span>(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (<span class="keyword">id</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> book(</span><br><span class="line">    bookid <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (bookid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">class</span>(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> book(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br></pre></td></tr></table></figure>
 
 <p>下面开始explain分析：</p>
@@ -340,7 +340,7 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> book <span class="keyword">right</span> <span class="keyword">join</span> <span class="keyword">class</span> <span class="keyword">on</span> class.card = book.card;</span><br></pre></td></tr></table></figure>
 
 <p>同样的道理， right join 条件用于确定如何从左表搜索行，右表一定都有，所以左表是我们的关键点，一定需要建立索引。</p>
-<h3 id="案例三-三表分析"><a href="#案例三-三表分析" class="headerlink" title="案例三 三表分析"></a>案例三 三表分析</h3><p>还是依照上面的两张表，再新建一张表，并插入20条数据：</p>
+<h3><span id="案例三-三表分析">案例三 三表分析</span></h3><p>还是依照上面的两张表，再新建一张表，并插入20条数据：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> phone(</span><br><span class="line">    phoneid <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (phoneid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> phone(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">class</span> <span class="keyword">left</span> <span class="keyword">join</span> book <span class="keyword">on</span> class.card = book.card <span class="keyword">left</span> <span class="keyword">join</span> phone <span class="keyword">on</span> book.card = phone.card;</span><br></pre></td></tr></table></figure>
@@ -355,7 +355,7 @@
 <p>优先优化NestedLoop的循环的内层</p>
 <p>保证JOIN语句中被驱动表上Join条件字段已经被索引</p>
 <p>当无法保证被驱动表的JOIN条件字段被索引且内存资源充足的前提下，不要太吝惜 JoinBuffer的设置</p>
-<h2 id="索引失效"><a href="#索引失效" class="headerlink" title="索引失效"></a>索引失效</h2><p>先建示例表与该表的索引：</p>
+<h2><span id="索引失效">索引失效</span></h2><p>先建示例表与该表的索引：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> staffs(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span> primary <span class="keyword">key</span> auto_increment,</span><br><span class="line">    <span class="keyword">name</span> <span class="built_in">varchar</span>(<span class="number">24</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="string">''</span> <span class="keyword">comment</span> <span class="string">'姓名'</span>,</span><br><span class="line">    age <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="number">0</span> <span class="keyword">comment</span> <span class="string">'年龄'</span>,</span><br><span class="line">    pos <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="string">''</span> <span class="keyword">comment</span> <span class="string">'职位'</span>,</span><br><span class="line">    add_time <span class="built_in">timestamp</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="keyword">current_timestamp</span> <span class="keyword">comment</span> <span class="string">'入职时间'</span></span><br><span class="line">)<span class="keyword">charset</span> utf8 <span class="keyword">comment</span> <span class="string">'员工记录表'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time)<span class="keyword">VALUES</span>(<span class="string">'z3'</span>, <span class="number">22</span>, <span class="string">'manager'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time) <span class="keyword">VALUES</span>(<span class="string">'July'</span>, <span class="number">23</span>, <span class="string">'dev'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time) <span class="keyword">VALUES</span>(<span class="string">'2000'</span>, <span class="number">23</span>, <span class="string">'dev'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> staffs;</span><br><span class="line"></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> staffs <span class="keyword">add</span> <span class="keyword">index</span> idx_staffs_nameAgePos(<span class="keyword">name</span>, age, pos);</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">index</span> <span class="keyword">from</span> staffs;</span><br></pre></td></tr></table></figure>
 
 <p>1、全值匹配我最爱</p>
@@ -368,10 +368,10 @@
 <p>8、like以通配符开头(‘%abc…’)mysq索引失效会变成全表扫描的操作</p>
 <p>9、字符串不加单引号索引失效</p>
 <p>10、少用or，用它来连接时会索引失效</p>
-<h3 id="1、全值匹配我最爱"><a href="#1、全值匹配我最爱" class="headerlink" title="1、全值匹配我最爱"></a>1、全值匹配我最爱</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span> <span class="keyword">and</span> pos = <span class="string">'dev'</span>;</span><br></pre></td></tr></table></figure>
+<h3><span id="1-全值匹配我最爱">1、全值匹配我最爱</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span> <span class="keyword">and</span> pos = <span class="string">'dev'</span>;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200202/w98VIAK9miBU.png" alt="mark"></p>
-<h3 id="2、最佳左前缀法则"><a href="#2、最佳左前缀法则" class="headerlink" title="2、最佳左前缀法则"></a>2、最佳左前缀法则</h3><p>但是请看下面这种情况</p>
+<h3><span id="2-最佳左前缀法则">2、最佳左前缀法则</span></h3><p>但是请看下面这种情况</p>
 <p><img src="https://img.zouchanglin.cn///20200202/5OdpQ61iNyoU.png" alt="mark"></p>
 <p>很明显建的索引没用到，但是如果只是根据name字段来查询却又可以用到索引。如果索引了多列，要遵守最佳左前缀法则。指的是查询从索引的最左前列开始并且不跳过索引中的列。否则会引起索引失效！这也是最常用的法则！很形象的一个例子：带头大哥不能死，name索引相当于火车头，age、pos是车厢，所以没有name火车肯定动不了，但是如果只有火车头，那么也是能动的，单独的车厢不能运动而已！</p>
 <p>那么这样呢？</p>
@@ -379,21 +379,21 @@
 
 <p><img src="https://img.zouchanglin.cn///20200202/46uTa4HeJVTO.png" alt="mark"></p>
 <p>上面这条SQL很显然用到了索引，但是key_len还是74没变，其实这条SQL只用到了name索引，并未用到pos索引。这违反了最佳左前缀法则，因为age索引还没用到就用pos，肯定pos会无效的。拿上面的火车举例子，如果中间的车厢断开了，后面的车厢肯定也动不了了。所以最佳左前缀法则还是很重要的！</p>
-<h3 id="3、不在索引列上做任何操作"><a href="#3、不在索引列上做任何操作" class="headerlink" title="3、不在索引列上做任何操作"></a>3、不在索引列上做任何操作</h3><p>不在索引列上做任何操作（计算、函数、（自动or手动）类型转换），会导致索引失效而转向全表扫描</p>
+<h3><span id="3-不在索引列上做任何操作">3、不在索引列上做任何操作</span></h3><p>不在索引列上做任何操作（计算、函数、（自动or手动）类型转换），会导致索引失效而转向全表扫描</p>
 <p><img src="https://img.zouchanglin.cn///20200202/93pBH8m8uzlo.png" alt="mark"></p>
 <p>接下来分别看看他们的执行计划：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/UQzilveT46Qq.png" alt="mark"></p>
 <p>很明显，在索引列上做任何操作（计算、函数、（自动or手动）类型转换），会导致索引失效而转向全表扫描！所以这一点是非常需要注意的！</p>
-<h3 id="4、存储引擎不能使用索引中范围条件右边的列"><a href="#4、存储引擎不能使用索引中范围条件右边的列" class="headerlink" title="4、存储引擎不能使用索引中范围条件右边的列"></a>4、存储引擎不能使用索引中范围条件右边的列</h3><p><img src="https://img.zouchanglin.cn///20200202/jndNeCoBGgjg.png" alt="mark"></p>
+<h3><span id="4-存储引擎不能使用索引中范围条件右边的列">4、存储引擎不能使用索引中范围条件右边的列</span></h3><p><img src="https://img.zouchanglin.cn///20200202/jndNeCoBGgjg.png" alt="mark"></p>
 <p>如上图所示，索引一旦出现范围条件，那么后面的索引会失效。出现范围的索引呢也是会用到，比如这里的age字段排序，但是级别从ref降到了range级别，在数据量非常大的情况下还是很损伤性能的！</p>
-<h3 id="5、尽量使用覆盖索引"><a href="#5、尽量使用覆盖索引" class="headerlink" title="5、尽量使用覆盖索引"></a>5、尽量使用覆盖索引</h3><p>尽量使用覆盖索引（只访问索引的查询，即索引列和查询列一致），减少使用select*</p>
+<h3><span id="5-尽量使用覆盖索引">5、尽量使用覆盖索引</span></h3><p>尽量使用覆盖索引（只访问索引的查询，即索引列和查询列一致），减少使用select*</p>
 <p><img src="https://img.zouchanglin.cn///20200202/jxTYVSkvpu8c.png" alt="mark"></p>
 <p>可以看出如果只是要检索字段，那就尽量明确写出需要查询的字段，不要写select * ，只查询索引字段的话就会使用Using index，而不是Using where。</p>
-<h3 id="6、在使用不等于的时候无法使用索引"><a href="#6、在使用不等于的时候无法使用索引" class="headerlink" title="6、在使用不等于的时候无法使用索引"></a>6、在使用不等于的时候无法使用索引</h3><p>mysql在使用不等于（!=或者&lt;&gt;）的时候无法使用索引会导致全表扫描</p>
+<h3><span id="6-在使用不等于的时候无法使用索引">6、在使用不等于的时候无法使用索引</span></h3><p>mysql在使用不等于（!=或者&lt;&gt;）的时候无法使用索引会导致全表扫描</p>
 <p><img src="https://img.zouchanglin.cn///20200202/D84WR76mjedt.png" alt="mark"></p>
-<h3 id="7、is-null、is-not-null-也无法使用索引"><a href="#7、is-null、is-not-null-也无法使用索引" class="headerlink" title="7、is null、is not null 也无法使用索引"></a>7、is null、is not null 也无法使用索引</h3><p><img src="https://img.zouchanglin.cn///20200202/DeTCH1jfKmvg.png" alt="mark"></p>
+<h3><span id="7-is-null-is-not-null-也无法使用索引">7、is null、is not null 也无法使用索引</span></h3><p><img src="https://img.zouchanglin.cn///20200202/DeTCH1jfKmvg.png" alt="mark"></p>
 <p>关键字段尽量避免null值，最好设置默认值！</p>
-<h3 id="8、like以通配符开头索引失效会变成全表扫描"><a href="#8、like以通配符开头索引失效会变成全表扫描" class="headerlink" title="8、like以通配符开头索引失效会变成全表扫描"></a>8、like以通配符开头索引失效会变成全表扫描</h3><p>like以通配符开头（’$abc…’）mysql索引失效会变成全表扫描操作</p>
+<h3><span id="8-like以通配符开头索引失效会变成全表扫描">8、like以通配符开头索引失效会变成全表扫描</span></h3><p>like以通配符开头（’$abc…’）mysql索引失效会变成全表扫描操作</p>
 <p><img src="https://img.zouchanglin.cn///20200202/ousr8H0NUvkX.png" alt="mark"></p>
 <p>通过上面的例子可以看出，like的%尽量加在右边。而且like查询是一个范围查询！</p>
 <p>解决like’%字符串%’索引不被使用的方法？？看看下面的示例：</p>
@@ -405,11 +405,11 @@
 <p>通过建立覆盖索引来避免全表扫描，从下图可以看出类型为index：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/cdAyEzETkUaA.png" alt="mark"></p>
 <p>所以说：like百分写右边，复合索引解决两边都是百分号的问题！需要时建立了索引，查询的字段是建立了索引的字段，那就没问题。如果包含了其他字段，就会造成索引失效！</p>
-<h3 id="9、字符串不加单引号索引失效"><a href="#9、字符串不加单引号索引失效" class="headerlink" title="9、字符串不加单引号索引失效"></a>9、字符串不加单引号索引失效</h3><p>varchar类型必须加单引号，下面的示例可以说明问题：</p>
+<h3><span id="9-字符串不加单引号索引失效">9、字符串不加单引号索引失效</span></h3><p>varchar类型必须加单引号，下面的示例可以说明问题：</p>
 <p><img src="https://img.zouchanglin.cn///20200202/v2GNoJ4N5uIn.png" alt="mark"></p>
 <p>这是为什么呢？因为MySQL自动识别name是一个varchar类型，所以如果没有在SQL语句中没加单引号，MySQL会自动发生隐式类型转换，所以参考第三条，这必然导致索引失效，在开中应该尽量避免</p>
-<h3 id="10、少用or，用or来连接时索引失效"><a href="#10、少用or，用or来连接时索引失效" class="headerlink" title="10、少用or，用or来连接时索引失效"></a>10、少用or，用or来连接时索引失效</h3><p><img src="https://img.zouchanglin.cn///20200202/AGbRqQtX4l2n.png" alt="mark"></p>
-<h2 id="优化总结"><a href="#优化总结" class="headerlink" title="优化总结"></a>优化总结</h2><p>全值匹配我最爱，最左前缀要遵守；</p>
+<h3><span id="10-少用or用or来连接时索引失效">10、少用or，用or来连接时索引失效</span></h3><p><img src="https://img.zouchanglin.cn///20200202/AGbRqQtX4l2n.png" alt="mark"></p>
+<h2><span id="优化总结">优化总结</span></h2><p>全值匹配我最爱，最左前缀要遵守；</p>
 <p>带头大哥不能死，中间兄弟不能断；</p>
 <p>索引列上少计算，范围之后全失效；</p>
 <p>like 百分写最右，覆盖素引不写星；</p>
@@ -605,7 +605,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#索引分析"><span class="toc-number">1.</span> <span class="toc-text">索引分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#案例一-单表分析"><span class="toc-number">1.1.</span> <span class="toc-text">案例一 单表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#案例二-两表分析"><span class="toc-number">1.2.</span> <span class="toc-text">案例二 两表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#案例三-三表分析"><span class="toc-number">1.3.</span> <span class="toc-text">案例三 三表分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引失效"><span class="toc-number">2.</span> <span class="toc-text">索引失效</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、全值匹配我最爱"><span class="toc-number">2.1.</span> <span class="toc-text">1、全值匹配我最爱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、最佳左前缀法则"><span class="toc-number">2.2.</span> <span class="toc-text">2、最佳左前缀法则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、不在索引列上做任何操作"><span class="toc-number">2.3.</span> <span class="toc-text">3、不在索引列上做任何操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、存储引擎不能使用索引中范围条件右边的列"><span class="toc-number">2.4.</span> <span class="toc-text">4、存储引擎不能使用索引中范围条件右边的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、尽量使用覆盖索引"><span class="toc-number">2.5.</span> <span class="toc-text">5、尽量使用覆盖索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、在使用不等于的时候无法使用索引"><span class="toc-number">2.6.</span> <span class="toc-text">6、在使用不等于的时候无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、is-null、is-not-null-也无法使用索引"><span class="toc-number">2.7.</span> <span class="toc-text">7、is null、is not null 也无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8、like以通配符开头索引失效会变成全表扫描"><span class="toc-number">2.8.</span> <span class="toc-text">8、like以通配符开头索引失效会变成全表扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9、字符串不加单引号索引失效"><span class="toc-number">2.9.</span> <span class="toc-text">9、字符串不加单引号索引失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10、少用or，用or来连接时索引失效"><span class="toc-number">2.10.</span> <span class="toc-text">10、少用or，用or来连接时索引失效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化总结"><span class="toc-number">3.</span> <span class="toc-text">优化总结</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">索引分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">案例一 单表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">案例二 两表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">案例三 三表分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">索引失效</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、全值匹配我最爱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、最佳左前缀法则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、不在索引列上做任何操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">4、存储引擎不能使用索引中范围条件右边的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.5.</span> <span class="toc-text">5、尽量使用覆盖索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.</span> <span class="toc-text">6、在使用不等于的时候无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.7.</span> <span class="toc-text">7、is null、is not null 也无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.8.</span> <span class="toc-text">8、like以通配符开头索引失效会变成全表扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.9.</span> <span class="toc-text">9、字符串不加单引号索引失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.10.</span> <span class="toc-text">10、少用or，用or来连接时索引失效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">优化总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -764,18 +764,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -788,6 +776,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -796,15 +788,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,6 +821,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -928,15 +936,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -944,11 +944,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -960,11 +964,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -973,6 +977,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1024,10 +1036,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1056,6 +1064,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1076,6 +1088,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1089,6 +1105,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1128,15 +1148,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1153,22 +1173,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

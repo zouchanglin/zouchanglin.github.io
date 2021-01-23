@@ -269,7 +269,7 @@
 		<p>在Android 中，一个进程通常无法访问另一个进程的内存。因此为了进程间通信，Android提供了AIDL机制，AIDL是Android中IPC（Inter-Process Communication）方式中的一种，AIDL是Android Interface definition language的缩写，AIDL的作用是可以在自己的App里绑定一个其他App的Service，这样App可以通过AIDL与其他App进行交互。</p>
 <a id="more"></a>
 
-<h1 id="App之间操作Service"><a href="#App之间操作Service" class="headerlink" title="App之间操作Service"></a>App之间操作Service</h1><p>这是BasicService应用中 AndroidManifest.xml定义的Service组件</p>
+<h1><span id="app之间操作service">App之间操作Service</span></h1><p>这是BasicService应用中 AndroidManifest.xml定义的Service组件</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span></span></span><br><span class="line"><span class="tag">	 <span class="attr">android:name</span>=<span class="string">".MyService"</span></span></span><br><span class="line"><span class="tag">	 <span class="attr">android:enabled</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">	 <span class="attr">android:exported</span>=<span class="string">"true"</span> &gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"cn.tim.basic_service.myservice"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>MyService.java实现如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MyService"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> DownloadBinder mBinder = <span class="keyword">new</span> DownloadBinder();</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DownloadBinder</span> <span class="keyword">extends</span> <span class="title">Binder</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startDownload</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 模拟下载</span></span><br><span class="line">            Log.i(TAG, <span class="string">"startDownload executed"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getProgress</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 模拟返回下载进度</span></span><br><span class="line">            Log.i(TAG, <span class="string">"getProgress executed"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyService</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate();</span><br><span class="line">        Log.i(TAG, <span class="string">"onCreate: "</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 启动</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">onStartCommand</span><span class="params">(Intent intent, <span class="keyword">int</span> flags, <span class="keyword">int</span> startId)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"onStartCommand: "</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.onStartCommand(intent, flags, startId);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 绑定</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"onBind: "</span>);</span><br><span class="line">        <span class="keyword">return</span> mBinder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解绑</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unbindService</span><span class="params">(ServiceConnection conn)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.unbindService(conn);</span><br><span class="line">        Log.i(TAG, <span class="string">"unbindService: "</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 销毁</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onDestroy();</span><br><span class="line">        Log.i(TAG, <span class="string">"onDestroy: "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -278,16 +278,16 @@
 <p>MainActivity.java如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    ServiceConnection connection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aboutService</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> id = view.getId();</span><br><span class="line">        <span class="comment">// Android5.0后不支持隐式启动了，最好都写成显示启动</span></span><br><span class="line">        Intent intent = <span class="keyword">new</span> Intent();</span><br><span class="line">        intent.setAction(<span class="string">"cn.tim.basic_service.myservice"</span>);</span><br><span class="line">        intent.setPackage(<span class="string">"cn.tim.basic_service"</span>);</span><br><span class="line">        <span class="keyword">switch</span> (id)&#123;</span><br><span class="line">            <span class="keyword">case</span> R.id.start_btn:</span><br><span class="line">                startService(intent);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.stop_btn:</span><br><span class="line">                stopService(intent);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.bind_btn:</span><br><span class="line">                bindService(intent, connection, BIND_AUTO_CREATE);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.unbind_btn:</span><br><span class="line">                unbindService(connection);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20201208192349.gif-zouchanglin.cn" alt=""></p>
-<h1 id="App之间Service通信"><a href="#App之间Service通信" class="headerlink" title="App之间Service通信"></a>App之间Service通信</h1><p>上面虽然完成了App之间的Service基本控制，比如启动、停止、绑定解绑等操作，但是即使绑定了Service，但是Activity还是并不知道服务到底去做了什么事情，以及完成得如何。这个时候就需要用到AIDL进行通信了。</p>
+<p><img src="https://img.zouchanglin.cn/20201208192349.gif-zouchanglin.cn" alt></p>
+<h1><span id="app之间service通信">App之间Service通信</span></h1><p>上面虽然完成了App之间的Service基本控制，比如启动、停止、绑定解绑等操作，但是即使绑定了Service，但是Activity还是并不知道服务到底去做了什么事情，以及完成得如何。这个时候就需要用到AIDL进行通信了。</p>
 <p>首先需要明白的是要创建一套被调用的接口肯定要从被调用者出发，所以先在BasicService这个App中：</p>
 <p><strong>step1、创建AIDL文件</strong>，本例中命名为IMyAidlInterface.aidl：</p>
-<p><img src="https://img.zouchanglin.cn/20201208221524.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201208221524.png-zouchanglin.cn" alt></p>
 <p><strong>step2、编辑AIDL文件</strong>，在这个AIDL文件里编写需要在服务绑定后通信的方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IMyAidlInterface.aidl</span></span><br><span class="line"><span class="keyword">package</span> cn.tim.basic_service;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Declare any non-default types here with import statements</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IMyAidlInterface</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义自己需要的方法：获取当前服务的进度</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getProgress</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>step3、rebuild project自动生成对应的接口</strong>，接下来只要Rebuild一下工程就会在build &gt; generated &gt; aidl_source_output_dir &gt; debug 下出现一个包，包下就是IMyAidlInterface.java：</p>
-<p><img src="https://img.zouchanglin.cn/20201208224141.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201208224141.png-zouchanglin.cn" alt></p>
 <p>其实Stub还会定义几个辅助方法，其中最值得注意的是 asInterface()，该方法会接收 IBinder（通常是传递给客户端 onServiceConnected() 回调方法的参数），并返回 Stub 接口的实例，其实就是通过代理的方式去完成IPC通信。</p>
 <p>在MyService中绑定的回调函数onBind()中返回的那就是IMyAidlInterface.Stub代理对象了：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"onBind: "</span>);</span><br><span class="line">        <span class="comment">//return mBinder;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> IMyAidlInterface.Stub() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getProgress</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                Log.i(TAG, <span class="string">"getProgress: IMyAidlInterface"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -296,17 +296,17 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">ServiceConnection connection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// MyService.DownloadBinder binder = (MyService.DownloadBinder) service;</span></span><br><span class="line">        <span class="comment">// binder.startDownload();</span></span><br><span class="line">        <span class="comment">// binder.getProgress();</span></span><br><span class="line">        IMyAidlInterface asInterface = IMyAidlInterface.Stub.asInterface(service);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            asInterface.getProgress();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p><strong>step4、复制同样的AIDL文件到AIDLDemo这个工程中</strong>，AIDL作为调用者。需要注意的是必须放到相同的包下，因此需要手动建包，再把文件复制过来：</p>
-<p><img src="https://img.zouchanglin.cn/20201208225316.png-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201208225316.png-zouchanglin.cn" alt></p>
 <p>同样的方式，工程进行一次rebuild，同样会生成IMyAidlInterface.java，这样大家都具有了IMyAidlInterface这个接口，使用起来也就还是一样了，MainActivity.java：</p>
 <p><strong>step5、在AIDLDemo这个工程中使用IMyAidlInterface</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"AIDLMainActivity"</span>;</span><br><span class="line">    ServiceConnection connection = <span class="keyword">new</span> ServiceConnection() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</span><br><span class="line">            IMyAidlInterface asInterface = IMyAidlInterface.Stub.asInterface(service);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">int</span> progress = asInterface.getProgress();</span><br><span class="line">                Log.i(TAG, <span class="string">"onServiceConnected: progress = "</span> + progress);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aboutService</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> id = view.getId();</span><br><span class="line">        Intent intent = <span class="keyword">new</span> Intent();</span><br><span class="line">        intent.setAction(<span class="string">"cn.tim.basic_service.myservice"</span>);</span><br><span class="line">        intent.setPackage(<span class="string">"cn.tim.basic_service"</span>);</span><br><span class="line">        <span class="keyword">switch</span> (id)&#123;</span><br><span class="line">            <span class="keyword">case</span> R.id.start_btn:</span><br><span class="line">                startService(intent);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.stop_btn:</span><br><span class="line">                stopService(intent);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.bind_btn:</span><br><span class="line">                bindService(intent, connection, BIND_AUTO_CREATE);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.unbind_btn:</span><br><span class="line">                unbindService(connection);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>可以看到，AIDLDemo这个App的MainActivity已经和BasicService这个App的MyService服务已经绑定了，并且可以正常的调用MyService中的方法。至此，通过AIDL实现的远程绑定服务通信已经完成了：</p>
-<p><img src="https://img.zouchanglin.cn/20201208221336.gif-zouchanglin.cn" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20201208221336.gif-zouchanglin.cn" alt></p>
 <blockquote>
 <p>tips：上面logcat同时打印两个TAG的日志的方法就是在配置过滤器LogTag：MyService | AIDLMainActivity即可。</p>
 </blockquote>
-<h1 id="使用AIDL的注意事项"><a href="#使用AIDL的注意事项" class="headerlink" title="使用AIDL的注意事项"></a>使用AIDL的注意事项</h1><p>1、只有在需要不同应用的客户端通过 IPC 方式访问服务，并且希望在服务中进行多线程处理时，才有必要使用 AIDL。如果无需跨不同应用执行并发 IPC，则应通过实现 Binder 来创建接口；或者如果想执行 IPC，但不需要处理多线程，推荐使用 Messenger 来实现接口。</p>
+<h1><span id="使用aidl的注意事项">使用AIDL的注意事项</span></h1><p>1、只有在需要不同应用的客户端通过 IPC 方式访问服务，并且希望在服务中进行多线程处理时，才有必要使用 AIDL。如果无需跨不同应用执行并发 IPC，则应通过实现 Binder 来创建接口；或者如果想执行 IPC，但不需要处理多线程，推荐使用 Messenger 来实现接口。</p>
 <p>2、如果需要在首次发布 AIDL 接口后对其进行更改，则每次更改必须保持向后兼容性，以免中断其他应用使用对应的服务。换言之，由于只有在将 .aidl 文件复制到其他应用后，才能使其访问服务接口，因而必须保留对原始接口的支持。</p>
 <p>原文地址：<a href="https://zouchanglin.cn/2020/12/08/35923.html">《远程服务使用AIDL通信》</a></p>
 
@@ -502,7 +502,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#App之间操作Service"><span class="toc-number">1.</span> <span class="toc-text">App之间操作Service</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#App之间Service通信"><span class="toc-number">2.</span> <span class="toc-text">App之间Service通信</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用AIDL的注意事项"><span class="toc-number">3.</span> <span class="toc-text">使用AIDL的注意事项</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">App之间操作Service</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">App之间Service通信</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">使用AIDL的注意事项</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -661,18 +661,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -685,6 +673,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -693,15 +685,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -718,6 +718,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -825,15 +833,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -841,11 +841,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -857,11 +861,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -870,6 +874,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -921,10 +933,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -953,6 +961,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -973,6 +985,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -986,6 +1002,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1025,15 +1045,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1050,22 +1070,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

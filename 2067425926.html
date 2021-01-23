@@ -274,29 +274,29 @@
 		<p>很多时候系统自带的View组件并不能满足我们的需求，当我们需要特定的显示风格，处理特有的用户交互，封装一个高内聚的视图组件，就需要用到Android给我们提供的自定义View的能力。有了自定义View，我们可以针对特定的应用场景开发出适合该场景的View组件，比如自定义的下拉刷新组件，自定义的进度条组件等等。本片文章主要介绍自定义View的基础知识，为自定义View做充足的准备。</p>
 <a id="more"></a>
 
-<h2 id="自定义View基础知识"><a href="#自定义View基础知识" class="headerlink" title="自定义View基础知识"></a>自定义View基础知识</h2><p>视图（View）表现为显示在屏幕上的各种视图，如TextView、LinearLayout等。视图分为View与ViewGroup，View即单个视图，比如Button、TextView等。ViewGroup包含多个视图，如LinearLayout、RelativeLayout等。View类是Android中各种组件的基类，ViewGroup也是继承自View。</p>
+<h2><span id="自定义view基础知识">自定义View基础知识</span></h2><p>视图（View）表现为显示在屏幕上的各种视图，如TextView、LinearLayout等。视图分为View与ViewGroup，View即单个视图，比如Button、TextView等。ViewGroup包含多个视图，如LinearLayout、RelativeLayout等。View类是Android中各种组件的基类，ViewGroup也是继承自View。</p>
 <p>View的部分构造函数如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">View</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>(context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果View是在.xml里声明的，则调用第二个构造函数</span></span><br><span class="line"><span class="comment">// 自定义属性是从AttributeSet参数传进来的【自定义View最常用】</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">View</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">super</span>(context, attrs);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在第二个构造函数里如果View有style属性时才会调用</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">View</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">super</span>(context, attrs, defStyleAttr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>对于多View的视图，结构是树形结构：最顶层是ViewGroup，ViewGroup下可能有多个ViewGroup或View，如下图：</p>
-<p><img src="https://img.zouchanglin.cn/20210118231814.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118231814.png" alt></p>
 <p>无论是measure过程、layout过程还是draw过程，永远都是从View树的根节点开始测量或计算（即从树的顶端开始），一层一层、一个分支一个分支地进行（即树形递归），最终计算整个View树中各个View，最终确定整个View树的相关属性。</p>
 <p>Android的坐标系定义为：屏幕的左上角为坐标原点，向右为x轴增大方向，向下为y轴增大方向，具体如下图：</p>
-<p><img src="https://img.zouchanglin.cn/20210118232356.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118232356.png" alt></p>
 <p>View位置（坐标）描述：View的位置由4个顶点决定的（如下A、B、C、D）</p>
-<p><img src="https://img.zouchanglin.cn/20210118232920.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118232920.png" alt></p>
 <p>Top：子View上边界到父view上边界的距离，Left：子View左边界到父view左边界的距离，Bottom：子View下边距到父View上边界的距离，Right：子View右边界到父view左边界的距离。</p>
-<p><img src="https://img.zouchanglin.cn/20210118233719.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118233719.png" alt></p>
 <p>View的位置是通过<code>view.getxxx()</code>函数进行获取:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取Top位置</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getTop</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">return</span> mTop;</span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"><span class="comment">// 其余如下：</span></span><br><span class="line">getLeft();      <span class="comment">//获取子View左上角距父View左侧的距离</span></span><br><span class="line">getBottom();    <span class="comment">//获取子View右下角距父View顶部的距离</span></span><br><span class="line">getRight();     <span class="comment">//获取子View右下角距父View左侧的距离</span></span><br></pre></td></tr></table></figure>
 
 <p>与MotionEvent中 <code>get()</code>和<code>getRaw()</code>的区别</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//get() ：触摸点相对于其所在组件坐标系的坐标</span></span><br><span class="line">event.getX();</span><br><span class="line">event.getY();</span><br><span class="line"></span><br><span class="line"><span class="comment">//getRaw() ：触摸点相对于屏幕默认坐标系的坐标</span></span><br><span class="line">event.getRawX();</span><br><span class="line">event.getRawY();</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20210118234753.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118234753.png" alt></p>
 <p>自定义View实际上是将一些简单的形状通过计算，从而组合到一起形成的效果。这会涉及到画布的相关操作(旋转)、正余弦函数计算等，即会涉及到角度(angle)与弧度(radian)的相关知识，不会很复杂，但是有时候遇到稍微复杂一点的情况就可以准备一个草稿本，用手画一下很容易就能搞清楚。</p>
 <p><code>角度 = （弧长 / 周长 ）×360°</code>，<code>弧度 = 弧长 / 半径R</code>。在常见的数学坐标系中角度增大方向为逆时针，但是在Android中角度增大的方向是顺时针：</p>
-<p><img src="https://img.zouchanglin.cn/20210118235941.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210118235941.png" alt></p>
 <p>再来看看颜色相关的内容，Android中的颜色相关内容包括颜色模式，创建颜色的方式，以及颜色的混合模式等。</p>
 <table>
 <thead>
@@ -343,8 +343,8 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--在style文件中引用--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"AppTheme"</span> <span class="attr">parent</span>=<span class="string">"Theme.AppCompat.Light.DarkActionBar"</span>&gt;</span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"colorPrimary"</span>&gt;</span>@color/red<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span></span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--在layout文件中引用在/res/values/color.xml中定义的颜色--&gt;</span></span><br><span class="line">android:background="@color/red"     </span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--在layout文件中创建并使用颜色--&gt;</span></span><br><span class="line">android:background="#ff0000"</span><br></pre></td></tr></table></figure>
 
 <p>颜色都是用RGB值定义的，而我们一般是无法直观的知道自己需要颜色的值，需要借用取色工具直接从图片或者其他地方获取颜色的RGB值。</p>
-<h2 id="自定义View的属性获取"><a href="#自定义View的属性获取" class="headerlink" title="自定义View的属性获取"></a>自定义View的属性获取</h2><p>自定义View我们需要分析需要的自定义属性，然后在res/ valus/atrs.xm定义声明，在layout.xml文件中进行使用，在View的构造方法中进行获取，先在values文件夹下新建一个attrs.xml文件，里面就可以编写我们的自定义属性了，需要注意的是自定义属性的类型，比如boolean、string、enum、integer……</p>
-<p><img src="https://img.zouchanglin.cn/20210119220108.png" alt=""></p>
+<h2><span id="自定义view的属性获取">自定义View的属性获取</span></h2><p>自定义View我们需要分析需要的自定义属性，然后在res/ valus/atrs.xm定义声明，在layout.xml文件中进行使用，在View的构造方法中进行获取，先在values文件夹下新建一个attrs.xml文件，里面就可以编写我们的自定义属性了，需要注意的是自定义属性的类型，比如boolean、string、enum、integer……</p>
+<p><img src="https://img.zouchanglin.cn/20210119220108.png" alt></p>
 <p>在代码中去定义我们的自定义View，顺便在初始化的时候获取对应的属性，下面是activity_main.xml：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tim</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">".MainActivity"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">cn.tim.custom_view.TestView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_centerInParent</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:background</span>=<span class="string">"#FFBB86FC"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_bool</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_dimension</span>=<span class="string">"100dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_enum</span>=<span class="string">"top"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_integer</span>=<span class="string">"10086"</span></span></span><br><span class="line"><span class="tag">				<span class="attr">tim:test_string</span>=<span class="string">"Tim"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"100dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"100dp"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -357,16 +357,16 @@
 <p>这两种方式区别就是第一种方式是有缺点的，用户假设没有在控件中设置值，直接获取的方式如果找不到用户设置的值的时候，就会设置为null，从而覆盖原来的初始值，假设用户使用时写的控件属性如下：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tim</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">".MainActivity"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">cn.tim.custom_view.TestView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_centerInParent</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:background</span>=<span class="string">"#FFBB86FC"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_bool</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_dimension</span>=<span class="string">"100dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_enum</span>=<span class="string">"top"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">tim:test_integer</span>=<span class="string">"10086"</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"100dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"100dp"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img.zouchanglin.cn/20210119220543.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210119220543.png" alt></p>
 <p>所以还是比较推荐使用第二种写法，根据需要获取属性即可。</p>
-<h2 id="Measure-测量过程）"><a href="#Measure-测量过程）" class="headerlink" title="Measure (测量过程）"></a>Measure (测量过程）</h2><p>自定义View的子二个步骤就是测量，在自定义View的时候，我们需要测量出View的宽和高，在某些情况下，需要多次测量才能确定View最终的宽/高；该情况下，measure过程后得到的宽和高可能不准确，因此最好是在layout过程中通过onLayout()方法去获取最终的宽和高。</p>
+<h2><span id="measure-测量过程">Measure (测量过程）</span></h2><p>自定义View的子二个步骤就是测量，在自定义View的时候，我们需要测量出View的宽和高，在某些情况下，需要多次测量才能确定View最终的宽/高；该情况下，measure过程后得到的宽和高可能不准确，因此最好是在layout过程中通过onLayout()方法去获取最终的宽和高。</p>
 <p>ViewGroup 的子类（RelativeLayout、LinearLayout）有其对应的ViewGroup.LayoutParams子类，比如：RelativeLayout的 ViewGroup.LayoutParams子类就是RelativeLayoutParams，它们的作用就是指定视图View的高度和宽度等布局参数。</p>
 <p>在测量过程中，需要重点理解的是测量规格，测量规格(MeasureSpec) = 测量模式<code>（mode）</code> + 测量大小<code>（size）</code>。其中测量模式有三种：MeasureSpec.UNSPECIFIED、MeasureSpec.EXACTLY、MeasureSpec.AT_MOST。MeasureSpec是父控件提供给子View的一个参数，作为设定自身大小参考，只是个参考，要多大，还是View自己说了算。</p>
 <p>1、UNSPECIFIED（未指定模式），父控件对子控件不加任何束缚，子元素可以得到任意想要的大小。比如ScrollView、ListView……，它的子View可以随意设置大小，无论多高，都能滚动显示，这个时候heightSize就没什么意义。</p>
 <p>2、EXACTLY（精确模式），父控件为子View指定确切大小，希望子View完全按照自己给定尺寸来处理，这时的MeasureSpec一般是父控件根据自身的MeasureSpec跟子View的布局参数来确定的。</p>
 <p>3、AT_MOST（最大值模式），父为子元素指定最大参考尺寸，希望子View的尺寸不要超过这个尺寸。这种模式也是父控件根据自身的MeasureSpec跟子View的布局参数来确定的，一般是子View的布局参数采用wrap_content的时候。</p>
 <p>通过下表可以清晰的对比一下三者的区别：</p>
-<p><img src="https://img.zouchanglin.cn/20210119223616.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210119223616.png" alt></p>
 <p>MeasureSpec 被封装在View类中的一个内部类里：MeasureSpec类，MeasureSpec类用1个变量封装了2个数据：size与mode，通过使用二进制将测量模式与测量大小打包成一个int值来，并提供了打包与解包的方法，使用该措施的目的就是减少对象内存分配。所以待会儿看到这样的代码并不要觉得惊讶：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> specMode = MeasureSpec.getMode(measureSpec);</span><br><span class="line"><span class="keyword">int</span> specSize = MeasureSpec.getSize(measureSpec);</span><br><span class="line"><span class="comment">// 通过Mode和Size生成新的SpecMode</span></span><br><span class="line"><span class="keyword">int</span> measureSpec = MeasureSpec.makeMeasureSpec(specSize, specMode);</span><br></pre></td></tr></table></figure>
 
@@ -374,7 +374,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测量的代码</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> widthMode = MeasureSpec.getMode(widthMeasureSpec);</span><br><span class="line">    <span class="keyword">int</span> widthSize = MeasureSpec.getSize(widthMeasureSpec);</span><br><span class="line">    <span class="keyword">int</span> width = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span>(widthMode == MeasureSpec.EXACTLY)&#123;</span><br><span class="line">        width = widthSize;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//int needWidth = measureWidth();</span></span><br><span class="line">        <span class="comment">// 想要支持Padding</span></span><br><span class="line">        <span class="keyword">int</span> needWidth = measureWidth() + getPaddingLeft() + getPaddingRight();</span><br><span class="line">        <span class="keyword">if</span>(widthMode == MeasureSpec.AT_MOST)&#123;</span><br><span class="line">            width = Math.min(needWidth, widthSize);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123; <span class="comment">//MeasureSpec.UNSPECIFIED 无限制</span></span><br><span class="line">            width = widthSize;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> heightMode = MeasureSpec.getMode(heightMeasureSpec);</span><br><span class="line">    <span class="keyword">int</span> heightSize = MeasureSpec.getSize(heightMeasureSpec);</span><br><span class="line">    <span class="keyword">int</span> height = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span>(heightMode == MeasureSpec.EXACTLY)&#123;</span><br><span class="line">        height = heightSize;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">int</span> needHeight = measureHeight() + getPaddingTop() + getPaddingBottom();</span><br><span class="line">        <span class="keyword">if</span>(heightMode == MeasureSpec.AT_MOST)&#123;</span><br><span class="line">            height = Math.min(needHeight, heightSize);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        		<span class="comment">//MeasureSpec.UNSPECIFIED 无限制</span></span><br><span class="line">            height = heightSize;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    setMeasuredDimension(width, height);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据显示的内容去计算</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureHeight</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据显示的内容去计算</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureWidth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>MeasureSpec值的计算，上面说了那么久MeasureSpec，那么MeasureSpec值到底是如何计算得来？其实子View的MeasureSpec值是根据子View的布局参数（LayoutParams）和父容器的MeasureSpec值计算得来的，具体计算逻辑封装在getChildMeasureSpec()方法里。</p>
-<p><img src="https://img.zouchanglin.cn/20210119225250.png" alt=""></p>
+<p><img src="https://img.zouchanglin.cn/20210119225250.png" alt></p>
 <p>即子View的大小是由父View的MeasureSpec值和子View的LayoutParams属性共同决定的。关于getChildMeasureSpec()方法里对子View的测量模式 &amp; 大小的判断逻辑有点复杂，具体请看下表：</p>
 <table>
 <thead>
@@ -414,15 +414,15 @@
 </thead>
 <tbody><tr>
 <td>当子View采用具体数值(dp/px)时</td>
-<td>测量模式 = EXACTLY<br/>测量大小 = 其自身设置的具体数值</td>
+<td>测量模式 = EXACTLY<br>测量大小 = 其自身设置的具体数值</td>
 </tr>
 <tr>
 <td>当子View采用match_parent时</td>
-<td>测量模式 = 父容器的测量模式 </br>测量大小：<br/>若父容器的测量模式为EXACTLY，那么测量大小等于父容器的剩余空间<br/>若父容器的测量模式为AT_MOST，那么测大小不超过父容器的剩余</td>
+<td>测量模式 = 父容器的测量模式 <br>测量大小：<br>若父容器的测量模式为EXACTLY，那么测量大小等于父容器的剩余空间<br>若父容器的测量模式为AT_MOST，那么测大小不超过父容器的剩余</td>
 </tr>
 <tr>
 <td>当子View采用wrap_content时</td>
-<td>测量模式 = AT MOST<br/>测量大小 = 不超过父容器的剩余空间</td>
+<td>测量模式 = AT MOST<br>测量大小 = 不超过父容器的剩余空间</td>
 </tr>
 </tbody></table>
 <p>实际上，上面那段代码的实现和与getDefaultSize()方法是一样的：</p>
@@ -621,7 +621,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义View基础知识"><span class="toc-number">1.</span> <span class="toc-text">自定义View基础知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义View的属性获取"><span class="toc-number">2.</span> <span class="toc-text">自定义View的属性获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Measure-测量过程）"><span class="toc-number">3.</span> <span class="toc-text">Measure (测量过程）</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">自定义View基础知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">自定义View的属性获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Measure (测量过程）</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -780,18 +780,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -804,6 +792,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -812,15 +804,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -837,6 +837,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -944,15 +952,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -960,11 +960,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -976,11 +980,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -989,6 +993,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1040,10 +1052,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1072,6 +1080,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1092,6 +1104,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1105,6 +1121,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1144,15 +1164,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1169,22 +1189,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

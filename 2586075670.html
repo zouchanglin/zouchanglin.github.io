@@ -269,11 +269,11 @@
 		<p>有一个设计模式帮助你的对象知悉现状，不会错过该对象感兴趣的事情，甚至在对象运行时可决定是否要继续被通知，观察者模式是JDK中使用最多的设计模式之一，非常有用。无论是在JDK还是Android开发当中，我们很容易发现观察者模式的运用之处，如我们经常遇到的点击事件，通过Button控件的诸如Listener 的方法，onClickListener就是观察/订阅到了按钮的点击事件，从而就可以执行对相应的逻辑，不同的动作会有不同的观察者，如单击、长按、连续两次点击等都有对应的Listener。  </p>
 <a id="more"></a>
 
-<h1 id="观察者模式概述"><a href="#观察者模式概述" class="headerlink" title="观察者模式概述"></a>观察者模式概述</h1><p><strong>主题 + 订阅者 = 观察者设计模式</strong></p>
+<h1><span id="观察者模式概述">观察者模式概述</span></h1><p><strong>主题 + 订阅者 = 观察者设计模式</strong></p>
 <p>现在假设有一个气象站，气象站会根据天气的变化设置新的气象数据 (温度、湿度、气压) ，这些数据会展示在气象看板上面，一旦气象站发布了新的数据，则看板也必须立马更新展示的数据。</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200919/np6lupCAWySw.png" alt="mark"></p>
 <p>在这个例子中，主题就是天气数据，订阅者就是显示装置。一旦有新的天气数据，显示装置立马展示新的数据。</p>
-<h1 id="观察者模式代码实现"><a href="#观察者模式代码实现" class="headerlink" title="观察者模式代码实现"></a>观察者模式代码实现</h1><p><img src="https://img.zouchanglin.cn/blog/20200919/OO7i4IAfWsIx.png" alt="mark"></p>
+<h1><span id="观察者模式代码实现">观察者模式代码实现</span></h1><p><img src="https://img.zouchanglin.cn/blog/20200919/OO7i4IAfWsIx.png" alt="mark"></p>
 <p>首先定义一个主题的接口，所有的主题都需要实现这个接口：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 主题</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Subject</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 注册观察者</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o 观察者对象</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">registerObserver</span><span class="params">(Observer o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 移除观察者</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o 观察者对象</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">removeObserver</span><span class="params">(Observer o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通知观察者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">notifyObserver</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -293,24 +293,24 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        WeatherData weatherData = <span class="keyword">new</span> WeatherData();</span><br><span class="line">        <span class="comment">// 把显示装置注册到WeatherData的观察者列表</span></span><br><span class="line">        CurrentConditionDisplay display = <span class="keyword">new</span> CurrentConditionDisplay(weatherData);</span><br><span class="line"></span><br><span class="line">        weatherData.setMeasurements(<span class="number">80</span>, <span class="number">65</span>, <span class="number">30.4f</span>);</span><br><span class="line">        weatherData.setMeasurements(<span class="number">85</span>, <span class="number">70</span>, <span class="number">32.2f</span>);</span><br><span class="line">        weatherData.setMeasurements(<span class="number">86</span>, <span class="number">72</span>, <span class="number">36.3f</span>);</span><br><span class="line">        weatherData.setMeasurements(<span class="number">89</span>, <span class="number">76</span>, <span class="number">38.0f</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"=========================================="</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 停止观察</span></span><br><span class="line">        display.stopDisplay(weatherData);</span><br><span class="line">        weatherData.setMeasurements(<span class="number">91</span>, <span class="number">77</span>, <span class="number">39.5f</span>);</span><br><span class="line">        weatherData.setMeasurements(<span class="number">97</span>, <span class="number">79</span>, <span class="number">40.2f</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn/blog/20200919/cHil2WKKoHKL.png" alt="mark"></p>
-<h1 id="JDK内置的观察者模式"><a href="#JDK内置的观察者模式" class="headerlink" title="JDK内置的观察者模式"></a>JDK内置的观察者模式</h1><p>观察者模式是对象的行为模式，在对象之间定义了一对多的依赖关系，就是多个观察者和一个被观察者之间的关系，当被观察者发生变化的时候，会通知所有的观察者对象，他们做出相对应的操作。  在观察者模式，我们又分为推模型和拉模型两种方式，上面演示的内容是推模型。</p>
+<h1><span id="jdk内置的观察者模式">JDK内置的观察者模式</span></h1><p>观察者模式是对象的行为模式，在对象之间定义了一对多的依赖关系，就是多个观察者和一个被观察者之间的关系，当被观察者发生变化的时候，会通知所有的观察者对象，他们做出相对应的操作。  在观察者模式，我们又分为推模型和拉模型两种方式，上面演示的内容是推模型。</p>
 <p>在JDK内已经有实现好的观察者模式API，java.util包内包含最基本的Observer接口和Observable类，这与我们的Subject接口和Observer接口很相似。实际上Observer接口与Observable类使用起来更方便，因为很多功能已经提前准备好了。下面演示一个通过JDK的API实现拉模型的例子。</p>
-<h2 id="1、如何把对象变成观察者"><a href="#1、如何把对象变成观察者" class="headerlink" title="1、如何把对象变成观察者"></a>1、如何把对象变成观察者</h2><p>实现观察者接口java.util.Observer，然后调用任何Observable对象的addObserver()方法，不想当观察者的时候，调用deleteObserver()方法即可。</p>
-<h2 id="2、被观察者如何送出通知"><a href="#2、被观察者如何送出通知" class="headerlink" title="2、被观察者如何送出通知"></a>2、被观察者如何送出通知</h2><p>首先扩展java.util.Observer接口产生被观察者类，然后调用两个方法：</p>
+<h2><span id="1-如何把对象变成观察者">1、如何把对象变成观察者</span></h2><p>实现观察者接口java.util.Observer，然后调用任何Observable对象的addObserver()方法，不想当观察者的时候，调用deleteObserver()方法即可。</p>
+<h2><span id="2-被观察者如何送出通知">2、被观察者如何送出通知</span></h2><p>首先扩展java.util.Observer接口产生被观察者类，然后调用两个方法：</p>
 <ul>
 <li>先调用setChanged()方法，标记状态已经改变的事实</li>
 <li>然后调用notifyObservers()方法中的一个，notifyObservers()或者notifyObservers(Object arg)</li>
 </ul>
-<h2 id="3、观察者如何接收通知"><a href="#3、观察者如何接收通知" class="headerlink" title="3、观察者如何接收通知"></a>3、观察者如何接收通知</h2><p>同以前的update()方法一样，只是方法参数略有不同：</p>
+<h2><span id="3-观察者如何接收通知">3、观察者如何接收通知</span></h2><p>同以前的update()方法一样，只是方法参数略有不同：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update(Observable o, Object arg)</span><br></pre></td></tr></table></figure>
 
 <p>第一个参数Observable就是主题对象，好让观察者知道是哪个主题通知它的；第二个参数就是上面的例子中的参数，即数据对象。</p>
 <p>如果使用推模式，则可以把数据当做数据对象传入notifyObservers(Object arg)中。否则观察者就必须从被观察者对象中拉取数据，我们把上面气象站的例子重做一次。</p>
-<h2 id="4、关于setChanged"><a href="#4、关于setChanged" class="headerlink" title="4、关于setChanged()"></a>4、关于setChanged()</h2><p>setChanged()方法用于标记状态已经改变的事实，好让notifyObservers()知道当它被调用时就应该更新观察者。如果调用notifyObservers()之前没有调用setChanged()，则观察者不会被通知，伪代码如下：</p>
+<h2><span id="4-关于setchanged">4、关于setChanged()</span></h2><p>setChanged()方法用于标记状态已经改变的事实，好让notifyObservers()知道当它被调用时就应该更新观察者。如果调用notifyObservers()之前没有调用setChanged()，则观察者不会被通知，伪代码如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">setChaged()&#123;</span><br><span class="line">    changed = <span class="keyword">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">notifyObservers(Object arg)&#123;</span><br><span class="line">    <span class="keyword">if</span>(changed)&#123;</span><br><span class="line">        <span class="keyword">for</span> obs in obsList &#123;</span><br><span class="line">            <span class="function">call <span class="title">update</span><span class="params">(<span class="keyword">this</span>, arg)</span></span></span><br><span class="line"><span class="function">        &#125;</span></span><br><span class="line"><span class="function">        changed </span>= <span class="keyword">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">notifyObservers()&#123;</span><br><span class="line">    notifyObservers(<span class="keyword">null</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这样做的目的就是在更新观察者的时候能有更多的弹性，比如在你想在气象温度变化0.5度以上才通知观察者，就需要通过调用setChanged这样的方式进行数据的有效更新。</p>
-<h1 id="JDK内置观察者重做气象站"><a href="#JDK内置观察者重做气象站" class="headerlink" title="JDK内置观察者重做气象站"></a>JDK内置观察者重做气象站</h1><p><img src="https://img.zouchanglin.cn/blog/20200919/v4fdeXuAvLXI.png" alt="mark"></p>
+<h1><span id="jdk内置观察者重做气象站">JDK内置观察者重做气象站</span></h1><p><img src="https://img.zouchanglin.cn/blog/20200919/v4fdeXuAvLXI.png" alt="mark"></p>
 <p>WeatherData.java</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Observable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WeatherData</span> <span class="keyword">extends</span> <span class="title">Observable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 温度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> temp;</span><br><span class="line">    <span class="comment">// 湿度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> humidity;</span><br><span class="line">    <span class="comment">// 气压</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> pressure;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WeatherData</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">measurementsChanged</span><span class="params">()</span></span>&#123;</span><br><span class="line">        setChanged();</span><br><span class="line">        notifyObservers();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 气象站设置新的值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMeasurements</span><span class="params">(<span class="keyword">float</span> temp, <span class="keyword">float</span> humidity, <span class="keyword">float</span> pressure)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.temp = temp;</span><br><span class="line">        <span class="keyword">this</span>.humidity = humidity;</span><br><span class="line">        <span class="keyword">this</span>.pressure = pressure;</span><br><span class="line">        measurementsChanged();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 观察者会利用这些Getter方法取得WeatherData的状态</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getTemp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getHumidity</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> humidity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getPressure</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> pressure;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -318,12 +318,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Observable;</span><br><span class="line"><span class="keyword">import</span> java.util.Observer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CurrentConditionDisplay</span> <span class="keyword">implements</span> <span class="title">Observer</span>, <span class="title">DisplayElement</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Observable observable;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> temp;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> humidity;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CurrentConditionDisplay</span><span class="params">(Observable observable)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.observable = observable;</span><br><span class="line">        observable.addObserver(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(temp + <span class="string">"℃ "</span> + humidity + <span class="string">"%"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(Observable o, Object arg)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//System.out.println("被观察者：" + o.getClass().getName());</span></span><br><span class="line">        <span class="keyword">if</span>(o <span class="keyword">instanceof</span> WeatherData)&#123;</span><br><span class="line">            WeatherData weatherData = (WeatherData) o;</span><br><span class="line">            <span class="keyword">this</span>.humidity = weatherData.getHumidity();</span><br><span class="line">            <span class="keyword">this</span>.temp = weatherData.getTemp();</span><br><span class="line">            display();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>主题对象在通知观察者的时候，只传递少量信息。如果观察者需要更具体的信息，由观察者主动到主题对象中获取，相当于是观察者从主题对象中拉数据。一般这种模型的实现中，会把主题对象自身通过update()方法传递给观察者，这样在观察者需要获取数据的时候，就可以通过这个引用来获取了。</p>
-<h1 id="观察者模式的优缺点"><a href="#观察者模式的优缺点" class="headerlink" title="观察者模式的优缺点"></a>观察者模式的优缺点</h1><h2 id="1、优点"><a href="#1、优点" class="headerlink" title="1、优点"></a>1、优点</h2><p>首先是松耦合，当两个对象之间松耦合，它们依旧可以交互，但是不太清楚彼此的细节，观察者模式就提供了这样一种对象设计，让主题和观察者之间松耦合。</p>
+<h1><span id="观察者模式的优缺点">观察者模式的优缺点</span></h1><h2><span id="1-优点">1、优点</span></h2><p>首先是松耦合，当两个对象之间松耦合，它们依旧可以交互，但是不太清楚彼此的细节，观察者模式就提供了这样一种对象设计，让主题和观察者之间松耦合。</p>
 <p>主题值需要知道观察者实现了某个接口，也就是Observer接口，不需要知道具体观察者实现类是什么，也不用关系观察者的实现细节。任何时间我们都可以动态的添加或者移除观察者、也包括替换新的观察者等操作，主题都不会受到影响。改变被观察者和观察者任意一方都不会影响另一方，这就是松耦合特点。</p>
-<h2 id="2、缺点"><a href="#2、缺点" class="headerlink" title="2、缺点"></a>2、缺点</h2><p>接下来说说缺点， 如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间，也就是说同一个主题的观察者不能太多，太多了每次通知都是需要消耗时间的。</p>
+<h2><span id="2-缺点">2、缺点</span></h2><p>接下来说说缺点， 如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间，也就是说同一个主题的观察者不能太多，太多了每次通知都是需要消耗时间的。</p>
 <p>而且如果在被观察者之间有循环依赖的话，被观察者会触发它们之间进行循环调用，导致系统崩溃。在使用观察者模式是要特别注意这一点。</p>
 <p>接下来讨论一个问题，但是却不是观察者模式的问题，而是JDK内置的观察者模式的问题。java.util.Observable是一个类而不是一个接口，如果要使用必须继承这个类，这其实限制了Observable的复用能力，而且通过源码可以看到setChanged()是受保护的权限，这意味着只能继承java.util.Observable，这违反了“多用组合、少用继承”的原则。平时使用的时候应该多注意这个问题，有必要的话最好自己实现一套观察者模式。</p>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://book.douban.com/subject/2243615/" target="_blank" rel="noopener">《Head First 设计模式》</a></p>
+<h1><span id="参考资料">参考资料</span></h1><p><a href="https://book.douban.com/subject/2243615/" target="_blank" rel="noopener">《Head First 设计模式》</a></p>
 
 	
 
@@ -521,7 +521,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#观察者模式概述"><span class="toc-number">1.</span> <span class="toc-text">观察者模式概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#观察者模式代码实现"><span class="toc-number">2.</span> <span class="toc-text">观察者模式代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JDK内置的观察者模式"><span class="toc-number">3.</span> <span class="toc-text">JDK内置的观察者模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、如何把对象变成观察者"><span class="toc-number">3.1.</span> <span class="toc-text">1、如何把对象变成观察者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、被观察者如何送出通知"><span class="toc-number">3.2.</span> <span class="toc-text">2、被观察者如何送出通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、观察者如何接收通知"><span class="toc-number">3.3.</span> <span class="toc-text">3、观察者如何接收通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、关于setChanged"><span class="toc-number">3.4.</span> <span class="toc-text">4、关于setChanged()</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JDK内置观察者重做气象站"><span class="toc-number">4.</span> <span class="toc-text">JDK内置观察者重做气象站</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#观察者模式的优缺点"><span class="toc-number">5.</span> <span class="toc-text">观察者模式的优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、优点"><span class="toc-number">5.1.</span> <span class="toc-text">1、优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、缺点"><span class="toc-number">5.2.</span> <span class="toc-text">2、缺点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">观察者模式概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">观察者模式代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">JDK内置的观察者模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、如何把对象变成观察者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、被观察者如何送出通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">3、观察者如何接收通知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">4、关于setChanged()</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">JDK内置观察者重做气象站</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">观察者模式的优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">1、优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.2.</span> <span class="toc-text">2、缺点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -680,18 +680,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -704,6 +692,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -712,15 +704,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -737,6 +737,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -844,15 +852,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -860,11 +860,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -876,11 +880,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -889,6 +893,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -940,10 +952,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -972,6 +980,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -992,6 +1004,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1005,6 +1021,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1044,15 +1064,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1069,22 +1089,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

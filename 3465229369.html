@@ -271,15 +271,15 @@
 <p>ICO容器的结构如上图所示，首先要让IOC容器去读取Bean的配置信息，并在容器中生成一份相应的Bean定义注册表，根据这张注册表去实例化Bean，装配好Bean之间的依赖关系，为上层提供准备就绪的环境，Spring提供一个配置文件描述Bean还有Bean之间的依赖关系，利用Java语言的反射功能实例化Bean并建立Bean之间的依赖关系。</p>
 <a id="more"></a>
 
-<h1 id="SpringIOC容器支持的功能"><a href="#SpringIOC容器支持的功能" class="headerlink" title="SpringIOC容器支持的功能"></a>SpringIOC容器支持的功能</h1><p>1、依赖注入</p>
+<h1><span id="springioc容器支持的功能">SpringIOC容器支持的功能</span></h1><p>1、依赖注入</p>
 <p>2、依赖检查</p>
 <p>3、自动装配</p>
 <p>4、支持集合</p>
 <p>5、指定初始化和销毁的方法</p>
 <p>6、支持回调方法，但是需要实现Spring的接口，略带有侵入性</p>
 <p>其中最核心的功能就是依赖注入和自动装配了。</p>
-<h1 id="SpringIOC源码分析"><a href="#SpringIOC源码分析" class="headerlink" title="SpringIOC源码分析"></a>SpringIOC源码分析</h1><p>Spring 作者 Rod Johnson 设计了两个接口用以表示容器。BeanFactory和ApplicationContext， BeanFactory 粗暴简单，可以理解为就是个 HashMap，Key 是BeanName，Value 是 Bean 实例。通常只提供注册（put），获取（get）这两个功能。我们可以称之为 “低级容器”。  ApplicationContext 可以称之为 “高级容器”。因为他比 BeanFactory 多了更多的功能。他继承了多个接口。因此具备了更多的功能。 </p>
-<h2 id="BeanDefinition"><a href="#BeanDefinition" class="headerlink" title="BeanDefinition"></a>BeanDefinition</h2><p>BeanDefinition与Bean的关系, 就好比类与对象的关系，类在spring的数据结构就是BeanDefinition。根据BeanDefinition得到的对象就是我们需要的Bean。 理解Bean与BeanDefinition是理解spring的整个架构的基础与关键， BeanDefinition接口是顶级基础接口，用来描述Bean，里面存放Bean元数据，比如Bean类名、scope、属性、构造函数参数列表、依赖的bean、是否是单例类、是否是懒加载等一些列信息。 </p>
+<h1><span id="springioc源码分析">SpringIOC源码分析</span></h1><p>Spring 作者 Rod Johnson 设计了两个接口用以表示容器。BeanFactory和ApplicationContext， BeanFactory 粗暴简单，可以理解为就是个 HashMap，Key 是BeanName，Value 是 Bean 实例。通常只提供注册（put），获取（get）这两个功能。我们可以称之为 “低级容器”。  ApplicationContext 可以称之为 “高级容器”。因为他比 BeanFactory 多了更多的功能。他继承了多个接口。因此具备了更多的功能。 </p>
+<h2><span id="beandefinition">BeanDefinition</span></h2><p>BeanDefinition与Bean的关系, 就好比类与对象的关系，类在spring的数据结构就是BeanDefinition。根据BeanDefinition得到的对象就是我们需要的Bean。 理解Bean与BeanDefinition是理解spring的整个架构的基础与关键， BeanDefinition接口是顶级基础接口，用来描述Bean，里面存放Bean元数据，比如Bean类名、scope、属性、构造函数参数列表、依赖的bean、是否是单例类、是否是懒加载等一些列信息。 </p>
 <p>BeanDefinition继承的两个接口：</p>
 <ul>
 <li><strong>BeanMetadataElement接口</strong>：BeanDefinition元数据，返回该Bean的来源</li>
@@ -301,7 +301,7 @@
 <li><strong>AnnotatedGenericBeanDefinition类</strong>: 表示@Configuration注解注释的BeanDefinition类</li>
 <li><strong>ScannedGenericBeanDefinition类</strong>: 表示@Component、@Service、@Controller等注解注释的Bean类</li>
 </ul>
-<h2 id="BeanDefinitionRegistry"><a href="#BeanDefinitionRegistry" class="headerlink" title="BeanDefinitionRegistry"></a>BeanDefinitionRegistry</h2><p>提供向IOC容器注册BeanDefinition对象的方法，将定义Bean 的资源文件解析成 BeanDefinition 后需要将其注入容器中，这个过程就是由 BeanDefinitionRegistry 来完成。 BeanDefinitionRegistry 继承了 AliasRegistry 接口，其核心子类有三个：SimpleBeanDefinitionRegistry、DefaultListableBeanFactory、GenericApplicationContext。  </p>
+<h2><span id="beandefinitionregistry">BeanDefinitionRegistry</span></h2><p>提供向IOC容器注册BeanDefinition对象的方法，将定义Bean 的资源文件解析成 BeanDefinition 后需要将其注入容器中，这个过程就是由 BeanDefinitionRegistry 来完成。 BeanDefinitionRegistry 继承了 AliasRegistry 接口，其核心子类有三个：SimpleBeanDefinitionRegistry、DefaultListableBeanFactory、GenericApplicationContext。  </p>
 <p><img src="https://img.zouchanglin.cn///20200405/E5QxQebdaucd.png" alt="mark"></p>
 <ul>
 <li>AliasRegistry：  用于别名管理的通用型接口，作为 BeanDefinitionRegistry 的顶层接口。AliasRegistry 定义了一些别名管理的方法。 </li>
@@ -309,14 +309,14 @@
 <li>SimpleBeanDefinitionRegistry：SimpleBeanDefinitionRegistry 是 BeanDefinitionRegistry 一个简单的实现，它还继承 SimpleAliasRegistry（ AliasRegistry 的简单实现），它仅仅只提供注册表功能，无工厂功能。SimpleBeanDefinitionRegistry 使用 ConcurrentHashMap 来存储注册的 BeanDefinition。</li>
 <li>DefaultListableBeanFactory： DefaultListableBeanFactory，ConfigurableListableBeanFactory（其实就是 BeanFactory ） 和BeanDefinitionRegistry 接口的默认实现：一个基于BeanDefinition元数据的完整 Bean工厂。所以相对于SimpleBeanDefinitionRegistry而言，DefaultListableBeanFactory则是一个具有注册功能的完整Bean工厂。它同样是用ConcurrentHashMap数据结构来存储注册的BeanDefinition。 </li>
 </ul>
-<h2 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h2><p>提供IOC的配置机制、包含Bean的各种定义，便于实例化Bean、建立Bean之间的依赖关系、Bean生命周期的控制等功能。 BeanFactory是个Factory，也就是IOC容器或对象工厂，FactoryBean是个Bean。在Spring中，所有的Bean都是由BeanFactory(也就是IOC容器)来进行管理的。但对FactoryBean而言，这个Bean不是简单的Bean，而是一个能生产或者修饰对象生成的工厂Bean,它的实现与设计模式中的工厂模式和修饰器模式类似，下图是BeanFactory的体系结构：</p>
+<h2><span id="beanfactory">BeanFactory</span></h2><p>提供IOC的配置机制、包含Bean的各种定义，便于实例化Bean、建立Bean之间的依赖关系、Bean生命周期的控制等功能。 BeanFactory是个Factory，也就是IOC容器或对象工厂，FactoryBean是个Bean。在Spring中，所有的Bean都是由BeanFactory(也就是IOC容器)来进行管理的。但对FactoryBean而言，这个Bean不是简单的Bean，而是一个能生产或者修饰对象生成的工厂Bean,它的实现与设计模式中的工厂模式和修饰器模式类似，下图是BeanFactory的体系结构：</p>
 <p><img src="https://img.zouchanglin.cn///20200407/bWSznXkawhdX.png" alt="mark"></p>
 <p>ListableBeanRegistry，该接口定义了访问容器中并基本信息的若干方法。查看Bean的个数，获取某一类型Bean的配置名，查看容器中是否包括某一Bean等方法。</p>
 <p>HierarchicalBeanFactory，即父子级联ICO接口，此容器可以通过接口方法访问父容器，通过HierarchicalBeanFactory接口，Spring得IOC容器可以建立父子关联得容器体系，子容器可以访问父容器中的Bean，但是父容器是不能访问子容器中的Bean的。Spring使用父子容器实现了很多功能，比如在SpringMVC中，展现层的Bean位于一个子容器中，而业务层和持久层的Bean位于父容器中，这样展现层的Bean就可以引用业务层和持久层的Bean，而持久层和业务层的却看不到展现层的Bean。</p>
 <p>ConfigurableBeanFactory，它在SpringCore中是一个很重要的接口，增强了IOC容器的可定制性，它定义了设置类加载器、属性编辑器、以及属性初始化后置处理器等方法。</p>
 <p>AutowireCapableFactory，它定义了将容器中的Bean按照某种规则，比如按照名称匹配，按照类型匹配等，按照这些规则，对Bean进行自动装配。</p>
 <p>SingletonBeanRegistry，它允许在运行期间向容器注册Singleton实例Bean的方法，通过这些接口也证明了BeanFactory体系确实是提供了IOC的基础，即依赖注入和Bean的装载等功能。</p>
-<h1 id="BeanFactory与ApplicationContext"><a href="#BeanFactory与ApplicationContext" class="headerlink" title="BeanFactory与ApplicationContext"></a>BeanFactory与ApplicationContext</h1><p>BeanFactory是Spring框架的基础设施，面向SpringApplicationContext面向使用Spring框架的开发者。</p>
+<h1><span id="beanfactory与applicationcontext">BeanFactory与ApplicationContext</span></h1><p>BeanFactory是Spring框架的基础设施，面向SpringApplicationContext面向使用Spring框架的开发者。</p>
 <p>ApplicationContext的功能(继承多个接口)</p>
 <ul>
 <li>BeanFactory：能够管理、装配Bean</li>
@@ -325,7 +325,7 @@
 <li>ApplicationEventPublisher：能够注册监听器,实现监听机制</li>
 </ul>
 <p>ApplicationContext 包含 BeanFactory 的所有特性，通常推荐使用前者。但是也有一些限制情形，比如移动应用内存消耗比较严苛，在那些情景中，使用更轻量级的 BeanFactory 是更合理的。然而，在大多数企业级的应用中，ApplicationContext 是你的首选。 </p>
-<h1 id="SpringIOC应用示例"><a href="#SpringIOC应用示例" class="headerlink" title="SpringIOC应用示例"></a>SpringIOC应用示例</h1><p>下面演示一个我们手动装配的例子：</p>
+<h1><span id="springioc应用示例">SpringIOC应用示例</span></h1><p>下面演示一个我们手动装配的例子：</p>
 <p>Person.java</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -544,7 +544,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringIOC容器支持的功能"><span class="toc-number">1.</span> <span class="toc-text">SpringIOC容器支持的功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringIOC源码分析"><span class="toc-number">2.</span> <span class="toc-text">SpringIOC源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#BeanDefinition"><span class="toc-number">2.1.</span> <span class="toc-text">BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BeanDefinitionRegistry"><span class="toc-number">2.2.</span> <span class="toc-text">BeanDefinitionRegistry</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BeanFactory"><span class="toc-number">2.3.</span> <span class="toc-text">BeanFactory</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#BeanFactory与ApplicationContext"><span class="toc-number">3.</span> <span class="toc-text">BeanFactory与ApplicationContext</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringIOC应用示例"><span class="toc-number">4.</span> <span class="toc-text">SpringIOC应用示例</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">SpringIOC容器支持的功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">SpringIOC源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">BeanDefinitionRegistry</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">BeanFactory</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">BeanFactory与ApplicationContext</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">SpringIOC应用示例</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -703,18 +703,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -727,6 +715,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -735,15 +727,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -760,6 +760,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,15 +875,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -883,11 +883,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -899,11 +903,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -912,6 +916,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -963,10 +975,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -995,6 +1003,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1015,6 +1027,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1028,6 +1044,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1067,15 +1087,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1092,22 +1112,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

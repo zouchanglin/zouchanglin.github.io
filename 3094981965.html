@@ -273,7 +273,7 @@
 <p>本篇文章主要讲述了Java内存模型中的程序计数器、虚拟机栈、本地方法栈、元空间与堆，以及堆中的常量池。前面通过javap反编译class文件得到<code>int add(int a, int b)</code>函数的栈帧，主要分析了栈帧中JVM指令对应的局部变量表、操作数栈、程序计数器的状态变化。以及JDK7以后出现了替代永久代的元数据区，并分析了元数据区替换了永久代有哪些好处，主要分析了给字符串常量池带来的影响，并通过代码验证了元数据区相比永久代的优越性。学习了JVM性能调优的三个参数的意义和普通用法，最后探讨了并验证了JDK1.6与JDK1.7+的版本String类的intern方法的不同表现结果，分析了出现不同结果的原因，其实主要是JDK1.6的版本是建立副本再放入字符串常量池，而JDK1.7+版本时直接把堆上的对象的引用入池。</p>
 <a id="more"></a>
 
-<h1 id="线程私有的空间"><a href="#线程私有的空间" class="headerlink" title="线程私有的空间"></a>线程私有的空间</h1><p>程序计数器( Program Counter Register )</p>
+<h1><span id="线程私有的空间">线程私有的空间</span></h1><p>程序计数器( Program Counter Register )</p>
 <p>1、当前线程所执行的字节码行号指示器(逻辑)</p>
 <p>2、改变计数器的值来选取下一条需要执行的字节码指令</p>
 <p>3、和线程是一对一的关系即：线程私有</p>
@@ -294,27 +294,27 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stackLeakByThread</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>本地方法栈，与虚拟机栈相似，主要作用于标注了native的方法。</p>
-<h1 id="线程共享的空间"><a href="#线程共享的空间" class="headerlink" title="线程共享的空间"></a>线程共享的空间</h1><p>先说说MetaSpace（元空间）与永久代的区别：</p>
+<h1><span id="线程共享的空间">线程共享的空间</span></h1><p>先说说MetaSpace（元空间）与永久代的区别：</p>
 <p>首先，得明白方法区只是JVM的一个规范，而MetaSpace和永久代均是方法区的实现，在Java7之后，原先位于方法区的字符串常量池已经被移动到了堆中，并且在JDK8以后，使用MetaSpace替代了永久代。不仅仅只是名字上的替代：</p>
 <p>1、元空间使用本地内存，而永久代使用的是JVM的内存，使用本地内存有什么好处呢？那就是默认的类的元数据分配只受到本地内存大小的限制，解决了空间不足的问题， 所有的被intern的String被存储在PermGen的串常量池中，解决了以前在老版本的JDK中出现的OutOfMemoryError的问题，JVM默认在运行的时候会根据需要动态的设置其大小。</p>
 <p>2、字符串常量池存在永久代中，容易出现性能问题和内存溢出</p>
 <p>3、永久代会为GC带来不必要的复杂性</p>
 <p>4、方便HotSpot与其他JVM如Jrockit的集成</p>
 <p>堆这个空间其实就是存放对象实例用的（当然也包括数组和字符串常量池）。Java堆空间可以处于物理上不连续的空间，只要逻辑是连续的即可。</p>
-<h1 id="JVM三大性能调优参数"><a href="#JVM三大性能调优参数" class="headerlink" title="JVM三大性能调优参数"></a>JVM三大性能调优参数</h1><p>-Xms、-Xmx、-Xss</p>
+<h1><span id="jvm三大性能调优参数">JVM三大性能调优参数</span></h1><p>-Xms、-Xmx、-Xss</p>
 <p>-Xss 规定了每个线程虚拟机栈的大小，一般来说256K足够用了，此配置将会影响并发线程数的大小</p>
 <p>-Xms 堆的初始值，即进程刚创建时的堆的大小，一旦除过了堆的初始容量，将会自动扩容</p>
 <p>-Xmx 堆能达到的最大值</p>
 <p>通常情况下我们将 -Xms 和 -Xmx 设置成一样的，因为当堆内存不够用的时候，会发生扩容，此时会产生内存抖动，影响程序运行时的稳定性。</p>
-<h1 id="内存分配策略"><a href="#内存分配策略" class="headerlink" title="内存分配策略"></a>内存分配策略</h1><p>1、静态存储：编译时确定每个数据目标在运行时的存储空间需求</p>
+<h1><span id="内存分配策略">内存分配策略</span></h1><p>1、静态存储：编译时确定每个数据目标在运行时的存储空间需求</p>
 <p>2、栈式存储：数据区需求在编译时未知，运行时模块入口前确定，如：虚拟机栈</p>
 <p>3、堆式存储：编译时或运行时模块入口都无法确定，动态分配，如：对象的存储和销毁</p>
-<h1 id="Java内存模型中堆和栈的区别"><a href="#Java内存模型中堆和栈的区别" class="headerlink" title="Java内存模型中堆和栈的区别"></a>Java内存模型中堆和栈的区别</h1><p>1、管理方式：栈自动释放，堆需要GC</p>
+<h1><span id="java内存模型中堆和栈的区别">Java内存模型中堆和栈的区别</span></h1><p>1、管理方式：栈自动释放，堆需要GC</p>
 <p>2、空间大小：栈比堆小</p>
 <p>3、碎片相关：栈产生的碎片远小于堆</p>
 <p>4、分配方式：栈支持静态和动态分配，而堆仅支持动态分配</p>
 <p>5、效率：栈的效率比堆高</p>
-<h1 id="不同JDK版本的intern"><a href="#不同JDK版本的intern" class="headerlink" title="不同JDK版本的intern()"></a>不同JDK版本的intern()</h1><p>String对象的intern方法就是把字符串放入字符串常量池中。</p>
+<h1><span id="不同jdk版本的intern">不同JDK版本的intern()</span></h1><p>String对象的intern方法就是把字符串放入字符串常量池中。</p>
 <p>JDK6：当调用intern方法时，如果字符串常量池先前已创建出该字符串对象，则返回池中的该字符串的引用。否则，将此字符串对象添加到字符串常量池中，并且返回该字符串对象的引用。</p>
 <p>JDK6+：当调用intern 方法时，如果字符串常量池先前已创建出该字符串对象，则返回池中的该字符串的引用。否则，如果该字符串对象已经存在于Java堆中，则将堆中对此对象的引用添加到字符串常量池中，并且返回该引用;如果堆中不存在，则在池中创建该字符串并返回其引用。</p>
 <blockquote>
@@ -536,7 +536,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#线程私有的空间"><span class="toc-number">1.</span> <span class="toc-text">线程私有的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程共享的空间"><span class="toc-number">2.</span> <span class="toc-text">线程共享的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JVM三大性能调优参数"><span class="toc-number">3.</span> <span class="toc-text">JVM三大性能调优参数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存分配策略"><span class="toc-number">4.</span> <span class="toc-text">内存分配策略</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Java内存模型中堆和栈的区别"><span class="toc-number">5.</span> <span class="toc-text">Java内存模型中堆和栈的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#不同JDK版本的intern"><span class="toc-number">6.</span> <span class="toc-text">不同JDK版本的intern()</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">线程私有的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">线程共享的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">JVM三大性能调优参数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">内存分配策略</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">Java内存模型中堆和栈的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">不同JDK版本的intern()</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -695,18 +695,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -719,6 +707,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -727,15 +719,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -752,6 +752,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -859,15 +867,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -875,11 +875,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -891,11 +895,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -904,6 +908,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -955,10 +967,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -987,6 +995,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1007,6 +1019,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1020,6 +1036,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1059,15 +1079,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1084,22 +1104,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

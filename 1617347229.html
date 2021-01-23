@@ -264,19 +264,19 @@
 
 
 
-<h2 id="一、封装"><a href="#一、封装" class="headerlink" title="一、封装"></a>一、封装</h2><p>先封装一个专门处理Cookie的工具类：</p>
+<h2><span id="一-封装">一、封装</span></h2><p>先封装一个专门处理Cookie的工具类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CookieUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> List&lt;Cookie&gt; cookies;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 返回cookies列表 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Cookie&gt; <span class="title">getCookies</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> cookies != <span class="keyword">null</span> ? cookies : <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 设置cookies列表 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setCookies</span><span class="params">(List&lt;Cookie&gt; cookies)</span> </span>&#123;</span><br><span class="line">        CookieUtils.cookies = cookies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 存储cookie */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">saveCookie</span><span class="params">(AsyncHttpClient client, Context context)</span> </span>&#123;</span><br><span class="line">        PersistentCookieStore cookieStore = <span class="keyword">new</span> PersistentCookieStore(context);</span><br><span class="line">        client.setCookieStore(cookieStore);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 得到cookie */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Cookie&gt; <span class="title">getCookie</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        PersistentCookieStore cookieStore = <span class="keyword">new</span> PersistentCookieStore(context);</span><br><span class="line">        List&lt;Cookie&gt; cookies = cookieStore.getCookies();</span><br><span class="line">        <span class="keyword">return</span> cookies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 清除cookie */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">clearCookie</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        PersistentCookieStore cookieStore = <span class="keyword">new</span> PersistentCookieStore(context);</span><br><span class="line">        cookieStore.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>再封装一下AsyncHttpClient，这样所有的AsyncHttpClient用的都是同一个对象了！ </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalAsyncHttpClient</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> AsyncHttpClient client;</span><br><span class="line">    <span class="comment">/* 构造方法 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FinalAsyncHttpClient</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        client = <span class="keyword">new</span> AsyncHttpClient();<span class="comment">//实例化client</span></span><br><span class="line">        client.setTimeout(<span class="number">5</span>);<span class="comment">//设置5秒超时</span></span><br><span class="line">        <span class="comment">// 获取cookie列表</span></span><br><span class="line">        <span class="keyword">if</span> (CookieUtils.getCookies() != <span class="keyword">null</span>) &#123;</span><br><span class="line">            BasicCookieStore bcs = <span class="keyword">new</span> BasicCookieStore();</span><br><span class="line">            bcs.addCookies(CookieUtils.getCookies().toArray(</span><br><span class="line">                    <span class="keyword">new</span> Cookie[CookieUtils.getCookies().size()]));<span class="comment">//得到cookie列表</span></span><br><span class="line">            client.setCookieStore(bcs);<span class="comment">//给client加载cookie</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 得到client对象方法 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AsyncHttpClient <span class="title">getAsyncHttpClient</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.client;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="二、使用"><a href="#二、使用" class="headerlink" title="二、使用"></a>二、使用</h2><p>获取对象并且设置保存Cookie</p>
+<h2><span id="二-使用">二、使用</span></h2><p>获取对象并且设置保存Cookie</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AsyncHttpClient asyncHttpClient = <span class="keyword">new</span> FinalAsyncHttpClient().getAsyncHttpClient();</span><br><span class="line">CookieUtils.saveCookie(asyncHttpClient,LoginAty.<span class="keyword">this</span>);</span><br></pre></td></tr></table></figure>
 
 <p> 登录成功 </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">asyncHttpClient.post(AppConfig.loginAddress, params, </span><br><span class="line">                     <span class="keyword">new</span> AsyncHttpResponseHandler() &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(<span class="keyword">int</span> statusCode, Header[] headers, </span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">byte</span>[] responseBody)</span> </span>&#123;</span><br><span class="line">    	<span class="comment">//....</span></span><br><span class="line">			XToast.success(getContext(), <span class="string">"登录成功"</span>).show();</span><br><span class="line">			CookieUtils.setCookies(CookieUtils.getCookie(LoginAty.<span class="keyword">this</span>));</span><br><span class="line">    	<span class="comment">//....</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="三、拓展"><a href="#三、拓展" class="headerlink" title="三、拓展"></a>三、拓展</h2><p>但是这样也有问题，每次开启App的时候cookie就消失了，我们把cookie通过序列化的方式存起来就好了，如果发现cookie过期，现在有更好的解决方式，直接在App开启的时候就更新一次cookie就好了！</p>
+<h2><span id="三-拓展">三、拓展</span></h2><p>但是这样也有问题，每次开启App的时候cookie就消失了，我们把cookie通过序列化的方式存起来就好了，如果发现cookie过期，现在有更好的解决方式，直接在App开启的时候就更新一次cookie就好了！</p>
 
 	
 
@@ -466,7 +466,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、封装"><span class="toc-number">1.</span> <span class="toc-text">一、封装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、使用"><span class="toc-number">2.</span> <span class="toc-text">二、使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、拓展"><span class="toc-number">3.</span> <span class="toc-text">三、拓展</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">一、封装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">二、使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">三、拓展</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -625,18 +625,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -649,6 +637,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -657,15 +649,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -682,6 +682,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -789,15 +797,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -805,11 +805,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -821,11 +825,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -834,6 +838,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -885,10 +897,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -917,6 +925,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -937,6 +949,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -950,6 +966,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -989,15 +1009,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1014,22 +1034,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

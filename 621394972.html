@@ -269,8 +269,8 @@
 		<p>最近由于在实习期间接触到了京东的自研服务框架JSF，简称“杰夫”，目前我写的一些新功能里面调用的下游接口就是杰夫提供的。现有有很多高效的服务框架，如阿里巴巴的Dubbo配合Apache的ZooKeeper，那么为什么京东却自研了JSF服务框架呢？于是看了看京东的JSF的演化历史，不得不感叹好的架构果然不是一朝一夕就能实现的，都是逐步演变而来的。</p>
 <a id="more"></a>
 
-<h2 id="一、Dubbo与Zookeeper的组合拳"><a href="#一、Dubbo与Zookeeper的组合拳" class="headerlink" title="一、Dubbo与Zookeeper的组合拳"></a>一、Dubbo与Zookeeper的组合拳</h2><p>Dubbo是阿里巴巴开源的一个高性能的服务框架，Dubbo使得应用之间可通过高性能的RPC实现服务的输出和输入功能，而且可以和 Spring框架无缝集成。我们可以看看Dubbo架构路线图：从单一应用架构 → 垂直应用架构 → 分布式服务架构 → 流动计算架构 ，也可以看我的另一篇文章<a href="https://zouchanglin.cn/2020/05/14/1934360474.html">《服务拆分方法论》</a>:</p>
-<p><img src="https://img.zouchanglin.cn///20200514/reUxUKbU80SK.png" alt=""></p>
+<h2><span id="一-dubbo与zookeeper的组合拳">一、Dubbo与Zookeeper的组合拳</span></h2><p>Dubbo是阿里巴巴开源的一个高性能的服务框架，Dubbo使得应用之间可通过高性能的RPC实现服务的输出和输入功能，而且可以和 Spring框架无缝集成。我们可以看看Dubbo架构路线图：从单一应用架构 → 垂直应用架构 → 分布式服务架构 → 流动计算架构 ，也可以看我的另一篇文章<a href="https://zouchanglin.cn/2020/05/14/1934360474.html">《服务拆分方法论》</a>:</p>
+<p><img src="https://img.zouchanglin.cn///20200514/reUxUKbU80SK.png" alt></p>
 <p>从上图可以看出互联网的架构演变经历了单一应用架构、垂直应用架构、分布式服务架构和流动计算架构。服务的粒度越来越细化，多个Tomcat的Servlet之间相互调用，服务治理的尤为重要，所以一个优秀的架构来替我们解决服务之间的调用问题，而且还要保证高可用，甚至是实现负载均衡。于是Dubbo框架就出现了，它提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册与发现。 </p>
 <p>下面是Dubbo框架的架构图：</p>
 <p><img src="https://img.zouchanglin.cn/blog/20200725/kwlNBqbWf1YY.png" alt="mark"></p>
@@ -303,7 +303,7 @@
 </tr>
 </tbody></table>
 <p>先用容器Container，通过Docker来启动我们的服务Provider。Dubbo本身没有使用任何的注册中心，而是用一种直连的方式进行的。但是，实际上很多时候都是使用 Dubbo + Zookeeper 的方式，使用 zookeeper 作为注册中心，服务调用方Comsumer就会去注册中心去订阅Subscribe相关服务。注册中心会异步的方式将消费者需要的服务的地址列表推送Notify给你。消费者就会将整个地址列表缓存在本地，当业务需求到来时，就会使用地址列表里的地址去请求相关的服务程序。至于Monitor顾名思义就是监视器的含义，消费者和提供者会定时将服务的调用次数和被调用的次数发送给监视器。关于Dubbo和Zookeeper的使用案例在此就不介绍了，可以参考<a href="https://segmentfault.com/a/1190000019896723" target="_blank" rel="noopener">《Dubbo一篇文章就够了：从入门到实战》</a>。</p>
-<h2 id="二、Zookeeper适合作为注册中心吗"><a href="#二、Zookeeper适合作为注册中心吗" class="headerlink" title="二、Zookeeper适合作为注册中心吗"></a>二、Zookeeper适合作为注册中心吗</h2><p>当我们提出“Zookeeper作为注册中心合适吗”这个问题的时候，首先考虑的是具体使用场景，我想说的是，在京东，Zookeeper真的不合适！</p>
+<h2><span id="二-zookeeper适合作为注册中心吗">二、Zookeeper适合作为注册中心吗</span></h2><p>当我们提出“Zookeeper作为注册中心合适吗”这个问题的时候，首先考虑的是具体使用场景，我想说的是，在京东，Zookeeper真的不合适！</p>
 <p>关于服务注册中心重要性不必多说，注册中心相当于是服务提供者和服务调用者之间的引路人，在服务治理中的作用极为重要，注册中心必须必须必须是高可用的，拥有极强的稳定性。那么如何选择服务器注册中心呢？下面列出一些作为注册中心基本要考量点：</p>
 <ul>
 <li>服务注册：接收注册信息的方式</li>
@@ -365,12 +365,12 @@
 <p>说完了注册中心选型和特点后，我们再来分析Zookeeper是否在适合在京东作为服务注册中心，答案是<strong>不适合</strong>。Zookeeper在大流量场景下不适合作为注册中心，因为Zookeeper不是为高可用性设计的。</p>
 <p><strong>由于要跨机房容灾，很多系统实际上是需要跨机房部署的。出于性价比的考虑我们通常会让多个机房同时工作，而不会搭建N倍的冗余。也就是说单个机房肯定撑不住全流量。由于Zookeeper集群只能有一个master节点，因此一旦机房之间连接出现故障，Zookeeper master就只能照顾一个机房，其他机房运行的业务模块由于没有master都只能停掉。于是所有流量集中到有master的那个机房，于是系统宕机。</strong> 这是就是京东在2015年的双十一注册中心挂掉的根本原因。后端容器服务重启以后之前缓存的服务地址列表丢失，服务无法调用。而且Zookeeper没有动态水平扩展的能力，Zookeeper作为注册中心称为了双十一这种高并发场景下的瓶颈。</p>
 <p>即使是在同一个机房里面，由于网段的不同，在调整机房交换机的时候偶尔也会发生网段隔离的情况。实际上机房每个月基本上都会发生短暂的网络隔离之类的子网段调整。在那个时刻Zookeeper将处于不可用状态。如果整个业务系统基于Zookeeper（比如要求每个业务请求都先去Zookeeper获取业务系统的master地址），则系统的可用性将非常脆弱。由于Zookeeper对于网络隔离的极度敏感，导致Zookeeper对于网络的任何风吹草动都会做出激烈反应。这使得Zookeeper的服务失效时间比较多，Zookeeper的不可用将导致整个系统的不可用。</p>
-<h2 id="三、理想的服务框架是什么样"><a href="#三、理想的服务框架是什么样" class="headerlink" title="三、理想的服务框架是什么样"></a>三、理想的服务框架是什么样</h2><p><img src="https://img.zouchanglin.cn/blog/20200725/xNLDTfzd60wd.png" alt="mark"></p>
-<h3 id="接口文档管理"><a href="#接口文档管理" class="headerlink" title="接口文档管理"></a>接口文档管理</h3><p>提供一个接口文档管理以及接口查询的入口，可以是一个公共的WIKI，也可以是独立的系统，等等。这里可以定义接口的文档，包括接口描述，方法定义，字段定义。可以定义接口的SLA，包括支持的并发数，建议配置是什么。还有就是接口的负责人等一些查询的入口。</p>
-<h3 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h3><p>提供一个配置管理的地方，这里说的配置主要指的是服务相关的一些配置。配置包括分组配置、路由策略、黑白名单、降级开关、限流信息、超时时间、重试次数等等，任何可以动态变更的所有数据。这样服务提供者和服务调用者可以不需要重启自己的应用，直接进行配置的变更。配置中心可以独立于注册中心，也可以和注册中心合并。</p>
-<h3 id="监控中心"><a href="#监控中心" class="headerlink" title="监控中心"></a>监控中心</h3><p>监控服务关注接口维度，实例（例如所在JVM实例）维度的数据。RPC框架可以定时上报调用次数，耗时，异常等信息。监控中心可以统计出服务质量信息，也可以进行监控报警。</p>
-<h3 id="分布式跟踪"><a href="#分布式跟踪" class="headerlink" title="分布式跟踪"></a>分布式跟踪</h3><p>区别于监控中心，以调用链的模式对服务进行。RPC框架作为分布式跟踪系统的一个天然埋点，可以很好的进行一个数据输出。</p>
-<h3 id="服务治理"><a href="#服务治理" class="headerlink" title="服务治理"></a>服务治理</h3><p>我这边列了常见的服务治理功能，例如：</p>
+<h2><span id="三-理想的服务框架是什么样">三、理想的服务框架是什么样</span></h2><p><img src="https://img.zouchanglin.cn/blog/20200725/xNLDTfzd60wd.png" alt="mark"></p>
+<h3><span id="接口文档管理">接口文档管理</span></h3><p>提供一个接口文档管理以及接口查询的入口，可以是一个公共的WIKI，也可以是独立的系统，等等。这里可以定义接口的文档，包括接口描述，方法定义，字段定义。可以定义接口的SLA，包括支持的并发数，建议配置是什么。还有就是接口的负责人等一些查询的入口。</p>
+<h3><span id="配置中心">配置中心</span></h3><p>提供一个配置管理的地方，这里说的配置主要指的是服务相关的一些配置。配置包括分组配置、路由策略、黑白名单、降级开关、限流信息、超时时间、重试次数等等，任何可以动态变更的所有数据。这样服务提供者和服务调用者可以不需要重启自己的应用，直接进行配置的变更。配置中心可以独立于注册中心，也可以和注册中心合并。</p>
+<h3><span id="监控中心">监控中心</span></h3><p>监控服务关注接口维度，实例（例如所在JVM实例）维度的数据。RPC框架可以定时上报调用次数，耗时，异常等信息。监控中心可以统计出服务质量信息，也可以进行监控报警。</p>
+<h3><span id="分布式跟踪">分布式跟踪</span></h3><p>区别于监控中心，以调用链的模式对服务进行。RPC框架作为分布式跟踪系统的一个天然埋点，可以很好的进行一个数据输出。</p>
+<h3><span id="服务治理">服务治理</span></h3><p>我这边列了常见的服务治理功能，例如：</p>
 <ul>
 <li>服务路由：<ul>
 <li>权重：例如机器配置高的权重高，机器配置低的权重低；</li>
@@ -405,7 +405,7 @@
 <li>服务降级：<ul>
 <li>Mock：出现异常或者测试情况下，返回Mock数据；</li>
 <li>熔断：客户端超时或者服务端超时；</li>
-<li>拒绝服务：服务端压力大时，自动拒绝服务，保护自己。<h3 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h3></li>
+<li>拒绝服务：服务端压力大时，自动拒绝服务，保护自己。<h3><span id="网关">网关</span></h3></li>
 </ul>
 </li>
 </ul>
@@ -418,14 +418,14 @@
 <li>Mock：服务测试，降级等；</li>
 <li>其它一些统一处理逻辑（例如请求解析，响应包装）。</li>
 </ul>
-<h2 id="四、京东的JSF迭代"><a href="#四、京东的JSF迭代" class="headerlink" title="四、京东的JSF迭代"></a>四、京东的JSF迭代</h2><h3 id="JSF雏形——ASF"><a href="#JSF雏形——ASF" class="headerlink" title="JSF雏形——ASF"></a>JSF雏形——ASF</h3><p>JSF早期叫做ASF，当时的选择如下：</p>
+<h2><span id="四-京东的jsf迭代">四、京东的JSF迭代</span></h2><h3><span id="jsf雏形asf">JSF雏形——ASF</span></h3><p>JSF早期叫做ASF，当时的选择如下：</p>
 <ul>
 <li>RPC框架：基于dubbo2.3.2做配置扩展，以及功能扩展包括：rest（resteasy）、webservice（cxf）、kryo/thrift序列化、调用压缩等；</li>
 <li>注册中心：Zookeeper，RPC框架直接接入数据源；</li>
 <li>监控中心：监控服务+HBase；</li>
 <li>管理平台：读取Zookeeper做管理平台，提供基本的上下线、黑白名单等功能。</li>
 </ul>
-<h3 id="现在的JSF构成"><a href="#现在的JSF构成" class="headerlink" title="现在的JSF构成"></a>现在的JSF构成</h3><p>目前的JSF几乎是全部自研</p>
+<h3><span id="现在的jsf构成">现在的JSF构成</span></h3><p>目前的JSF几乎是全部自研</p>
 <ul>
 <li>RPC框架：轻量级，更佳的性能，兼容旧版本协议；</li>
 <li>注册中心：基于DB作为数据源，前置Index服务；支持十倍接入量；部分逻辑放在注册中心减少客户端负担；</li>
@@ -434,7 +434,7 @@
 <li>HTTP网关：基于Netty，支持跨语言调用。</li>
 </ul>
 <p>目前的JSF是基于DB做的数据最终一致，也就是AP系统。注册中心主要实现的就是服务列表的注册订阅推送，服务配置的获取下发，服务状态的实时查看等功能。注册中心节点是无状态的，可水平扩展的。整个注册中心集群下的所有注册中心几点都是等价的。 </p>
-<h3 id="JSF优化与特点"><a href="#JSF优化与特点" class="headerlink" title="JSF优化与特点"></a>JSF优化与特点</h3><ul>
+<h3><span id="jsf优化与特点">JSF优化与特点</span></h3><ul>
 <li>引入Index服务概念：该服务就是一个最简单HTTP的服务，用于找注册中心节点（同机房或者压力最小或者其它特定场景），可以认为是不会挂的服务，RPC框架会优先连该服务拿注册中心地址，这样子的好处是注册中心地址变化后，RPC框架不用修改任何设置； </li>
 </ul>
 <ul>
@@ -645,7 +645,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Dubbo与Zookeeper的组合拳"><span class="toc-number">1.</span> <span class="toc-text">一、Dubbo与Zookeeper的组合拳</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Zookeeper适合作为注册中心吗"><span class="toc-number">2.</span> <span class="toc-text">二、Zookeeper适合作为注册中心吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、理想的服务框架是什么样"><span class="toc-number">3.</span> <span class="toc-text">三、理想的服务框架是什么样</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#接口文档管理"><span class="toc-number">3.1.</span> <span class="toc-text">接口文档管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置中心"><span class="toc-number">3.2.</span> <span class="toc-text">配置中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#监控中心"><span class="toc-number">3.3.</span> <span class="toc-text">监控中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式跟踪"><span class="toc-number">3.4.</span> <span class="toc-text">分布式跟踪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务治理"><span class="toc-number">3.5.</span> <span class="toc-text">服务治理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网关"><span class="toc-number">3.6.</span> <span class="toc-text">网关</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、京东的JSF迭代"><span class="toc-number">4.</span> <span class="toc-text">四、京东的JSF迭代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JSF雏形——ASF"><span class="toc-number">4.1.</span> <span class="toc-text">JSF雏形——ASF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#现在的JSF构成"><span class="toc-number">4.2.</span> <span class="toc-text">现在的JSF构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSF优化与特点"><span class="toc-number">4.3.</span> <span class="toc-text">JSF优化与特点</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">一、Dubbo与Zookeeper的组合拳</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">二、Zookeeper适合作为注册中心吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">三、理想的服务框架是什么样</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">接口文档管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">配置中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">监控中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">分布式跟踪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.5.</span> <span class="toc-text">服务治理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.6.</span> <span class="toc-text">网关</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">四、京东的JSF迭代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">JSF雏形——ASF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">现在的JSF构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">JSF优化与特点</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -804,18 +804,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -828,6 +816,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -836,15 +828,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -861,6 +861,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -968,15 +976,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -984,11 +984,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1000,11 +1004,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1013,6 +1017,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1064,10 +1076,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1096,6 +1104,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1116,6 +1128,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1129,6 +1145,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1168,15 +1188,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1193,22 +1213,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

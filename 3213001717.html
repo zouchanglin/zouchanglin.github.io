@@ -267,7 +267,7 @@
 	
 		<p>流媒体（Streaming media）是指将一连串的多媒体资料压缩后，经过互联网分段发送资料，在互联网上即时传输影音以供观赏的一种技术与过程，此技术使得资料数据包得以像流水一样发送，如果不使用此技术，就必须在使用前下载整个媒体文件。实时流媒体是指互联网内容的实时传输，就像电视直播通过电视信号在电波上播放内容一样。互联网流媒体直播需要一种形式的源媒体（如摄像机、音频接口、屏幕捕捉软件）、将内容数字化的编码器、媒体发布者和内容传输网络来分发和传递内容。</p>
 <a id="more"></a>
-<h2 id="HLS简介"><a href="#HLS简介" class="headerlink" title="HLS简介"></a>HLS简介</h2><blockquote>
+<h2><span id="hls简介">HLS简介</span></h2><blockquote>
 <p>HTTP Live Streaming，缩写为HLS，是由苹果公司提出基于HTTP的流媒体网络传输协议。是苹果公司QuickTime X和iPhone软件系统的一部分。它的工作原理是把整个流分成一个个小的基于HTTP的文件来下载，每次只下载一些。当媒体流正在播放时，客户端可以选择从许多不同的备用源中以不同的速率下载同样的资源，允许流媒体会话适应不同的数据速率。在开始一个流媒体会话时，客户端会下载一个包含元数据的扩展 M3U (m3u8) 播放列表文件，用于寻找可用的媒体流。<br>—— <a href="https://zh.wikipedia.org/wiki/HTTP_Live_Streaming" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/HTTP_Live_Streaming</a></p>
 </blockquote>
 <p>上面是维基百科对HLS的解释，其实不难理解，当我们在爱奇艺或者腾讯视频中追剧、看电影或者刷B站，都是随时可以调整进度的，有时候一个视频特别大，比如一个高清的电影要是下载下来得十多个GB甚至高达上百GB，但是在观看视频的时候却可以手动拖动进度条调整播放进度，很显然不可能把整个视频都下载下来再进行调整，所以在这种场景下，服务器分段发送资料就显得尤为重要，只发送用户当前即将要观看的一小段视频，而不是传输整个视频。</p>
@@ -279,12 +279,12 @@
 <li>媒体加密和用户身份验证</li>
 </ul>
 <p>下图显示了HTTP Live Stream的组件：</p>
-<p><img src="https://img.zouchanglin.cn/20210116232731.png" alt=""></p>
-<p>所以用比较通俗的话来讲，HLS的基本实现原理为将一个大的媒体文件进行分片，将该分片文件资源路径记录于m3u8文件内，所以m3u8文件是记录索引的纯文本文件，打开它时播放软件并不是播放它，而是根据它的索引找到对应的音视频文件的网络地址进行在线播放，而且m3u8文件其中附带一些额外描述（比如该资源的多带宽信息···）用于提供给客户端，客户端依据该m3u8文件即可获取对应的媒体资源，进行播放，如下图所示：<br><img src="https://img.zouchanglin.cn/20210116230256.png" alt=""><br>我们观看视频的时候，往往可以根据网速选择360P、720P、1080P等清晰度，其实切换清晰度的本质就是切换不同的流而已，对于爱奇艺这类视频网站往往也会准备不同码率的媒体流，用于给用户在网络情况较差的时候也能有流畅的观看体验：<br><img src="https://img.zouchanglin.cn/20210116224800.png" alt=""></p>
-<h2 id="m3u8文件内容"><a href="#m3u8文件内容" class="headerlink" title="m3u8文件内容"></a>m3u8文件内容</h2><p>m3u8文件实质是一个视频点播列表，或者实时播放列表、或者是一个主播放列表，或者活动播放列表。无论是哪种播放列表,其内部文字使用的都是UTF-8编码。在看m3u8的文件内容的时候需要注意以下几点：</p>
+<p><img src="https://img.zouchanglin.cn/20210116232731.png" alt></p>
+<p>所以用比较通俗的话来讲，HLS的基本实现原理为将一个大的媒体文件进行分片，将该分片文件资源路径记录于m3u8文件内，所以m3u8文件是记录索引的纯文本文件，打开它时播放软件并不是播放它，而是根据它的索引找到对应的音视频文件的网络地址进行在线播放，而且m3u8文件其中附带一些额外描述（比如该资源的多带宽信息···）用于提供给客户端，客户端依据该m3u8文件即可获取对应的媒体资源，进行播放，如下图所示：<br><img src="https://img.zouchanglin.cn/20210116230256.png" alt><br>我们观看视频的时候，往往可以根据网速选择360P、720P、1080P等清晰度，其实切换清晰度的本质就是切换不同的流而已，对于爱奇艺这类视频网站往往也会准备不同码率的媒体流，用于给用户在网络情况较差的时候也能有流畅的观看体验：<br><img src="https://img.zouchanglin.cn/20210116224800.png" alt></p>
+<h2><span id="m3u8文件内容">m3u8文件内容</span></h2><p>m3u8文件实质是一个视频点播列表，或者实时播放列表、或者是一个主播放列表，或者活动播放列表。无论是哪种播放列表,其内部文字使用的都是UTF-8编码。在看m3u8的文件内容的时候需要注意以下几点：</p>
 <p>1、m3u8 文件都是UTF-8编码。</p>
 <p>2、m3u8 文件的每一行要么是一个URL，要么是空行，要么就是以<code>#</code>开头的字符串。不能出现空白字符，除了显示声明的元素。m3u8 文件中以<code>#</code>开头的字符串要么是注释，要么就是标签。标签以 <code>#EXT</code> 开头，大小写敏感。</p>
-<h3 id="点播列表"><a href="#点播列表" class="headerlink" title="点播列表"></a>点播列表</h3><p>当m3u8文件作为点播列表时，其内部信息记录的是一系列媒体片段资源的URL，客户端只需按顺序下载这些片段资源，依次进行播放即可，下面的代码是视频点播播放列表的示例：</p>
+<h3><span id="点播列表">点播列表</span></h3><p>当m3u8文件作为点播列表时，其内部信息记录的是一系列媒体片段资源的URL，客户端只需按顺序下载这些片段资源，依次进行播放即可，下面的代码是视频点播播放列表的示例：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-PLAYLIST-TYPE:VOD</span><br><span class="line">#EXT-X-TARGETDURATION:10</span><br><span class="line">#EXT-X-VERSION:4</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:0</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;movie1&#x2F;fileSequenceA.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;movie1&#x2F;fileSequenceB.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;movie1&#x2F;fileSequenceC.ts</span><br><span class="line">#EXTINF:9.0,</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;movie1&#x2F;fileSequenceD.ts</span><br><span class="line">#EXT-X-ENDLIST</span><br></pre></td></tr></table></figure>
 
 <p>以下是视频点播播放列表示例中使用的标签：</p>
@@ -301,7 +301,7 @@
 <p>上面的播放列表示例为媒体文件播放列表条目使用了完整路径名，虽然这是可以的，但使用相对路径名更好一些。因为相对路径名比绝对路径名更容易移植，并且相对于播放列表文件的URL，对单个播放列表条目使用完整路径名通常会比使用相对路径名产生更多文本。下面是与上面相同的播放列表的相对路径表示的m3u8文件：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-PLAYLIST-TYPE:VOD</span><br><span class="line">#EXT-X-TARGETDURATION:10</span><br><span class="line">#EXT-X-VERSION:4</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:0</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequenceA.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequenceB.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequenceC.ts</span><br><span class="line">#EXTINF:9.0,</span><br><span class="line">fileSequenceD.ts</span><br><span class="line">#EXT-X-ENDLIST</span><br></pre></td></tr></table></figure>
 
-<h3 id="实时播放列表"><a href="#实时播放列表" class="headerlink" title="实时播放列表"></a>实时播放列表</h3><p>实时播放列表通常用于直播场景，通过在创建新媒体文件并在其可用时从文件中删除媒体URI来更新索引文件，这个时候m3u8文件中就不存在<code>EXT-X-ENDLIST</code>标签，新的视频媒体文件就可以被添加到m3u8文件中，下面是一个实时播放列表（直播）的m3u8文件示例：</p>
+<h3><span id="实时播放列表">实时播放列表</span></h3><p>实时播放列表通常用于直播场景，通过在创建新媒体文件并在其可用时从文件中删除媒体URI来更新索引文件，这个时候m3u8文件中就不存在<code>EXT-X-ENDLIST</code>标签，新的视频媒体文件就可以被添加到m3u8文件中，下面是一个实时播放列表（直播）的m3u8文件示例：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-TARGETDURATION:10</span><br><span class="line">#EXT-X-VERSION:4</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:1</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence1.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence2.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence3.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence4.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence5.ts</span><br></pre></td></tr></table></figure>
 
 <p>这里面在点播列表里出现的标签就不再介绍了，如<code>#EXTM3U</code>、<code>#EXT-X-TARGETDURATION</code>、<code>#EXT-X-VERSION</code>、<code>#EXTINF</code>、<code>#EXT-X-MEDIA-SEQUENCE</code>等标签。</p>
@@ -311,11 +311,11 @@
 <p>随着添加新媒体URI，播放列表将继续更新：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-TARGETDURATION:10</span><br><span class="line">#EXT-X-VERSION:4</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:4</span><br><span class="line">#EXTINF:10.00,</span><br><span class="line">fileSequence4.ts</span><br><span class="line">#EXTINF:10.00,</span><br><span class="line">fileSequence5.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence6.ts,</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence7.ts,</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence8.ts,</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence9.ts</span><br></pre></td></tr></table></figure>
 
-<h3 id="活动播放列表"><a href="#活动播放列表" class="headerlink" title="活动播放列表"></a>活动播放列表</h3><p>当<code>#EXT-X-PLAYLIST-TYPE</code>的值为EVENT的时候，那么就表示这是一个活动播放列表。当允许用户搜索事件中的任何点（例如音乐会或体育赛事）时，通常会使用事件播放列表。当<code>#EXT-X-PLAYLIST-TYPE</code>的值为EVENT的时候，就无法从播放列表中删除任何内容；只能在文件末尾附加新的句段。新的段将添加到文件的末尾，直到事件结束为止，此时将添加<code>EXT-X-ENDLIST</code>标签。以下示例显示了用新的媒体URI更新的播放列表，并且该事件已结束：</p>
+<h3><span id="活动播放列表">活动播放列表</span></h3><p>当<code>#EXT-X-PLAYLIST-TYPE</code>的值为EVENT的时候，那么就表示这是一个活动播放列表。当允许用户搜索事件中的任何点（例如音乐会或体育赛事）时，通常会使用事件播放列表。当<code>#EXT-X-PLAYLIST-TYPE</code>的值为EVENT的时候，就无法从播放列表中删除任何内容；只能在文件末尾附加新的句段。新的段将添加到文件的末尾，直到事件结束为止，此时将添加<code>EXT-X-ENDLIST</code>标签。以下示例显示了用新的媒体URI更新的播放列表，并且该事件已结束：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-PLAYLIST-TYPE:EVENT</span><br><span class="line">#EXT-X-TARGETDURATION:10</span><br><span class="line">#EXT-X-VERSION:4</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:0</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence0.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence1.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence2.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence3.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence4.ts</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; List of files between 4 and 120 go here.</span><br><span class="line"></span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence120.ts</span><br><span class="line">#EXTINF:10.0,</span><br><span class="line">fileSequence121.ts</span><br><span class="line">#EXT-X-ENDLIST</span><br></pre></td></tr></table></figure>
 
-<h3 id="主播放列表"><a href="#主播放列表" class="headerlink" title="主播放列表"></a>主播放列表</h3><p>提供多个播放列表文件以提供相同内容的不同码率，主播放列表描述了内容的所有可用的不同码率的媒体源。每个媒体源都是具有特定码率的版本，并包含在单独的播放列表中。客户端根据测得的网速切换到最合适的媒体源。调整客户端的播放器以最大程度地减少播放停顿，从而为用户提供最佳的流媒体体验。</p>
-<p><img src="https://img.zouchanglin.cn/20210117003458.png" alt=""></p>
+<h3><span id="主播放列表">主播放列表</span></h3><p>提供多个播放列表文件以提供相同内容的不同码率，主播放列表描述了内容的所有可用的不同码率的媒体源。每个媒体源都是具有特定码率的版本，并包含在单独的播放列表中。客户端根据测得的网速切换到最合适的媒体源。调整客户端的播放器以最大程度地减少播放停顿，从而为用户提供最佳的流媒体体验。</p>
+<p><img src="https://img.zouchanglin.cn/20210117003458.png" alt></p>
 <p>主播放列表不会重新读取。客户端解析完主播放列表后，便会假设不同码率的媒体源未发生变化。一旦客户端在各个媒体源播放列表之一上看到<code>EXT-X-ENDLIST</code>标签，流就会结束。以下示例显示了一个主播放列表，它定义了五个不同的媒体源：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-STREAM-INF:BANDWIDTH&#x3D;150000,RESOLUTION&#x3D;416x234,CODECS&#x3D;&quot;avc1.42e00a,mp4a.40.2&quot;</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;low&#x2F;index.m3u8</span><br><span class="line">#EXT-X-STREAM-INF:BANDWIDTH&#x3D;240000,RESOLUTION&#x3D;416x234,CODECS&#x3D;&quot;avc1.42e00a,mp4a.40.2&quot;</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;lo_mid&#x2F;index.m3u8</span><br><span class="line">#EXT-X-STREAM-INF:BANDWIDTH&#x3D;440000,RESOLUTION&#x3D;416x234,CODECS&#x3D;&quot;avc1.42e00a,mp4a.40.2&quot;</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;hi_mid&#x2F;index.m3u8</span><br><span class="line">#EXT-X-STREAM-INF:BANDWIDTH&#x3D;640000,RESOLUTION&#x3D;640x360,CODECS&#x3D;&quot;avc1.42e00a,mp4a.40.2&quot;</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;high&#x2F;index.m3u8</span><br><span class="line">#EXT-X-STREAM-INF:BANDWIDTH&#x3D;64000,CODECS&#x3D;&quot;mp4a.40.5&quot;</span><br><span class="line">http:&#x2F;&#x2F;example.com&#x2F;audio&#x2F;index.m3u8</span><br></pre></td></tr></table></figure>
 
@@ -325,7 +325,7 @@
 <blockquote>
 <p>尽管CODECS参数是可选的，但每个<code>EXT-X-STREAM-INF</code>标记都应包含该属性。 此属性提供解码特定流所需的编解码器的完整列表。 它允许客户端区分仅是音频的变体和同时具有音频和视频的媒体源，则客户端在切换流时会利用此信息来提供更好的用户体验。</p>
 </blockquote>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming" target="_blank" rel="noopener">Example Playlists for HTTP Live Streaming</a></p>
+<h2><span id="参考资料">参考资料</span></h2><p>1、<a href="https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming" target="_blank" rel="noopener">Example Playlists for HTTP Live Streaming</a></p>
 <p>2、<a href="https://developer.apple.com/documentation/http_live_streaming" target="_blank" rel="noopener">HTTP Live Streaming</a></p>
 <p>2、<a href="https://zh.wikipedia.org/wiki/HTTP_Live_Streaming" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/HTTP_Live_Streaming</a></p>
 
@@ -521,7 +521,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HLS简介"><span class="toc-number">1.</span> <span class="toc-text">HLS简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#m3u8文件内容"><span class="toc-number">2.</span> <span class="toc-text">m3u8文件内容</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#点播列表"><span class="toc-number">2.1.</span> <span class="toc-text">点播列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实时播放列表"><span class="toc-number">2.2.</span> <span class="toc-text">实时播放列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#活动播放列表"><span class="toc-number">2.3.</span> <span class="toc-text">活动播放列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主播放列表"><span class="toc-number">2.4.</span> <span class="toc-text">主播放列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">HLS简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">m3u8文件内容</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">点播列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">实时播放列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">活动播放列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">主播放列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -680,18 +680,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -704,6 +692,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -712,15 +704,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -737,6 +737,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -844,15 +852,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -860,11 +860,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -876,11 +880,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -889,6 +893,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -940,10 +952,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -972,6 +980,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -992,6 +1004,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1005,6 +1021,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1044,15 +1064,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1069,22 +1089,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

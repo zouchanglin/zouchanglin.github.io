@@ -283,7 +283,7 @@
 <p>在以前的文章中介绍了五种IO模型，分别是阻塞式IO、非阻塞式IO、信号驱动IO、多路复用IO、异步IO；前四种都属于同步IO。今天重点介绍的是多路复用IO，多路复用IO通俗讲就是一次等待多个文件描述符，减少了等待时间，提高了IO过程的效率（此IO过程并不是只是从内核态到用户态数据的拷贝，而是从发起IO请求直到IO完成的过程），接下来将介绍Linux的三种多路复用模型。</p>
 <a id="more"></a>
 
-<h2 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h2><p>在介绍多路复用IO之前，先看看非阻塞IO吧：一个文件描述符，默认都是阻塞IO，我们可以通过fcntl函数来将文件描述符设置为非阻塞</p>
+<h2><span id="非阻塞io">非阻塞IO</span></h2><p>在介绍多路复用IO之前，先看看非阻塞IO吧：一个文件描述符，默认都是阻塞IO，我们可以通过fcntl函数来将文件描述符设置为非阻塞</p>
 <p><img src="https://img.zouchanglin.cn///20200301/H5h4ajUPcQz2.png" alt="mark"></p>
 <p>传入的cmd的值不同，后面追加的参数也不相同。fcntl函数有5种功能：</p>
 <ul>
@@ -298,8 +298,8 @@
 <p>使用F_GETFL将当前的文件描述符的属性取出来(这是一个位图)，然后再使用F_SETFL将文件描述符设置回去。设置回去的同时，加上一个O_NONBLOCK参数。下面使用轮询方式读取标准输入：</p>
 <p><img src="https://img.zouchanglin.cn///20200301/oTbeBPB8vQgJ.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200301/oDUqQwLq3R4n.png" alt="mark"></p>
-<h2 id="select-多路复用"><a href="#select-多路复用" class="headerlink" title="select 多路复用"></a>select 多路复用</h2><p>系统提供select函数来实现多路复用输入/输出模型，select系统调用是用来让我们的程序监视多个文件描述符的状态变化的；程序会停在select这里等待，直到被监视的文件描述符有一个或多个发生了状态改变；</p>
-<h3 id="select函数"><a href="#select函数" class="headerlink" title="select函数"></a>select函数</h3><p><img src="https://img.zouchanglin.cn///20200301/pyW2PhrWIVrm.png" alt="mark"></p>
+<h2><span id="select-多路复用">select 多路复用</span></h2><p>系统提供select函数来实现多路复用输入/输出模型，select系统调用是用来让我们的程序监视多个文件描述符的状态变化的；程序会停在select这里等待，直到被监视的文件描述符有一个或多个发生了状态改变；</p>
+<h3><span id="select函数">select函数</span></h3><p><img src="https://img.zouchanglin.cn///20200301/pyW2PhrWIVrm.png" alt="mark"></p>
 <p>参数nfds是需要监视的最大的文件描述符值+1；rdset、wrset、exset分别对应于需要检测的可读文件描述符的集合，可写文件描述符的集合及异常文件描述符的集合；参数timeout为结构timeval，用来设置select()的等待时间</p>
 <blockquote>
 <ul>
@@ -317,28 +317,28 @@
 <li>EINVAL 参数n为负值</li>
 <li>ENOMEM 核心内存不足</li>
 </ul>
-<h3 id="select特点"><a href="#select特点" class="headerlink" title="select特点"></a>select特点</h3><p>可监控的文件描述符个数取决与sizeof(fd_set)的值，我的服务器上sizeof(fd_set)＝128，每bit表示一个文件<br>描述符，则我服务器上支持的最大文件描述符是128*8=1024。fd_set的大小可以调整，可能涉及重新编译内核。</p>
+<h3><span id="select特点">select特点</span></h3><p>可监控的文件描述符个数取决与sizeof(fd_set)的值，我的服务器上sizeof(fd_set)＝128，每bit表示一个文件<br>描述符，则我服务器上支持的最大文件描述符是128*8=1024。fd_set的大小可以调整，可能涉及重新编译内核。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%lu\n"</span>, <span class="keyword">sizeof</span>(fd_set)); <span class="comment">//128</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>将fd加入select监控集的同时，还要再使用一个数据结构array保存放到select监控集中的fd，一是用于再select 返回后，array作为源数据和fd_set进行FD_ISSET判断。二是select返回后会把以前加入的但并无事件发生的fd清空，则每次开始select前都要重新从array取得fd逐一加入(FD_ZERO最先)，扫描array的同时取得fd最大值maxfd，用于select的第一个参数。</p>
-<h3 id="select缺点"><a href="#select缺点" class="headerlink" title="select缺点"></a>select缺点</h3><p>每次调用select, 都需要手动设置fd集合, 从接口使用角度来说也非常不便，每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大，同时每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大，select支持的文件描述符数量太小。</p>
-<h3 id="使用select监控stdin"><a href="#使用select监控stdin" class="headerlink" title="使用select监控stdin"></a>使用select监控stdin</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;zconf.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fd_set read_fds;</span><br><span class="line">    <span class="comment">//清除全部标志位</span></span><br><span class="line">    FD_ZERO(&amp;read_fds);</span><br><span class="line">    FD_SET(<span class="number">0</span>, &amp;read_fds);</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"&gt;"</span>);</span><br><span class="line">        fflush(<span class="built_in">stdout</span>);</span><br><span class="line">        <span class="keyword">int</span> ret = select(<span class="number">1</span>, &amp;read_fds, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            perror(<span class="string">"select"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(FD_ISSET(<span class="number">0</span>, &amp;read_fds))&#123;</span><br><span class="line">            <span class="keyword">char</span> buf[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">            <span class="built_in">read</span>(<span class="number">0</span>, buf, <span class="keyword">sizeof</span>(buf) - <span class="number">1</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"input:%s\n"</span>, buf);</span><br><span class="line">        &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"error!"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        FD_ZERO(&amp;read_fds);</span><br><span class="line">        FD_SET(<span class="number">0</span>, &amp;read_fds);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3><span id="select缺点">select缺点</span></h3><p>每次调用select, 都需要手动设置fd集合, 从接口使用角度来说也非常不便，每次调用select，都需要把fd集合从用户态拷贝到内核态，这个开销在fd很多时会很大，同时每次调用select都需要在内核遍历传递进来的所有fd，这个开销在fd很多时也很大，select支持的文件描述符数量太小。</p>
+<h3><span id="使用select监控stdin">使用select监控stdin</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;zconf.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fd_set read_fds;</span><br><span class="line">    <span class="comment">//清除全部标志位</span></span><br><span class="line">    FD_ZERO(&amp;read_fds);</span><br><span class="line">    FD_SET(<span class="number">0</span>, &amp;read_fds);</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"&gt;"</span>);</span><br><span class="line">        fflush(<span class="built_in">stdout</span>);</span><br><span class="line">        <span class="keyword">int</span> ret = select(<span class="number">1</span>, &amp;read_fds, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            perror(<span class="string">"select"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(FD_ISSET(<span class="number">0</span>, &amp;read_fds))&#123;</span><br><span class="line">            <span class="keyword">char</span> buf[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">            <span class="built_in">read</span>(<span class="number">0</span>, buf, <span class="keyword">sizeof</span>(buf) - <span class="number">1</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"input:%s\n"</span>, buf);</span><br><span class="line">        &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"error!"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        FD_ZERO(&amp;read_fds);</span><br><span class="line">        FD_SET(<span class="number">0</span>, &amp;read_fds);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200301/3ThPkA11Ab6S.png" alt="mark"></p>
-<h2 id="poll-多路复用"><a href="#poll-多路复用" class="headerlink" title="poll 多路复用"></a>poll 多路复用</h2><h3 id="poll函数"><a href="#poll函数" class="headerlink" title="poll函数"></a>poll函数</h3><p><img src="https://img.zouchanglin.cn///20200301/WMlqrLvKDnwN.png" alt="mark"></p>
+<h2><span id="poll-多路复用">poll 多路复用</span></h2><h3><span id="poll函数">poll函数</span></h3><p><img src="https://img.zouchanglin.cn///20200301/WMlqrLvKDnwN.png" alt="mark"></p>
 <p>对于poll这个系统函数来说，fds是一个poll函数监听的结构列表。每一个元素中，包含了三部分内容：文件描述符，监听的事件集合，返回的事件集合。nfds表示fds数组的长度，timeout表示poll函数的超时时间，单位是毫秒(ms)。</p>
 <p>下面是events和revents的取值</p>
 <p><img src="https://img.zouchanglin.cn///20200301/yHLoEo1rk4C4.png" alt="mark"></p>
 <p>返回值：返回值小于0，表示出错；返回值等于0，表示poll函数等待超时；返回值大于0，表示poll由于监听的文件描述符就绪而返回。</p>
-<h3 id="poll特点"><a href="#poll特点" class="headerlink" title="poll特点"></a>poll特点</h3><p>不同与select使用三个位图来表示三个fdset的方式，poll使用一个pollfd的指针实现，pollfd结构包含了要监视的event和发生的event，不再使用select“参数-值”传递的方式（因为select三个集合简直要命），接口使用比select更方便。poll并没有最大数量限制 (但是数量过大后性能也是会下降)，因为列表长度可以任意长，当然指的是内存充足的情况下；</p>
-<h3 id="poll缺点"><a href="#poll缺点" class="headerlink" title="poll缺点"></a>poll缺点</h3><p>poll中监听的文件描述符数目增多时，和select函数一样，poll返回后，需要轮询pollfd来获取就绪的描述符，每次调用poll都需要把大量的pollfd结构从用户态拷贝到内核中。同时连接的大量客户端在一时刻可能只有很少的处于就绪状态，因此随着监视的描述符数量的增长，其效率也会线性下降。</p>
-<h3 id="使用poll监控stdin"><a href="#使用poll监控stdin" class="headerlink" title="使用poll监控stdin"></a>使用poll监控stdin</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;zconf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">poll_fd</span>;</span></span><br><span class="line">    poll_fd.fd = <span class="number">0</span>;</span><br><span class="line">    poll_fd.events = POLLIN;<span class="comment">//数据可读事件</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="keyword">int</span> ret = poll(&amp;poll_fd, <span class="number">1</span>, <span class="number">1000</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            perror(<span class="string">"poll"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(ret == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"poll timeout\n"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(poll_fd.revents == POLLIN)&#123;</span><br><span class="line">            <span class="keyword">char</span> buf[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">            <span class="built_in">read</span>(<span class="number">0</span>, buf, <span class="keyword">sizeof</span>(buf) - <span class="number">1</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"stdin:%s\n"</span>, buf);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3><span id="poll特点">poll特点</span></h3><p>不同与select使用三个位图来表示三个fdset的方式，poll使用一个pollfd的指针实现，pollfd结构包含了要监视的event和发生的event，不再使用select“参数-值”传递的方式（因为select三个集合简直要命），接口使用比select更方便。poll并没有最大数量限制 (但是数量过大后性能也是会下降)，因为列表长度可以任意长，当然指的是内存充足的情况下；</p>
+<h3><span id="poll缺点">poll缺点</span></h3><p>poll中监听的文件描述符数目增多时，和select函数一样，poll返回后，需要轮询pollfd来获取就绪的描述符，每次调用poll都需要把大量的pollfd结构从用户态拷贝到内核中。同时连接的大量客户端在一时刻可能只有很少的处于就绪状态，因此随着监视的描述符数量的增长，其效率也会线性下降。</p>
+<h3><span id="使用poll监控stdin">使用poll监控stdin</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;zconf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">poll_fd</span>;</span></span><br><span class="line">    poll_fd.fd = <span class="number">0</span>;</span><br><span class="line">    poll_fd.events = POLLIN;<span class="comment">//数据可读事件</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">        <span class="keyword">int</span> ret = poll(&amp;poll_fd, <span class="number">1</span>, <span class="number">1000</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            perror(<span class="string">"poll"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(ret == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"poll timeout\n"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(poll_fd.revents == POLLIN)&#123;</span><br><span class="line">            <span class="keyword">char</span> buf[<span class="number">1024</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">            <span class="built_in">read</span>(<span class="number">0</span>, buf, <span class="keyword">sizeof</span>(buf) - <span class="number">1</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"stdin:%s\n"</span>, buf);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="epoll-多路复用"><a href="#epoll-多路复用" class="headerlink" title="epoll 多路复用"></a>epoll 多路复用</h2><p>按照man手册的说法: 是为处理大批量句柄而作了改进的poll，它是在2.5.44内核中被引进的，对于有大量的连接，但是却只有少数连接是活跃的这种情况非常适用。</p>
+<h2><span id="epoll-多路复用">epoll 多路复用</span></h2><p>按照man手册的说法: 是为处理大批量句柄而作了改进的poll，它是在2.5.44内核中被引进的，对于有大量的连接，但是却只有少数连接是活跃的这种情况非常适用。</p>
 <p>epoll有三个系统调用：</p>
-<h3 id="epoll-create"><a href="#epoll-create" class="headerlink" title="epoll_create"></a>epoll_create</h3><p>创建一个epoll的句柄，自从linux2.6.8之后，size参数是被忽略的。用完之后，必须调用close()关闭。</p>
+<h3><span id="epoll_create">epoll_create</span></h3><p>创建一个epoll的句柄，自从linux2.6.8之后，size参数是被忽略的。用完之后，必须调用close()关闭。</p>
 <p><img src="https://img.zouchanglin.cn///20200301/gMlx28Fdosdc.png" alt="mark"></p>
-<h3 id="epoll-ctl"><a href="#epoll-ctl" class="headerlink" title="epoll_ctl"></a>epoll_ctl</h3><p>epoll_ctl是epoll的事件注册函数</p>
+<h3><span id="epoll_ctl">epoll_ctl</span></h3><p>epoll_ctl是epoll的事件注册函数</p>
 <p><img src="https://img.zouchanglin.cn///20200301/TzY28qGcyjN2.png" alt="mark"></p>
 <blockquote>
 <p>它不同于select()是在监听事件时告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。</p>
@@ -363,7 +363,7 @@
 <li>EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里</li>
 </ul>
 </blockquote>
-<h3 id="epoll-wait"><a href="#epoll-wait" class="headerlink" title="epoll_wait"></a>epoll_wait</h3><p>收集在epoll监控的事件中已经发送的事件。</p>
+<h3><span id="epoll_wait">epoll_wait</span></h3><p>收集在epoll监控的事件中已经发送的事件。</p>
 <blockquote>
 <ul>
 <li>参数events是分配好的epoll_event结构体数组</li>
@@ -374,7 +374,7 @@
 </blockquote>
 <p>如果函数调用成功，返回对应I/O上已准备好的文件描述符数目，如返回0表示已超时, 返回小于0表示函数失败。</p>
 <p><img src="https://img.zouchanglin.cn///20200301/YvSKXbOB2CJ9.png" alt="mark"></p>
-<h3 id="epoll工作原理"><a href="#epoll工作原理" class="headerlink" title="epoll工作原理"></a>epoll工作原理</h3><p><img src="https://img.zouchanglin.cn///20200301/XRBaHLJHUMvD.png" alt="mark"></p>
+<h3><span id="epoll工作原理">epoll工作原理</span></h3><p><img src="https://img.zouchanglin.cn///20200301/XRBaHLJHUMvD.png" alt="mark"></p>
 <p>当某一进程调用epoll_create方法时，Linux内核会创建一个eventpoll结构体，这个结构体中有两个成员与epoll的使用方式密切相关。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span>&#123;</span></span><br><span class="line">	....</span><br><span class="line">	</span><br><span class="line">    <span class="comment">/*红黑树的根节点，这颗树中存储着所有添加到epoll中的需要监控的事件*/</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span> <span class="title">rbr</span>;</span></span><br><span class="line">    </span><br><span class="line">	<span class="comment">/*双链表中则存放着将要通过epoll_wait返回给用户的满足条件的事件*/</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdlist</span>;</span></span><br><span class="line">	</span><br><span class="line">    ....</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -391,7 +391,7 @@
 
 <p>当调用epoll_wait检查是否有事件发生时，只需要检查eventpoll对象中的rdlist双链表中是否有epitem元素即可。<br>如果rdlist不为空，则把发生的事件复制到用户态，同时将事件数量返回给用户。这个操作的时间复杂度是O(1)。</p>
 <p>总结一下, epoll的使用过程就是三部曲：<br>1、调用epoll_create创建一个epoll句柄；<br>2、调用epoll_ctl，将要监控的文件描述符进行注册；<br>3、调用epoll_wait，等待文件描述符就绪；</p>
-<h3 id="epoll的优点"><a href="#epoll的优点" class="headerlink" title="epoll的优点"></a>epoll的优点</h3><p>1、接口使用方便：虽然拆分成了三个函数，但是反而使用起来更方便高效，不需要每次循环都设置关注的文件描述符，也做到了输入输出参数分离开；</p>
+<h3><span id="epoll的优点">epoll的优点</span></h3><p>1、接口使用方便：虽然拆分成了三个函数，但是反而使用起来更方便高效，不需要每次循环都设置关注的文件描述符，也做到了输入输出参数分离开；</p>
 <p>2、数据拷贝轻量：只在合适的时候调用 EPOLL_CTL_ADD 将文件描述符结构拷贝到内核中，这个操作并不频繁，而select/poll都是每次循环都要进行拷贝；</p>
 <p>3、事件回调机制：避免使用遍历，而是使用回调函数的方式，将就绪的文件描述符结构加入到就绪队列中，epoll_wait 返回直接访问就绪队列就知道哪些文件描述符就绪。这个操作时间复杂度O(1)，即使文件描述符数目很多，效率也不会受到影响；</p>
 <p>4、没有数量限制：文件描述符数目无上限；</p>
@@ -550,18 +550,18 @@
 
 <nav id="article-nav">
   
-    <a href="/26607628.html" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/3448454488.html" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          通俗理解五种IO模型
+          图解epoll原理
         
       </div>
     </a>
   
   
-    <a href="/293026705.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Redis的常见问题</div>
+    <a href="/26607628.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">通俗理解五种IO模型</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -588,7 +588,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#非阻塞IO"><span class="toc-number">1.</span> <span class="toc-text">非阻塞IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#select-多路复用"><span class="toc-number">2.</span> <span class="toc-text">select 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#select函数"><span class="toc-number">2.1.</span> <span class="toc-text">select函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select特点"><span class="toc-number">2.2.</span> <span class="toc-text">select特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select缺点"><span class="toc-number">2.3.</span> <span class="toc-text">select缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用select监控stdin"><span class="toc-number">2.4.</span> <span class="toc-text">使用select监控stdin</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poll-多路复用"><span class="toc-number">3.</span> <span class="toc-text">poll 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#poll函数"><span class="toc-number">3.1.</span> <span class="toc-text">poll函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#poll特点"><span class="toc-number">3.2.</span> <span class="toc-text">poll特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#poll缺点"><span class="toc-number">3.3.</span> <span class="toc-text">poll缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用poll监控stdin"><span class="toc-number">3.4.</span> <span class="toc-text">使用poll监控stdin</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll-多路复用"><span class="toc-number">4.</span> <span class="toc-text">epoll 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll-create"><span class="toc-number">4.1.</span> <span class="toc-text">epoll_create</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll-ctl"><span class="toc-number">4.2.</span> <span class="toc-text">epoll_ctl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll-wait"><span class="toc-number">4.3.</span> <span class="toc-text">epoll_wait</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll工作原理"><span class="toc-number">4.4.</span> <span class="toc-text">epoll工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll的优点"><span class="toc-number">4.5.</span> <span class="toc-text">epoll的优点</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">非阻塞IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">select 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">select函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">select特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">select缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">使用select监控stdin</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">poll 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">poll函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">poll特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">poll缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">使用poll监控stdin</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">epoll 多路复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">epoll_create</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">epoll_ctl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">epoll_wait</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">epoll工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.5.</span> <span class="toc-text">epoll的优点</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -747,18 +747,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -771,6 +759,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -779,15 +771,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -804,6 +804,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -911,15 +919,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -927,11 +927,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -943,11 +947,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -956,6 +960,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1007,10 +1019,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -1039,6 +1047,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1059,6 +1071,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1072,6 +1088,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1111,15 +1131,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1136,22 +1156,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

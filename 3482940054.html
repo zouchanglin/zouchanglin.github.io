@@ -268,14 +268,14 @@
     
 
 	
-		<h1 id="沙箱环境"><a href="#沙箱环境" class="headerlink" title="沙箱环境"></a>沙箱环境</h1><p>沙箱环境也就是特意为开发者准备的环境，从而避免去注册公司、审核之类的问题！<br>这个是沙箱环境的<a href="https://openhome.alipay.com/platform/appDaily.htm?tab=info" target="_blank" rel="noopener">链接</a></p>
+		<h1><span id="沙箱环境">沙箱环境</span></h1><p>沙箱环境也就是特意为开发者准备的环境，从而避免去注册公司、审核之类的问题！<br>这个是沙箱环境的<a href="https://openhome.alipay.com/platform/appDaily.htm?tab=info" target="_blank" rel="noopener">链接</a></p>
 <p>先要下载这两个工具</p>
 <p><img src="https://img.zouchanglin.cn///20200201/Vg9pk7XiEW78.png" alt="mark"></p>
 <p><img src="https://img.zouchanglin.cn///20200201/qm3LnJNtek24.png" alt="mark"></p>
 <p>环境一定要配置正确，尤其是秘钥之类的，至于回调地址先不考虑，如果要测试的话首先要保证你本机的服务可以映射到公网，内网穿透就是一种解决方案，而且域名还便宜!</p>
 <a id="more"></a>
 
-<h1 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h1><p>支付包第三方Jar引入：</p>
+<h1><span id="开始">开始</span></h1><p>支付包第三方Jar引入：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alipay.sdk<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>alipay-sdk-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p> 在resources目录下新建一个支付宝的配置文件：alipay.properties </p>
@@ -294,7 +294,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AlipayUtil</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">connect</span><span class="params">(AlipayBean alipayBean)</span> <span class="keyword">throws</span> AlipayApiException </span>&#123;</span><br><span class="line">        AlipayClient alipayClient = <span class="keyword">new</span> DefaultAlipayClient(</span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"gatewayUrl"</span>),<span class="comment">//支付宝网关</span></span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"app_id"</span>),<span class="comment">//appid</span></span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"merchant_private_key"</span>),<span class="comment">//商户私钥</span></span><br><span class="line">                <span class="string">"json"</span>,</span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"charset"</span>),<span class="comment">//字符编码格式</span></span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"alipay_public_key"</span>),<span class="comment">//支付宝公钥</span></span><br><span class="line">                PropertiesConfig.getKey(<span class="string">"sign_type"</span>)<span class="comment">//签名方式</span></span><br><span class="line">        );</span><br><span class="line">        AlipayTradePagePayRequest alipayRequest = <span class="keyword">new</span> AlipayTradePagePayRequest();</span><br><span class="line">        alipayRequest.setReturnUrl(PropertiesConfig.getKey(<span class="string">"return_url"</span>));</span><br><span class="line">        alipayRequest.setNotifyUrl(PropertiesConfig.getKey(<span class="string">"notify_url"</span>));</span><br><span class="line">        alipayRequest.setBizContent(JSON.toJSONString(alipayBean));</span><br><span class="line">        <span class="keyword">return</span> alipayClient.pageExecute(alipayRequest).getBody();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://img.zouchanglin.cn///20200201/wRojEWhaoaMW.png" alt="mark"></p>
-<p>可以使用Android版本的沙箱支付宝支付，也可以登录账户支付，沙箱环境不是很稳定最好多测试几次，支付成功和支付失败的情景！ </p>
+<p>可以使用Android版本的沙箱支付宝支付，也可以登录账户支付，沙箱环境不是很稳定最好多测试几次，支付成功和支付失败的情景！</p>
 
 	
 
@@ -473,7 +473,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#沙箱环境"><span class="toc-number">1.</span> <span class="toc-text">沙箱环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#开始"><span class="toc-number">2.</span> <span class="toc-text">开始</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">沙箱环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">开始</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -632,18 +632,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -656,6 +644,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -664,15 +656,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -689,6 +689,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -796,15 +804,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -812,11 +812,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -828,11 +832,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -841,6 +845,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -892,10 +904,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -924,6 +932,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -944,6 +956,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -957,6 +973,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -996,15 +1016,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1021,22 +1041,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

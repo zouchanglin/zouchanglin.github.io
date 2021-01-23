@@ -273,9 +273,9 @@
 		<p>本篇文章记述的是堆排序，这个名字看起来好像又要介绍一个排序算法，但是排序算法是次要的，主要的是一个数据结构——堆。堆排序问题就是堆这种数据结构所衍生出来的一个应用，我们先了解一下优先队列的概念。普通的队列就是满足先进先出、后进后出的一个结构。那么优先级队列呢？出队顺序和入队顺序无关，和优先级相关，这就比如在医院看病，肯定是急诊病人优先看病。</p>
 <a id="more"></a>
 
-<h1 id="优先级队列的应用"><a href="#优先级队列的应用" class="headerlink" title="优先级队列的应用"></a>优先级队列的应用</h1><p>在操作系统中就会用到优先级队列，操作系统要同时执行多个任务，实际上操作系统是将CPU的执行周期划分为时间片，在每个时间片里只能执行一个任务，那么执行哪个任务呢？那就需要根据任务的优先级动态地选择优先级最高的任务来执行。</p>
+<h1><span id="优先级队列的应用">优先级队列的应用</span></h1><p>在操作系统中就会用到优先级队列，操作系统要同时执行多个任务，实际上操作系统是将CPU的执行周期划分为时间片，在每个时间片里只能执行一个任务，那么执行哪个任务呢？那就需要根据任务的优先级动态地选择优先级最高的任务来执行。</p>
 <p>如何实现一个优先级队列呢？方法有很多，但是用堆来实现是最直接、最高效的。这是因为，堆和优先级队列非常相似。一个堆就可以看作一个优先级队列。很多时候，它们只是概念上的区分而已。往优先级队列中插入一个元素，就相当于往堆中插入一个元素；从优先级队列中取出优先级最高的元素，就相当于取出堆顶元素。 优先级队列的应用场景非常多。赫夫曼编码、图的最短路径、最小生成树算法很多数据结构和算法都要依赖于优先级队列。</p>
-<h1 id="堆的定义及其特点"><a href="#堆的定义及其特点" class="headerlink" title="堆的定义及其特点"></a>堆的定义及其特点</h1><p>堆是一种特殊的树。我们现在就来看看，什么样的树才是堆。我罗列了两点要求，只要满足这两点，它就是一个堆。 </p>
+<h1><span id="堆的定义及其特点">堆的定义及其特点</span></h1><p>堆是一种特殊的树。我们现在就来看看，什么样的树才是堆。我罗列了两点要求，只要满足这两点，它就是一个堆。 </p>
 <ul>
 <li>堆是一个完全二叉树；</li>
 </ul>
@@ -290,13 +290,13 @@
 <p>完全二叉树比较适合用数组来存储。用数组来存储完全二叉树是非常节省存储空间的。因为我们不需要存储左右子节点的指针，单纯地通过数组的下标，就可以找到一个节点的左右子节点和父节点。 如下图所示：</p>
 <p><img src="https://img.zouchanglin.cn///20200415/2wtVupohV07q.png" alt="mark"></p>
 <p>我们不难发现，这样的结构蕴含的规律是：左孩子在数组中的坐标是父节点的二倍，而右孩子在数组中的坐标是父节点的二倍加一。但是数组的索引却是从0开始的，堆的一个经典的实现就是数组0号位置空着，则parent (i) = i / 2(这里的除法是计算机除法，即取整)，left child (i) =  2 * i，right child (i) = 2 * i +1。</p>
-<h1 id="堆的具体代码实现"><a href="#堆的具体代码实现" class="headerlink" title="堆的具体代码实现"></a>堆的具体代码实现</h1><p>根据上述的堆这种数据结构的，我们可以先实现下面的基础框架代码：</p>
+<h1><span id="堆的具体代码实现">堆的具体代码实现</span></h1><p>根据上述的堆这种数据结构的，我们可以先实现下面的基础框架代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxHeap</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span>[] data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆里有多少元素</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为0号位置不使用，所以capacity + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxHeap</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>接下来需要关注的焦点是如何向上调堆，我们在向堆中添加新的元素的时候，其实是向数组的末尾添加了一个新的元素，但是往堆中插入一个元素后，我们需要继续满足堆的两个特性。如果我们把新插入的元素直接放到堆的最后，是不是不符合堆的特性了？  于是我们就需要进行调整，让其重新满足堆的特性，这个过程叫做堆化：</p>
 <p><img src="https://img.zouchanglin.cn///20200415/cgPRQzUqwq8E.png" alt="mark"></p>
 <p>堆的调整方式有两种：向上调堆和向下调堆！在这里我们可以先看看向上调堆。</p>
-<h2 id="向上调堆（插入元素）"><a href="#向上调堆（插入元素）" class="headerlink" title="向上调堆（插入元素）"></a>向上调堆（插入元素）</h2><p>其实向上调堆的过程比较简单，那就是逐步和自己的父节点进行比较，如果不满足规则就交换即可，如下图：</p>
+<h2><span id="向上调堆插入元素">向上调堆（插入元素）</span></h2><p>其实向上调堆的过程比较简单，那就是逐步和自己的父节点进行比较，如果不满足规则就交换即可，如下图：</p>
 <p><img src="https://img.zouchanglin.cn///20200415/9x9k2XqmyBYP.png" alt="mark"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxHeap</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span>[] data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆里有多少元素</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆的容量</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> capacity;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为0号位置不使用，所以capacity + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxHeap</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">this</span>.capacity = capacity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取现存元素个数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断是否为空</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//插入数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> item)</span></span>&#123;</span><br><span class="line">        <span class="comment">//判断容量知否超出</span></span><br><span class="line">        <span class="keyword">if</span>(count + <span class="number">1</span> &gt;= capacity)&#123;</span><br><span class="line">            <span class="comment">//开始扩容</span></span><br><span class="line">            resize();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//先存储到末尾</span></span><br><span class="line">        data[count + <span class="number">1</span>] = item;</span><br><span class="line">        count++;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//开始调堆</span></span><br><span class="line">        shiftUp(count);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//向上调堆</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">shiftUp</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(k &gt; <span class="number">1</span> &amp;&amp; data[k / <span class="number">2</span>] &lt; data[k])&#123;</span><br><span class="line">            swap(k/<span class="number">2</span>, k);</span><br><span class="line">            k /= <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//交换对应两个位置的值</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> tmp = data[i];</span><br><span class="line">        data[i] = data[j];</span><br><span class="line">        data[j] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//扩充容量</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">resize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] newData = <span class="keyword">new</span> <span class="keyword">int</span>[capacity * <span class="number">2</span>];</span><br><span class="line">        System.arraycopy(data, <span class="number">0</span>, newData, <span class="number">0</span>, count);</span><br><span class="line">        data = newData;</span><br><span class="line">        capacity *= <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -308,13 +308,13 @@
 
 <p><img src="https://img.zouchanglin.cn///20200415/sjcsO8RDNMBM.png" alt="mark"></p>
 <p>可以看出，我们不断插入数据的时候其实就是不断调堆的过程。</p>
-<h2 id="向下调堆（取出元素）"><a href="#向下调堆（取出元素）" class="headerlink" title="向下调堆（取出元素）"></a>向下调堆（取出元素）</h2><p>取出堆顶元素，任然需要维持堆的特性，所以我们只把最后一个节点放到堆顶，然后利用同样的父子节点对比方法。对于不满足父子节点大小关系的，互换两个节点，并且重复进行这个过程，直到父子节点之间满足大小关系为止。这就是从上往下的堆化方法，也叫做向下调堆。</p>
+<h2><span id="向下调堆取出元素">向下调堆（取出元素）</span></h2><p>取出堆顶元素，任然需要维持堆的特性，所以我们只把最后一个节点放到堆顶，然后利用同样的父子节点对比方法。对于不满足父子节点大小关系的，互换两个节点，并且重复进行这个过程，直到父子节点之间满足大小关系为止。这就是从上往下的堆化方法，也叫做向下调堆。</p>
 <p><img src="https://img.zouchanglin.cn///20200424/kRsrSaHQ97rv.png" alt="mark"></p>
 <p>所以整个堆的代码如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxHeap</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span>[] data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆里有多少元素</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//堆的容量</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> capacity;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为0号位置不使用，所以capacity + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxHeap</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="keyword">int</span>[capacity + <span class="number">1</span>];</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">this</span>.capacity = capacity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取现存元素个数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断是否为空</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> count == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//插入数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> item)</span></span>&#123;</span><br><span class="line">        <span class="comment">//判断容量知否超出</span></span><br><span class="line">        <span class="keyword">if</span>(count + <span class="number">1</span> &gt;= capacity)&#123;</span><br><span class="line">            <span class="comment">//开始扩容</span></span><br><span class="line">            resize();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//先存储到末尾</span></span><br><span class="line">        data[count + <span class="number">1</span>] = item;</span><br><span class="line">        count++;</span><br><span class="line">        <span class="comment">//开始向上调堆</span></span><br><span class="line">        shiftUp(count);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//向上调堆</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">shiftUp</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(k &gt; <span class="number">1</span> &amp;&amp; data[k / <span class="number">2</span>] &lt; data[k])&#123;</span><br><span class="line">            swap(k/<span class="number">2</span>, k);</span><br><span class="line">            k /= <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//取出数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">extractMax</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(count == <span class="number">0</span>) <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Heap is null"</span>);</span><br><span class="line">        <span class="keyword">int</span> ret = data[<span class="number">1</span>];</span><br><span class="line">        swap(<span class="number">1</span>, count);</span><br><span class="line">        count--;</span><br><span class="line">        <span class="comment">//开始向下调堆</span></span><br><span class="line">        shiftDown(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//向下调堆</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">shiftDown</span><span class="params">(<span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">2</span> * k &lt;= count)&#123;</span><br><span class="line">            <span class="keyword">int</span> j = <span class="number">2</span> * k; <span class="comment">//在此轮循环中，data[k]和data[j]交换位置</span></span><br><span class="line">            <span class="keyword">if</span>(j + <span class="number">1</span> &lt;= count &amp;&amp; data[j+<span class="number">1</span>] &gt; data[j])&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(data[k] &gt;= data[j])&#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            swap(k, j);</span><br><span class="line">            k = j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//交换对应两个位置的值</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> tmp = data[i];</span><br><span class="line">        data[i] = data[j];</span><br><span class="line">        data[j] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//扩充容量</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">resize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] newData = <span class="keyword">new</span> <span class="keyword">int</span>[capacity * <span class="number">2</span>];</span><br><span class="line">        System.arraycopy(data, <span class="number">0</span>, newData, <span class="number">0</span>, count);</span><br><span class="line">        data = newData;</span><br><span class="line">        capacity *= <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p> 一个包含n个节点的完全二叉树，树的高度不会超过logn。堆化的过程是顺着节点所在路径比较交换的，所以堆化的时间复杂度跟树的高度成正比，也就是O(logn)。插入数据和删除堆顶元素的主要逻辑就是堆化，所以往堆中插入一个元素和删除堆顶元素的时间复杂度都是O(logn)。</p>
-<h1 id="堆排序与heapify建堆"><a href="#堆排序与heapify建堆" class="headerlink" title="堆排序与heapify建堆"></a>堆排序与heapify建堆</h1><p>我们通过堆的插入操作把数组中的元素逐个插入到堆中，然后逐个取出堆顶元素防区数组中（如果是大堆从后往前放置即可）。堆排序不是稳定的排序算法，因为在排序的过程，存在将堆的最后一个节点跟堆顶节点互换的操作，所以就有可能改变值相同数据的原始相对顺序。 </p>
+<h1><span id="堆排序与heapify建堆">堆排序与heapify建堆</span></h1><p>我们通过堆的插入操作把数组中的元素逐个插入到堆中，然后逐个取出堆顶元素防区数组中（如果是大堆从后往前放置即可）。堆排序不是稳定的排序算法，因为在排序的过程，存在将堆的最后一个节点跟堆顶节点互换的操作，所以就有可能改变值相同数据的原始相对顺序。 </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HeapSort</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">        MaxHeap maxHeap = <span class="keyword">new</span> MaxHeap(arr.length);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            maxHeap.insert(arr[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = arr.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            arr[i] = maxHeap.extractMax();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>我们进行排序的时候，首先得把数组中的元素逐个插入到堆中，这种建堆思路的处理过程是从前往后处理数组数据，并且每个数据插入堆中时，都是从下往上堆化。但是有没有一种无需插入操作，直接把数组变成堆的方法呢？其实是有的：</p>
@@ -324,7 +324,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxHeap</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MaxHeap</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="keyword">int</span>[arr.length + <span class="number">1</span>];</span><br><span class="line">        capacity = arr.length + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            data[i + <span class="number">1</span>] = arr[i];</span><br><span class="line">        &#125;</span><br><span class="line">        count = arr.length;</span><br><span class="line">        <span class="comment">//从第一个不是叶子节点的位置开始</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = count / <span class="number">2</span>; i &gt;= <span class="number">1</span>; i--) &#123;</span><br><span class="line">            shiftDown(i);</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>将n个元素逐个插入到堆中，这个操作的时间复杂度是O(nlogn)，而heapify建堆的时间复杂度为O(n)。</p>
-<h1 id="原地堆排序"><a href="#原地堆排序" class="headerlink" title="原地堆排序"></a>原地堆排序</h1><p>其实堆排序完全可以变成一个原地排序算法，直接在数组上进行。因为堆的经典实现就是从1号位置开始，但是我们现在要实现的是原地排序的算法，规律完全相同，只是规律的表达式稍微有所不同。因为在上面的堆排序算法中，都需要先将数组中的元素放到堆中，然后再把堆中的元素取出来。整个程序中又额外的开辟了n个空间，事实上我们通过上面的理论方法，完全可以使一个数组在原地完成堆排序，而不需要任何的额外空间：</p>
+<h1><span id="原地堆排序">原地堆排序</span></h1><p>其实堆排序完全可以变成一个原地排序算法，直接在数组上进行。因为堆的经典实现就是从1号位置开始，但是我们现在要实现的是原地排序的算法，规律完全相同，只是规律的表达式稍微有所不同。因为在上面的堆排序算法中，都需要先将数组中的元素放到堆中，然后再把堆中的元素取出来。整个程序中又额外的开辟了n个空间，事实上我们通过上面的理论方法，完全可以使一个数组在原地完成堆排序，而不需要任何的额外空间：</p>
 <p>我们可以应用之前讲到的堆化（heapify）是我们的数组构建成一个最大堆。在这个最大堆中第一个元素就是这个数组的最大值：</p>
 <p><img src="https://img.zouchanglin.cn///20200424/lllak40xPAbw.png" alt="mark"></p>
 <p>最后一个非叶子节点的索引：(count - 2)/ 2、</p>
@@ -528,7 +528,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#优先级队列的应用"><span class="toc-number">1.</span> <span class="toc-text">优先级队列的应用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#堆的定义及其特点"><span class="toc-number">2.</span> <span class="toc-text">堆的定义及其特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#堆的具体代码实现"><span class="toc-number">3.</span> <span class="toc-text">堆的具体代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#向上调堆（插入元素）"><span class="toc-number">3.1.</span> <span class="toc-text">向上调堆（插入元素）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#向下调堆（取出元素）"><span class="toc-number">3.2.</span> <span class="toc-text">向下调堆（取出元素）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#堆排序与heapify建堆"><span class="toc-number">4.</span> <span class="toc-text">堆排序与heapify建堆</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原地堆排序"><span class="toc-number">5.</span> <span class="toc-text">原地堆排序</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">优先级队列的应用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">堆的定义及其特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">堆的具体代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">向上调堆（插入元素）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">向下调堆（取出元素）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">堆排序与heapify建堆</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">原地堆排序</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -687,18 +687,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -711,6 +699,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -719,15 +711,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -744,6 +744,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -851,15 +859,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -867,11 +867,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -883,11 +887,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -896,6 +900,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -947,10 +959,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -979,6 +987,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -999,6 +1011,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1012,6 +1028,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1051,15 +1071,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1076,22 +1096,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

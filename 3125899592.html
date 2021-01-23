@@ -29,9 +29,9 @@
 <meta property="article:published_time" content="2020-05-15T10:25:00.000Z">
 <meta property="article:modified_time" content="2020-09-19T13:53:26.000Z">
 <meta property="article:author" content="Tim">
+<meta property="article:tag" content="消息通信">
 <meta property="article:tag" content="SpringCloud">
 <meta property="article:tag" content="RPC">
-<meta property="article:tag" content="消息通信">
 <meta property="article:tag" content="负载均衡">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img.zouchanglin.cn///20200515/MKqMz3KcQCSs.png">
@@ -275,7 +275,7 @@
 		<p>本文主要是介绍SpringCloud构建微服务系统的Ribbon负载均衡器和网络请求框架RestTemplate，另外将会分析负载均衡器的源码，通过实例证明如何通过Ribbon和RestTemplate相结合实现负载均衡。现在假设有一个分布式系统，该系统由在不同计算机上运行的许多服务组成。当用户数量很大时，通常会为服务创建多个副本。每个副本都在另一台计算机上运行，此时有助于在服务器之间平均分配传入流量。 </p>
 <a id="more"></a>
 
-<h1 id="客户端发现与服务端发现"><a href="#客户端发现与服务端发现" class="headerlink" title="客户端发现与服务端发现"></a>客户端发现与服务端发现</h1><blockquote>
+<h1><span id="客户端发现与服务端发现">客户端发现与服务端发现</span></h1><blockquote>
 <p>在一个系统中，服务通常需要调用其他服务。单体应用中，服务通过语言级别的方法或者过程调用另外的服务。在传统的分布式部署中，服务运行在固定，已知的地址主机和端口，因此可以请求的通过HTTP/REST或其他RPC机制调用。 然而，一个现代的微服务应用通常运行在虚拟或者容器环境，服务实例数和它们的地址都在动态改变。因此需要实现一种机制，允许服务的客户端向动态变更的一组短暂的服务实例发起请求，这就是服务注册与发现，<strong>服务注册与发现是微服务架构中最重要的基础组件</strong>。</p>
 </blockquote>
 <p>我们接下来需要搞清楚的是什么是客户端发现，什么是服务端发现？</p>
@@ -291,27 +291,27 @@
 <li>由于代理的介入，服务（B）与注册中心，对 A 是不可见的</li>
 </ul>
 <p>使用服务端发现的例子：Nginx、ZooKeeper、Kubernetes</p>
-<h1 id="客户端与服务端负载均衡"><a href="#客户端与服务端负载均衡" class="headerlink" title="客户端与服务端负载均衡"></a>客户端与服务端负载均衡</h1><p>通过理解客户端发现与服务端发现的区别，我们明白其实调用哪个服务取决于客户端还是服务端是由什么决定的呢？那就是取决于服务注册与发现使用的是客户端发现还是服务端发现。</p>
-<h2 id="服务端负载均衡"><a href="#服务端负载均衡" class="headerlink" title="服务端负载均衡"></a>服务端负载均衡</h2><p>服务器端负载均衡器，我们比较常见的例如Nginx、F5是放置在服务器端的组件。当请求来自客户端时，它们将转到负载均衡器，负载均衡器将为请求指定服务器。负载均衡器使用的最简单的算法是随机指定。在这种情况下，大多数负载平衡器是用于控制负载平衡的硬件集成软件。<br><img src="https://img.zouchanglin.cn///20200515/MKqMz3KcQCSs.png" alt="mark"><br>服务端负载均衡的特点：</p>
+<h1><span id="客户端与服务端负载均衡">客户端与服务端负载均衡</span></h1><p>通过理解客户端发现与服务端发现的区别，我们明白其实调用哪个服务取决于客户端还是服务端是由什么决定的呢？那就是取决于服务注册与发现使用的是客户端发现还是服务端发现。</p>
+<h2><span id="服务端负载均衡">服务端负载均衡</span></h2><p>服务器端负载均衡器，我们比较常见的例如Nginx、F5是放置在服务器端的组件。当请求来自客户端时，它们将转到负载均衡器，负载均衡器将为请求指定服务器。负载均衡器使用的最简单的算法是随机指定。在这种情况下，大多数负载平衡器是用于控制负载平衡的硬件集成软件。<br><img src="https://img.zouchanglin.cn///20200515/MKqMz3KcQCSs.png" alt="mark"><br>服务端负载均衡的特点：</p>
 <ul>
 <li>对客户端不透明，客户端不知道服务器端的服务列表，甚至不知道自己发送请求的目标地址存在负载均衡器。</li>
 <li>服务器端维护负载均衡服务器，控制负载均衡策略和算法。</li>
 </ul>
-<h2 id="客户端负载均衡"><a href="#客户端负载均衡" class="headerlink" title="客户端负载均衡"></a>客户端负载均衡</h2><p>当负载均衡器位于客户端时，客户端得到可用的服务器列表然后按照特定的负载均衡策略，分发请求到不同的服务器 。<br><img src="https://img.zouchanglin.cn///20200515/0UaJKO9fJLTv.png" alt="mark"></p>
+<h2><span id="客户端负载均衡">客户端负载均衡</span></h2><p>当负载均衡器位于客户端时，客户端得到可用的服务器列表然后按照特定的负载均衡策略，分发请求到不同的服务器 。<br><img src="https://img.zouchanglin.cn///20200515/0UaJKO9fJLTv.png" alt="mark"></p>
 <p>客户端负载均衡的特点：</p>
 <ul>
 <li>对客户端透明，客户端需要知道服务器端的服务列表，需要自行决定请求要发送的目标地址。</li>
 <li>客户端维护负载均衡服务器，控制负载均衡策略和算法。</li>
 <li>目前单独提供的客户端实现比较少（本文只分析Ribbon），大部分都是在框架内部自行实现。</li>
 </ul>
-<h1 id="RestTemplate三种使用方式"><a href="#RestTemplate三种使用方式" class="headerlink" title="RestTemplate三种使用方式"></a>RestTemplate三种使用方式</h1><p>RestTemplate是Spring框架提供的一种用于访问Rest服务的客户端，RestTemplate提供了多种便捷访问远程Http服务的方法,能够大大提高客户端的编写效率。 之前我们使用的较多的是Apache的OKHttp这个包库，或者是根据HttpUrlConnection封装的库，现在有了更好的选择，那就是RestTemplate：</p>
-<h2 id="1、直接填写服务地址"><a href="#1、直接填写服务地址" class="headerlink" title="1、直接填写服务地址"></a>1、直接填写服务地址</h2><p>Order应用想要直接访问Shop应用的接口，填写服务地址直访问即可。</p>
+<h1><span id="resttemplate三种使用方式">RestTemplate三种使用方式</span></h1><p>RestTemplate是Spring框架提供的一种用于访问Rest服务的客户端，RestTemplate提供了多种便捷访问远程Http服务的方法,能够大大提高客户端的编写效率。 之前我们使用的较多的是Apache的OKHttp这个包库，或者是根据HttpUrlConnection封装的库，现在有了更好的选择，那就是RestTemplate：</p>
+<h2><span id="1-直接填写服务地址">1、直接填写服务地址</span></h2><p>Order应用想要直接访问Shop应用的接口，填写服务地址直访问即可。</p>
 <p><img src="https://img.zouchanglin.cn///20200615/0XehzKX7EHM7.png" alt="mark"></p>
-<h2 id="2、使用LoadBalancerClient"><a href="#2、使用LoadBalancerClient" class="headerlink" title="2、使用LoadBalancerClient"></a>2、使用LoadBalancerClient</h2><p>使用LoadBalancerClient的choose()获得ServiceInstance，也就是这两个应用必须先向Eureka Server注册，然后通过Client的名称来选择对应的服务实例：</p>
+<h2><span id="2-使用loadbalancerclient">2、使用LoadBalancerClient</span></h2><p>使用LoadBalancerClient的choose()获得ServiceInstance，也就是这两个应用必须先向Eureka Server注册，然后通过Client的名称来选择对应的服务实例：</p>
 <p><img src="https://img.zouchanglin.cn///20200615/l4IN764O4ae3.png" alt="mark"></p>
-<h2 id="3、注入RestTemplate-Bean"><a href="#3、注入RestTemplate-Bean" class="headerlink" title="3、注入RestTemplate Bean"></a>3、注入RestTemplate Bean</h2><p>注入RestTemplate bean，使用服务名称访问即可：</p>
+<h2><span id="3-注入resttemplate-bean">3、注入RestTemplate Bean</span></h2><p>注入RestTemplate bean，使用服务名称访问即可：</p>
 <p><img src="https://img.zouchanglin.cn///20200615/ptzelJdBYQsA.png" alt="mark"> </p>
-<h1 id="Ribbon负载均衡源码分析"><a href="#Ribbon负载均衡源码分析" class="headerlink" title="Ribbon负载均衡源码分析"></a>Ribbon负载均衡源码分析</h1><p>在上面的例子中我们使用了RestTemplate并且开启了客户端负载均衡功能，开启负载均衡很简单，只需要在RestTemplate的bean上再添加一个@LoadBalanced注解即可，我们可以从这个注解开始分析：</p>
+<h1><span id="ribbon负载均衡源码分析">Ribbon负载均衡源码分析</span></h1><p>在上面的例子中我们使用了RestTemplate并且开启了客户端负载均衡功能，开启负载均衡很简单，只需要在RestTemplate的bean上再添加一个@LoadBalanced注解即可，我们可以从这个注解开始分析：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Annotation to mark a RestTemplate or WebClient bean to be configured to use a</span></span><br><span class="line"><span class="comment"> * LoadBalancerClient.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Spencer Gibb</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Target</span>(&#123; ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD &#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Qualifier</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> LoadBalanced &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这个注解是用来给RestTemplate做标记，配置LoadBalancerClient，那么我们需要关注的类就是LoadBalancerClient了，LoadBalancerClient表示客户端负载均衡器，并且继承了ServiceInstanceChooser：</p>
@@ -409,15 +409,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">消息通信</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">SpringCloud</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RPC</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">消息通信</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
@@ -541,7 +541,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#客户端发现与服务端发现"><span class="toc-number">1.</span> <span class="toc-text">客户端发现与服务端发现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#客户端与服务端负载均衡"><span class="toc-number">2.</span> <span class="toc-text">客户端与服务端负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#服务端负载均衡"><span class="toc-number">2.1.</span> <span class="toc-text">服务端负载均衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端负载均衡"><span class="toc-number">2.2.</span> <span class="toc-text">客户端负载均衡</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RestTemplate三种使用方式"><span class="toc-number">3.</span> <span class="toc-text">RestTemplate三种使用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、直接填写服务地址"><span class="toc-number">3.1.</span> <span class="toc-text">1、直接填写服务地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、使用LoadBalancerClient"><span class="toc-number">3.2.</span> <span class="toc-text">2、使用LoadBalancerClient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、注入RestTemplate-Bean"><span class="toc-number">3.3.</span> <span class="toc-text">3、注入RestTemplate Bean</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Ribbon负载均衡源码分析"><span class="toc-number">4.</span> <span class="toc-text">Ribbon负载均衡源码分析</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">客户端发现与服务端发现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">客户端与服务端负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">服务端负载均衡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">客户端负载均衡</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">RestTemplate三种使用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、直接填写服务地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、使用LoadBalancerClient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">3、注入RestTemplate Bean</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Ribbon负载均衡源码分析</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -700,18 +700,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -724,6 +712,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -732,15 +724,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -757,6 +757,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -864,15 +872,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,11 +880,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -896,11 +900,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -909,6 +913,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -960,10 +972,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -992,6 +1000,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -1012,6 +1024,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -1025,6 +1041,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1064,15 +1084,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1089,22 +1109,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>

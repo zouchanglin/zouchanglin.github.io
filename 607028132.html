@@ -21,8 +21,8 @@
 <meta property="article:published_time" content="2020-04-12T10:00:00.000Z">
 <meta property="article:modified_time" content="2020-09-19T13:53:26.000Z">
 <meta property="article:author" content="Tim">
-<meta property="article:tag" content="JavaWeb">
 <meta property="article:tag" content="JavaSE">
+<meta property="article:tag" content="JavaWeb">
 <meta property="article:tag" content="JavaEE">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img.zouchanglin.cn///20200415/8KmkeqBHK3RM.png">
@@ -266,8 +266,8 @@
 		<p>注解这个东西自从SpringBoot以来一直是Java开发者们必备的生存技巧呀，我们平时几乎大部分时间都是面向注解编程，通过注解我们可以节约大量的时间。用过了这么多的注解，那么我们否有关注过注解的实现原理呢？所以本篇文章主要是讲述注解的有关操作，自己实现一个注解来体会注解的实现原理，注解也不是特别高深的东西，掌握了自然就明白了。</p>
 <a id="more"></a>
 
-<h1 id="注解的基本原理"><a href="#注解的基本原理" class="headerlink" title="注解的基本原理"></a>注解的基本原理</h1><p>注解本来的意思就是用来做标注用：可以在类、字段变量、方法、接口等位置进行一个特殊的标记，为后续做一些诸如: 代码生成、数据校验、资源整合等工作做铺垫。所以注解就是做标记用的，注解一旦对代码标注完成，后续就可以结合Java强大的反射机制，在运行时动态地获取到注解的标注信息，从而可以执行很多其他逻辑，完成我们想要的自动化工作。所以，反射机制很重要。</p>
-<h1 id="注解的使用示例"><a href="#注解的使用示例" class="headerlink" title="注解的使用示例"></a>注解的使用示例</h1><p>假设我们现在有个Person类，这个Person类要当做参数传入，我们要对参数进行校验：</p>
+<h1><span id="注解的基本原理">注解的基本原理</span></h1><p>注解本来的意思就是用来做标注用：可以在类、字段变量、方法、接口等位置进行一个特殊的标记，为后续做一些诸如: 代码生成、数据校验、资源整合等工作做铺垫。所以注解就是做标记用的，注解一旦对代码标注完成，后续就可以结合Java强大的反射机制，在运行时动态地获取到注解的标注信息，从而可以执行很多其他逻辑，完成我们想要的自动化工作。所以，反射机制很重要。</p>
+<h1><span id="注解的使用示例">注解的使用示例</span></h1><p>假设我们现在有个Person类，这个Person类要当做参数传入，我们要对参数进行校验：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//Getter and Setter</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>如果没有注解，那么我们就需要写这样一长串的if else校验：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">addPerson</span><span class="params">(Person person)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(person == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"参数为空"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(person.getId() == <span class="keyword">null</span> || <span class="string">""</span>.equals(person.getId()))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person's id is null"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(person.getName() == <span class="keyword">null</span> || <span class="string">""</span>.equals(person.getName()))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person's name is null."</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(person.getName().length() &lt; <span class="number">3</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person's name length must lager 3."</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(person.getAge()  == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person's age is null."</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(person.getAge() &lt;= <span class="number">0</span> || person.getAge() &gt;= <span class="number">150</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person's age error."</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -275,8 +275,8 @@
 <p>所以，可以参考一下如何使用注解来校验这些参数：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="meta">@NotNull</span>(message = <span class="string">"传入的Id为空值"</span>)</span><br><span class="line">    <span class="meta">@NotEmpty</span>(message = <span class="string">"传入的Id为空字符串"</span>)</span><br><span class="line">    <span class="keyword">private</span> String id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull</span>(message = <span class="string">"传入的Name为空值"</span>)</span><br><span class="line">    <span class="meta">@NotEmpty</span>(message = <span class="string">"传入的Name为空字符串"</span>)</span><br><span class="line">    <span class="meta">@Length</span>(min = <span class="number">3</span>, max = <span class="number">30</span>, message = <span class="string">"姓名长度必须3-30之间"</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull</span>(message = <span class="string">"传入的Age为空值"</span>)</span><br><span class="line">    <span class="meta">@Min</span>(value = <span class="number">0</span>, message = <span class="string">"年龄应该在0-150之间"</span>)</span><br><span class="line">    <span class="meta">@Max</span>(value = <span class="number">150</span>, message = <span class="string">"年龄应该在0-150之间"</span>)</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//Getter and Setter.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h1 id="Length注释的实现"><a href="#Length注释的实现" class="headerlink" title="@Length注释的实现"></a>@Length注释的实现</h1><p>本篇文章中，我们就来实现一下@Length这个注解，这个注解学会了，其他注解也都是一样的：</p>
-<h2 id="step1-定义注解-Length"><a href="#step1-定义注解-Length" class="headerlink" title="step1.定义注解 @Length"></a>step1.定义注解 @Length</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(&#123;ElementType.FIELD&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Length&#123;</span><br><span class="line">    <span class="comment">// 允许的字符串长度最小值</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">min</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 允许的字符串长度最大值</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">max</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 自定义错误提示</span></span><br><span class="line">    <span class="function">String <span class="title">errorMsg</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1><span id="length注释的实现">@Length注释的实现</span></h1><p>本篇文章中，我们就来实现一下@Length这个注解，这个注解学会了，其他注解也都是一样的：</p>
+<h2><span id="step1定义注解-length">step1.定义注解 @Length</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target</span>(&#123;ElementType.FIELD&#125;)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Length&#123;</span><br><span class="line">    <span class="comment">// 允许的字符串长度最小值</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">min</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 允许的字符串长度最大值</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">max</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 自定义错误提示</span></span><br><span class="line">    <span class="function">String <span class="title">errorMsg</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>1、注解的定义有点像定义接口interface，但唯一不同的是前面需要加一个@符号</p>
 <p>2、注解的成员变量只能使用基本类型、String或者enum枚举，比如int可以，但Integer这种包装类型就不行</p>
@@ -295,10 +295,10 @@
 <li>@Retention (RetentionPolicy.SOURCE)：表示注解仅在源文件中有效, 编译时就会被忽略</li>
 </ul>
 <p>所以声明周期从长到短分别为：RUNTIME &gt; CLASS &gt; SOURCE，一般来说，如果需要在运行时去动态获取注解的信息，还是得用RUNTIME，就像本文所用。</p>
-<h2 id="step2-获取注解并对其验证"><a href="#step2-获取注解并对其验证" class="headerlink" title="step2.获取注解并对其验证"></a>step2.获取注解并对其验证</h2><p>在运行时想获取注解所代包含的信息，该怎么办？我们得用Java的反射相关的知识！下面写了一个验证函数validate()，代码中会逐行用注释去解释想要达到的目的，认真看一下每一行的注释:</p>
+<h2><span id="step2获取注解并对其验证">step2.获取注解并对其验证</span></h2><p>在运行时想获取注解所代包含的信息，该怎么办？我们得用Java的反射相关的知识！下面写了一个验证函数validate()，代码中会逐行用注释去解释想要达到的目的，认真看一下每一行的注释:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LengthValidator</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">validateField</span><span class="params">(Object object)</span> <span class="keyword">throws</span> IllegalAccessException </span>&#123;</span><br><span class="line">        <span class="comment">// 获取字段值</span></span><br><span class="line">        <span class="comment">// 对本文来说就是Person的id、name、age三个字段</span></span><br><span class="line">        Field[] fields = object.getClass().getDeclaredFields();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 逐个字段校验，看看哪个字段标了注解</span></span><br><span class="line">        <span class="keyword">for</span> (Field field: fields)&#123;</span><br><span class="line">            <span class="comment">// if判断：检查字段上面有没有标注@Length注解</span></span><br><span class="line">            <span class="keyword">if</span>(field.isAnnotationPresent(Length<span class="class">.<span class="keyword">class</span>))</span>&#123;</span><br><span class="line">                <span class="comment">// 通过反射获取到该字段上标注的@Length的注解的详细信息</span></span><br><span class="line">                Length length = field.getAnnotation(Length<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">                <span class="comment">// 让我们在反射时看到私有变量</span></span><br><span class="line">                field.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                <span class="comment">// 获取实际字段的值</span></span><br><span class="line">                <span class="keyword">int</span> value = ((String)field.get(object)).length();</span><br><span class="line">                <span class="comment">// 将实际字段的值和注解的标记值进行对比</span></span><br><span class="line">                <span class="keyword">if</span>(value &lt; length.min() || value &gt; length.max())&#123;</span><br><span class="line">                    <span class="keyword">return</span> length.errorMsg();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="step3-使用自定义注解"><a href="#step3-使用自定义注解" class="headerlink" title="step3.使用自定义注解"></a>step3.使用自定义注解</h2><p>此时，Person类只需要加上此注解</p>
+<h2><span id="step3使用自定义注解">step3.使用自定义注解</span></h2><p>此时，Person类只需要加上此注解</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Length</span>(min = <span class="number">3</span>, max = <span class="number">30</span>, errorMsg = <span class="string">"姓名长度必须3-30之间"</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//Getter and Setter</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>然后使用即可：</p>
@@ -374,11 +374,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">JavaWeb</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">JavaWeb</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
@@ -502,7 +502,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#注解的基本原理"><span class="toc-number">1.</span> <span class="toc-text">注解的基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#注解的使用示例"><span class="toc-number">2.</span> <span class="toc-text">注解的使用示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Length注释的实现"><span class="toc-number">3.</span> <span class="toc-text">@Length注释的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#step1-定义注解-Length"><span class="toc-number">3.1.</span> <span class="toc-text">step1.定义注解 @Length</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#step2-获取注解并对其验证"><span class="toc-number">3.2.</span> <span class="toc-text">step2.获取注解并对其验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#step3-使用自定义注解"><span class="toc-number">3.3.</span> <span class="toc-text">step3.使用自定义注解</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">注解的基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">注解的使用示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">@Length注释的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">step1.定义注解 @Length</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">step2.获取注解并对其验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">step3.使用自定义注解</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -661,18 +661,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">前端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
               </li>
              
@@ -685,6 +673,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
@@ -693,15 +685,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">JavaWeb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">模板引擎</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">前端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -718,6 +718,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">上传下载</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">发布订阅</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -825,15 +833,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -841,11 +841,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+                <a href="javascript:void(0)" class="js-tag color5">异常处理</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">文件系统</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -857,11 +861,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color3">哈希</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -870,6 +874,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -921,10 +933,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">消息通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">服务解耦</a>
               </li>
              
@@ -953,6 +961,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
@@ -973,6 +985,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
@@ -986,6 +1002,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1025,15 +1045,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Stream</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLite</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1050,22 +1070,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Lambda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">m3u8</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">自定义View</a>
               </li>
             
             <div class="clearfix"></div>
