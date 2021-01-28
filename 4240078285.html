@@ -215,103 +215,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-TCP高性能的机制" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      TCP的高性能机制
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/4240078285.html" class="archive-article-date">
-        <time datetime="2020-02-25T04:01:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-25</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">9分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p><img src="https://img.zouchanglin.cn///20200225/WFp4qQSRpvoo.png" alt="mark"></p>
-<p>之前介绍了TCP的报文格式（<a href="https://zouchanglin.cn/2019/11/21/3947143266.html">《TCP协议基本特性》</a>），TCP的连接管理，学习了TCP如何建立连接，释放连接以及一些网络安装方面的问题，现在还剩下TCP的几个关键机制，主要是TPC的延迟应答和捎带应答、超时重传、快重传和快恢复、滑动窗口机制、拥塞避免算法；然后最后还记录了TCP的粘包问题和解决方案！</p>
-<a id="more"></a>
-
-<p>TCP实现的可靠传输其实依赖于确认应答机制，也就是接收方每次接收完数据之后会回发一个ack确认号，代表自己下次期望收到的序号，意思是告诉发送者, 我已经收到了哪些数据; 下一次你从哪里开始发。 TCP数据包中的序列号（Sequence Number）不是以报文段来进行编号的，而是将连接生存周期内传输的所有数据当作一个字节流，序列号就是整个字节 流中每个字节的编号。一个TCP数据包中包含多个字节流的数据（即数据段），而且每个TCP数据包中的数据大小不一定相同。在建立TCP连接的三次握手 过程中，通信双方各自已确定了初始的序号x和y，TCP每次传送的报文段中的序号字段值表示所要传送本报文中的第一个字节的序号。 </p>
-<h2><span id="tcp的确认应答">TCP的确认应答</span></h2><p>TCP提供的确认机制，可以在通信过程中可以不对每一个TCP数据包发出单独的确认包（Delayed ACK机制），而是在传送数据时，顺便把确认信息传出， 这样可以大大提高网络的利用率和传输效率。同时，TCP的确认机制，也可以一次确认多个数据报，例如，接收方收到了201，301，401的数据报，则只 需要对401的数据包进行确认即可，对401的数据包的确认也意味着401之前的所有数据包都已经确认，这就是延迟应答，这样也可以提高系统的效率。 </p>
-<p><img src="https://img.zouchanglin.cn///20200225/30TV3bE2POxF.png" alt="mark"></p>
-<p>再说说捎带应答，TCP的确认应答和回执数据可以通过一个包发送。</p>
-<p><img src="https://img.zouchanglin.cn///20200225/uqo3gQqJ792Y.png" alt="mark"></p>
-<h2><span id="tcp的超时重传">TCP的超时重传</span></h2><p>若发送方在规定时间内没有收到接收方的确认信息，就要将未被确认的数据包重新发送。接收方如果收到一个有差错的报文，则丢弃此报文，并不向发送方 发送确认信息。因此，TCP报文的重传机制是由设置的超时定时器来决定的，在定时的时间内没有收到确认信息，则进行重传。这个定时的时间值的设定非常重要，太大会使包重传的延时比较大，太小则可能没有来得及收到对方的确认包发送方就再次重传，会使网络陷入无休止的重传过程中。接收方如果收到 了重复的报文，将会丢弃重复的报文，但是必须发回确认信息，否则对方会再次发送。 </p>
-<p>但是主机A未收到B发来的确认应答, 也可能是因为ACK丢失了；因此主机B会收到很多重复数据。那么TCP协议需要能够识别出那些包是重复的包,，并且把重复的丢弃掉。这时候我们可以利用前面提到的序列号, 就可以很容易做到去重的效果。</p>
-<p>超时时间如何确定?</p>
-<p>TCP为了保证无论在任何环境下都能比较高性能的通信，因此会动态计算这个最大超时时间：Linux中(BSD Unix和Windows也是如此)，超时以500ms为一个单位进行控制，每次判定超时重发的超时时间都是500ms的整数倍，如果重发一次之后，仍然得不到应答，等待 <code>2*500ms</code> 后再进行重传如果仍然得不到应答，等待 <code>4*500ms</code>进行重传。依次类推以指数形式递增，累计到一定的重传次数，TCP认为网络或者对端主机出现异常，强制关闭连接</p>
-<h2><span id="tcp快速重传冗余ack">TCP快速重传（冗余ACK）</span></h2><p>有了超时重传机制为什么还出现了快速重传呢？其实这也是TCP为了效率的一种保障，每当比期望序号大的失序报文段到达时，发送一个冗余ACK，指明下一个期待字节的序号。</p>
-<p><img src="https://img.zouchanglin.cn///20200225/D6nbfhcfpcEI.png" alt="mark"></p>
-<p>超时重传是底线，是功能性的，但是快重传是建立在超时重传上的，为了效率的提高</p>
-<h2><span id="tcp流量控制">TCP流量控制</span></h2><p>接收端处理数据的速度是有限的。如果发送端发的太快，导致接收端的缓冲区被打满，这个时候如果发送端继续发送，就会造成丢包，继而引起丢包重传等等一系列连锁反应。因此TCP支持根据接收端的处理能力，来决定发送端的发送速度。这个机制就叫做流量控制(Flow Control)；</p>
-<p>在通信过程中，接收方根据自己接收缓存的大小，动态地调整发送方的发送窗口大小，即接收窗口rwnd (接收方设置确认报文段的窗口字段来将rwnd通知给发送方)， 发送方的发送窗口取接收窗口rwnd和拥塞窗口cwnd的最小值。接收窗口也就是接收方的接收缓冲区，拥塞窗口简单来说就是网络堵塞了，那就是说明在这个网络中使用网络带宽的主机很多，或者占用了很多资源，导致发送缓慢，那么这就是一个网络拥塞的情况</p>
-<p>TCP首部中，专门有一个窗口大小的字段用来通知窗口大小。接收主机将自己可以接收的缓冲区大小放人这个字段中通知给发送端。这个字段的值越大，说明网络的吞吐量越高。不过，接收端的这个缓冲区一旦面临数据溢出时，窗口大小的值也会随之被设置为一个更小的值通知给发送端，从而控制数据发送量。也就是说，发送端主机会根据接收端主机的指示，对发送数据的量进行控制。这也就形成了一个完整的TCP流控制(流量控制)。</p>
-<p><img src="https://img.zouchanglin.cn///20200225/3hTEfucRd2Wp.png" alt="mark"></p>
-<p>从图中可以看到，如果过了重发时间还没有收到窗口的更新通知，会发送一个探测报文去探测接收方的窗口。</p>
-<p>滑动窗口虽然只能往右滑，但是可能变大，也可能变小，也可能是0；收到第一个ACK后，滑动窗口向后移动，继续发送第五个段的数据，依次类推，操作系统内核为了维护这个滑动窗口，需要开辟发送缓冲区来记录当前还有哪些数据没有应答；只有确认应答过的数据，才能从缓冲区删掉；窗口越大，则网络的吞吐率就越高;</p>
-<h2><span id="tcp拥塞控制">TCP拥塞控制</span></h2><p>因为网络上有很多的计算机，可能当前的网络状态就已经比较拥堵。在不清楚当前网络状态下，贸然发送大量的数据，是很有可能引起雪上加霜的。一般来说，计算机网络都处在一个共享的环境。因此也有可能会因为其他主机之间的通信使得网络拥堵。在网络出现拥堵时，如果突然发送一个较大量的数据，极有可能会导致整个网络的瘫痪看看TCP是如何解决这个问题的呢？</p>
-<p>TCP引入了慢启动机制：先发少量的数据，探探路，摸清当前的网络拥堵状态，再决定按照多大的速度传输数据；</p>
-<p><img src="https://img.zouchanglin.cn///20200225/htmwqe1W75dO.png" alt="mark"></p>
-<p>那么慢启动和拥塞避免的算法如下图所示：</p>
-<p><img src="https://img.zouchanglin.cn///20200225/nj7NJ56Yqt58.png" alt="mark"></p>
-<p>cwnd指的是一个报文段（最大报文段长度MSS），最开始发一个报文段然后呈指数式增长到ssthresh初始值，这就是慢启动，然后执行加法增大，也就是拥塞避免阶段，达到阈值的时候变会触发快重传，此时降到新的ssthresh值，即为拥塞时的一半，这就是快恢复策略！当TCP通信开始以后，网络吞吐量会逐渐上升，但是随着网络拥堵的发生吞吐量也会急速下降。于是会再次进人吞吐量慢慢上升的过程。因此所谓TCP的吞吐量的特点就好像是在逐步占领网络带宽的感觉。</p>
-<h2><span id="tcp粘包问题">TCP粘包问题</span></h2><p>首先要明确，粘包问题中的”包”是指的应用层的数据包。</p>
-<p>在TCP的协议头中，没有如同UDP一样的”报文长度”这样的字段，但是有一个序号这样的字段。站在传输层的角度，TCP是一个一个报文过来的，按照序号排好序放在缓冲区中。站在应用层的角度，看到的只是一串连续的字节数据，那么应用程序看到了这么一连串的字节数据，就不知道从哪个部分开始到哪个部分是一个完整的应用层数据包</p>
-<p>那么如何避免粘包问题呢? 归根结底就是一句话，明确两个包之间的边界：</p>
-<ul>
-<li>对于定长的包，保证每次都按固定大小读取即可；例如对于一个结构体struct，是固定大小的，那么就从缓冲区从头开始按sizeof(struct)依次读取即可；</li>
-<li>对于变长的包，可以在包头的位置，约定一个包总长度的字段，从而就知道了包的结束位置；</li>
-<li>对于变长的包，还可以在包和包之间使用明确的分隔符(应用层协议，是程序猿自己来定的，只要保证分隔符不和正文冲突即可);</li>
-</ul>
-<p>对于UDP是否也存在”粘包问题”呢？对于UDP，如果还没有上层交付数据，UDP的报文长度仍然在。同时，UDP是一个一个把数据交付给应用层，就有很明确的数据边界。站在应用层的角度，使用UDP的时候，要么收到完整的UDP报文，要么不收，不会出现”半个”的情况。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -321,21 +278,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -343,172 +300,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/4240078285.html" title="TCP的高性能机制" target="_blank">https://zouchanglin.cn/4240078285.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/计算机网络//" class="article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/4240078285.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/3388747911.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          谈谈HTTP协议
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2519060739.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">构造实现简单容器</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">TCP的确认应答</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">TCP的超时重传</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">TCP快速重传（冗余ACK）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">TCP流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">TCP拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">TCP粘包问题</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -517,13 +370,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

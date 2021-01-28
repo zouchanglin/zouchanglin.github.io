@@ -207,157 +207,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-你真的了解C语言吗" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      你真的了解C语言吗
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2204832779.html" class="archive-article-date">
-        <time datetime="2019-01-08T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-08</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.3k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">9分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>Dennis Ritchie 过世了，他发明了C语言，一个影响深远并彻底改变世界的计算机语言。一门经历40多年的到今天还长盛不衰的语言，今天很多语言都受到C的影响，C++，Java，C#，Perl， PHP， Javascript， 等等。但是，你对C了解吗？顺便注明一下，下面的一些例子来源于这个slides。</p>
-<a id="more"></a>
-
-<p>首先，我们先来看下面这个经典的代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">42</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>从这段代码里你看到了什么问题？我们都知道，这段程序里少了一个<code>#include</code>还少了一个<code>return 0;</code>的返回语句。<br>不过，让我们来深入的学习一下:</p>
-<ul>
-<li>这段代码在C++下无法编译，因为C++需要明确声明函数</li>
-<li>这段代码在C的编译器下会编译通过，因为在编译期，编译器会生成一个printf的函数定义，并生成.o文件，链接时，会找到标准的链接库，所以能编译通过。</li>
-<li>但是，你知道这段程序的退出码吗？在ANSI-C下，退出码是一些未定义的垃圾数。但在C89下，退出码是3，因为其取了printf的返回值。为什么printf函数返回3呢？因为其输出了<code>4</code>，<code>2</code>，<code>\n</code> 三个字符。而在C99下，其会返回0，也就是成功地运行了这段程序。你可以使用gcc的 -std=c89或是-std=c99来编译上面的程序看结果。</li>
-<li>另外，我们还要注意main()，在C标准下，如果一个函数不要参数，应该声明成main(void)，而main()其实相当于main(…)，也就是说其可以有任意多的参数，这与C++的异常捕获是一致的</li>
-</ul>
-<p>我们再来看一段代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> a = <span class="number">3</span>;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">int</span> b;</span><br><span class="line">	<span class="keyword">int</span> c;</span><br><span class="line">	++a; ++b; ++c;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"a=%d\n"</span>, a);<span class="comment">//4 5 6</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"b=%d\n"</span>, b);<span class="comment">//1 2 3</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"c=%d\n"</span>, c);<span class="comment">//随机 随机 随机</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	f();</span><br><span class="line">	f();</span><br><span class="line">	f();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个程序会输出什么？</p>
-<ul>
-<li>我相信你对a的输出相当有把握，就分别是4，5，6，因为那个静态变量。</li>
-<li>对于c呢，你应该也比较肯定，那是一堆乱数。</li>
-<li>但是你可能不知道b的输出会是什么？答案是1，2，3。为什么和c不一样呢？因为，如果要初始化，每次调用函数里，编译器都要初始化函数栈空间，这太费性能了。但是c的编译器会初始化静态变量为0，因为这只是在启动程序时的动作。</li>
-<li>全局变量同样会被初始化。</li>
-</ul>
-<p>说到全局变量，你知道静态全局变量和一般全局变量的差别吗？是的，对于static 的全局变量，其对链接器不可以见，也就是说，这个变量只能在当前文件中使用</p>
-<p>我们再来看一个例子：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">42</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	bar();</span><br><span class="line">	foo();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>你知道这段代码会输出什么吗？<br>是42还是一个随机值？ 都对，如果你使用一般的编译，会输出42，因为我们的编译器优化了函数的调用栈（重用了之前的栈），为的是更快，这没有什么副作用。反正你不初始化，他就是随机值，既然是随机值，什么都无所谓。但是，如果你的编译打开了代码优化的开关，-O，这意味着，foo()函数的代码会被优化成main()里的一个inline函数，也就是说没有函数调用，就像宏定义一样。于是你会看到一个随机的垃圾数。 </p>
-<p>下面，我们再来看一个示例 :</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">b</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"3"</span>); </span><br><span class="line">	<span class="keyword">return</span> <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">c</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"4"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">4</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a = b() + c();</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这段程序会输出什么？，你会说是，3，4，7。但是我想告诉你，这也有可能输出，4，3，7。为什么呢？ 这是因为，在C/C++中，表达的评估次序是没有标准定义的。编译器可以正着来，也可以反着来，所以，不同的编译器会有不同的输出。你知道这个特性以后，你就知道这样的程序是没有可移植性的。</p>
-<p>我们再来看看下面的这堆代码，他们分别输出什么呢？<br>示例一</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">41</span>; a++; <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br></pre></td></tr></table></figure>
-
-<p>示例二</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">41</span>; a++ &amp; <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br></pre></td></tr></table></figure>
-
-<p>示例三</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">41</span>; a++ &amp;&amp; <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br></pre></td></tr></table></figure>
-
-<p>示例四</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">41</span>; <span class="keyword">if</span> (a++ &lt; <span class="number">42</span>) <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br></pre></td></tr></table></figure>
-
-<p>示例五</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">41</span>; a = a++; <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br></pre></td></tr></table></figure>
-
-<p>只有示例一，示例三，示例四输出42，而示例二和五的行为则是未定义的。关于这种未定义的东西是因为Sequence Points的影响（Sequence Points是一种规则，也就是程序执行的序列点，在两点之间的表达式只能对变量有一次修改），因为这会让编译器不知道在一个表达式顺列上如何存取变量的值。比如a = a++，a + a++，不过，在C中，这样的情况很少。</p>
-<p>下面，再看一段代码：（假设int为4字节，char为1字节）</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">X</span> &#123;</span> <span class="keyword">int</span> a; <span class="keyword">char</span> b; <span class="keyword">int</span> c; &#125;;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d,"</span>, <span class="keyword">sizeof</span>(struct X));</span><br><span class="line">	</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Y</span> &#123;</span> <span class="keyword">int</span> a; <span class="keyword">char</span> b; <span class="keyword">int</span> c; <span class="keyword">char</span> d; &#125;;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, <span class="keyword">sizeof</span>(struct Y));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>答案是12、16，这是结构体的内存对齐：</p>
-<ul>
-<li>但是，你知道为什么要字节对齐吗？还是因为性能。因为这些东西都在内存里，如果不对齐的话，我们的编译器就要向内存一个字节一个字节的取，这样一来，struct X，就需要取9次，太浪费性能了，而如果我一次取4个字节，那么我三次就搞定了。所以，这是为了性能的原因。</li>
-<li>但是，为什么struct Y不向12 对齐，却要向16对齐，因为char d; 被加在了最后，当编译器计算一个结构体的尺寸时，是边计算，边对齐的。也就是说，编译器先看到了int，很好，4字节，然后是 char，一个字节，而后面的int又不能填上还剩的3个字节，不爽，把char b对齐成4，于是计算到d时，就是13 个字节，于是就是16啦。但是如果换一下d和c的声明位置，就是12了。</li>
-</ul>
-<p>另外，再提一下，上述程序的printf中的%d并不好，因为，在64位下，sizeof的size_t是unsigned long，而32位下是 unsigned int，所以，C99引入了一个专门给size_t用的%zu。这点需要注意。在64位平台下，C/C++ 的编译需要注意很多事。你可以参看<a href="https://coolshell.cn/articles/3512.html" target="_blank" rel="noopener">《64位平台C/C++开发注意事项》</a></p>
-<p>下面，我们再说说编译器的Warning，请看代码:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">int</span> a;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>cc -Wall a.c</li>
-<li>cc -Wall -O a.c</li>
-</ul>
-<p>前一种是不会编译出a未初化的警告信息的，而只有在-O的情况下，才会有未初始化的警告信息。这点就是为什么我们在makefile里的CFLAGS上总是需要-Wall和 -O。</p>
-<p>最后，我们再来看一个指针问题，你看下面的代码:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a[<span class="number">5</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, a + <span class="number">1</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, &amp;a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, &amp;a + <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> 假如我们的a的地址是：1527552（为了方便我使用了%d输出），而且是32位机，那么这个程序会输出什么？ </p>
-<ul>
-<li><p>第一条<code>printf</code>语句应该没有问题，就是 1527552</p>
-</li>
-<li><p>第二条<code>printf</code>语句你可能会以为是1527553。那就错了，a+1，编译器会编译成 a+ 1*sizeof(int)，int在32位下是4字节，所以是加4，也就是1527556</p>
-</li>
-<li><p>第三条printf语句可能是你最头疼的，我们怎么知道a的地址？我不知道吗？可不就是bfe2e100。那岂不成了<code>a==&amp;a</code>啦？这怎么可能？自己存自己的？也许很多人会觉得指针和数组是一回事，那么你就错了。如果是 <code>int *a</code>那么没有问题，因为a是指针，所以<code>&amp;a</code> 是指针的地址，a 和<code>&amp;a</code>不一样。但是这是数组啊a[ ]，所以<code>&amp;a</code>其实是被编译成了<code>&amp;a[0]</code>。</p>
-</li>
-<li><p>第四条<code>printf</code>语句就很自然了，就是bfe2e104。还是不对，因为是&amp;a是数组，被看成<code>int(*)[5]</code>，所以sizeof(a)是5，也就是<code>5*sizeof(int)</code>，也就是152727572。</p>
-<p>看下面这一段代码： </p>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">5</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fun</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> x = <span class="number">3</span>;</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">extern</span> <span class="keyword">int</span> x;</span><br><span class="line">		<span class="keyword">return</span> x;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>fun函数的返回值是多少？当然是5</p>
-<p>看过这么多，你可能会觉得C语言设计得真扯淡啊。不过我要告诉下面几点Dennis当初设计C语言的初衷：</p>
-<ul>
-<li><strong>相信程序员，不阻止程序员做他们想做的事</strong></li>
-<li><strong>保持语言的简洁，以及概念上的简单</strong></li>
-<li><strong>保证性能，就算牺牲移植性</strong></li>
-</ul>
-<p>今天很多语言进化得很高级了，语法也越来越复杂和强大，但是C语言依然光芒四射，Dennis离世了，但是C语言的这些设计思路将永远不朽。 </p>
-<p>转载自酷壳；</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -367,21 +270,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -389,172 +292,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2204832779.html" title="你真的了解C语言吗" target="_blank">https://zouchanglin.cn/2204832779.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2204832779.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2240008295.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          泛型编程与C++模板
-        
-      </div>
-    </a>
-  
-  
-    <a href="/649809623.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">UML建模总结</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    目录，不存在的…
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -563,13 +362,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

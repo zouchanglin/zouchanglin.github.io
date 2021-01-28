@@ -209,327 +209,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-多仓库管理工具——Repo" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      多仓库管理工具——Repo
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/4221524257.html" class="archive-article-date">
-        <time datetime="2021-01-16T05:03:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-16</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">14分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>Repo 是建立在Git上的一个多仓库管理工具，可以组织多个仓库的上传和下载。Repo是Google用Python脚本写的调用Git的脚本，主要帮助我们管理多个Git存储仓库，将其上传到我们的版本控制系统，并自动执行Android开发工作流程的某些部分。Repo并不是要取代Git，而是为了在Android环境下更加方便的使用Git。下面来看看Repo的具体用法吧！</p>
-<a id="more"></a>
-
-<h2><span id="安装repo">安装Repo</span></h2><p>在安装Repo时，必须先要确保已经安装了Git工具，以及Python2.7+的环境，下面是在Mac下安装的流程：</p>
-<p>1、确保主目录下有一个 bin/ 目录，并且该目录包含在路径中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/bin</span><br><span class="line">PATH=~/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
-
-<p>2、下载 Repo 工具，并确保它可执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl https://storage.googleapis.com/git-repo-downloads/repo &gt; ~/bin/repo</span><br><span class="line">chmod a+x ~/bin/repo</span><br></pre></td></tr></table></figure>
-
-<p>Windows下没有curl工具可以下载，地址是<a href="https://curl.se/windows/dl-7.74.0_2/curl-7.74.0_2-win64-mingw.zip" target="_blank" rel="noopener">https://curl.se/windows/dl-7.74.0_2/curl-7.74.0_2-win64-mingw.zip</a>。不过也可以直接访问<a href="https://storage.googleapis.com/git-repo-downloads/repo" target="_blank" rel="noopener">https://storage.googleapis.com/git-repo-downloads/repo</a>网址，直接把内容复制到<code>~/bin/repo</code>效果是一样的。另外如果googleapis.com无法访问的话也可以替换为Github的Repo地址：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://raw.githubusercontent.com/esrlabs/git-repo/stable/repo &gt; ~/bin/repo</span><br></pre></td></tr></table></figure>
-
-<p>对于Linux安装过程可以参考<a href="https://github.com/esrlabs/git-repo" target="_blank" rel="noopener">https://github.com/esrlabs/git-repo</a> 这个仓库的README其实说得很清楚了。</p>
-<h2><span id="repo的背景">Repo的背景</span></h2><p>使用Repo之前，最好先熟悉Git，关于Git的推荐资料：<a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noopener">https://git-scm.com/book/zh/v2</a>。其实Repo最开始是用来管理Android源代码库的，Android 源代码位于由 Google 托管的 Git 代码库中。Git 代码库中包含 Android 源代码的元数据，其中包括与对源代码进行的更改以及更改日期相关的元数据。而且Android版本库众多，版本库太大以及Git不能部分检出，如果所有的东西都放在一个库中，而某个开发团队比较关心可能只是某个小组件或者插件而已，但是却要下载如此庞大的版本库，所以这一切交给了Repo去管理。</p>
-<p>那么Repo如何管理多个代码仓库的呢？</p>
-<h2><span id="repo的组成">Repo的组成</span></h2><p>Repo主要包括两部分：Repo引导脚本（Google 称之为Repo launcher）和Repo命令的主体部分。那么Repo仓库究竟有些什么东西呢，在我们初始化Repo仓库之后，会出现一个.repo的文件夹，里面有如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">changlinzou@mac work % tree .repo -L 1</span><br><span class="line">.repo</span><br><span class="line">├── manifest.xml -&gt; manifests/default.xml</span><br><span class="line">├── manifests</span><br><span class="line">├── manifests.git</span><br><span class="line">├── project-objects</span><br><span class="line">├── project.list</span><br><span class="line">├── projects</span><br><span class="line">└── repo</span><br><span class="line"></span><br><span class="line">5 directories, 2 files</span><br></pre></td></tr></table></figure>
-
-<p>当执行 <code>repo init</code> 命令来初始化仓库的时候首先执行的就是Repo的引导脚本，该脚本会到我们指定的地方去下载Manifest 仓库，以及Repo命令主体部分。下载好之后就放在当前目录下面的<code>.repo</code>目录下，其中：</p>
-<table>
-<thead>
-<tr>
-<th>文件夹</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>manifests</td>
-<td>清单文件的仓库</td>
-</tr>
-<tr>
-<td>manifests.git</td>
-<td>清单文件的Git裸仓库，不带工作区</td>
-</tr>
-<tr>
-<td>manifest.xml</td>
-<td>这是一个链接文件，指向你的用于初始化工作区的清单文件，即<code>manifests/default.xml</code></td>
-</tr>
-<tr>
-<td>project.list</td>
-<td>一个文本文件，里面包含所有项目名字的列表</td>
-</tr>
-<tr>
-<td>projects</td>
-<td>该文件夹下包含所有git project 的裸仓库，文件夹的层次结构跟工作区的布局一样</td>
-</tr>
-<tr>
-<td>repo</td>
-<td>这是repo命令的主体，其中也包含最新的repo命令，推荐使用这里面的repo命令</td>
-</tr>
-</tbody></table>
-<p>对于Manifests文件相信每一个Android开发中都不陌生，Android项目中Manifests声明了四大组件，就像列出的项目组件的清单一样。所以其实很容易类比，在这里manifests是清单文件的git仓库，这些xml文件中包含了各个git project的名称，检出的reversion，检出到哪个目录等等信息。Repo就是利用这些manifest文件去分别获取各个project，比如这样一个manifest文件：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">remote</span> <span class="attr">name</span>=<span class="string">"origin"</span> <span class="attr">fetch</span>=<span class="string">"https://github.com/"</span> <span class="attr">review</span>=<span class="string">"https://github.com/"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">default</span> <span class="attr">remote</span>=<span class="string">"origin"</span> <span class="attr">revision</span>=<span class="string">"master"</span> <span class="attr">sync-j</span>=<span class="string">"4"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project</span> <span class="attr">name</span>=<span class="string">"xxx_projects/first.git"</span> <span class="attr">path</span>=<span class="string">"xxx"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project</span> <span class="attr">name</span>=<span class="string">"yyy_projects/first.git"</span> <span class="attr">path</span>=<span class="string">"yyy"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project</span> <span class="attr">name</span>=<span class="string">"zzz_lib/first.git"</span> <span class="attr">path</span>=<span class="string">"xxx/zzz_lib"</span> /&gt;</span></span><br><span class="line">    ......</span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>下面是Repo的manifest文件中元素的意义：</p>
-<table>
-<thead>
-<tr>
-<th>元素</th>
-<th align="left">详情</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>manifest元素</td>
-<td align="left">xml文件的根元素</td>
-</tr>
-<tr>
-<td>remote 元素</td>
-<td align="left">可以存在一个或者多个remote元素，remote元素指定了使用repo upload命令的时候，会将改变提交到哪个服务器</td>
-</tr>
-<tr>
-<td>default 元素</td>
-<td align="left">default元素中指定的属性都是一些缺省的属性。即如果project元素中不存在该属性，则使用在default元素中指定的属性。revision：Git分支的名字。如果project元素没有指定revision属性，那么就使用default元素的该属性。revision 属性的值可以是一个git branch，git tag，也可以是一个commit id。sync-j：sync的时候，并行工作的任务数。sync-c：如果设置为true，则在同步代码的时候，将只会同步project元素中revision属性中指定的分支。如果project元素没有指定revision属性，则使用default元素的revision属性。</td>
-</tr>
-<tr>
-<td>project 元素</td>
-<td align="left">xml文件中可以指定一个或者多个project元素。 每一个project元素都描述了一个需要pull到本地的git仓库。project元素中有很多可以使用的属性，在此只介绍几个我们经常使用的属性。name：git project的名字，path：该project的本地工作区的路径，revision：该project要跟踪的分支的名字。名字可以是相对于refs/heads命名空间的，如：master，或者绝对的，如：refs/heads/master。标签或者48位的SHA-1值理论上也可以工作。如果没有提供该属性，则使用default元素中的revision属性。</td>
-</tr>
-</tbody></table>
-<h2><span id="repo命令">Repo命令</span></h2><p>下面的内容来自Google的官方文档：<a href="https://source.android.com/source/using-repo.html" target="_blank" rel="noopener">https://source.android.com/source/using-repo.html</a>：</p>
-<p>使用 Repo 需遵循的格式如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo &lt;COMMAND&gt; &lt;OPTIONS&gt;</span><br></pre></td></tr></table></figure>
-
-<p>可选元素显示在方括号 [ ] 中。例如，许多命令会将项目列表用作参数。您可以为项目指定项目列表，作为名称列表或本地源代码目录的路径列表：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">repo sync [&lt;PROJECT0&gt; &lt;PROJECT1&gt; &lt;PROJECTN&gt;]</span><br><span class="line">repo sync [&lt;/PATH/TO/PROJECT0&gt; ... &lt;/PATH/TO/PROJECTN&gt;]</span><br></pre></td></tr></table></figure>
-
-<h3><span id="help">help</span></h3><p>安装 Repo 后，您可以通过运行以下命令找到最新文档（开头是包含所有命令的摘要）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo <span class="built_in">help</span></span><br></pre></td></tr></table></figure>
-
-<p>您可以通过在 Repo 树中运行以下命令来获取有关某个命令的信息：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo help &lt;COMMAND&gt;</span><br></pre></td></tr></table></figure>
-
-<p>例如，以下命令会生成 Repo <code>init</code> 参数的说明和选项列表，该参数会在当前目录中初始化 Repo。（要了解详情，请参阅 <a href="https://source.android.com/source/using-repo.html#init" target="_blank" rel="noopener">init</a>。）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo <span class="built_in">help</span> init</span><br></pre></td></tr></table></figure>
-
-<h3><span id="init">init</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ repo init -u &lt;URL&gt; [&lt;OPTIONS&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>在当前目录中安装 Repo。这会创建一个 <code>.repo/</code> 目录，其中包含用于 Repo 源代码和标准 Android 清单文件的 Git 代码库。该 <code>.repo/</code> 目录中还包含 <code>manifest.xml</code>，这是一个指向 <code>.repo/manifests/</code> 目录中所选清单的符号链接。</p>
-<p>选项：</p>
-<ul>
-<li><code>-u</code>：指定要从中检索清单代码库的网址。您可以在 <code>https://android.googlesource.com/platform/manifest</code> 中找到常见清单</li>
-<li><code>-m</code>：在代码库中选择清单文件。如果未选择任何清单名称，则会默认选择 default.xml。</li>
-<li><code>-b</code>：指定修订版本，即特定的清单分支。</li>
-</ul>
-<p><strong>注意</strong>：对于其余的所有 Repo 命令，当前工作目录必须是 <code>.repo/</code> 的父目录或相应父目录的子目录。</p>
-<h3><span id="sync">sync</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo sync [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>下载新的更改并更新本地环境中的工作文件。如果您在未使用任何参数的情况下运行 <code>repo sync</code>，则该操作会同步所有项目的文件。</p>
-<p>运行 <code>repo sync</code> 后，将出现以下情况：</p>
-<ul>
-<li><p>如果目标项目从未同步过，则 <code>repo sync</code> 相当于 <code>git clone</code>。远程代码库中的所有分支都会复制到本地项目目录中。</p>
-</li>
-<li><p>如果目标项目已同步过，则 <code>repo sync</code> 相当于以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git remote update</span><br><span class="line">git rebase origin/&lt;BRANCH&gt;</span><br></pre></td></tr></table></figure>
-
-<p>其中 <code>*&lt;BRANCH&gt;*</code> 是本地项目目录中当前已检出的分支。如果本地分支没有在跟踪远程代码库中的分支，则相应项目不会发生任何同步。</p>
-</li>
-<li><p>如果 git rebase 操作导致合并冲突，那么您需要使用普通 Git 命令（例如 <code>git rebase --continue</code>）来解决冲突。</p>
-</li>
-</ul>
-<p><code>repo sync</code> 运行成功后，指定项目中的代码会与远程代码库中的代码保持同步。</p>
-<p>选项：</p>
-<ul>
-<li><code>-d</code>：将指定项目切换回清单修订版本。如果项目当前属于某个主题分支，但只是临时需要清单修订版本，则此选项会有所帮助。</li>
-<li><code>-s</code>：同步到当前清单中清单服务器元素指定的一个已知的良好版本。</li>
-<li><code>-f</code>：即使某个项目同步失败，系统也会继续同步其他项目。</li>
-</ul>
-<h3><span id="upload">upload</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo upload [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>对于指定的项目，Repo 会将本地分支与最后一次 repo sync 时更新的远程分支进行比较。Repo 会提示您选择一个或多个尚未上传以供审核的分支。</p>
-<p>您选择一个或多个分支后，所选分支上的所有提交都会通过 HTTPS 连接传输到 Gerrit。您需要配置一个 HTTPS 密码以启用上传授权。要生成新的用户名/密码对以用于 HTTPS 传输，请访问<a href="https://android-review.googlesource.com/new-password" target="_blank" rel="noopener">密码生成器</a>。</p>
-<p>当 Gerrit 通过其服务器接收对象数据时，它会将每项提交转变成一项更改，以便审核者可以单独针对每项提交给出意见。要将几项“检查点”提交合并为一项提交，请使用 git rebase -i，然后再运行 repo upload。</p>
-<p>如果您在未使用任何参数的情况下运行 repo upload，则该操作会搜索所有项目中的更改以进行上传。</p>
-<p>要在更改上传之后对其进行修改，您应该使用 <code>git rebase -i</code> 或 <code>git commit --amend</code> 等工具更新您的本地提交。修改完成之后，请执行以下操作：</p>
-<ul>
-<li><p>进行核对以确保更新后的分支是当前已检出的分支。</p>
-</li>
-<li><p>对于相应系列中的每项提交，请在方括号内输入 Gerrit 更改 ID：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Replacing from branch foo</span></span><br><span class="line">[ 3021 ] 35f2596c Refactor part of GetUploadableBranches to lookup one specific...</span><br><span class="line">[ 2829 ] ec18b4ba Update proto client to support patch <span class="built_in">set</span> replacments</span><br><span class="line"><span class="comment"># Insert change numbers in the brackets to add a new patch set.</span></span><br><span class="line"><span class="comment"># To create a new change record, leave the brackets empty.</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<p>上传完成后，这些更改将拥有一个额外的补丁程序集。</p>
-<h3><span id="diff">diff</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo diff [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>使用 <code>git diff</code> 显示提交与工作树之间的明显更改。</p>
-<h3><span id="download">download</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo download &lt;TARGET&gt; &lt;CHANGE&gt;</span><br></pre></td></tr></table></figure>
-
-<p>从审核系统中下载指定更改，并放在您项目的本地工作目录中供使用。</p>
-<p>例如，要将<a href="https://android-review.googlesource.com/23823" target="_blank" rel="noopener">更改 23823</a> 下载到您的平台/编译目录，请运行以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ repo download platform/build 23823</span><br></pre></td></tr></table></figure>
-
-<p><code>repo sync</code> 应该可以有效移除通过 <code>repo download</code> 检索到的任何提交。或者，您可以将远程分支检出，例如 <code>git checkout m/master</code>。</p>
-<p><strong>注意</strong>：由于全球的所有服务器均存在复制延迟，因此某项更改（位于 <a href="https://android-review.googlesource.com/" target="_blank" rel="noopener">Gerrit</a> 中）出现在网络上的时间与所有用户可通过 <code>repo download</code> 找到此项更改的时间之间存在些许的镜像延迟。</p>
-<h3><span id="forall">forall</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo forall [&lt;PROJECT_LIST&gt;] -c &lt;COMMAND&gt;</span><br></pre></td></tr></table></figure>
-
-<p>在每个项目中运行指定的 shell 命令。通过 <code>repo forall</code> 可使用下列额外的环境变量：</p>
-<ul>
-<li><code>REPO_PROJECT</code> 可设为项目的具有唯一性的名称。</li>
-<li><code>REPO_PATH</code> 是客户端根目录的相对路径。</li>
-<li><code>REPO_REMOTE</code> 是清单中远程系统的名称。</li>
-<li><code>REPO_LREV</code> 是清单中修订版本的名称，已转换为本地跟踪分支。如果您需要将清单修订版本传递到某个本地运行的 Git 命令，则可使用此变量。</li>
-<li><code>REPO_RREV</code> 是清单中修订版本的名称，与清单中显示的名称完全一致。</li>
-</ul>
-<p>选项：</p>
-<ul>
-<li><code>-c</code>：要运行的命令和参数。此命令会通过 <code>/bin/sh</code> 进行求值，它之后的任何参数都将作为 shell 位置参数传递。</li>
-<li><code>-p</code>：在指定命令输出结果之前显示项目标头。这通过以下方式实现：将管道绑定到命令的 stdin、stdout 和 sterr 流，然后通过管道将所有输出结果传输到一个页面调度会话中显示的连续流中。</li>
-<li><code>-v</code>：显示该命令向 stderr 写入的消息。</li>
-</ul>
-<h3><span id="prune">prune</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo prune [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>删减（删除）已合并的主题。</p>
-<h3><span id="start">start</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo start &lt;BRANCH_NAME&gt; [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>从清单中指定的修订版本开始，创建一个新的分支进行开发。</p>
-<p><code>*&lt;BRANCH_NAME&gt;*</code> 参数应简要说明您尝试对项目进行的更改。如果您不知道，则不妨考虑使用默认名称。</p>
-<p><code>*&lt;PROJECT_LIST&gt;*</code> 指定了将参与此主题分支的项目。</p>
-<p><strong>注意</strong>：“.”是一个非常实用的简写形式，用来代表当前工作目录中的项目。</p>
-<h3><span id="status">status</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo status [&lt;PROJECT_LIST&gt;]</span><br></pre></td></tr></table></figure>
-
-<p>对于每个指定的项目，将工作树与临时区域（索引）以及此分支 (HEAD) 上的最近一次提交进行比较。在这三种状态存在差异之处显示每个文件的摘要行。</p>
-<p>要仅查看当前分支的状态，请运行 <code>repo status</code>。系统会按项目列出状态信息。对于项目中的每个文件，系统使用两个字母的代码来表示：</p>
-<p>在第一列中，大写字母表示临时区域与上次提交状态之间的不同之处。</p>
-<table>
-<thead>
-<tr>
-<th align="left">字母</th>
-<th align="left">含义</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">-</td>
-<td align="left">无更改</td>
-<td align="left">HEAD 与索引中相同</td>
-</tr>
-<tr>
-<td align="left">A</td>
-<td align="left">已添加</td>
-<td align="left">不存在于 HEAD 中，但存在于索引中</td>
-</tr>
-<tr>
-<td align="left">M</td>
-<td align="left">已修改</td>
-<td align="left">存在于 HEAD 中，但索引中的文件已修改</td>
-</tr>
-<tr>
-<td align="left">D</td>
-<td align="left">已删除</td>
-<td align="left">存在于 HEAD 中，但不存在于索引中</td>
-</tr>
-<tr>
-<td align="left">R</td>
-<td align="left">已重命名</td>
-<td align="left">不存在于 HEAD 中，但索引中的文件的路径已更改</td>
-</tr>
-<tr>
-<td align="left">C</td>
-<td align="left">已复制</td>
-<td align="left">不存在于 HEAD 中，已从索引中的另一个文件复制</td>
-</tr>
-<tr>
-<td align="left">T</td>
-<td align="left">模式已更改</td>
-<td align="left">HEAD 与索引中的内容相同，但模式已更改</td>
-</tr>
-<tr>
-<td align="left">U</td>
-<td align="left">未合并</td>
-<td align="left">HEAD 与索引之间存在冲突；需要解决方案</td>
-</tr>
-</tbody></table>
-<p>在第二列中，小写字母表示工作目录与索引之间的不同之处。</p>
-<table>
-<thead>
-<tr>
-<th align="left">字母</th>
-<th align="left">含义</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">-</td>
-<td align="left">新/未知</td>
-<td align="left">不存在于索引中，但存在于工作树中</td>
-</tr>
-<tr>
-<td align="left">m</td>
-<td align="left">已修改</td>
-<td align="left">存在于索引中，也存在于工作树中（但已修改）</td>
-</tr>
-<tr>
-<td align="left">d</td>
-<td align="left">已删除</td>
-<td align="left">存在于索引中，不存在于工作树中</td>
-</tr>
-</tbody></table>
-<p><img src="https://img.zouchanglin.cn/20210116151056.png" alt></p>
-<h2><span id="参考资料">参考资料</span></h2><p>1、<a href="https://source.android.com/source/using-repo" target="_blank" rel="noopener">https://source.android.com/source/using-repo</a></p>
-<p>2、<a href="https://git-scm.com/book/zh/v2" target="_blank" rel="noopener">https://git-scm.com/book/zh/v2</a></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -539,21 +272,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -561,172 +294,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/4221524257.html" title="多仓库管理工具——Repo" target="_blank">https://zouchanglin.cn/4221524257.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/版本控制//" class="article-tag-list-link color5">版本控制</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/4221524257.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1099989216.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          回顾我的2020
-        
-      </div>
-    </a>
-  
-  
-    <a href="/91228.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">高效易用的IO库【Okio应用篇】</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">安装Repo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Repo的背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Repo的组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Repo命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">help</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">init</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">sync</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">upload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.5.</span> <span class="toc-text">diff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.6.</span> <span class="toc-text">download</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.7.</span> <span class="toc-text">forall</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.8.</span> <span class="toc-text">prune</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.9.</span> <span class="toc-text">start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.10.</span> <span class="toc-text">status</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -735,13 +364,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

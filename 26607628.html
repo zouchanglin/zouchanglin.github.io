@@ -216,95 +216,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-通俗理解五种IO模型" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      通俗理解五种IO模型
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/26607628.html" class="archive-article-date">
-        <time datetime="2020-02-29T12:01:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-29</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.3k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">4分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p><img src="https://img.zouchanglin.cn///20200229/JzUvCzR8JTH3.png" alt="mark"></p>
-<blockquote>
-<p><strong>任何IO过程中，都包含两个步骤：第一是等待，第二是拷贝。而且在实际的应用场景中，等待消耗的时间往往都远远高于拷贝的时间。让IO更高效，最核心的办法就是让等待的时间尽量少。</strong></p>
-</blockquote>
-<a id="more"></a>
-
-<h2><span id="理解五种io模型">理解五种IO模型</span></h2><p>先来看看五种IO模型：</p>
-<p>1、阻塞式IO：在内核将数据准备好之前，系统调用会一直等待。所有的套接字，默认都是阻塞方式，阻塞式是最常见的IO模型，<strong>阻塞式IO属于同步IO模型</strong></p>
-<p>例子：A拿着一支鱼竿在河边钓鱼，并且一直在鱼竿前等，在等的时候不做其他的事情，十分专心。只有鱼上钩的时，才结束掉等的动作，把鱼钓上来。 </p>
-<p><img src="https://img.zouchanglin.cn///20200229/KqGQIn1a13gh.png" alt="mark"></p>
-<p>2、非阻塞式IO：如果内核还未将数据准备好，系统调用仍然会直接返回，并且返回EWOULDBLOCK错误码，非阻塞IO往往需要程序员循环的方式反复尝试读写文件描述符，这个过程称为轮询。这对CPU来说是较大的浪费，一般只有特定场景下才使用，<strong>非阻塞式IO也属于同步IO模型</strong></p>
-<p>例子： B也在河边钓鱼，但是B不想将自己的所有时间都花费在钓鱼上，在等鱼上钩这个时间段中，B在做其他的事情（刷牛客或者刷知乎），但B在做这些事情的时候，每隔一个固定的时间检查鱼是否上钩。一旦检查到有鱼上钩，就停下手中的事情，把鱼钓上来。 </p>
-<p><img src="https://img.zouchanglin.cn///20200229/hex7pX46UFhx.png" alt="mark"></p>
-<p>3、信号驱动IO：内核将数据准备好的时候，使用SIGIO信号通知应用程序进行IO操作，<strong>信号驱动IO也属于同步IO</strong>，信号驱动是不是有点异步的感觉？ 但是在将数据从内核复制到用户空间这段时间内用户态进程是阻塞的，所以也属于同步IO</p>
-<p>例子： C也在河边钓鱼，但与A、B不同的是，C比较聪明，他给鱼竿上挂一个铃铛，当有鱼上钩的时候，这个铃铛就会被碰响，C就会将鱼钓上来。 </p>
-<p><img src="https://img.zouchanglin.cn///20200229/jafb77BHqa68.png" alt="mark"></p>
-<p>4、IO多路复用：虽然从流程图上看起来和阻塞IO类似，实际上最核心在于IO多路转接能够同时等待多个文件描述符的就绪状态，<strong>IO多路复用也属于同步IO</strong></p>
-<p>例子： D同样也在河边钓鱼，但是D生活水平比较好，D拿了很多的鱼竿，一次性有很多鱼竿在等，D不断的查看每个鱼竿是否有鱼上钩。增加了效率，减少了等待的时间。 </p>
-<p><img src="https://img.zouchanglin.cn///20200229/MNIkfuYNMgpQ.png" alt="mark"></p>
-<p>5、异步IO：由内核在数据拷贝完成时，通知应用程序(而信号驱动是告诉应用程序何时可以开始拷贝数据)，<strong>异步IO就是异步IO</strong>，哈哈</p>
-<p>例子：E也想钓鱼，但E有事情，于是他雇来了F，让F帮他等待鱼上钩，一旦有鱼上钩，F就打电话给E，E就会将鱼钓上去。 </p>
-<p><img src="https://img.zouchanglin.cn///20200229/RmKbnXmTBJxO.png" alt="mark"></p>
-<p><strong>阻塞程度：阻塞IO&gt;非阻塞IO&gt;多路转接IO&gt;信号驱动IO&gt;异步IO，效率是由低到高</strong> </p>
-<h2><span id="理解同步与异步通信">理解同步与异步通信</span></h2><p>所谓同步，就是在发出一个调用时，在没有得到结果之前，该调用就不返回。但是一旦调用返回，就得到返回值了；换句话说，就是由调用者主动等待这个调用的结果；</p>
-<p>异步则是相反，调用在发出之后，这个调用就直接返回了，所以没有返回结果；换句话说，当一个异步过程调用发出后，调用者不会立刻得到结果；而是在调用发出后，被调用者通过状态、通知来通知调用者，或通过回调函数处理这个调用；</p>
-<p><strong>对于同步通信来说，都是由调用者主动等待这个调用的结果</strong>，无论是“干等”，还是轮询式的等，还是信号通知式的等，还是一次等多个的形式，都是需要主动去等的，<strong>对于异步通信来说，这个调用就直接返回了，所以没有返回结果</strong>，不需要调用者主动的等待。</p>
-<h2><span id="理解阻塞与非阻塞">理解阻塞与非阻塞</span></h2><p>阻塞和非阻塞关注的是程序在等待调用结果（消息，返回值）时的状态。</p>
-<p><strong>阻塞调用是指调用结果返回之前，当前线程会被挂起</strong>，比如阻塞式IO就是等待调用结果的时候会发生阻塞，啥也干不了，调用线程只有在得到结果之后才会返回；</p>
-<p><strong>非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程</strong>，比如非阻塞IO，进程在等待的同时，还可以做其他事情。包括信号驱动也属于非阻塞，但是在数据从内核拷贝到用户空间时也是阻塞的；</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -314,21 +279,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -336,180 +301,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/26607628.html" title="通俗理解五种IO模型" target="_blank">https://zouchanglin.cn/26607628.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">NIO</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/高性能网络//" class="article-tag-list-link color1">高性能网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/26607628.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/3141995360.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          select、poll和epoll多路复用
-        
-      </div>
-    </a>
-  
-  
-    <a href="/293026705.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Redis的常见问题</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">理解五种IO模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">理解同步与异步通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">理解阻塞与非阻塞</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -518,13 +371,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

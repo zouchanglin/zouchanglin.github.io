@@ -212,187 +212,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-JDK11新特性" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      JDK11新特性
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2566926808.html" class="archive-article-date">
-        <time datetime="2020-04-17T10:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-17</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">5.8k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">22分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>Oracle官方于2018年9月26日宣布Java11正式发布。目前Oracle 官方也已经宣布Java11正式可以商用，这是Java 大版本周期变化后的第一个长期支持版本，非常值得关注。最新发布的Java11一共包含17个JEP（JDK Enhancement Proposals，JDK 增强提案）。对于企业来说，选择Java11将意味着长期的、可靠的、可预测的技术路线图。其中免费的OpenJDK11确定将得到OpenJDK社区的长期支持，LTS版本将是可以放心选择的版本。由于JDK9和JDK10都是一个过渡版本，JDK11的特性是在JDK9中就有的，我在博客里也做了总结<a href="https://zouchanglin.cn/2020/04/15/1000236455.html">《 JDK9新特性(一)》</a>， <a href="https://zouchanglin.cn/2020/04/16/2494561989.html">《JDK9新特性(二)》</a> ，其中已经介绍过的新特性将不会在这篇文章出现。</p>
-<a id="more"></a>
-<p>从JVM GC的角度，JDK11引入了两种新的GC，其中包括也许是划时代意义的ZGC，虽然其目前还是实验特性，但是从能力上来看，这是JDK的一个巨大突破，为特定生产环境的苛刻需求提供了一个可能的选择。例如，对部分企业核心存储等产品，如果能够保证不超过10ms的GC暂停，可靠性会上一个大的台阶，这是过去我们进行GC调优几乎做不到的，是能与不能的问题。<br>对于G1 GC，相比于JDK8，升级到JDK11即可免费享受到：并行的Full GC，快速的CardTable扫描，自适应的堆占用比例调整（IHOP），在并发标记阶段的类型卸载等等。这些都是针对G1的不断增强，其中串行Full GC等甚至是曾经被广泛诟病的短板，你会发现GC配置和调优在JDK11中越来越方便。<br>云计算时代的监控、诊断和Profiling能力，这个是相比ZGC更具生产实践意义的特性。<br>Java的应用场景跨度很大，从单机长时间运行的Java应用，发展成为分布式、大的单体应用或小的Function、瞬时或长时间运行等，应用场景非常复杂。</p>
-<blockquote>
-<p><strong>JDK11为我们提供了更加强大的基础能力，主要是两部分</strong></p>
-</blockquote>
-<p>第一部分：JEP 328: Flight Recorder（JFR）是Oracle刚刚开源的强大特性。JFR是一套集成进入JDK、JVM内部的事件机制框架，通过良好架构和设计的框架，硬件层面的极致优化，生产环境的广泛验证，它可以做到极致的可靠和低开销。在SPECjbb2015等基准测试中，JFR的性能开销最大不超过1%，所以，工程师可以基本没有心理负担地在大规模分布式的生产系统使用，这意味着，我们既可以随时主动开启JFR进行特定诊断，也可以让系统长期运行JFR，用以在复杂环境中进行<code>After-the-fact</code>分析。<br>在保证低开销的基础上，JFR提供的能力可以应用在对锁竞争、阻塞、延迟，JVM GC、SafePoint等领域，进行非常细粒度分析。甚至深入JIT Compiler内部，全面把握热点方法、内联、逆优化等等。JFR提供了标准的Java、C++等扩展API，可以与各种层面的应用进行定制、集成，为复杂的企业应用栈或者复杂的分布式应用，提供All-in-One解决方案。<br>Flight Recorder相当于飞机的黑匣子，不会影响JVM的运行（最大性能开销不超过1%），而且是不断记录JVM的运行监控参数，而这一切都是内建在JDK和JVM内部的，并不需要额外的依赖，开箱即用。<br>第二部分：JEP 331: Low-Overhead Heap Profiling。它来源于Google等业界前沿厂商的一线实践，通过获取对象分配细节，为JDK补足了对象分配诊断方面的一些短板，工程师可以通过JVMTI使用这个能力增强自身的工具。</p>
-<blockquote>
-<p><strong>从 Java 类库发展的角度来看，JDK 11 最大的进步也是两个方面</strong></p>
-</blockquote>
-<p>第一部分：HTTP/2 Client API，新的HTTP API提供了对HTTP/2等业界前沿标准的支持，精简而又友好的API接口，与主流开源API（如Apache HttpClient， Jetty， OkHttp 等）对等甚至更高的性能。与此同时它是JDK在Reactive-Stream方面的第一个生产实践，广泛使用了Java Flow API等，终于让Java标准HTTP类库在扩展能力等方面，满足了现代互联网的需求。<br>第二部分：安全类库、标准等方面的大范围升级，其中特别是 JEP 332: Transport Layer Security (TLS) 1.3，除了在安全领域的重要价值，它还是中国安全专家范学雷所领导的JDK项目，完全不同于以往的修修补补，是个非常大规模的工程。<br>除此之外，JDK 还在逐渐进行瘦身工作，或者偿还 JVM、Java 规范等历史欠账，例如：Deprecate the Nashorn JavaScript Engine，它进一步明确了 Graal 很有可能将成为 JVM 向前演进的核心选择，Java-on-Java 正在一步步的成为现实。</p>
-<h1><span id="dynamic-class-file-constants">Dynamic Class-File Constants</span></h1><p>Java的类型文件格式将被拓展，支持一种新的常量池格式：CONSTANT_Dynamic，加载CONSTANT_Dynamic会将创建委托给bootstrap方法。其目标是降低开发新形式的可实现类文件约束带来的成本和干扰。<br>上面的说法可能难以理解，我将换一个方式来说明这个新特性。在JDK1.5之前，Java程序中的常量值只能是字符串或原始类型。这些常量作为文字内置在语言中，甚至由javac编译器假定以减小类文件的大小。 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstantSample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> String field = <span class="string">"foo"</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.print(field);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>为了表示这样的常量值，任何Java类文件都包含了一个常量池，这意味着在方法中使用或用作字段值的常量，但也包含描述类的其他不可变信息，例如类的名称或被调用方法的名称及其声明的类型名称等信息。一旦在类的常量池中记录了一个值，就可以通过指向常量池中特定条目的偏移量来引用该值。这样做，在整个类中重复的值仅需要存储一次，因为偏移量可以多次引用。 JVM甚至可以通过遍历在常量池中找到的字符串来跨类对常量字符串进行重复数据删除。<br>接下来我要说的是常量池存储的局限性，类文件的常量池中值的这种表示形式非常适合简单的值，例如字符串和数字等基本常量。但是同时，当javac没有发现常量时，它可能会带来非常直观的后果：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NoConstantSample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> String field = <span class="string">"foo"</span>.toString();</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		System.out.print(field);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>尽管toString方法对于字符串来说是微不足道的，但是这种情况对于不评估Java方法的javac仍然未知。因此，编译器不能再发出常量池的值作为print语句的输入。相反，它不得不发出该字段的字段读取指令，该指令需要额外的字节，如前所述。这次，如果使用反射更改了字段的值，则调用hello方法也将打印更新的值。<br>虽然这是一个人为的例子，但是不难想象，在实践中如何用经典方法限制Java中的常量呢？如Math.max(CONST_A, CONST_B) 在编译的时候最大值本身就是常量，但是由于编译器无法对方法进行预估，因为也不能被编译器发现，哦！！这里原来是个常量哦！</p>
-<h1><span id="局部变量类型推断-var">局部变量类型推断 var</span></h1><p>如下图，但是需要注意的是var并不是一个关键字，var仅仅是一个语法上的改进，在编译时期便已经将var转换为了对应的变量类型。然而在使用var定义变量时，必须立刻赋值，编译器能根据右边的表达式自动推断类型，所以var只是用来减少代码量的。</p>
-<p><img src="https://img.zouchanglin.cn///20200420/pV5dxMKcNkqB.png" alt="mark"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VarTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Consumer&lt;String&gt; consumer = (<span class="meta">@Deprecated</span> <span class="keyword">var</span> t) -&gt; System.out.println(t.toUpperCase());</span><br><span class="line">        consumer.accept(<span class="string">"tim"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//这种就是错误的，因为t没有类型</span></span><br><span class="line">        Consumer&lt;String&gt; consumer = (<span class="meta">@Deprecated</span> t) -&gt; System.out.println(t.toUpperCase());</span><br><span class="line">        consumer.accept(<span class="string">"tim"</span>);</span><br><span class="line"></span><br><span class="line">        Consumer&lt;String&gt; consumer = (t) -&gt; System.out.println(t.toUpperCase());</span><br><span class="line">        consumer.accept(<span class="string">"tim"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在声明隐式类型的lambda表达式的形参时允许使用var，使用var的好处是在使用lambda表达式时给参数加上注解。</p>
-<h1><span id="新增字符串处理-api">新增字符串处理 API</span></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringAPITest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 判断字符串是否为空白</span></span><br><span class="line">        <span class="string">" "</span>.isBlank(); <span class="comment">// true</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 去除首尾空白</span></span><br><span class="line">        <span class="string">" Javastack "</span>.strip(); <span class="comment">// "Javastack"</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 去除尾部空格</span></span><br><span class="line">        <span class="string">" Javastack "</span>.stripTrailing(); <span class="comment">// " Javastack"</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 去除首部空格</span></span><br><span class="line">        <span class="string">" Javastack "</span>.stripLeading(); <span class="comment">// "Javastack "</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 复制字符串</span></span><br><span class="line">        <span class="string">"Java"</span>.repeat(<span class="number">3</span>);<span class="comment">// "JavaJavaJava"</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 行数统计</span></span><br><span class="line">        <span class="string">"A\nB\nC"</span>.lines().count(); <span class="comment">// 3</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1><span id="新增的文件-api">新增的文件 API</span></h1><p>InputStream加强：InputStream终于有了一个非常有用的方法：transferTo，可以用来将数据直接传输到OutputStream，这是在处理原始数据流时非常常见的一种用法，如下示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileSystemTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ClassLoader loader = FileSystemTest<span class="class">.<span class="keyword">class</span>.<span class="title">getClassLoader</span>()</span>;</span><br><span class="line">        <span class="keyword">try</span> (<span class="keyword">var</span> resourceAsStream = loader.getResourceAsStream(<span class="string">"myFile.txt"</span>))&#123;</span><br><span class="line">            FileOutputStream outputStream = <span class="keyword">new</span> FileOutputStream(<span class="string">"myFile2.txt"</span>);</span><br><span class="line">            <span class="keyword">assert</span> resourceAsStream != <span class="keyword">null</span>;</span><br><span class="line">            resourceAsStream.transferTo(outputStream);</span><br><span class="line">            outputStream.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200420/jxrxQGf4yXm5.png" alt="mark"></p>
-<h1><span id="jdk11-废弃的项目">JDK11 废弃的项目</span></h1><blockquote>
-<p><strong>移除的项目</strong></p>
-</blockquote>
-<ul>
-<li>移除了com.sun.awt.AWTUtilities</li>
-<li>移除了sun.misc.Unsafe.defineClass，使用java.lang.invoke.MethodHandles.Lookup.defineClass来替代</li>
-<li>移除了Thread.destroy()以及 Thread.stop(Throwable)方法</li>
-<li>移除了sun.nio.ch.disableSystemWideOverlappingFileLockCheck、sun.locale.formatasdefault属性</li>
-<li>移除了jdk.snmp模块</li>
-<li>移除了javafx，openjdk是从java10版本就移除了，oracle jdk10还尚未移除javafx，而java11版本则oracle的jdk版本也移除了javafx</li>
-<li>移除了Java Mission Control，从JDK中移除之后，需要自己单独下载</li>
-<li>移除了这些Root Certificates ：Baltimore Cybertrust Code Signing CA，SECOM ，AOL and Swisscom</li>
-</ul>
-<blockquote>
-<p><strong>废弃选项</strong></p>
-</blockquote>
-<ul>
-<li>-XX:+AggressiveOpts选项</li>
-<li>-XX:+UnlockCommercialFeatures（解锁商业性的一些组件，目前已经无需手动加上了）</li>
-<li>-XX:+LogCommercialFeatures选项也不再需要（Log统一了）</li>
-</ul>
-<h1><span id="unicode-10">Unicode 10</span></h1><p>Unicode 10增加了8518个字符，总计达到了136690个字符。并且增加了4个脚本，同时还有56个新的emoji表情符号。</p>
-<h1><span id="remove-the-javaee-and-corba-moudles">Remove the JavaEE and CORBA Moudles</span></h1><p>在Java11中移除了不太使用的JavaEE模块和CORBA技术。CORBA来自于二十世纪九十年代，Oracle说现在用CORBA开发现代Java应用程序已经没有意义了，维护CORBA的成本已经超过了保留它带来的好处。<br>但是删除CORBA将使得那些依赖于JDK提供部分CORBA API的CORBA实现无法运行，目前还没有第三方CORBA版本，也不确定是否会有第三方愿意接手CORBA API的维护工作。<br>在Java11中将Java9标记废弃的Java EE及CORBA模块移除掉，具体如下：</p>
-<ul>
-<li>java.xml.ws</li>
-<li>java.xml.bind</li>
-<li>java.xml.ws</li>
-<li>java.xml.ws.annotation</li>
-<li>jdk.xml.bind</li>
-<li>jdk.xml.ws被移除</li>
-</ul>
-<p>只剩下java.xml、java.xml.crypto、jdk.xml.dom这几个模块；</p>
-<ul>
-<li>java.corba</li>
-<li>java.se.ee</li>
-<li>java.activation</li>
-<li>java.transaction等被移除</li>
-</ul>
-<p>但是Java11新增一个java.transaction.xa模块</p>
-<h1><span id="废除nashorn-javascript引擎">废除Nashorn javascript引擎</span></h1><p>废除Nashorn javascript引擎，在后续版本准备移除掉，有需要的可以考虑使用GraalVM。Graal是一个用Java编写的新的JVM即时编译器，集成到HotSpot虚拟机，侧重性能和语言互操作性。Graal为Java代码提供性能优势，这得益于方法内联、流转对象分配和推理执行等新技术，从而可以实现高性能的脚本语言引擎。<br>与传统的HotSpot编译器不同，脚本语言解释器可以使用Graal包含的Truffle API发出原生代码，这样无需提前编译，即可让编程语言获得Java的性能。语言解释器可以使用HotSpot所用技术提高 Java 代码的速度，包括发出优化的原生代码（含去优化的条件），该技术令即时编译的代码在性能方面优于提前编译的代码。<br>这里是它的官网，可以看到它的官网说明文档： <a href="https://www.graalvm.org/" target="_blank" rel="noopener">https://www.graalvm.org/</a> </p>
-<h1><span id="弃用pack200-tools">弃用Pack200 Tools</span></h1><p>JDK1.5中带了一个压缩工具：Pack200，这个工具能对普通的jar文件进行高效压缩。其实现原理是根据Java类特有的结构，合并常数池，去掉无用信息等来实现对Java类的高效压缩。由于是专门对Java类进行压缩的，所以对普通文件的压缩和普通压缩软件没有什么两样，但是对于Jar文件却能轻易达到10-40%的压缩率。这在Java应用部署中很有用，尤其对于移动Java计算，能够大大减小代码下载量。<br>JDK1.5中还提供了这一技术的API接口，你可以将其嵌入到你的程序中使用。使用的方法很简单，下面的短短几行代码即可以实现jar的压缩和解压：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VarTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//压缩</span></span><br><span class="line">        Packer packer = Pack200.newPacker();</span><br><span class="line">        OutputStream output=<span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span>  FileOutputStream(outfile));</span><br><span class="line">        packer.pack(<span class="keyword">new</span> JarFile(jarFile), output);</span><br><span class="line">        output.close();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//解压</span></span><br><span class="line">        Unpacker unpacker = Pack200.newUnpacker(); </span><br><span class="line">		output=<span class="keyword">new</span> JarOutputStream(<span class="keyword">new</span> FileOutputStream(jarFile)); </span><br><span class="line">		unpacker.unpack(pack200File, output); </span><br><span class="line">		output.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Pack200的压缩和解压缩速度是比较快的，而且压缩率也是很惊人的，在我是使用的包4.46MB压缩后成了1.44MB（0.322%），而且随着包的越大压缩率会根据明显，据说如果jar包都是class类可以压缩到1/9的大小。其实JavaWebStart还有很多功能，例如可以按不同的jar包进行lazy下载和单独更新，设置可以根据jar中的类变动进行class粒度的下载。<br>但是在Java11中废除了Pack200以及unpack200工具以及java.util.jar中的Pack200 API。因为Pack200主要是用来压缩jar包的工具，由于网络下载速度的提升以及Java9引入模块化系统之后不再依赖Pack200，因此这个版本将其移除掉。</p>
-<h1><span id="epsilon垃圾收集器">Epsilon垃圾收集器</span></h1><p>对这个特性的描述是：开发一个处理内存分配但不实现任何实际内存回收机制的GC，一旦可用堆内存用完，JVM就会退出。如果有System.gc()调用，实际上什么也不会发生(这种场景下和-XX:+DisableExplicitGC效果一样)，因为没有内存回收，这个实现可能会警告用户尝试强制GC是徒劳。<br>用法 :<code>-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Garbage</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = (<span class="keyword">int</span>)(Math.random() * <span class="number">100</span>);</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finalize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">this</span> + <span class="string">" : "</span> + n + <span class="string">" is dying"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EpsilonTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</span><br><span class="line">        List&lt;Garbage&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">long</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (flag) &#123;</span><br><span class="line">            list.add(<span class="keyword">new</span> Garbage());</span><br><span class="line">            <span class="keyword">if</span> (list.size() == <span class="number">1000000</span> &amp;&amp; count == <span class="number">0</span>) &#123;</span><br><span class="line">                list.clear();</span><br><span class="line">                count++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"程序结束"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200420/b0HWTDeSLbiO.png" alt="mark"></p>
-<p>使用这个选项的原因：提供完全被动的GC实现，具有有限的分配限制和尽可能低的延迟开销，但代价是内存占用和内存吞吐量。众所周知，Java实现可广泛选择高度可配置的GC实现，各种可用的收集器最终满足不同的需求，即使它们的可配置性使它们的功能相交。有时更容易维护单独的实现，而不是在现有GC实现上堆积另一个配置选项。它的主要用途如下 :</p>
-<ul>
-<li>性能测试（它可以帮助过滤掉GC引起的性能假象）</li>
-<li>内存压力测试（例如，知道测试用例应该分配不超过1GB的内存，我们可以使用-Xmx1g –XX:+UseEpsilonGC, 如果程序有问题，则程序会崩溃）</li>
-<li>非常短的JOB任务(对象这种任务, 接受GC清理堆那都是浪费空间)</li>
-<li>VM接口测试</li>
-<li>Last-drop 延迟&amp;吞吐改进</li>
-</ul>
-<h1><span id="zgc垃圾收集器">ZGC垃圾收集器</span></h1><p>ZGC，这应该是JDK11最为瞩目的特性，没有之一。但是后面带了Experimental，说明这还不建议用到生产环境。</p>
-<p>ZGC，A Scalable Low-Latency Garbage Collector(Experimental)，一个可伸缩低延迟的GC。GC暂停时间不会超过10ms，既能处理几百兆的小堆，也能处理几个T的大堆(OMG)。和G1相比，应用吞吐能力不会下降超过15%，为未来的GC功能和利用colord指针以及Load barriers优化奠定基础，初始只支持64位系统。</p>
-<p>ZGC的设计目标是：支持TB级内存容量，暂停时间低（&lt;10ms），对整个程序吞吐量的影响小于15%。 将来还可以扩展实现机制，以支持不少令人兴奋的功能，例如多层堆（即热对象置于DRAM和冷对象置于NVMe闪存），或压缩堆。GC是java主要优势之一，然而当GC停顿太长，就会开始影响应用的响应时间。消除或者减少GC停顿时长，Java将对更广泛的应用场景是一个更有吸引力的平台。此外，现代系统中可用内存不断增长，用户和程序员希望JVM能够以高效的方式充分利用这些内存，并且无需长时间的GC暂停时间。</p>
-<p>ZGC是一个并发，基于region，压缩型的垃圾收集器，只有root扫描阶段会STW，因此GC停顿时间不会随着堆的增长和存活对象的增长而变长。</p>
-<blockquote>
-<p><strong>ZGC : avg 1.091ms / max:1.681ms</strong></p>
-<p><strong>G1  : avg 156.806ms / max:543.846ms</strong></p>
-</blockquote>
-<p>用法： <code>-XX:+UnlockExperimentalVMOptions –XX:+UseZGC</code> ，因为ZGC还处于实验阶段，所以需要通过JVM参数来解锁这个特性。</p>
-<h1><span id="完全支持linux容器包括docker">完全支持Linux容器（包括Docker）</span></h1><p>许多运行在Java虚拟机中的应用程序（包括Apache Spark和Kafka等数据服务以及传统的企业应用程序）都可以在Docker容器中运行。但是在Docker容器中运行Java应用程序一直存在一个问题，那就是在容器中运行JVM程序在设置内存大小和CPU使用率后，会导致应用程序的性能下降。这是因为Java应用程序没有意识到它正在容器中运行。随着Java 10的发布，这个问题总算得以解决，JVM现在可以识别由容器控制组（cgroups）设置的约束。可以在容器中使用内存和CPU约束来直接管理Java应用程序，其中包括：</p>
-<ul>
-<li>遵守容器中设置的内存限制</li>
-<li>在容器中设置可用的CPU</li>
-<li>在容器中设置CPU约束</li>
-</ul>
-<p>Java 10的这个改进在Docker for Mac、Docker for Windows以及Docker Enterprise Edition等环境均有效。</p>
-<p>容器的内存限制：在Java 9之前，JVM无法识别容器使用标志设置的内存限制和CPU限制。而在Java10中，内存限制会自动被识别并强制执行。</p>
-<p>Java将服务器类机定义为具有2个CPU和2GB内存，以及默认堆大小为物理内存的1/4。例如，Docker企业版安装设置为2GB内存和4个CPU的环境，我们可以比较在这个Docker容器上运行Java8和Java10的区别。</p>
-<h1><span id="支持g1上的并行完全垃圾收集">支持G1上的并行完全垃圾收集</span></h1><p>对于G1 GC，相比于JDK 8，升级到 JDK11即可免费享受到：并行的Full GC，快速的CardTable扫描(这也是G1这个GC的原理)，自适应的堆占用比例调整（IHOP），在并发标记阶段的类型卸载等等。这些都是针对G1的不断增强，其中串行Full GC等甚至是曾经被广泛诟病的短板，你会发现GC配置和调优在JDK11中越来越方便。</p>
-<h1><span id="免费的低耗能飞行记录仪和堆分析仪">免费的低耗能飞行记录仪和堆分析仪</span></h1><p>这个在文章开篇已经说到了，Low-Overhead Heap Profiling相当于是一个非常低耗能的黑匣子，通过JVMTI（TI即ToInterface）的SampledObjectAlloc回调提供了一个开销低的Heap分析方式，提供一个低开销的，为了排错Java应用问题，以及JVM问题的数据收集框架，希望达到的目标如下：</p>
-<ul>
-<li>提供用于生产和消费数据作为事件的API</li>
-<li>提供缓存机制和二进制数据格式</li>
-<li>允许事件配置和事件过滤</li>
-<li>提供OS、JVM和JDK库的事件</li>
-</ul>
-<h1><span id="实现chacha20和poly1305加密算法">实现ChaCha20和Poly1305加密算法</span></h1><p>JDK11实现了RFC7539中指定的ChaCha20和Poly1305两种加密算法，用来代替RC4。RFC7748定义的秘钥协商方案更高效，更安全。JDK增加两个新的接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EpsilonTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        KeyPairGenerator kpg = KeyPairGenerator.getInstance(<span class="string">"XDH"</span>);</span><br><span class="line">        NamedParameterSpec paramSpec = <span class="keyword">new</span> NamedParameterSpec(<span class="string">"X25519"</span>);</span><br><span class="line">        kpg.initialize(paramSpec);</span><br><span class="line">        KeyPair kp = kpg.generateKeyPair();</span><br><span class="line"></span><br><span class="line">        KeyFactory kf = KeyFactory.getInstance(<span class="string">"XDH"</span>);</span><br><span class="line">        BigInteger u = <span class="keyword">new</span> BigInteger(<span class="string">"123456"</span>);</span><br><span class="line">        XECPublicKeySpec pubSpec = <span class="keyword">new</span> XECPublicKeySpec(paramSpec, u);</span><br><span class="line">        PublicKey pubKey = kf.generatePublic(pubSpec);</span><br><span class="line"></span><br><span class="line">        KeyAgreement ka = KeyAgreement.getInstance(<span class="string">"XDH"</span>);</span><br><span class="line">        ka.init(kp.getPrivate());</span><br><span class="line">        ka.doPhase(pubKey, <span class="keyword">true</span>);</span><br><span class="line">        <span class="keyword">byte</span>[] secret = ka.generateSecret();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1><span id="默认根权限证书与https安全协议tls13">默认根权限证书与HTTPS安全协议TLS1.3</span></h1><p>实现TLS协议1.3版本，TLS允许客户端和服务器端通过互联网以一种防止窃听，篡改以及消息伪造的方式进行通信。</p>
-<h1><span id="java-flight-recorder">Java Flight Recorder</span></h1><p>Flight Recorder源自飞机的黑盒子，Flight Recorder以前是商业版的特性，在java11当中开源出来，它可以导出事件到文件中，之后可以用Java Mission Control来分析。可以在应用启动时配置<code>java -XX:StartFlightRecording</code>，或者在应用启动之后，使用jcmd来录制，比如：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ jcmd &lt;pid&gt; JFR.start</span><br><span class="line">$ jcmd &lt;pid&gt; JFR.dump filename=recording.jfr</span><br><span class="line">$ jcmd &lt;pid&gt; JFR.stop</span><br></pre></td></tr></table></figure>
-
-<p>Flight Recorder是Oracle 刚刚开源的强大特性。我们知道在生产系统进行不同角度的 Profiling，有各种工具、框架，但是能力范围、可靠性、开销等，大都差强人意，要么能力不全面，要么开销太大，甚至不可靠可能导致Java 应用进程宕机。</p>
-<p>而 JFR 是一套集成进入 JDK、JVM 内部的事件机制框架，通过良好架构和设计的框架，硬件层面的极致优化，生产环境的广泛验证，它可以做到极致的可靠和低开销。在 SPECjbb2015 等基准测试中，JFR 的性能开销最大不超过1%，所以，工程师可以基本没有心理负担地在大规模分布式的生产系统使用，这意味着，我们既可以随时主动开启 JFR 进行特定诊断，也可以让系统长期运行 JFR，用以在复杂环境中进行After-the-fact分析。还需要苦恼重现随机问题吗？JFR 让问题简化了很多。</p>
-<p>在保证低开销的基础上，JFR 提供的能力也令人眼前一亮，例如：我们无需 BCI 就可以进行 Object Allocation Profiling，终于不用担心BTrace之类把进程搞挂了。对锁竞争、阻塞、延迟，JVM GC、SafePoint 等领域，进行非常细粒度分析。甚至深入JIT Compiler内部，全面把握热点方法、内联、逆优化等等。JFR 提供了标准的 Java、C++等扩展API，可以与各种层面的应用进行定制、集成，为复杂的企业应用栈或者复杂的分布式应用，提供All-in-One解决方案，而这一切都是内建在JDK和 JVM内部的，并不需要额外的依赖，开箱即用。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -402,21 +275,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -424,176 +297,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2566926808.html" title="JDK11新特性" target="_blank">https://zouchanglin.cn/2566926808.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">GC</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2566926808.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1483473757.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          什么是可中断锁
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2494561989.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">JDK9新特性(二)</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Dynamic Class-File Constants</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">局部变量类型推断 var</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">新增字符串处理 API</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">新增的文件 API</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">JDK11 废弃的项目</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">Unicode 10</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">Remove the JavaEE and CORBA Moudles</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">废除Nashorn javascript引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">弃用Pack200 Tools</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">10.</span> <span class="toc-text">Epsilon垃圾收集器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">11.</span> <span class="toc-text">ZGC垃圾收集器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">12.</span> <span class="toc-text">完全支持Linux容器（包括Docker）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">13.</span> <span class="toc-text">支持G1上的并行完全垃圾收集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">14.</span> <span class="toc-text">免费的低耗能飞行记录仪和堆分析仪</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">15.</span> <span class="toc-text">实现ChaCha20和Poly1305加密算法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">16.</span> <span class="toc-text">默认根权限证书与HTTPS安全协议TLS1.3</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">17.</span> <span class="toc-text">Java Flight Recorder</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -602,13 +367,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

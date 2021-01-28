@@ -210,100 +210,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Jsoup实战(正方教务系统爬取)" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Jsoup实战(正方教务系统爬取)
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/628369017.html" class="archive-article-date">
-        <time datetime="2020-08-19T14:09:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-19</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.3k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>其实很人都以为Python才可以做爬虫，其实C++与Java照样也是可以的，因为爬虫的原理很简单，无非就是分析HTTP(s)请求，然后通过代码模拟浏览器去发起请求，对于发起网络请求框架的我选择的是Apache的OKHttp，毕竟自己手动拼接HTTP请求体还是工作量比较大的一个事情。拿到网页后就需要解析网页关键内容，此时Jsoup就发挥作用了，通过节点选择器 + 表达式可以很方便的拿到想要的数据，在我的开源项目中可以看到这个爬取过程的核心实现，<a href="https://gitee.com/zouchanglin/spider_xpu" target="_blank" rel="noopener">https://gitee.com/zouchanglin/spider_xpu</a></p>
-<a id="more"></a>
-
-<h2><span id="httpclient">HttpClient</span></h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.httpcomponents<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>httpclient<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.5.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2><span id="jsoup">Jsoup</span></h2><p>我们抓取到页面之后，还需要对页而进行解析。可以使用字符串处理工具解析页面，也可以使用正则表达式，但是这些方法都会带来很大的开发成本，所以我们需要使用一款专门解析HTML页面的技术。</p>
-<h3><span id="jsoup介绍">jsoup介绍</span></h3><p>Jsoup是一款Java的HTML解析器，可直接解析某个URL地址、HTML文木内容。它提供了一套非常省力的API，可通过DOM，CSS以及类似于jQuery的操作方法来取出和操作数据。</p>
-<h3><span id="jsoup的主要功能">Jsoup的主要功能</span></h3><p>1.从一个URL，文件或字符串中解析HTML;</p>
-<p>2.使用DOM或CSS选择器来查找、取出数据;</p>
-<p>3.可操作HTML元素、属性、文本;</p>
-<h3><span id="jsoup实战">Jsoup实战</span></h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.httpcomponents<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>httpclient<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.5.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.25<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.jsoup<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jsoup<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.11.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-io<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-io<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang3<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testUrl</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Document document = Jsoup.parse(<span class="keyword">new</span> URL(<span class="string">"http://zouchanglin.cn"</span>), <span class="number">5000</span>);</span><br><span class="line">    String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">    System.out.println(title);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testString</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    String html = FileUtils.readFileToString(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">    Document document = Jsoup.parse(html);</span><br><span class="line">    String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">    System.out.println(title);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">    String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">    System.out.println(title);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>虽然使用Jsoup可以替代HttpClient直接发起请求解析数据，但是往往不会这样用，因为实际的开发过程中，需要使用到多线程，连接池，代理等等方式，而Jsoup对这些的支持并不是很好，所以我们一般把Jsoup仅仅作为Html<br>解析工具使用。</p>
-<h3><span id="dom方式遍历文档">Dom方式遍历文档</span></h3><p>元素获取<br>1、根据id查询元素getElementByld<br>2、根据标签获取元素getElementsByTag<br>3、根据class获取元素getElementsByClass<br>4、根据属性获取元素getElementsByAttribute</p>
-<p>元素中获取数据<br>1、从元素中获取id<br>2、从元素中获取className<br>3、从元素中获取属性的值 attr<br>4、从元素中获取所有属性attributes<br>5、从元素中获取文本内容text</p>
-<h3><span id="selector选择器">Selector选择器</span></h3><p><code>tagname</code>：通过标签查找元素，比如: <code>span</code><br><code>#id</code>：通过ID查找元素，比如: <code>#city_bj</code><br><code>.class</code>：通过class名称查找元素，比如: <code>.class_a</code></p>
-<p><code>[attribute]</code>：利用属性查找元素，比如:<code>[abc]</code></p>
-<p><code>[attr=value]</code>：利用属性值来查找元素，比如: <code>[class=s_name]</code></p>
-<h3><span id="selector选择器组合使用">Selector选择器组合使用</span></h3><p><code>el#id</code>：元素+ID，比如：<code>h3#3city_bj</code><br><code>el.class</code>：元素+class，比如：<code>li.class_a</code><br><code>el[attr]</code>：元素+属性名，比如：<code>span[abc]</code><br>任意组合：比如: <code>span[abc].s_name</code><br><code>ancestor child</code>：查找某个元素下子元素，比如: <code>.city_con li</code>查找city_con下的所有li<br><code>parent &gt; child</code>：查找某个父元素下的直接子元素，比如：<code>.city_con &gt; ul &gt; li</code>查找city_con第一级（直接子元素）的ul，再找所有ul下的第一级li<br><code>parent &gt; *</code>：查找某个父元素下所有直接子元素</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> jsoup;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.io.FileUtils;</span><br><span class="line"><span class="keyword">import</span> org.jsoup.Jsoup;</span><br><span class="line"><span class="keyword">import</span> org.jsoup.nodes.Attributes;</span><br><span class="line"><span class="keyword">import</span> org.jsoup.nodes.Document;</span><br><span class="line"><span class="keyword">import</span> org.jsoup.nodes.Element;</span><br><span class="line"><span class="keyword">import</span> org.jsoup.select.Elements;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.util.regex.Matcher;</span><br><span class="line"><span class="keyword">import</span> java.util.regex.Pattern;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JsoupFirstTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testUrl</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> URL(<span class="string">"http://zouchanglin.cn"</span>), <span class="number">5000</span>);</span><br><span class="line">        String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">        System.out.println(title);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testString</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        String html = FileUtils.readFileToString(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        Document document = Jsoup.parse(html);</span><br><span class="line">        String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">        System.out.println(title);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFile</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        String title = document.getElementsByTag(<span class="string">"title"</span>).first().text();</span><br><span class="line">        System.out.println(title);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDom</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 1、根据id查询元素getElementByld</span></span><br><span class="line"><span class="comment">         * 2、根据标签获取元素getElementsByTag</span></span><br><span class="line"><span class="comment">         * 3、根据class获取元素getElementsByClass</span></span><br><span class="line"><span class="comment">         * 4、根据属性获取元素getElementsByAttribute</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        Element element = document.getElementById(<span class="string">"threeSpan"</span>);</span><br><span class="line">        System.out.println(<span class="string">"threeSpan内容是："</span> + element);</span><br><span class="line"></span><br><span class="line">        System.out.println(element.getElementsByTag(<span class="string">"a"</span>).first().attr(<span class="string">"href"</span>));</span><br><span class="line"></span><br><span class="line">        Elements spans = document.getElementsByTag(<span class="string">"span"</span>);</span><br><span class="line">        <span class="keyword">for</span>(Element el: spans) System.out.println(el);</span><br><span class="line"></span><br><span class="line">        System.out.println(document.getElementsByAttributeValue(<span class="string">"type"</span>, <span class="string">"button"</span>).first());</span><br><span class="line">        System.out.println(document.getElementsByAttributeValue(<span class="string">"type"</span>, <span class="string">"button"</span>).first().attr(<span class="string">"value"</span>));</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 1、从元素中获取id</span></span><br><span class="line"><span class="comment">         * 2、从元素中获取className</span></span><br><span class="line"><span class="comment">         * 3、从元素中获取属性的值 attr</span></span><br><span class="line"><span class="comment">         * 4、从元素中获取所有属性attributes</span></span><br><span class="line"><span class="comment">         * 5、从元素中获取文本内容text</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Element button = document.getElementsByAttributeValue(<span class="string">"type"</span>, <span class="string">"button"</span>).first();</span><br><span class="line">        Attributes attributes = button.attributes();</span><br><span class="line">        System.out.println(attributes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSelector</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * `tagname`：通过标签查找元素，比如: `span`</span></span><br><span class="line"><span class="comment">         * `#id`：通过ID查找元素，比如: `#city_bj`</span></span><br><span class="line"><span class="comment">         * `.class`：通过class名称查找元素，比如: `.class_a`</span></span><br><span class="line"><span class="comment">         * `[attribute]`：利用属性查找元素，比如:`[abc]`</span></span><br><span class="line"><span class="comment">         * `[attr=value]`：利用属性值来查找元素，比如: `[class=s_name]`</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        Elements span = document.select(<span class="string">"span"</span>);</span><br><span class="line">        System.out.println(span);</span><br><span class="line">        System.out.println(<span class="string">"==============================="</span>);</span><br><span class="line">        System.out.println(document.select(<span class="string">"#threeSpan"</span>).first());</span><br><span class="line">        System.out.println(document.select(<span class="string">"#threeSpan"</span>).first().text());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSelectorTwo</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * `el#id`：元素+ID，比如：`h3#3city_bj`</span></span><br><span class="line"><span class="comment">         * `el.class`：元素+class，比如：`li.class_a`</span></span><br><span class="line"><span class="comment">         * `el[attr]`：元素+属性名，比如：`span[abc]`</span></span><br><span class="line"><span class="comment">         * 任意组合：比如: `span[abc].s_name`</span></span><br><span class="line"><span class="comment">         * `ancestor child`：查找某个元素下子元素，比如: `.city_con li`查找""city_con"下的所有li</span></span><br><span class="line"><span class="comment">         * `parent &gt; child`：查找某个父元素下的直接子元素，比如：`.city_con &gt; ul &gt; li`查找city_con第一级（直接子元素）的ul，再找所有ul下的第一级li</span></span><br><span class="line"><span class="comment">         * `parent &gt; *`：查找某个父元素下所有直接子元素</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\index.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        System.out.println(document.select(<span class="string">"span#oneSpan"</span>).first());</span><br><span class="line">        System.out.println(document.select(<span class="string">"span[style]"</span>).first());</span><br><span class="line">        System.out.println(document.select(<span class="string">".my_div div"</span>));</span><br><span class="line">        System.out.println(<span class="string">"======================================"</span>);</span><br><span class="line">        System.out.println(document.select(<span class="string">".my_div &gt; div"</span>));</span><br><span class="line">        System.out.println(<span class="string">"======================================"</span>);</span><br><span class="line">        System.out.println(document.select(<span class="string">".my_div *"</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">course</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        Document document = Jsoup.parse(<span class="keyword">new</span> File(<span class="string">"C:\\Users\\15291\\Desktop\\new 10.html"</span>), <span class="string">"UTF-8"</span>);</span><br><span class="line">        Element tbody = document.select(<span class="string">"table.blacktab &gt; tbody"</span>).first();</span><br><span class="line">        Elements tds = tbody.select(<span class="string">"tr td"</span>);</span><br><span class="line">        <span class="keyword">for</span>(Element td: tds)&#123;</span><br><span class="line">            String tdContent = td.text();</span><br><span class="line">            <span class="keyword">if</span>(tdContent.contains(<span class="string">"&#123;"</span>))&#123;</span><br><span class="line">                System.out.println(tdContent);</span><br><span class="line">                handel(tdContent);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handel</span><span class="params">(String tdContent)</span> </span>&#123;</span><br><span class="line">        String[] split = tdContent.split(<span class="string">" "</span>);</span><br><span class="line">        System.out.print(split[<span class="number">0</span>] + <span class="string">"\t"</span>);</span><br><span class="line">        System.out.print(split[<span class="number">1</span>].substring(<span class="number">0</span>, <span class="number">2</span>) + <span class="string">"\t"</span>);</span><br><span class="line"></span><br><span class="line">        System.out.print(split[<span class="number">1</span>].substring(split[<span class="number">1</span>].indexOf(<span class="string">"第"</span>)+<span class="number">1</span>, split[<span class="number">1</span>].indexOf(<span class="string">"节"</span>)) + <span class="string">"\t"</span>);</span><br><span class="line">        System.out.print(split[<span class="number">1</span>].substring(split[<span class="number">1</span>].indexOf(<span class="string">"&#123;"</span>)+<span class="number">2</span>, split[<span class="number">1</span>].indexOf(<span class="string">"&#125;"</span>) - <span class="number">1</span>) + <span class="string">"\t"</span>);</span><br><span class="line">        System.out.print(split[<span class="number">2</span>] + <span class="string">"\t"</span>);</span><br><span class="line">        System.out.print(split[<span class="number">3</span>] + <span class="string">"\t"</span>);</span><br><span class="line">        System.out.println(<span class="string">""</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="正方教务爬虫">正方教务爬虫</span></h2><p> 1、引入依赖 </p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.gitee.zouchanglin<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spider_xpu<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">repositories</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>jitpack.io<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://jitpack.io<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repositories</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>2、使用示例</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cn.zouchanglin.spider_xpu.SpiderResult;</span><br><span class="line"><span class="keyword">import</span> cn.zouchanglin.spider_xpu.cache.ResultCache;</span><br><span class="line"><span class="keyword">import</span> cn.zouchanglin.spider_xpu.core.SpiderCore;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.security.auth.login.LoginException;</span><br><span class="line"><span class="keyword">import</span> java.awt.*;</span><br><span class="line"><span class="keyword">import</span> java.net.URI;</span><br><span class="line"><span class="keyword">import</span> java.util.Scanner;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// Key就是一个标识用户唯一的键（如可以传OpenId、UnionId、学号、身份证号等）</span></span><br><span class="line">        <span class="comment">// TODO 填充Key、userId、password等字段</span></span><br><span class="line">        String key = <span class="string">""</span>;</span><br><span class="line">        String userId = <span class="string">""</span>;</span><br><span class="line">        String passsword = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1、获取验证码URL</span></span><br><span class="line">        String url = SpiderCore.getCheckCodeUrl(key);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 打开浏览器并输入验证码</span></span><br><span class="line">        Desktop desktop = Desktop.getDesktop();</span><br><span class="line">        <span class="keyword">if</span> (Desktop.isDesktopSupported() &amp;&amp; desktop.isSupported(Desktop.Action.BROWSE)) &#123;</span><br><span class="line">            URI uri = <span class="keyword">new</span> URI(url);</span><br><span class="line">            desktop.browse(uri);</span><br><span class="line">        &#125;</span><br><span class="line">        Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</span><br><span class="line">        String code = scanner.nextLine();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记录用时</span></span><br><span class="line">        <span class="keyword">long</span> millis = System.currentTimeMillis();</span><br><span class="line">        SpiderResult spiderResult = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 2、获取同步调用结果只返回用户信息 + 当前学年的课表</span></span><br><span class="line">            spiderResult = SpiderCore.go(userId, password, code, key);</span><br><span class="line">        &#125;<span class="keyword">catch</span> (LoginException e)&#123;</span><br><span class="line">            <span class="comment">// 登录失败</span></span><br><span class="line">            System.out.println(e.toString());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 同步调用结果</span></span><br><span class="line">        System.out.println(<span class="string">"同步调用只返回用户信息+当前学年的课表："</span> + spiderResult);</span><br><span class="line">        System.out.println(<span class="string">"执行耗时:"</span> + (System.currentTimeMillis() - millis));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 阻塞等待缓存池中存在结果对象</span></span><br><span class="line">        <span class="keyword">while</span>(!ResultCache.SPIDER_RESULT_CACHE.containsKey(key));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 取出缓存池中的结果</span></span><br><span class="line">        SpiderResult result = ResultCache.SPIDER_RESULT_CACHE.get(key);</span><br><span class="line">        System.out.println(result);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//TODO 持久化</span></span><br><span class="line">        System.out.println(<span class="string">"完成持久化...."</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从缓存池中移除结果对象</span></span><br><span class="line">        ResultCache.SPIDER_RESULT_CACHE.remove(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过对学生信息和学生所有课表的爬取，效果还不错！</p>
-<p><img src="https://img.zouchanglin.cn/blog/20200915/ysMdOeQ3HPse.png" alt="mark"></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -313,21 +273,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -335,176 +295,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/628369017.html" title="Jsoup实战(正方教务系统爬取)" target="_blank">https://zouchanglin.cn/628369017.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Jsoup</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Http	Client</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/网络爬虫//" class="article-tag-list-link color5">网络爬虫</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/628369017.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2586075670.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          观察者模式
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3887185772.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">基于Netty实现PRC框架</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">HttpClient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Jsoup</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">jsoup介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">Jsoup的主要功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">Jsoup实战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">Dom方式遍历文档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.5.</span> <span class="toc-text">Selector选择器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.</span> <span class="toc-text">Selector选择器组合使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">正方教务爬虫</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -513,13 +365,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

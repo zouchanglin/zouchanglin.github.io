@@ -215,134 +215,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-性能分析工具ShowProfile" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      性能分析工具ShowProfile
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1560112675.html" class="archive-article-date">
-        <time datetime="2019-10-23T10:36:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-23</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.5k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">6分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>Show Profile是mysql提供的可以用来分析当前会话中sql语句执行的资源消耗情况的工具，可用于sql调优的测量。默认情况下处于关闭状态，并保存最近15次的运行结果。  通过show profiles查看sql语句的耗时时间，然后通过show profile命令对耗时时间长的sql语句进行诊断 。注意show profile诊断结果中出现相关字段的含义，判断是否需要优化sql语句 </p>
-<a id="more"></a>
-
-<h1><span id="sql批量插入">SQL批量插入</span></h1><h2><span id="1-建库建表">1、建库建表</span></h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> dept(</span><br><span class="line">	<span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> PRIMARY <span class="keyword">KEY</span> AUTO_INCREMENT,</span><br><span class="line">	deptno MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">	dname <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span>,</span><br><span class="line">	loc <span class="built_in">VARCHAR</span>(<span class="number">13</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">INNODB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=GBK;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> emp(</span><br><span class="line">	<span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> PRIMARY <span class="keyword">KEY</span> AUTO_INCREMENT,</span><br><span class="line">	empno MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>, <span class="comment">/*编号*/</span></span><br><span class="line">	ename <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span>,<span class="comment">/*名字*/</span></span><br><span class="line">	job <span class="built_in">VARCHAR</span>(<span class="number">9</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">""</span>,<span class="comment">/*工作*/</span></span><br><span class="line">	mgr MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,<span class="comment">/*上级编号*/</span></span><br><span class="line">	hiredate <span class="built_in">DATE</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/*入职时间*/</span></span><br><span class="line">	sal <span class="built_in">DECIMAL</span>(<span class="number">7</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/* 薪水*/</span></span><br><span class="line">	comm <span class="built_in">DECIMAL</span>(<span class="number">7</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,<span class="comment">/*红利*/</span></span><br><span class="line">	deptno MEDIUMINT <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="comment">/*部门编号*/</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">INNODB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=GBK;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="2-设置参数">2、设置参数</span></h2><p>创建函数，假如报错: This function has none of DETERMINIST…， 由于开启过慢查询日志，因为我们开启了bin-log，我们就必须为我们的function指定一个参数。</p>
-<p><img src="https://img.zouchanglin.cn///20200202/P9RaufdEqxzn.png" alt="mark"></p>
-<p>但是这样设置会导致的问题是：如果MySQL重启，上述参数又会丢失，所以到达到永久配置的效果，需要修改配置文件，在<code>/etc/my.cnf[mysqld]</code>下加上 global log_bin_trust_function_creators=1;</p>
-<h2><span id="3-创建函数保证数据的随机性">3、创建函数，保证数据的随机性</span></h2><p>随机产生字符串</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER $$</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> rand_string(n <span class="built_in">INT</span>) <span class="keyword">RETURNS</span> <span class="built_in">VARCHAR</span>(<span class="number">255</span>)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"> <span class="keyword">DECLARE</span> chars_str <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="string">'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ'</span>;</span><br><span class="line"> <span class="keyword">DECLARE</span> return_str <span class="built_in">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="string">''</span>;</span><br><span class="line"> <span class="keyword">DECLARE</span> i <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line"> WHILE i&lt; n DO</span><br><span class="line"> <span class="keyword">SET</span> return_str = <span class="keyword">CONCAT</span>(return_str, <span class="keyword">SUBSTRING</span>(chars_str,<span class="keyword">FLOOR</span>(<span class="number">1</span>+<span class="keyword">RAND</span>()*<span class="number">52</span>),<span class="number">1</span>));</span><br><span class="line"> <span class="keyword">SET</span> i = i + <span class="number">1</span>;</span><br><span class="line"> <span class="keyword">END</span> <span class="keyword">WHILE</span>;</span><br><span class="line"> RETURN return_str;</span><br><span class="line"><span class="keyword">END</span> $$</span><br></pre></td></tr></table></figure>
-
-<p>随机产生数字编号</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER $$</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> rand_num( ) <span class="keyword">RETURNS</span> <span class="built_in">INT</span>(<span class="number">5</span>)</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"> <span class="keyword">DECLARE</span> i <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line"> <span class="keyword">SET</span> i = <span class="keyword">FLOOR</span>(<span class="number">100</span> + <span class="keyword">RAND</span>()*<span class="number">10</span>);</span><br><span class="line">RETURN i;</span><br><span class="line"><span class="keyword">END</span> $$</span><br></pre></td></tr></table></figure>
-
-<h2><span id="4-创建存储过程">4、创建存储过程</span></h2><p>向emp表存储数据的存储过程</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 建立存储过程（插入数据emp）*/</span></span><br><span class="line">DELIMITER $$</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> insert_emp(<span class="keyword">IN</span> <span class="keyword">START</span> <span class="built_in">INT</span>(<span class="number">10</span>) ,<span class="keyword">IN</span> max_num <span class="built_in">INT</span>(<span class="number">10</span>) )</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"><span class="keyword">DECLARE</span> i <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line"><span class="comment">#set autocommit =0把autocommit设置成0</span></span><br><span class="line"><span class="keyword">SET</span> autocommit = <span class="number">0</span>;</span><br><span class="line"> REPEAT</span><br><span class="line"> <span class="keyword">SET</span> i = i + <span class="number">1</span>;</span><br><span class="line"> <span class="keyword">INSERT</span> <span class="keyword">INTO</span> emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) <span class="keyword">VALUES</span> ((<span class="keyword">START</span>+i), rand_string(<span class="number">6</span>) , <span class="string">'SALESMAN'</span>, <span class="number">0001</span>, <span class="keyword">CURDATE</span>(), <span class="number">2000</span>, <span class="number">400</span>, rand_num());</span><br><span class="line"> UNTIL i = max_num</span><br><span class="line"> <span class="keyword">END</span> <span class="keyword">REPEAT</span>;</span><br><span class="line"> <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">END</span> $$</span><br></pre></td></tr></table></figure>
-
-<p>向dept表存储数据的存储过程</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 向dept表存储数据的存储过程 */</span></span><br><span class="line">DELIMITER $$</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> insert_dept(<span class="keyword">IN</span> <span class="keyword">START</span> <span class="built_in">INT</span>(<span class="number">10</span>),<span class="keyword">IN</span> max_num <span class="built_in">INT</span>(<span class="number">10</span>))</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"><span class="keyword">DECLARE</span> i <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line"><span class="keyword">SET</span> autocommit = <span class="number">0</span>; </span><br><span class="line">REPEAT</span><br><span class="line"><span class="keyword">SET</span> i = i+ <span class="number">1</span>;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> dept(deptno, dname, loc) <span class="keyword">VALUES</span> ((<span class="keyword">START</span>+i) ,rand_string(<span class="number">10</span>), rand_string(<span class="number">8</span>));</span><br><span class="line">UNTIL i = max_num</span><br><span class="line"><span class="keyword">END</span> <span class="keyword">REPEAT</span>;</span><br><span class="line"><span class="keyword">COMMIT</span>; </span><br><span class="line"><span class="keyword">END</span> $$</span><br></pre></td></tr></table></figure>
-
-<h2><span id="5-调用存储过程">5、调用存储过程</span></h2><p>由于定义函数的时候是以<code>$$</code> 这个符号作为结束符，现在要更换为普通语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER;</span><br></pre></td></tr></table></figure>
-
-<p>下面开始调用：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CALL</span> insert_dept(<span class="number">100</span>, <span class="number">10</span>);</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/jn3Sl3lo8Skz.png" alt="mark"></p>
-<p>试试向emp表添加50万条数据：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CALL</span> insert_emp(<span class="number">100001</span>, <span class="number">500000</span>);</span><br></pre></td></tr></table></figure>
-
-<p>哈哈，虚拟机还可以，OK 妥妥的50万条数据！<br><img src="https://img.zouchanglin.cn///20200202/yQQHQee71YNk.png" alt="mark"></p>
-<h1><span id="show-profiles">Show profiles</span></h1><h2><span id="1-show-profiles是什么">1、Show profiles是什么</span></h2><p>Show profiles是什么：是mysql提供可以用来分析当前会话中语句执行的资源消耗情况，可以用于SQL的调优测量</p>
-<p>这就好比去超市买东西，买什么东西花了多少钱都是有明确的记录的，Show profiles也是一样，记录SQL执行步骤耗时，每一步都做了记录。默认情况下，参数处于关闭状态，并保存最近15次的运行结果</p>
-<h2><span id="2-show-profiles分析步骤">2、Show profiles分析步骤</span></h2><p>① 查看当前版本是否支持</p>
-<p>② 开启功能，默认是关闭，使用前需要开启</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'profiling%'</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://img.zouchanglin.cn///20200202/XWeqlJmqCPXb.png" alt="mark"></p>
-<p>把之前的测试数据放过来</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tbl_dept(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">not</span> <span class="literal">NULL</span> auto_increment,</span><br><span class="line">    deptName <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="keyword">default</span> <span class="literal">NULL</span>,</span><br><span class="line">    locAdd <span class="built_in">varchar</span>(<span class="number">40</span>) <span class="keyword">default</span> <span class="literal">NULL</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">engine</span>=<span class="keyword">INNODB</span> auto_increment=<span class="number">1</span> <span class="keyword">default</span> <span class="keyword">charset</span>=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tbl_emp(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    <span class="keyword">name</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">default</span> <span class="literal">null</span>,</span><br><span class="line">    deptId <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">default</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (<span class="keyword">id</span>),</span><br><span class="line">    <span class="keyword">key</span> fk_dept_id(deptId)</span><br><span class="line">    <span class="comment">#constraint fk_dept_id foregin key('deptId') references tbl_dept(id)</span></span><br><span class="line">)<span class="keyword">engine</span>=<span class="keyword">innodb</span> auto_increment=<span class="number">1</span> <span class="keyword">default</span> <span class="keyword">charset</span>=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_dept(deptName, locAdd) <span class="keyword">values</span> (<span class="string">'RD'</span>, <span class="number">11</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_dept(deptName, locAdd) <span class="keyword">values</span> (<span class="string">'HR'</span>, <span class="number">12</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_dept(deptName, locAdd) <span class="keyword">values</span> (<span class="string">'MK'</span>, <span class="number">13</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_dept(deptName, locAdd) <span class="keyword">values</span> (<span class="string">'MIS'</span>, <span class="number">14</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_dept(deptName, locAdd) <span class="keyword">values</span> (<span class="string">'FD'</span>, <span class="number">15</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'z3'</span>, <span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'z4'</span>, <span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'z5'</span>, <span class="number">1</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'z3'</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'w5'</span>, <span class="number">2</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">VALUES</span> (<span class="string">'w6'</span>, <span class="number">2</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">values</span> (<span class="string">'s7'</span>, <span class="number">3</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">values</span> (<span class="string">'s8'</span>, <span class="number">4</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_emp(<span class="keyword">name</span>, deptId) <span class="keyword">values</span> (<span class="string">'s9'</span>, <span class="number">51</span>);</span><br></pre></td></tr></table></figure>
-
-<p>然后开启Show profile，进行了几条查询再show profile</p>
-<p><img src="https://img.zouchanglin.cn///20200202/Bk1umkvWmiwn.png" alt="mark"></p>
-<p>下面开始选取一条开始分析。</p>
-<h2><span id="3-分析执行过程">3、分析执行过程</span></h2><p>现在假设分析的是语句3 ，也就是select * from tbl_dept:</p>
-<p><img src="https://img.zouchanglin.cn///20200202/OjWzR2hhq4h4.png" alt="mark"></p>
-<p>从上面可以看出，通过show profile 的分析，完整的呈现了一条SQL执行的全流程，配合着MySQL架构模型，其实很容易看出，先进行权限检查，打开表，初始化，优化器优化等等一系列的执行流程…</p>
-<p>只能查看CPU和IO吗？当然不是，下面给出了常用的查询字段：</p>
-<p>①ALL：显示所有的开销信息。</p>
-<p>②BLOCK IO：显示块IO开销。</p>
-<p>③CONTEXT SWITCHES：上下文切换开销。</p>
-<p>④CPU：显示CPU开销信息。</p>
-<p>⑤IPC：显示发送和接收开销信息。</p>
-<p>⑥MEMORY：显示内存开销信息。</p>
-<p>⑦PAGE FAULTS：显示页面错误开销信息。</p>
-<p>⑧SOURCE：显示和Source_function，Source_file，Source_line相关的开销信息。</p>
-<p>⑨SWAPS：显示交换次数开销信息</p>
-<h2><span id="4-日常开发需要注意的结论">4、日常开发需要注意的结论</span></h2><p>Status里面出现的字段：</p>
-<p>① converting HEAP to MyISAM 查询结果太大，内存都不够用了往磁盘上搬了。</p>
-<p>② creating tmp table 创建临时表：说说创建临时表为什么这么费事呢？首先需要新建临时表，然后需要拷贝数据到临时表，数据推送后需要删除数据，这也就是为什么创建临时表非常损耗性能的原因</p>
-<p>③ copying to tmp table on disk 把内存中临时表复制到磁盘，危险！！！这说明临时表都存不下了，只能往磁盘丢</p>
-<p>④ locked 锁定了</p>
-<p> 如果在show profile诊断结果中出现了以上4条结果中的任何一条，则sql语句需要优化。 </p>
-<p>下面看看临时表的处理过程：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/ydo98jhKoGMo.png" alt="mark"></p>
-<p>可以看出，拷贝数据到临时表是非常消耗时间的！</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -352,21 +278,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -374,172 +300,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1560112675.html" title="性能分析工具ShowProfile" target="_blank">https://zouchanglin.cn/1560112675.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据库//" class="article-tag-list-link color4">数据库</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1560112675.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2054529740.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          MySQL全局查询日志
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3131155009.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">SSH免密登录</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">SQL批量插入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">1、建库建表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">2、设置参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">3、创建函数，保证数据的随机性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">4、创建存储过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">5、调用存储过程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Show profiles</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、Show profiles是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、Show profiles分析步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、分析执行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">4、日常开发需要注意的结论</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -548,13 +370,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

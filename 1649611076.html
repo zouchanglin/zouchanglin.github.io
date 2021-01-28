@@ -237,193 +237,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-如何避免MySQL索引失效与三个优化实例" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      如何避免MySQL索引失效与三个优化实例
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1649611076.html" class="archive-article-date">
-        <time datetime="2019-09-21T15:25:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-09-21</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.2k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">12分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>最好是查找的值都是建立索引的字段，要遵守最佳左前缀匹配法则，第一个索引没用上其他的都用不上，中间的索引没用上后面的也用不上。索引字段不要函数计算、自动或手动的类型转换。凡是在范围条件之后的索引全部失效，like的百分号写在最后边，实在是需要两边都是百分号那么建立索引，并且别查找其他非索引字段，也就是尽量别写select * 。尽量不使用不等于、大于、小于等条件，尽量不要使用or进行连接，否则会导致索引失效。对于varchar类型的字段不要忘记写引号，避免发生隐式类型转换。</p>
-<a id="more"></a>
-
-<h2><span id="索引分析">索引分析</span></h2><h3><span id="案例一-单表分析">案例一 单表分析</span></h3><p>假设这样一张表，下面是建表语句</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`article`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`author_id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`category_id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`views`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`comments`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`title`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`content`</span> <span class="built_in">text</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="comment">-- Records of article</span></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">'1'</span>, <span class="string">'1'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="string">'2'</span>, <span class="string">'2'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`article`</span> <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="string">'3'</span>, <span class="string">'3'</span>);</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
-
-<p> <img src="https://img.zouchanglin.cn///20200202/z9FPkCVhztO9.png" alt="mark"> </p>
-<p>查询 category_id为1且 comments大于1的情况下，views最多的 article_id：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> <span class="keyword">id</span>, author_id <span class="keyword">from</span> article <span class="keyword">where</span> category_id = <span class="number">1</span> <span class="keyword">and</span> comments &gt; <span class="number">1</span> <span class="keyword">order</span> <span class="keyword">by</span> views <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/Elz9Xc378OuI.png" alt="mark"></p>
-<p>很显然，type是ALL，即最坏的情况。Exta里还出现了 Using filesort 也是最坏的情况。优化是必须的，先来看看这张表的索引：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show index from article;</span><br><span class="line">+<span class="comment">---------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+</span></span><br><span class="line">| Table   | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | <span class="keyword">Comment</span> | Index_comment |</span><br><span class="line">+<span class="comment">---------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+</span></span><br><span class="line">| article |          <span class="number">0</span> | PRIMARY  |            <span class="number">1</span> | <span class="keyword">id</span>          | A         |           <span class="number">2</span> |     <span class="literal">NULL</span> | <span class="literal">NULL</span>   |      | BTREE      |         |               |</span><br><span class="line">+<span class="comment">---------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
-
-<p>很显然，只有主键索引。那么接下来开始建索引吧，有两种方式：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> article <span class="keyword">add</span> <span class="keyword">index</span> idx_article_ccv(category_id, comments, views);</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_article_ccv <span class="keyword">on</span> article(category_id, comments, views);</span><br></pre></td></tr></table></figure>
-
-<p>建好索引后</p>
-<p><img src="https://img.zouchanglin.cn///20200202/iBEL8NPbm34n.png" alt="mark"></p>
-<p>关于Using index condition <a href="https://blog.csdn.net/z69183787/article/details/53393153" target="_blank" rel="noopener">https://blog.csdn.net/z69183787/article/details/53393153</a> 。 建立索引后，也可以明显看出来用到了索引，避免了全表扫描，但是还是存在文件排序：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/6rI9mRldVcgX.png" alt="mark"></p>
-<p>这是为什么呢？原因是我们SQL语句中的&gt;1， &gt;1是个范围，如果改成=1呢？</p>
-<p><img src="https://img.zouchanglin.cn///20200202/A8V2gTHLbqPf.png" alt="mark"></p>
-<p>很显然，这是两个常量字段都是const，也就不需要文件内排序，但是这样是属于更改题目。所以这也说明了一个问题，就是范围后的索引会失效，也就是把索引放到一个范围后面，这个索引成了失效索引！所以尽量给定具体值，不要给范围。</p>
-<p>所以如果非要在给定范围内查找，这个索引是不合适的，我们需要重建索引，先把之前的索引删除：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">index</span> idx_article_ccv <span class="keyword">on</span> article;</span><br></pre></td></tr></table></figure>
-
-<p>当我们建立索引的后，type变成了 range，这是可以忍受的。但是 extra里使用 Using files仍是无法接受的</p>
-<p>但是我们已经建立了索引，为啥没用呢？这是因为按照 BTree索引的工作原理，先排序 category_id，如果遇到相同的 category_id则再排序 comments，如果遇到相同的 comments则再排序views。当 comments字段在联合索引里处于中间位置时，因 comments &gt; 1条件是一个范围值(所谓 range)，MySQL无法利用索引再对后面的views部分进行检索，即 range类型查询字段后面的索引无效。</p>
-<p>好了，接下来开始重新建立索引：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> article <span class="keyword">add</span> <span class="keyword">index</span> idx_article_cv(category_id, views);</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_article_cv <span class="keyword">on</span> article(category_id, views);</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/uuIWI57TYBvf.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200202/q5289odY7Tq8.png" alt="mark"></p>
-<h3><span id="案例二-两表分析">案例二 两表分析</span></h3><p>如下两张表，分别插入20条数据：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> <span class="keyword">class</span>(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (<span class="keyword">id</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> book(</span><br><span class="line">    bookid <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (bookid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">class</span>(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> book(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br></pre></td></tr></table></figure>
-
-<p>下面开始explain分析：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/M01hJXB6e8qj.png" alt="mark"></p>
-<p>两个type都是ALL，那么究竟是在class加索引还是book加索引呢？</p>
-<p>实验一：左连接 + 索引加在右表</p>
-<p><img src="https://img.zouchanglin.cn///20200202/ujVV3NrKHVnu.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200202/jhe0fjsbjFbQ.png" alt="mark"></p>
-<p>实验二：接下来删除book的card索引，对右表建立索引。也就是：左连接 + 索引加在左表</p>
-<p><img src="https://img.zouchanglin.cn///20200202/uvNznA01rnA7.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200202/G8YmqocY8jCp.png" alt="mark"></p>
-<p>通过实验一和实验二的对比，可以看到 *<em>左连接 + 索引加在右表 *</em> 第二行的type变为了 ref ，rows也变成了优化比较明显。这是由左连接特性决定的。 left join 条件用于确定如何从右表搜索行，左表一定都有，所以右表是我们的关键点，一定需要建立索引。</p>
-<p>所以说有时对于DBA建好的索引也无需修改，我们需要修改SQL语句中表的位置即可！比如对于上述例子：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> book <span class="keyword">right</span> <span class="keyword">join</span> <span class="keyword">class</span> <span class="keyword">on</span> class.card = book.card;</span><br></pre></td></tr></table></figure>
-
-<p>同样的道理， right join 条件用于确定如何从左表搜索行，右表一定都有，所以左表是我们的关键点，一定需要建立索引。</p>
-<h3><span id="案例三-三表分析">案例三 三表分析</span></h3><p>还是依照上面的两张表，再新建一张表，并插入20条数据：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">exists</span> phone(</span><br><span class="line">    phoneid <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    card <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span> (phoneid)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> phone(card)<span class="keyword">values</span> (<span class="keyword">FLOOR</span>(<span class="number">1</span> + <span class="keyword">RAND</span>() * <span class="number">20</span>));</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">class</span> <span class="keyword">left</span> <span class="keyword">join</span> book <span class="keyword">on</span> class.card = book.card <span class="keyword">left</span> <span class="keyword">join</span> phone <span class="keyword">on</span> book.card = phone.card;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/riAYjuvw8djQ.png" alt="mark"></p>
-<p>现在对phone和book表的card字段建立索引：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/Dndjj7K6Wjfu.png" alt="mark"></p>
-<p>后2行的type都是ref且总rows优化很好效果不错。因此索引最好设置在需要经常查询的字段中。</p>
-<p><img src="https://img.zouchanglin.cn///20200202/MLV8X1Ld5GKT.png" alt="mark"></p>
-<p>JOIN语句的优化：</p>
-<p>尽可能减少JOIN语句中的NestedLoop的循环总次数：”永远用小结果集驱动大的结果集”</p>
-<p>优先优化NestedLoop的循环的内层</p>
-<p>保证JOIN语句中被驱动表上Join条件字段已经被索引</p>
-<p>当无法保证被驱动表的JOIN条件字段被索引且内存资源充足的前提下，不要太吝惜 JoinBuffer的设置</p>
-<h2><span id="索引失效">索引失效</span></h2><p>先建示例表与该表的索引：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> staffs(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span> primary <span class="keyword">key</span> auto_increment,</span><br><span class="line">    <span class="keyword">name</span> <span class="built_in">varchar</span>(<span class="number">24</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="string">''</span> <span class="keyword">comment</span> <span class="string">'姓名'</span>,</span><br><span class="line">    age <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="number">0</span> <span class="keyword">comment</span> <span class="string">'年龄'</span>,</span><br><span class="line">    pos <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="string">''</span> <span class="keyword">comment</span> <span class="string">'职位'</span>,</span><br><span class="line">    add_time <span class="built_in">timestamp</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">default</span> <span class="keyword">current_timestamp</span> <span class="keyword">comment</span> <span class="string">'入职时间'</span></span><br><span class="line">)<span class="keyword">charset</span> utf8 <span class="keyword">comment</span> <span class="string">'员工记录表'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time)<span class="keyword">VALUES</span>(<span class="string">'z3'</span>, <span class="number">22</span>, <span class="string">'manager'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time) <span class="keyword">VALUES</span>(<span class="string">'July'</span>, <span class="number">23</span>, <span class="string">'dev'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> staffs(<span class="keyword">NAME</span>, age, pos, add_time) <span class="keyword">VALUES</span>(<span class="string">'2000'</span>, <span class="number">23</span>, <span class="string">'dev'</span>, <span class="keyword">NOW</span>());</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> staffs;</span><br><span class="line"></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> staffs <span class="keyword">add</span> <span class="keyword">index</span> idx_staffs_nameAgePos(<span class="keyword">name</span>, age, pos);</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">index</span> <span class="keyword">from</span> staffs;</span><br></pre></td></tr></table></figure>
-
-<p>1、全值匹配我最爱</p>
-<p>2、最佳左前缀法则</p>
-<p>3、不在索引列上做任何操作(计算、函数、(自动or手动)类型转换)，会导致索引失效而转向全表扫描</p>
-<p>4、存储引擎不能使用索引中范围条件右边的列</p>
-<p>5、尽量使用覆盖索引(只访问索引的查询(索引列和查询列一致)，减少 select</p>
-<p>6、mysql在使用不等于(=或者&lt;&gt;)的时候无法使用索引会导致全表扫描</p>
-<p>7、is null, is not null也无法使用索引</p>
-<p>8、like以通配符开头(‘%abc…’)mysq索引失效会变成全表扫描的操作</p>
-<p>9、字符串不加单引号索引失效</p>
-<p>10、少用or，用它来连接时会索引失效</p>
-<h3><span id="1-全值匹配我最爱">1、全值匹配我最爱</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> age = <span class="number">23</span> <span class="keyword">and</span> pos = <span class="string">'dev'</span>;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/w98VIAK9miBU.png" alt="mark"></p>
-<h3><span id="2-最佳左前缀法则">2、最佳左前缀法则</span></h3><p>但是请看下面这种情况</p>
-<p><img src="https://img.zouchanglin.cn///20200202/5OdpQ61iNyoU.png" alt="mark"></p>
-<p>很明显建的索引没用到，但是如果只是根据name字段来查询却又可以用到索引。如果索引了多列，要遵守最佳左前缀法则。指的是查询从索引的最左前列开始并且不跳过索引中的列。否则会引起索引失效！这也是最常用的法则！很形象的一个例子：带头大哥不能死，name索引相当于火车头，age、pos是车厢，所以没有name火车肯定动不了，但是如果只有火车头，那么也是能动的，单独的车厢不能运动而已！</p>
-<p>那么这样呢？</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> staffs <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'July'</span> <span class="keyword">and</span> pos = <span class="string">'dev'</span>;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/46uTa4HeJVTO.png" alt="mark"></p>
-<p>上面这条SQL很显然用到了索引，但是key_len还是74没变，其实这条SQL只用到了name索引，并未用到pos索引。这违反了最佳左前缀法则，因为age索引还没用到就用pos，肯定pos会无效的。拿上面的火车举例子，如果中间的车厢断开了，后面的车厢肯定也动不了了。所以最佳左前缀法则还是很重要的！</p>
-<h3><span id="3-不在索引列上做任何操作">3、不在索引列上做任何操作</span></h3><p>不在索引列上做任何操作（计算、函数、（自动or手动）类型转换），会导致索引失效而转向全表扫描</p>
-<p><img src="https://img.zouchanglin.cn///20200202/93pBH8m8uzlo.png" alt="mark"></p>
-<p>接下来分别看看他们的执行计划：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/UQzilveT46Qq.png" alt="mark"></p>
-<p>很明显，在索引列上做任何操作（计算、函数、（自动or手动）类型转换），会导致索引失效而转向全表扫描！所以这一点是非常需要注意的！</p>
-<h3><span id="4-存储引擎不能使用索引中范围条件右边的列">4、存储引擎不能使用索引中范围条件右边的列</span></h3><p><img src="https://img.zouchanglin.cn///20200202/jndNeCoBGgjg.png" alt="mark"></p>
-<p>如上图所示，索引一旦出现范围条件，那么后面的索引会失效。出现范围的索引呢也是会用到，比如这里的age字段排序，但是级别从ref降到了range级别，在数据量非常大的情况下还是很损伤性能的！</p>
-<h3><span id="5-尽量使用覆盖索引">5、尽量使用覆盖索引</span></h3><p>尽量使用覆盖索引（只访问索引的查询，即索引列和查询列一致），减少使用select*</p>
-<p><img src="https://img.zouchanglin.cn///20200202/jxTYVSkvpu8c.png" alt="mark"></p>
-<p>可以看出如果只是要检索字段，那就尽量明确写出需要查询的字段，不要写select * ，只查询索引字段的话就会使用Using index，而不是Using where。</p>
-<h3><span id="6-在使用不等于的时候无法使用索引">6、在使用不等于的时候无法使用索引</span></h3><p>mysql在使用不等于（!=或者&lt;&gt;）的时候无法使用索引会导致全表扫描</p>
-<p><img src="https://img.zouchanglin.cn///20200202/D84WR76mjedt.png" alt="mark"></p>
-<h3><span id="7-is-null-is-not-null-也无法使用索引">7、is null、is not null 也无法使用索引</span></h3><p><img src="https://img.zouchanglin.cn///20200202/DeTCH1jfKmvg.png" alt="mark"></p>
-<p>关键字段尽量避免null值，最好设置默认值！</p>
-<h3><span id="8-like以通配符开头索引失效会变成全表扫描">8、like以通配符开头索引失效会变成全表扫描</span></h3><p>like以通配符开头（’$abc…’）mysql索引失效会变成全表扫描操作</p>
-<p><img src="https://img.zouchanglin.cn///20200202/ousr8H0NUvkX.png" alt="mark"></p>
-<p>通过上面的例子可以看出，like的%尽量加在右边。而且like查询是一个范围查询！</p>
-<p>解决like’%字符串%’索引不被使用的方法？？看看下面的示例：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tbl_user(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    <span class="keyword">name</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">default</span> <span class="literal">null</span>,</span><br><span class="line">    age <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">default</span> <span class="literal">null</span>,</span><br><span class="line">    email <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">default</span> <span class="literal">null</span>,</span><br><span class="line">    primary <span class="keyword">key</span>(<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">engine</span>=<span class="keyword">INNODB</span> auto_increment=<span class="number">1</span> <span class="keyword">default</span> <span class="keyword">charset</span>=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_user (<span class="keyword">name</span>, age, email) <span class="keyword">values</span> (<span class="string">'1aa1'</span>, <span class="number">21</span>, <span class="string">'b@163.com'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_user (<span class="keyword">name</span>, age, email) <span class="keyword">values</span> (<span class="string">'2aa2'</span>, <span class="number">222</span>, <span class="string">'a@163.com'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_user (<span class="keyword">name</span>, age, email) <span class="keyword">values</span> (<span class="string">'3aa3'</span>, <span class="number">265</span>, <span class="string">'c@163.com'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl_user (<span class="keyword">name</span>, age, email) <span class="keyword">values</span> (<span class="string">'4aa4'</span>, <span class="number">21</span>, <span class="string">'d@163.com'</span>);</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/rcbRJSQOM8mD.png" alt="mark"></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_user_nameAge <span class="keyword">on</span> tbl_user(<span class="keyword">name</span>, age);</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">index</span> <span class="keyword">from</span> tbl_user;</span><br></pre></td></tr></table></figure>
-
-<p>通过建立覆盖索引来避免全表扫描，从下图可以看出类型为index：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/cdAyEzETkUaA.png" alt="mark"></p>
-<p>所以说：like百分写右边，复合索引解决两边都是百分号的问题！需要时建立了索引，查询的字段是建立了索引的字段，那就没问题。如果包含了其他字段，就会造成索引失效！</p>
-<h3><span id="9-字符串不加单引号索引失效">9、字符串不加单引号索引失效</span></h3><p>varchar类型必须加单引号，下面的示例可以说明问题：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/v2GNoJ4N5uIn.png" alt="mark"></p>
-<p>这是为什么呢？因为MySQL自动识别name是一个varchar类型，所以如果没有在SQL语句中没加单引号，MySQL会自动发生隐式类型转换，所以参考第三条，这必然导致索引失效，在开中应该尽量避免</p>
-<h3><span id="10-少用or用or来连接时索引失效">10、少用or，用or来连接时索引失效</span></h3><p><img src="https://img.zouchanglin.cn///20200202/AGbRqQtX4l2n.png" alt="mark"></p>
-<h2><span id="优化总结">优化总结</span></h2><p>全值匹配我最爱，最左前缀要遵守；</p>
-<p>带头大哥不能死，中间兄弟不能断；</p>
-<p>索引列上少计算，范围之后全失效；</p>
-<p>like 百分写最右，覆盖素引不写星；</p>
-<p>不等空值还有or，索引失效要少用；</p>
-<p>varchar引号不可丢，SQL高级也不难！</p>
-<p>打油诗解读：通俗来讲，长话短说，最好是查找的值都是建立索引的字段，要遵守最佳左前缀匹配法则，第一个索引没用上其他的都用不上，中间的索引没用上后面的也用不上。索引字段不要函数计算、自动或手动的类型转换。凡是在范围条件之后的索引全部失效，like的百分号写在最后边，实在是需要两边都是百分号那么建立索引，并且别查找其他非索引字段，也就是尽量别写select * 。尽量不使用不等于、大于、小于等条件，尽量不要使用or进行连接，否则会导致索引失效。对于varchar类型的字段不要忘记写引号，避免发生隐式类型转换。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -433,21 +300,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -455,172 +322,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1649611076.html" title="如何避免MySQL索引失效与三个优化实例" target="_blank">https://zouchanglin.cn/1649611076.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据库//" class="article-tag-list-link color4">数据库</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1649611076.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1474252714.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          【面试】MySQL索引失效分析
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3177647038.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">MySQL性能分析</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">索引分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">案例一 单表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">案例二 两表分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">案例三 三表分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">索引失效</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、全值匹配我最爱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、最佳左前缀法则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、不在索引列上做任何操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">4、存储引擎不能使用索引中范围条件右边的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.5.</span> <span class="toc-text">5、尽量使用覆盖索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.</span> <span class="toc-text">6、在使用不等于的时候无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.7.</span> <span class="toc-text">7、is null、is not null 也无法使用索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.8.</span> <span class="toc-text">8、like以通配符开头索引失效会变成全表扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.9.</span> <span class="toc-text">9、字符串不加单引号索引失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.10.</span> <span class="toc-text">10、少用or，用or来连接时索引失效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">优化总结</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -629,13 +392,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

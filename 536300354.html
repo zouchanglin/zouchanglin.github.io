@@ -215,162 +215,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Mat与基本图形绘制" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Mat与基本图形绘制
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/536300354.html" class="archive-article-date">
-        <time datetime="2018-08-30T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-30</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.6k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="mat对象与iplimage对象">Mat对象与IplImage对象</span></h2><ul>
-<li>Mat对象OpenCV2.0之后引进的图像数据结构、自动分配内存、不存在内存泄漏的问题，是面向对象的数据结构。分了两个部分，头部与数据部分</li>
-<li>IplImage是从2001年OpenCV发布之后就一直存在，是C语言风格的数据结构，需要开发者自己分配与管理内存，对大的程序使用它容易导致内存泄漏问题，下面是IplImage结构体的定义：</li>
-</ul>
-<a id="more"></a>
-
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IplImage</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">        <span class="keyword">int</span> nSize;         <span class="comment">// IplImage大小</span></span><br><span class="line">        <span class="keyword">int</span> ID;            <span class="comment">// 版本 (=0)</span></span><br><span class="line">        <span class="keyword">int</span> nChannels;     <span class="comment">// 大多数OPENCV函数支持1,2,3 或 4 个通道 </span></span><br><span class="line">        <span class="keyword">int</span> alphaChannel; <span class="comment">// 被OpenCV忽略 </span></span><br><span class="line">        <span class="keyword">int</span> depth;         <span class="comment">// 像素的位深度，主要有以下支持格式： IPL_DEPTH_8U, IPL_DEPTH_8S, IPL_DEPTH_16U,IPL_DEPTH_16S, IPL_DEPTH_32S,IPL_DEPTH_32F 和IPL_DEPTH_64F </span></span><br><span class="line">        <span class="keyword">char</span> colorModel[<span class="number">4</span>]; <span class="comment">// 被OpenCV忽略</span></span><br><span class="line">        <span class="keyword">char</span> channelSeq[<span class="number">4</span>]; <span class="comment">// 同上</span></span><br><span class="line">        <span class="keyword">int</span> dataOrder;     <span class="comment">// 0 - 交叉存取颜色通道, 1 - 分开的颜色通道.只有cvCreateImage可以创建交叉存取图像</span></span><br><span class="line">        <span class="keyword">int</span> origin;        <span class="comment">// 图像原点位置： 0表示顶-左结构,1表示底-左结构</span></span><br><span class="line">        <span class="keyword">int</span> align;         <span class="comment">// 图像行排列方式 (4 or 8)，在 OpenCV 被忽略，使用 widthStep 代替</span></span><br><span class="line">        <span class="keyword">int</span> width;        <span class="comment">// 图像宽像素数 </span></span><br><span class="line">        <span class="keyword">int</span> height;        <span class="comment">// 图像高像素数</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> _<span class="title">IplROI</span> *<span class="title">roi</span>;</span> <span class="comment">// 图像感兴趣区域，当该值非空时，只对该区域进行处理</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> _<span class="title">IplImage</span> *<span class="title">maskROI</span>;</span> <span class="comment">// 在 OpenCV中必须为NULL</span></span><br><span class="line">        <span class="keyword">void</span> *imageId;     <span class="comment">// 同上</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> _<span class="title">IplTileInfo</span> *<span class="title">tileInfo</span>;</span> <span class="comment">//同上</span></span><br><span class="line">        <span class="keyword">int</span> imageSize;     <span class="comment">// 图像数据大小(在交叉存取格式下ImageSize=image-&gt;height*image-&gt;widthStep），单位字节</span></span><br><span class="line">        <span class="keyword">char</span> *imageData;    <span class="comment">// 指向排列的图像数据</span></span><br><span class="line">        <span class="keyword">int</span> widthStep;     <span class="comment">// 排列的图像行大小，以字节为单位</span></span><br><span class="line">        <span class="keyword">int</span> BorderMode[<span class="number">4</span>]; <span class="comment">// 边际结束模式, 在 OpenCV 被忽略</span></span><br><span class="line">        <span class="keyword">int</span> BorderConst[<span class="number">4</span>]; <span class="comment">// 同上</span></span><br><span class="line">        <span class="keyword">char</span> *imageDataOrigin; <span class="comment">// 指针指向一个不同的图像数据结构（不是必须排列的），是为了纠正图像内存分配准备的 </span></span><br><span class="line"></span><br><span class="line">&#125; IplImage;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="mat对象使用">Mat对象使用</span></h2><h3><span id="基本概念">基本概念</span></h3><h4><span id="通道">通道</span></h4><p>把图像分解成一个或多个颜色成分！</p>
-<ul>
-<li>单通道：一个像素点只需一个数值表示，只能表示灰度，0为黑色</li>
-<li>三通道：RGB模式，把图像分为红绿蓝三个通道，可以表示彩色，全0表示黑色</li>
-<li>四通道：在RGB基础上加上alpha通道，表示透明度，<code>alpha=0</code>表示全透明</li>
-<li>双通道：双通道图像不常见，通常在程序处理中会用到，如傅里叶变换，可能会用到，一个通道为实数，一个通道为虚数，主要是编程方便</li>
-</ul>
-<p><img src="https://img.zouchanglin.cn///20200201/NEiPsmJ6FUAr.png" alt="mark"></p>
-<p> 通过画图板的各种格式可以保存出不同的类型 </p>
-<p><img src="https://img.zouchanglin.cn///20200201/aiXHO94eX9Yy.png" alt="mark"></p>
-<ul>
-<li><h4><span id="深度">深度</span></h4><p>深度即位数（比特数）</p>
-</li>
-<li><p>位深：一个像素点所占的总位数，也叫像素深度、图像深度等</p>
-</li>
-<li><p>位深 = 通道数 × 每个通道所占位数</p>
-</li>
-<li><p>256色图：n位的像素点可以表示2^n种颜色，称2^n色图，n=8时为256色图</p>
-</li>
-<li><p>8位RGB与8位图：前者的位数指每个通道所占的位数，后者指整个像素点共占的位数</p>
-</li>
-<li><p>8位RGB是一个24位图，也称为真彩</p>
-<h3><span id="mat对象构造函数">Mat对象构造函数</span></h3></li>
-<li><p><code>Mat()</code><br>无参数构造方法</p>
-</li>
-<li><p><code>Mat(int rows, int cols, int type)</code><br>创建行数为 rows，列数为 col，类型为 type 的图像</p>
-</li>
-<li><p><code>Mat(Size size, int type)</code><br>创建大小为 size，类型为 type 的图像</p>
-</li>
-<li><p><code>Mat(int rows, int cols, int type, const Scalar&amp; s)</code><br>创建行数为 rows，列数为 col，类型为 type 的图像，并将所有元素初始化为值s</p>
-</li>
-<li><p><code>Mat(Size size, int type, const Scalar&amp; s)</code><br>创建大小为 size，类型为 type 的图像，并将所有元素初始化为值 s</p>
-</li>
-<li><p><code>Mat(const Mat&amp; m)</code><br>将m赋值给新创建的对象，此处不会对图像数据进行复制，m和新对象共用图像数据，属于<strong>浅拷贝</strong></p>
-</li>
-<li><p><code>Mat(int rows, int cols, int type, void* data, size_t step=AUTO_STEP)</code><br>创建行数为rows，列数为col，类型为type的图像，此构造函数不创建图像数据所需内存，而是直接使用data所指内存，图像的行步长由 step指定</p>
-</li>
-<li><p><code>Mat(Size size, int type, void* data, size_t step=AUTO_STEP)</code><br>创建大小为size，类型为type的图像，此构造函数不创建图像数据所需内存，而是直接使用data所指内存，图像的行步长由step指定</p>
-</li>
-<li><p><code>Mat(const Mat&amp; m, const Range&amp; rowRange, const Range&amp; colRange)</code><br>创建的新图像为m的一部分，具体的范围由rowRange和colRange指定，此构造函数也不进行图像数据的复制操作，新图像与m共用图像数据</p>
-</li>
-<li><p><code>Mat(const Mat&amp; m, const Rect&amp; roi)</code><br>创建的新图像为m的一部分，具体的范围roi指定，此构造函数也不进行图像数据的复制操作，新图像与m共用图像数据</p>
-</li>
-</ul>
-<p>例如：<code>Mat M(2,2,CV_8UC3, Scalar(0,0,255))</code><br>这些构造函数中，很多都涉及到类型type。type可以是<code>CV_8UC1</code>，<code>CV_16SC1</code>，<code>CV_64FC4</code> 等其中前两个参数分别表示行(row)跟列(column)、第三个<code>CV_8UC3</code>中的8表示每个通道占8位、U表示无符号、C表示Char类型、3表示通道数目是3，第四个参数是向量表示初始化每个像素值是多少，向量长度对应通道数目一致<br>如果你需要更多的通道数，需要用宏 <code>CV_8UC(n)</code> ，例如：<br><code>Mat M(3,2, CV_8UC(5))</code> 创建行数为 3，列数为 2，通道数为 5 的图像。</p>
-<h3><span id="mat对象常用方法">Mat对象常用方法</span></h3><ul>
-<li><p>部分复制：一般情况下只会复制Mat对象的头和指针部分，不会复制数据部分</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Mat A= imread(<span class="string">"XXX"</span>);</span><br><span class="line"><span class="function">Mat <span class="title">B</span><span class="params">(A)</span>  <span class="comment">// 只复制头信息，浅拷贝</span></span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<ul>
-<li><p>完全复制：如果想把Mat对象的头部和数据部分一起复制，可以通过如下两个API实现 </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Mat F = A.clone();  </span><br><span class="line">Mat G;</span><br><span class="line">A.copyTo(G);</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<p>Mat对象分为头部与数据部分，赋值操作和拷贝构造函数只会复制头部，要想用深拷贝只能使用<code>clone()</code> 、 <code>copyTo(Mat dst,int type)</code> ! </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2\opencv.hpp&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Mat src = imread(<span class="string">"C:/Users/Tim/Desktop/Image/a.jpg"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (src.empty())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"load image filed"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"input window"</span>,CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"input window"</span>, src);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//通过ctreat函数创建</span></span><br><span class="line">	Mat m_c;</span><br><span class="line">	m_c.create(<span class="number">4</span>, <span class="number">4</span>, CV_8UC2);</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; m_c &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//定义了一个dst对象的时候只是创建了Mat对象的头部</span></span><br><span class="line">	Mat dst;</span><br><span class="line">	dst = Mat(src.size(), src.type());</span><br><span class="line">	dst = Scalar(<span class="number">127</span>, <span class="number">0</span>, <span class="number">255</span>);</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"output window"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"output window"</span>, dst);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//都是深拷贝</span></span><br><span class="line">	dst = src.clone();</span><br><span class="line">	src.copyTo(dst);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取通道数</span></span><br><span class="line">	cvtColor(src, dst, CV_BGR2GRAY);</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">"src.channels():"</span> &lt;&lt; src.channels() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">"dst.channels():"</span> &lt;&lt; dst.channels() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取首行像素指针</span></span><br><span class="line">	<span class="keyword">const</span> uchar* firstRow = dst.ptr&lt;uchar&gt;(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取行像素、列像素</span></span><br><span class="line">	<span class="keyword">int</span> row = dst.rows;</span><br><span class="line">	<span class="keyword">int</span> col = dst.cols;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//创建行数为 rows，列数为 col，类型为 type 的图像，并将所有元素初始化</span></span><br><span class="line">	<span class="function">Mat <span class="title">m</span><span class="params">(<span class="number">5</span>, <span class="number">5</span>, CV_8UC3, Scalar(<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>))</span></span>;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; m &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"smail"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"smail"</span>, m);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">//定义小数组</span></span><br><span class="line">	Mat C = (Mat_&lt;<span class="keyword">double</span>&gt;(<span class="number">3</span>, <span class="number">3</span>) &lt;&lt; <span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">5</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; C &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	</span><br><span class="line">	waitKey(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://img.zouchanglin.cn///20200201/GFEBLdf8z6x0.png" alt="mark"></p>
-<p> 这是创建的5*5的矩阵 </p>
-<p><img src="https://img.zouchanglin.cn///20200201/yPvpg7KnhRe8.png" alt="mark"></p>
-<h4><span id="关于scalar">关于Scalar</span></h4><p>查看源码opencv3源码， 发现Scalar做成了模板类，其中有如下构造函数：可以看到，Scalar是一个由长度为4的数组作为元素构成的结构体，Scalar最多可以存储四个值，没有提供的值默认是0。<br>Scalar常用的使用场景如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mat M(7,7,CV_32FC2,Scalar(1,3));</span><br></pre></td></tr></table></figure>
-
-
-
-<p>上面的代码表示：创建一个2通道，且每个通道的值都为（1, 3），深度为32，7行7列的图像矩阵。CV_32F表示每个元素的值的类型为32位浮点数，C2表示通道数为2，Scalar（1,3）表示对矩阵每个元素都赋值为（1, 3），第一个通道中的值都是1，第二个通道中的值都是3.<br><code>dst = Scalar(127, 0, 255)</code> 上述代码中颜色转换过来就是这样的：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/BuPowS1f972o.png" alt="mark"></p>
-<h3><span id="mat对象使用-四个要点">Mat对象使用-四个要点</span></h3><ul>
-<li><p>输出图像的内存是自动分配的</p>
-</li>
-<li><p>使用OpenCV的C++接口，不需要考虑内存分配问题</p>
-</li>
-<li><p>赋值操作和拷贝构造函数只会复制头部分</p>
-</li>
-<li><p>使用clone与copyTo两个函数实现数据完全复制</p>
-<h2><span id="绘制形状与文字">绘制形状与文字</span></h2><h3><span id="point与scalar">Point与Scalar</span></h3><p>Point表示2D平面上一个点，其成员就是 x,y 坐标</p>
-<p>Scalar表示四个元素的向量，表示 RGB 三个通道</p>
-<h3><span id="代码">代码</span></h3></li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2\opencv.hpp&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line">Mat bgImage;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyLines</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyRectangle</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyEllipse</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyCircle</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyPolyon</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Random</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	bgImage = imread(<span class="string">"C:\\Users\\Tim\\Desktop\\Image\\a.jpg"</span>);</span><br><span class="line">	<span class="keyword">if</span> (bgImage.empty())&#123;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"load image filed..."</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	MyLines();</span><br><span class="line"></span><br><span class="line">	MyRectangle();</span><br><span class="line"></span><br><span class="line">	MyEllipse();</span><br><span class="line"></span><br><span class="line">	MyCircle();</span><br><span class="line"></span><br><span class="line">	MyPolyon();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//绘制文字</span></span><br><span class="line">	<span class="comment">//背景图、文字、起始点、字体（前提是系统必须支持设定的字体）、字体放大倍数、颜色、线粗、线条类型</span></span><br><span class="line">	putText(bgImage, <span class="string">"HelloWorld"</span>, Point(<span class="number">30</span>, <span class="number">50</span>), CV_FONT_HERSHEY_COMPLEX, <span class="number">2.0</span>, Scalar(<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="number">2</span>, <span class="number">8</span>);</span><br><span class="line">	namedWindow(<span class="string">"src_window"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"src_window"</span>, bgImage);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//Random();</span></span><br><span class="line"></span><br><span class="line">	waitKey(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制线条</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyLines</span><span class="params">()</span></span>&#123;</span><br><span class="line">	Point p1 = Point(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	Point p2 = Point(<span class="number">410</span>, <span class="number">624</span>);</span><br><span class="line">	Scalar color = Scalar(<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>);</span><br><span class="line">	<span class="comment">//背景图、直线两头坐标、颜色、线粗、</span></span><br><span class="line">	<span class="comment">//line(bgImage, p1, p2, color, 4, LINE_8);</span></span><br><span class="line">	<span class="comment">//line(bgImage, p1, p2, color, 4, LINE_4);</span></span><br><span class="line">	line(bgImage, p1, p2, color, <span class="number">4</span>, LINE_AA);<span class="comment">//LINE_AA是无锯齿</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制矩形</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyRectangle</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">//起始坐标点，宽和高</span></span><br><span class="line">	Rect rect = Rect(<span class="number">120</span>, <span class="number">20</span>, <span class="number">200</span>, <span class="number">200</span>);</span><br><span class="line">	Scalar color = Scalar(<span class="number">0</span>, <span class="number">255</span>, <span class="number">0</span>);</span><br><span class="line">	rectangle(bgImage, rect, color, <span class="number">2</span>, LINE_AA);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制椭圆</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyEllipse</span><span class="params">()</span></span>&#123;</span><br><span class="line">	Scalar color = Scalar(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="comment">//背景图、中心点坐标、长轴和短轴、椭圆的倾斜度、（0-360就是绘制完整椭圆）、颜色、线粗、无锯齿</span></span><br><span class="line">	ellipse(bgImage, Point(bgImage.cols / <span class="number">2</span>, bgImage.rows / <span class="number">2</span>), Size(bgImage.cols / <span class="number">4</span>, bgImage.rows / <span class="number">8</span>), <span class="number">45</span>, <span class="number">0</span>, <span class="number">180</span>, color, <span class="number">2</span>, LINE_AA);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制圆</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyCircle</span><span class="params">()</span></span>&#123;</span><br><span class="line">	Scalar color = Scalar(<span class="number">255</span>, <span class="number">255</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="comment">//背景图、圆心、半径</span></span><br><span class="line">	Point center = Point(bgImage.cols / <span class="number">2</span>, bgImage.rows / <span class="number">2</span>);</span><br><span class="line">	circle(bgImage, center, <span class="number">150</span>, color, <span class="number">2</span>, LINE_8);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制多边形</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyPolyon</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">//定义好多边形顶点的二维数组</span></span><br><span class="line">	Point pts[<span class="number">1</span>][<span class="number">5</span>];</span><br><span class="line">	pts[<span class="number">0</span>][<span class="number">0</span>] = Point(<span class="number">100</span>, <span class="number">100</span>);</span><br><span class="line">	pts[<span class="number">0</span>][<span class="number">1</span>] = Point(<span class="number">120</span>, <span class="number">180</span>);</span><br><span class="line">	pts[<span class="number">0</span>][<span class="number">2</span>] = Point(<span class="number">220</span>, <span class="number">200</span>);</span><br><span class="line">	pts[<span class="number">0</span>][<span class="number">3</span>] = Point(<span class="number">150</span>, <span class="number">80</span>);</span><br><span class="line">	pts[<span class="number">0</span>][<span class="number">4</span>] = Point(<span class="number">100</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">const</span> Point* ppts[] = &#123; pts[<span class="number">0</span>] &#125;;</span><br><span class="line">	<span class="keyword">int</span> npt[] = &#123; <span class="number">5</span> &#125;;</span><br><span class="line">	Scalar color = Scalar(<span class="number">0</span>, <span class="number">255</span>, <span class="number">255</span>);</span><br><span class="line">	fillPoly(bgImage, ppts, npt, <span class="number">1</span>, color, <span class="number">8</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//绘制随机线条</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Random</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="function">RNG <span class="title">rng</span><span class="params">(<span class="number">12345</span>)</span></span>;<span class="comment">//设置随机种子</span></span><br><span class="line">	Point pt1;</span><br><span class="line">	Point pt2;</span><br><span class="line">	Mat bg = Mat::zeros(bgImage.size(), bgImage.type());</span><br><span class="line">	namedWindow(<span class="string">"random"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt;<span class="number">10000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//确保随机数的范围</span></span><br><span class="line">		pt1.x = rng.uniform(<span class="number">0</span>, bg.cols);</span><br><span class="line">		pt2.x = rng.uniform(<span class="number">0</span>, bg.cols);</span><br><span class="line">		pt1.y = rng.uniform(<span class="number">0</span>, bg.rows);</span><br><span class="line">		pt2.y = rng.uniform(<span class="number">0</span>, bg.rows);</span><br><span class="line"></span><br><span class="line">		waitKey(<span class="number">100</span>);</span><br><span class="line">		Scalar color = Scalar(rng.uniform(<span class="number">0</span>, <span class="number">255</span>), rng.uniform(<span class="number">0</span>, <span class="number">255</span>), rng.uniform(<span class="number">0</span>, <span class="number">255</span>));</span><br><span class="line">		line(bg, pt1, pt2, color, <span class="number">1</span>, <span class="number">8</span>);</span><br><span class="line">		imshow(<span class="string">"random"</span>, bg);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/1eYhHY4e4zDN.png" alt="mark"></p>
-<p> 随机线条 </p>
-<p><img src="https://img.zouchanglin.cn/EUP9MT98mkd.gif" alt></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -380,21 +278,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -402,172 +300,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/536300354.html" title="Mat与基本图形绘制" target="_blank">https://zouchanglin.cn/536300354.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">openCV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/图像处理//" class="article-tag-list-link color5">图像处理</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/536300354.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2991951755.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          神奇的卷积核
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2477429062.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">图像亮度对比度调整</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Mat对象与IplImage对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Mat对象使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.1.1.</span> <span class="toc-text">通道</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.1.2.</span> <span class="toc-text">深度</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">Mat对象构造函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">Mat对象常用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.3.1.</span> <span class="toc-text">关于Scalar</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">Mat对象使用-四个要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">绘制形状与文字</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">Point与Scalar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">代码</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -576,13 +370,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

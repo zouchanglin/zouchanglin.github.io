@@ -207,116 +207,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-通俗理解RAII" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      通俗理解RAII
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/45265510.html" class="archive-article-date">
-        <time datetime="2018-12-10T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-10</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">9分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>最近在学习c++多线程编程的时候，偶然看到了RAII的概念，有种这么多年c++白学了的感觉，路漫漫其修远兮啊。下面是我在查找RAII资料时候看到的一篇非常好的博客，因为觉得自己实在写不出比这篇更好的对于RAII的总结的博客了，所以就把文章转摘过来了。</p>
-<p>RAII是指C++语言中的一个惯用法(idiom)，它是“Resource Acquisition Is Initialization”的首字母缩写。中文可将其翻译为“资源获取就是初始化”。虽然从某种程度上说这个名称并没有体现出该惯性法的本质精神，但是作为标准C++资源管理的关键技术，RAII早已在C++社群中深入人心。</p>
-<p>我记得第一次学到RAII惯用法是在Bjarne Stroustrup的《C++程序设计语言(第3版)》一书中。当讲述C++资源管理时，Bjarne这样写道：使用局部对象管理资源的技术通常称为“资源获取就是初始化”。这种通用技术依赖于构造函数和析构函数的性质以及它们与异常处理的交互作用。</p>
-<a id="more"></a>
-
-
-
-<p>Bjarne这段话是什么意思呢？</p>
-<p>首先让我们来明确资源的概念，在计算机系统中，资源是数量有限且对系统正常运转具有一定作用的元素。比如，内存，文件句柄，互斥锁(mutex locks)等等，它们都属于系统资源。由于资源的数量不是无限的，有的资源甚至在整个系统中仅有一份，因此我们在使用资源时必须严格遵循的步骤是：</p>
-<ul>
-<li>获取资源</li>
-<li>使用资源</li>
-<li>释放资源</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">UseFile</span><span class="params">(<span class="keyword">char</span> <span class="keyword">const</span>* fn)</span></span>&#123;</span><br><span class="line">	FILE* f = fopen(fn,<span class="string">"r"</span>); <span class="comment">//获取资源</span></span><br><span class="line">	<span class="comment">//在此使用文件句柄       //使用资源</span></span><br><span class="line">	fclose(f);               <span class="comment">//释放资源</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>调用fopen()打开文件就是获取文件句柄资源，操作完成之后，调用fclose()关闭文件就是释放该资源。资源的释放工作至关重要，如果只获取而不释放，那么资源最终会被耗尽。</p>
-<p>但是上面的代码是否能够保证在任何情况下都调用fclose函数吗？不一定，请考虑如下情况</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">UseFile</span><span class="params">(<span class="keyword">char</span> <span class="keyword">const</span>* fn)</span></span>&#123;</span><br><span class="line">	FILE* f = fopen(fn,<span class="string">"r"</span>); <span class="comment">//获取资源</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//使用资源</span></span><br><span class="line">	<span class="keyword">if</span>(!g())&#123;		<span class="comment">//如果操作g失败</span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">if</span>(!h())&#123;		<span class="comment">//如果操作h失败</span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	fclose(f);   <span class="comment">//释放资源</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>很明显，这里忘记了一个重要的步骤：在操作g或h失败之后，UseFile函数必须首先调用fclose()关闭文件，然后才能返回其调用者，否则会造成资源泄漏。因此，需将UseFile函数修改为 </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">UseFile</span><span class="params">(<span class="keyword">char</span> <span class="keyword">const</span>* fn)</span></span>&#123;</span><br><span class="line">	FILE* f = fopen(fn,<span class="string">"r"</span>); <span class="comment">//获取资源</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//使用资源</span></span><br><span class="line">	<span class="keyword">if</span>(!g())&#123;		<span class="comment">//如果操作g失败</span></span><br><span class="line">		fclose(f);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="keyword">if</span>(!h())&#123;		<span class="comment">//如果操作h失败</span></span><br><span class="line">		fclose(f);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	fclose(f);               <span class="comment">//释放资源</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在的问题是：用于释放资源的代码fclose(f)需要在不同的位置重复书写多次。如果再加入异常处理，情况会变得更加复杂。例如，在文件f的使用过程中，程序可能会抛出异常 </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">UseFile</span><span class="params">(<span class="keyword">char</span> <span class="keyword">const</span>* fn)</span></span>&#123;</span><br><span class="line">	FILE* f = fopen(fn,<span class="string">"r"</span>); <span class="comment">//获取资源</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//使用资源</span></span><br><span class="line">	<span class="keyword">try</span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(!g())&#123;		<span class="comment">//如果操作g失败</span></span><br><span class="line">			fclose(f);</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">			<span class="comment">//...</span></span><br><span class="line">		<span class="keyword">if</span>(!h())&#123;		<span class="comment">//如果操作h失败</span></span><br><span class="line">			fclose(f);</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">catch</span>(...)&#123;</span><br><span class="line">		fclose(f);</span><br><span class="line">		<span class="keyword">throw</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	fclose(f);       <span class="comment">//释放资源</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们必须依靠catch(…)来捕获所有的异常，关闭文件f，并重新抛出该异常。随着控制流程复杂度的增加，需要添加资源释放代码的位置会越来越多。如果资源的数量还不止一个，那么程序员就更加难于招架了。</p>
-<p>可以想象这种做法的后果是：代码臃肿，效率下降，更重要的是，程序的可理解性和可维护性明显降低。是否存在一种方法可以实现资源管理的自动化呢？答案是肯定的。假设UseResources函数要用到n个资源，则进行资源管理的一般模式为：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">UseResources</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">//获取资源1</span></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="comment">//获取资源n</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//使用这些资源</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//释放资源n</span></span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	<span class="comment">//释放资源1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>不难看出资源管理技术的关键在于：要保证资源的释放顺序与获取顺序严格相反。这自然使我们联想到局部对象的创建和销毁过程。</p>
-<p>在C++中，定义在栈空间上的局部对象称为自动存储(automatic memory)对象。管理局部对象的任务非常简单，因为它们的创建和销毁工作是由系统自动完成的。我们只需在某个作用域(scope)中定义局部对象(这时系统自动调用构造函数以创建对象)，然后就可以放心大胆地使用之，而不必担心有关善后工作；当控制流程超出这个作用域的范围时，系统会自动调用析构函数，从而销毁该对象。</p>
-<p>读者可能会说：如果系统中的资源也具有如同局部对象一样的特性，自动获取，自动释放，那该有多么美妙啊！。事实上，您的想法已经与RAII不谋而合了。既然类是C++中的主要抽象工具，那么就将资源抽象为类，用局部对象来表示资源，把管理资源的任务转化为管理局部对象的任务。这就是RAII惯用法的真谛！可以毫不夸张地说，RAII有效地实现了C++资源管理的自动化。例如，我们可以将文件句柄FILE抽象为FileHandle类：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileHandle</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	FileHandle(<span class="keyword">char</span> <span class="keyword">const</span>* n, <span class="keyword">char</span> <span class="keyword">const</span>* a)&#123;</span><br><span class="line">		p = fopen(n, a);</span><br><span class="line">	&#125;</span><br><span class="line">	~FileHandle()&#123;</span><br><span class="line">		fclose(p);</span><br><span class="line">	&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="comment">//禁止拷贝操作</span></span><br><span class="line">	FileHandle(FileHandle <span class="keyword">const</span>&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">	FileHandle&amp; <span class="keyword">operator</span>=(FileHandle <span class="keyword">const</span>&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">	File *p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>FileHandle类的构造函数调用fopen()获取资源；FileHandle类的析构函数调用fclose()释放资源。请注意，考虑到FileHandle对象代表一种资源，它并不具有拷贝语义，因此我们将拷贝构造函数和赋值运算符声明为私有成员。如果利用FileHandle类的局部对象表示文件句柄资源，那么前面的UseFile函数便可简化为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void UseFile(char const* fn)&#123;</span><br><span class="line">	FileHandle file(fn, &quot;r&quot;);</span><br><span class="line">	&#x2F;&#x2F;此处使用文件句柄</span><br><span class="line">	&#x2F;&#x2F;超出此作用域时，系统会自动调用file的析构函数，从而释放资源</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在我们就不必担心隐藏在代码之中的return语句了；不管函数是正常结束，还是提前返回，系统都必须“乖乖地”调用f的析构函数，资源一定能被释放。Bjarne所谓“使用局部对象管理资源的技术……依赖于构造函数和析构函数的性质”，说的正是这种情形。</p>
-<p>且慢！如若使用文件file的代码中有异常抛出，难道析构函数还会被调用吗？此时RAII还能如此奏效吗？问得好。事实上，当一个异常抛出之后，系统沿着函数调用栈，向上寻找catch子句的过程，称为栈辗转开解(stack unwinding)。C++标准规定，在辗转开解函数调用栈的过程中，系统必须确保调用所有已创建起来的局部对象的析构函数。例如：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Foo</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="function">FileHandle <span class="title">file1</span><span class="params">(<span class="string">"n1.txt"</span>, <span class="string">"r"</span>)</span></span>;</span><br><span class="line">	<span class="function">FileHandle <span class="title">file1</span><span class="params">(<span class="string">"n2.txt"</span>, <span class="string">"w"</span>)</span></span>;</span><br><span class="line">	Bar();	<span class="comment">//可能会抛出异常</span></span><br><span class="line">	<span class="function">FileHandle <span class="title">file1</span><span class="params">(<span class="string">"n3.txt"</span>, <span class="string">"rw"</span>)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当Foo()调用Bar()时，局部对象file1和file2已经在Foo的函数调用栈中创建完毕，而file3却尚未创建。如果Bar()抛出异常，那么file2和file1的析构函数会被先后调用(注意：析构函数的调用顺序与构造函数相反)；由于此时栈中尚不存在file3对象，因此它的析构函数不会被调用。只有当一个对象的构造函数执行完毕之后，我们才认为该对象的创建工作已经完成。栈辗转开解过程仅调用那些业已创建的对象的析构函数。</p>
-<p>RAII惯用法同样适用于需要管理多个资源的复杂对象。例如，Widget类的构造函数要获取两个资源：文件myFile和互斥锁myLock。每个资源的获取都有可能失败并且抛出异常。</p>
-<p>为了正常使用Widget对象，这里我们必须维护一个不变式(invariant)：当调用构造函数时，要么两个资源全都获得，对象创建成功；要么两个资源都没得到，对象创建失败。获取了文件而没有得到互斥锁的情况永远不能出现，也就是说，不允许建立Widget对象的“半成品”。如果将RAII惯用法应用于成员对象，那么我们就可以实现这个不变式：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	Widget(<span class="keyword">char</span> <span class="keyword">const</span>* myfile, <span class="keyword">char</span> <span class="keyword">const</span>* myLock)</span><br><span class="line">	:file_(myfile)	<span class="comment">//获取文件myfile</span></span><br><span class="line">	,lock_(myLock)&#123;&#125;	<span class="comment">//获取互斥锁myLock</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	FileHandle file_;</span><br><span class="line">	LockHandle lock_;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>FileHandle和LockHandle类的对象作为Widget类的数据成员，分别表示需要获取的文件和互斥锁。资源的获取过程就是两个成员对象的初始化过程。在此系统会自动地为我们进行资源管理，程序员不必显式地添加任何异常处理代码。例如，当已经创建完file_，但尚未创建完lock_时，有一个异常被抛出，则系统会调用file_的析构函数，而不会调用lock_的析构函数。Bjarne所谓构造函数和析构函数“与异常处理的交互作用”，说的就是这种情形。</p>
-<p>综上所述，RAII的本质内容是用对象代表资源，把管理资源的任务转化为管理对象的任务，将资源的获取和释放与对象的构造和析构对应起来，从而确保在对象的生存期内资源始终有效，对象销毁时资源必被释放。换句话说，拥有对象就等于拥有资源，对象存在则资源必定存在。由此可见，RAII惯用法是进行资源管理的有力武器。C++程序员依靠RAII写出的代码不仅简洁优雅，而且做到了异常安全。难怪微软的MSDN杂志在最近的一篇文章中承认：“若论资源管理，谁也比不过标准C++”。</p>
-<p>最后关于C++11的RAII，请参考：<a href="https://www.cnblogs.com/tonychen-tobeTopCoder/p/5222178.html" target="_blank" rel="noopener">《C++11的资源管理：泛化的RAII》</a></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -326,21 +270,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -348,172 +292,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/45265510.html" title="通俗理解RAII" target="_blank">https://zouchanglin.cn/45265510.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/45265510.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/276162962.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          35个Java代码性能优化总结
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1169077204.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Linux进程通信之共享内存</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    目录，不存在的…
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -522,13 +362,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

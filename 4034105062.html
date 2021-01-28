@@ -228,152 +228,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Docker镜像与数据容器卷" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Docker镜像与数据容器卷
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/4034105062.html" class="archive-article-date">
-        <time datetime="2019-08-03T03:47:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-03</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.1k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">7分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h1><span id="docker镜像">Docker镜像</span></h1><p>镜像是一种轻量级、可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。</p>
-<h2><span id="unionfs联合文件系统">UnionFS（联合文件系统）</span></h2><p>UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。Union 文件系统是 Docker 镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。</p>
-<p>特性：一次同时加载多个文件系统，但从外面看起来，只能看到一个文件系统，联合加载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录</p>
-<a id="more"></a>
-
-<h2><span id="docker镜像加载原理">Docker镜像加载原理</span></h2><p>docker的镜像实际上由一层一层的文件系统组成，这种层级的文件系统UnionFS。<br>bootfs(boot file system)主要包含bootloader和kernel, bootloader主要是引导加载kernel, Linux刚启动时会加载bootfs文件系统，在Docker镜像的最底层是bootfs。这一层与我们典型的Linux/Unix系统是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs。</p>
-<p>rootfs (root file system) ，在bootfs之上。包含的就是典型 Linux 系统中的 /dev, /proc, /bin, /etc 等标准目录和文件。rootfs就是各种不同的操作系统发行版，比如Ubuntu，Centos等</p>
-<p><img src="https://img.zouchanglin.cn///20200202/yDs2QQwv8dpq.png" alt="mark"></p>
-<p>这也就解释了为什么我们开的虚拟机很大，但是Docker里面的镜像却很小：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/OX2TgKCCSt6W.png" alt="mark"></p>
-<p>对于一个精简的OS，rootfs可以很小，只需要包括最基本的命令、工具和程序库就可以了，因为底层直接用Host的kernel，自己只需要提供 rootfs 就行了。由此可见对于不同的linux发行版, bootfs基本是一致的, rootfs会有差别, 因此不同的发行版可以公用bootfs。</p>
-<h2><span id="分层的镜像">分层的镜像</span></h2><p>以pull为例，在下载的过程中可以看到docker的镜像好像是在一层一层的在下载，这也就解释了为什么Tomcat的镜像那么大</p>
-<p><img src="https://img.zouchanglin.cn///20200202/dAV1lInFS3Hl.png" alt="mark"></p>
-<p>最大的一个好处就是 - <strong>共享资源</strong></p>
-<p>比如：有多个镜像都从相同的 base 镜像构建而来，那么宿主机只需在磁盘上保存一份base镜像，<br>同时内存中也只需加载一份 base 镜像，就可以为所有容器服务了，而且镜像的每一层都可以被共享。</p>
-<h2><span id="镜像的特点">镜像的特点</span></h2><p>Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部。这一层通常被称作“容器层”，“容器层”之下的都叫“镜像层”。</p>
-<h2><span id="docker镜像commit操作">Docker镜像commit操作</span></h2><p>docker commit 提交容器副本使之成为一个新的镜像</p>
-<p><code>docker commit -m=&quot;提交的描述信息&quot; -a=&quot;作者&quot; 容器ID 要创建的目标镜像名:[标签名]</code></p>
-<p>演示操作</p>
-<p>1、先下载一个Tomcat镜像，并且运行Tomcat </p>
-<p>docker pull tomcat</p>
-<p>docker run -it -p 8888:8080 tomcat (使用-P是随机分配端口，分配的是Docker对外暴露的端口)</p>
-<p><img src="https://img.zouchanglin.cn///20200202/5BRQr7e6WpsK.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200202/xFNIESu09DCK.png" alt="mark"></p>
-<p>2、删除Tomcat的docs部分</p>
-<p>进入到这个容器中，删除webapps下的docs文件夹</p>
-<p><img src="https://img.zouchanglin.cn///20200202/kIbW8haSbLsI.png" alt="mark"></p>
-<p>此时访问docs就会404，说明我们删除成功</p>
-<p><img src="https://img.zouchanglin.cn///20200202/JioBo802KYHa.png" alt="mark"></p>
-<p>也即当前的tomcat运行实例是一个没有文档内容的容器，以它为模板commit一个没有doc的tomcat新镜像xpu/tomcat_02 （xpu是命名空间，就相当于类的包名）</p>
-<p>3、命令打包</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# docker commit -m&#x3D;&quot;This is my Tomcat&quot; -a&#x3D;&quot;Tim&quot; 4f2161bbdb42 xpu&#x2F;tomcat_02:1.2</span><br><span class="line">sha256:b29a3c2a5e09af550d3bee9b6ff3cd9cf8e2b2b2397dc53278f4c495607f748f</span><br><span class="line">[root@localhost ~]#</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/yYMNHcoKQIXq.png" alt="mark"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f $(docker ps -q) 删除正在运行的所有容器</span><br></pre></td></tr></table></figure>
-
-<p>4、后台方式启动Tomcat</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 tomcat</span><br></pre></td></tr></table></figure>
-<p><img src="https://img.zouchanglin.cn///20200202/yxuAvhWknrnU.png" alt="mark"></p>
-<h1><span id="docker容器数据卷">Docker容器数据卷</span></h1><p>先来看看Docker的理念：</p>
-<p>1、将运用与运行的环境打包形成容器运行 ，运行可以伴随着容器，但是我们对数据的要求希望是持久化的</p>
-<p>2、容器之间希望有可能共享数据</p>
-<p>Docker容器产生的数据，如果不通过docker commit生成新的镜像，使得数据做为镜像的一部分保存下来，<br>那么当容器删除后，数据自然也就没有了。</p>
-<p>为了能保存数据在Docker中我们使用卷，也就是容器数据卷！</p>
-<p>Docker容器数据卷有点类似我们Redis里面的rdb和aof文件，也就是把运行时的数据持久化在硬盘上</p>
-<p>卷就是目录或文件，存在于一个或多个容器中，由docker挂载到容器，但不属于联合文件系统，因此能够绕过Union File System提供一些用于持续存储或共享数据的特性：</p>
-<p>卷的设计目的就是数据的持久化，完全独立于容器的生存周期，因此Docker不会在容器删除时删除其挂载的数据卷</p>
-<p>特点：<br>1：数据卷可在容器之间共享或重用数据<br>2：卷中的更改可以直接生效<br>3：数据卷中的更改不会包含在镜像的更新中<br>4：数据卷的生命周期一直持续到没有容器使用它为止</p>
-<h2><span id="添加数据卷-_使用-v命令">添加数据卷 _使用-v命令</span></h2><p> docker run -it -v /宿主机绝对路径目录:/容器内目录      镜像名</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -v &#x2F;myDataVolume:&#x2F;dataVolumeContainer centos</span><br></pre></td></tr></table></figure>
-
-<p>这样便添加了数据卷</p>
-<p><img src="https://img.zouchanglin.cn///20200202/kNEPfqpYFCSh.png" alt="mark"></p>
-<p>同样的，使用docker inspect 容器名称 便可以查看JSON形式描述的容器：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/KMGAB92oAeeB.png" alt="mark"></p>
-<p>测试一下两者的文件通信共享(容器和宿主机之间数据共享)</p>
-<p><img src="https://img.zouchanglin.cn///20200202/3E68s3gMkpEo.png" alt="mark"></p>
-<p>容器停止退出后，主机修改后数据是否同步</p>
-<p><img src="https://img.zouchanglin.cn///20200202/z10MvTSk0aop.png" alt="mark"></p>
-<p>带有写保护权限的数据卷</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -v &#x2F;宿主机绝对路径目录:&#x2F;容器内目录:ro 镜像名</span><br></pre></td></tr></table></figure>
-
-<p>ro即是ReadOnly，只读，不允许容器修改数据卷，而宿主机才可以！</p>
-<p><img src="https://img.zouchanglin.cn///20200202/xyyIlDA90H09.png" alt="mark"></p>
-<h2><span id="添加数据卷_使用dockerfile">添加数据卷_使用Dockerfile</span></h2><p>在Linux下写项目很多时候用到makefile来构建工程，或者是通过Shell脚本把一系列的操作封装起来，所以理解Dockerfile就不难，之前说过镜像是层层包裹的，就比如：Tomcat镜像肯定是依赖于JDK镜像的，所以Dockerfile还是很重要的</p>
-<p>先编写Dockerfile (注意VOLUME后面有空格)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost mydocker]<span class="comment"># cat Dockerfile </span></span><br><span class="line"><span class="comment"># volume test</span></span><br><span class="line">FROM centos</span><br><span class="line">VOLUME [<span class="string">"/dataVolume1"</span>,<span class="string">"/dataVolume2"</span>]</span><br><span class="line">CMD <span class="built_in">echo</span> <span class="string">"finished, ------success"</span></span><br><span class="line">CMD /bin/bash</span><br><span class="line">[root@localhost mydocker]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/2cCQ2WC6W76B.png" alt="mark"></p>
-<p>由上图输出也可以看出，这个镜像是分层构建的！接下来检测一下构建结果：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/pMD0E8lEGYNh.png" alt="mark"></p>
-<p>那么对应的宿主机器目录在哪呢？虽然我们没有手动指定，但是dockerfile有默认的路径，使用docker inspect 容器ID查看容器细节： </p>
-<p><img src="https://img.zouchanglin.cn///20200202/BKIGDKlQcHVm.png" alt="mark"></p>
-<p>如果Docker挂载主机目录Docker访问出现cannot open directory .: Permission denied，解决办法：在挂载目录后多加一个<code>--privileged=true</code>参数即可</p>
-<p>所以到目前为止可以吧数据卷简单的理解为虚拟机和物理机的共享文件夹，上面讲述了两种创建容器数据卷的方式，方式一不是很常用，使用Dockerfile的方式是更适合使用的！</p>
-<h2><span id="数据卷容器">数据卷容器</span></h2><p>命名的容器挂载数据卷，其它容器通过挂载这个(父容器)实现数据共享，挂载数据卷的容器，称之为数据卷容器</p>
-<p><img src="https://img.zouchanglin.cn///20200202/soBwI9TkHVpY.png" alt="mark"></p>
-<p>先见了三个容器，dc01是之前建好的，里面有容器卷dataVolume1，dataVolume2，剩下两个容器分别是dc02，dc03，然后通过</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name dc02 --volumes-from dc01 tim&#x2F;centos</span><br></pre></td></tr></table></figure>
-
-<p>这样的命令去新建一个dc02容器继承父容器dc01，同样的，使用此命令新建dc03容器继承父容器dc01，于是dc02和dc03都含有一两个容器卷dataVolume1，dataVolume2，于是dc01、dc02、dc03都是数据共享的：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/hyOmjKTfxvAo.png" alt="mark"></p>
-<p>接下来删除dc01，然后dc02新建一个dc02_update.txt，虽然dc03是继承自dc01的，但是dc03仍然可以看到dc02_update.txt，看下图：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/f2pQvMhTubTT.png" alt="mark"></p>
-<p>由此得出一个重要结论：</p>
-<p><strong>容器之间配置信息的传递，数据卷的生命周期一直持续到没有容器使用它为止</strong></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -383,21 +291,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -405,172 +313,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/4034105062.html" title="Docker镜像与数据容器卷" target="_blank">https://zouchanglin.cn/4034105062.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/虚拟化技术//" class="article-tag-list-link color1">虚拟化技术</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/4034105062.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1242485673.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          DockerFile快速构建自定义镜像
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2645412459.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Docker底层原理与命令详解</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Docker镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">UnionFS（联合文件系统）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">Docker镜像加载原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">分层的镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">镜像的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">Docker镜像commit操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Docker容器数据卷</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">添加数据卷 _使用-v命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">添加数据卷_使用Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">数据卷容器</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -579,13 +383,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

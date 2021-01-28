@@ -214,143 +214,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-HLS流媒体服务与加解密" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      HLS流媒体服务与加解密
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/901333507.html" class="archive-article-date">
-        <time datetime="2021-01-17T02:52:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-17</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">4k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">19分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>在前面一篇文章中<a href="/3213001717.html">《流媒体协议之HLS》</a>介绍了什么是流媒体，什么是HLS以及分析了m3u8文件格式内容的含义。在本篇文章中更多的是实际操作，搭建一个流媒体服务，使用ffmpeg切割大的视频文件，使用ffmpeg切割大的视频文件并加密，使用ffmpeg整合视频片断，以及在代码中如何实现根据m3u8下载并解码对应的媒体文件。演示的环境是Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-62-generic x86_64)、nginx-1.19.6、gcc version 9.3.0、GNU Make 4.2.1O、OpenSSL 1.1.1f</p>
-<a id="more"></a>
-
-<h2><span id="编译安装nginx">编译安装Nginx</span></h2><p>这个时候选择编译安装的方式:<br>nginx的rtmp模块，下载地址是<a href="https://github.com/arut/nginx-rtmp-module" target="_blank" rel="noopener">https://github.com/arut/nginx-rtmp-module</a><br>nginx_mod_h264_streaming的下载地址是：<a href="http://h264.code-shop.com/download/nginx_mod_h264_streaming-2.2.7.tar.gz" target="_blank" rel="noopener">http://h264.code-shop.com/download/nginx_mod_h264_streaming-2.2.7.tar.gz</a><br>nginx源码包，下载地址是：<a href="http://nginx.org/download/nginx-1.19.6.tar.gz" target="_blank" rel="noopener">http://nginx.org/download/nginx-1.19.6.tar.gz</a><br>先准备好Nginx源码包、rtmp模块和nginx_mod_h264_streaming模块，并解压：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在root目录下准备nginx-1.19.6.tar.gz、nginx-rtmp-module.zip、nginx_mod_h264_streaming-2.2.7.tar.gz并解压</span></span><br><span class="line">nginx-1.19.6</span><br><span class="line">nginx-1.19.6.tar.gz</span><br><span class="line">nginx-rtmp-module</span><br><span class="line">nginx-rtmp-module.zip</span><br><span class="line">nginx_mod_h264_streaming-2.2.7</span><br><span class="line">nginx_mod_h264_streaming-2.2.7.tar.gz</span><br><span class="line"><span class="built_in">cd</span> nginx-1.19.6</span><br><span class="line"><span class="comment"># 检查依赖库与环境、添加rtmp和h264_streaming模块</span></span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/nginx --with-http_ssl_module --add-module=/root/nginx-rtmp-module --add-module=/root/nginx_mod_h264_streaming-2.2.7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据提示还需要安装PCRE、OpenSSL、Zlib的库：</span></span><br><span class="line">apt install libpcre3 libpcre3-dev zlib1g-dev openssl libssl-dev</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次检查依赖库与环境、添加rtmp和h264_streaming模块</span></span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/nginx --with-http_ssl_module --add-module=/root/nginx-rtmp-module --add-module=/root/nginx_mod_h264_streaming-2.2.7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译 + 安装</span></span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"><span class="comment"># 建立软连接</span></span><br><span class="line">ln -s /usr/<span class="built_in">local</span>/nginx/sbin/nginx /usr/<span class="built_in">local</span>/bin/nginx</span><br><span class="line"><span class="comment"># 开启Nginx服务器</span></span><br><span class="line">nginx</span><br></pre></td></tr></table></figure>
-<p>编译过程可能会遇到的问题：</p>
-<blockquote>
-<p>问题1：ngx_http_streaming_module.c:158:8: error: ngx_http_request_t has no member named zero_in_uri<br>解决方案：注释掉nginx_mod_h264_streaming-2.2.7/src/ngx_http_streaming_module.c的158到161行即可</p>
-</blockquote>
-<blockquote>
-<p>问题2：error: variable ‘stream_priority’ set but not used [-Werror=unused-but-set-variable]<br>解决方案：修改nginx-1.10.2/objs/Makefile文件第2行CFLAGS变量去掉“-Werror”字段</p>
-</blockquote>
-<p>现在找一个mp4与flv文件分别放在<code>/root/videos/mp4/</code>和<code>/root/videos/flv/</code>下，则配置文件修改如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment"># 如果访问出现403，需要把user配置为root;</span></span><br><span class="line"><span class="attribute">user</span>  root;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line"> </span><br><span class="line">        <span class="attribute">location</span> / &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        <span class="attribute">location</span>  <span class="regexp">~ \.mp4$</span> &#123;</span><br><span class="line">        	<span class="attribute">root</span>   /root/videos/mp4/;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">location</span> <span class="regexp">~ \.flv$</span> &#123;</span><br><span class="line">            <span class="attribute">root</span>   /root/videos/flv/;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<p>然后输入<a href="http://xx.xx.xx.xx/test.mp4" target="_blank" rel="noopener">http://xx.xx.xx.xx/test.mp4</a>即可开始播放，就说明已经配置好了，现在你已经拥有了一个基本的视频点播站点，就像下面这样：<br><video src="https://img.zouchanglin.cn/test.mp4" controls="controls" style="max-width: 100%; display: block; margin-left: auto; margin-right: auto;"><br>your browser does not support the video tag<br></video><br>对于flv的视频，可以使用VLC来播放，这是下载地址<a href="https://get.videolan.org/vlc/3.0.11.1/macosx/vlc-3.0.11.1.dmg" target="_blank" rel="noopener">https://get.videolan.org/vlc/3.0.11.1/macosx/vlc-3.0.11.1.dmg</a></p>
-<h2><span id="apt安装ffmpeg">apt安装ffmpeg</span></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install ffmpeg</span><br></pre></td></tr></table></figure>
-<p>如果没有更换源的话会很慢，下面可以更新一下镜像源，再执行<code>apt install ffmpeg</code><br>1、首先备份原来的源：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /etc/apt/sources.list /etc/apt/sources.list.bak</span><br></pre></td></tr></table></figure>
-<p>2、查看本Ubuntu的代号</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsb_release -a</span><br></pre></td></tr></table></figure>
-<p><img src="https://img.zouchanglin.cn/20210117160725.png" alt><br>对于我的Ubuntu20.04来说，代号就是focal<br>3、确认查看阿里云是否存在该源<br><a href="http://mirrors.aliyun.com/ubuntu/dists/" target="_blank" rel="noopener">http://mirrors.aliyun.com/ubuntu/dists/</a>看来是存在focal的。<br>4、将下面的XXX全部替换为系统的代号，比如我的系统代号是focal</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-security main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-updates main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-updates main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-proposed main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-proposed main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-backports main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; XXX-backports main restricted universe multiverse</span><br></pre></td></tr></table></figure>
-<p>那么替换完成后就是</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-security main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-updates main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-updates main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-proposed main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-proposed main restricted universe multiverse</span><br><span class="line"></span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-backports main restricted universe multiverse</span><br><span class="line">deb-src http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;ubuntu&#x2F; focal-backports main restricted universe multiverse</span><br></pre></td></tr></table></figure>
-<p>5、更新缓存</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt update</span><br></pre></td></tr></table></figure>
-<p>ffmpeg安装成功后即可查看ffmpeg的版本：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg</span><br></pre></td></tr></table></figure>
-<p><img src="https://img.zouchanglin.cn/20210117161347.png" alt></p>
-<h2><span id="使用ffmpeg切割媒体文件">使用ffmpeg切割媒体文件</span></h2><p>进入到test.mp4存在的目录，执行如下命令完成对test.mp4的切割：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/videos/mp4</span><br><span class="line">ffmpeg -i test.mp4 -c:v libx264 -c:a copy -f hls -threads 8 -hls_time 30 -hls_list_size 0 test.m3u8</span><br></pre></td></tr></table></figure>
-<p>hls_time: 设置每片的长度，单位是秒，默认值为2秒。<br>hls_list_size: 设置播放列表保存的最多条目，设置为0会保存有所片信息，默认值为5。<br>hls_wrap: 设置多少片之后开始覆盖，如果设置为0则不会覆盖，默认值为0。这个选项能够避免在磁盘上存储过多的片，而且能够限制写入磁盘的最多的片的数量。<br>start_number: 设置播放列表中sequence number的值为number，默认值为0<br>hls_base_url: 参数用于为M3U8列表的文件路径设置前置基本路径参数，因为在FFmpeg中生成M3U8时写入的TS切片路径默认为M3U8生成的路径相同，但是实际上TS所存储的路径既可以为本地绝对路径，也可以为相对路径，还可以为网络路径，因此使用hls_base_url参数可以达到该效果<br>切割完成后，可以看到文件夹下的ts片断和对应的m3u8文件:<br><img src="https://img.zouchanglin.cn/20210117164746.png" alt></p>
-<p>这些ts片断都是可以直接播放的，而且可以看到对应的m3u8文件如下，关于m3u8文件属性的内容在<a href="/3213001717.html">《流媒体协议之HLS》</a>中已经介绍过了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-VERSION:3</span><br><span class="line">#EXT-X-TARGETDURATION:36</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:0</span><br><span class="line">#EXTINF:35.704711,</span><br><span class="line">test0.ts</span><br><span class="line">#EXTINF:24.984956,</span><br><span class="line">test1.ts</span><br><span class="line">#EXTINF:31.450178,</span><br><span class="line">test2.ts</span><br><span class="line">#EXTINF:29.614889,</span><br><span class="line">test3.ts</span><br><span class="line">#EXTINF:29.531467,</span><br><span class="line">test4.ts</span><br><span class="line">#EXTINF:28.780667,</span><br><span class="line">test5.ts</span><br><span class="line">#EXTINF:31.992422,</span><br><span class="line">test6.ts</span><br><span class="line">#EXTINF:31.241622,</span><br><span class="line">test7.ts</span><br><span class="line">#EXTINF:28.196711,</span><br><span class="line">test8.ts</span><br><span class="line">#EXTINF:29.823444,</span><br><span class="line">test9.ts</span><br><span class="line">#EXTINF:32.451244,</span><br><span class="line">test10.ts</span><br><span class="line">#EXTINF:30.824511,</span><br><span class="line">test11.ts</span><br><span class="line">#EXTINF:26.820244,</span><br><span class="line">test12.ts</span><br><span class="line">#EXTINF:13.931511,</span><br><span class="line">test13.ts</span><br><span class="line">#EXT-X-ENDLIST</span><br></pre></td></tr></table></figure>
-<p>修改一下Nginx的配置文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"> </span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        location  ~ \.mp4$ &#123;</span><br><span class="line">        	root   &#x2F;root&#x2F;videos&#x2F;mp4&#x2F;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        location ~ \.flv$ &#123;</span><br><span class="line">            root   &#x2F;root&#x2F;videos&#x2F;flv&#x2F;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        location &#x2F;media &#123;</span><br><span class="line">            alias   &#x2F;root&#x2F;videos&#x2F;mp4&#x2F;;</span><br><span class="line">            add_header Cache-Control no-cache;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样通过VLC打开网络串流，输入m3u8的地址：<a href="http://172.16.26.2/media/test.m3u8" target="_blank" rel="noopener">http://172.16.26.2/media/test.m3u8</a>即可播放对应的媒体资源：<br><img src="https://img.zouchanglin.cn/20210117170030.png" alt></p>
-<p>如果加上hls_base_url参数生成的m3u8文件如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i test.mp4 -c:v libx264 -c:a copy -f hls -threads 8 -hls_time 30 -hls_list_size 0 -hls_base_url http://172.16.26.2/media/ test.m3u8</span><br><span class="line"></span><br><span class="line">cat test.m3u8</span><br><span class="line"><span class="comment">#EXTM3U</span></span><br><span class="line"><span class="comment">#EXT-X-VERSION:3</span></span><br><span class="line"><span class="comment">#EXT-X-TARGETDURATION:36</span></span><br><span class="line"><span class="comment">#EXT-X-MEDIA-SEQUENCE:0</span></span><br><span class="line"><span class="comment">#EXTINF:35.704711,</span></span><br><span class="line">http://172.16.26.2/media/test0.ts</span><br><span class="line"><span class="comment">#EXTINF:24.984956,</span></span><br><span class="line">http://172.16.26.2/media/test1.ts</span><br><span class="line"><span class="comment">#EXTINF:31.450178,</span></span><br><span class="line">http://172.16.26.2/media/test2.ts</span><br><span class="line"><span class="comment">#EXTINF:29.614889,</span></span><br><span class="line">http://172.16.26.2/media/test3.ts</span><br><span class="line"><span class="comment">#EXTINF:29.531467,</span></span><br><span class="line">http://172.16.26.2/media/test4.ts</span><br><span class="line"><span class="comment">#EXTINF:28.780667,</span></span><br><span class="line">http://172.16.26.2/media/test5.ts</span><br><span class="line"><span class="comment">#EXTINF:31.992422,</span></span><br><span class="line">http://172.16.26.2/media/test6.ts</span><br><span class="line"><span class="comment">#EXTINF:31.241622,</span></span><br><span class="line">http://172.16.26.2/media/test7.ts</span><br><span class="line"><span class="comment">#EXTINF:28.196711,</span></span><br><span class="line">http://172.16.26.2/media/test8.ts</span><br><span class="line"><span class="comment">#EXTINF:29.823444,</span></span><br><span class="line">http://172.16.26.2/media/test9.ts</span><br><span class="line"><span class="comment">#EXTINF:32.451244,</span></span><br><span class="line">http://172.16.26.2/media/test10.ts</span><br><span class="line"><span class="comment">#EXTINF:30.824511,</span></span><br><span class="line">http://172.16.26.2/media/test11.ts</span><br><span class="line"><span class="comment">#EXTINF:26.820244,</span></span><br><span class="line">http://172.16.26.2/media/test12.ts</span><br><span class="line"><span class="comment">#EXTINF:13.931511,</span></span><br><span class="line">http://172.16.26.2/media/test13.ts</span><br><span class="line"><span class="comment">#EXT-X-ENDLIST</span></span><br></pre></td></tr></table></figure>
-<h2><span id="使用ffmpeg合并ts文件">使用ffmpeg合并ts文件</span></h2><p>使用ffmpeg也可以通过m3u8索引文件把所有的ts片段文件合并：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i ./test.m3u8 -acodec copy -vcodec copy output.mp4</span><br></pre></td></tr></table></figure>
-<p>如果是网络上的m3u8点播列表，也可以下载并合并到mp4中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i <span class="string">"http://xxx.com/media/test.m3u8"</span> <span class="string">"save_video.mp4"</span></span><br></pre></td></tr></table></figure>
-
-<h2><span id="ffmpeg切割并加密媒体文件">ffmpeg切割并加密媒体文件</span></h2><p>将一个mp4视频文件切割为多个ts片段，并在切割过程中对每一个片段使用AES-128加密，最后生成一个m3u8的视频索引文件:</p>
-<p>加密用的key，通过OpenSSL生成一个enc.key文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rand  16 &gt; enc.key</span><br></pre></td></tr></table></figure>
-
-<p>另一个是 iv</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rand -hex 16</span><br></pre></td></tr></table></figure>
-
-<p>这里生成的IV是<code>ef157287b9fc922ed1cc101a09e742b3</code></p>
-<p>新建一个文件 enc.keyinfo 内容格式如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;enc.key</span><br><span class="line">enc.key</span><br><span class="line">ef157287b9fc922ed1cc101a09e742b3</span><br></pre></td></tr></table></figure>
-
-<p>因为enc.key直接放在了<code>/root/vides/mp4/</code>目录下，所以通过<code>http://172.16.26.2/media/enc.key</code>这个地址完全可以访问到这个enc.key文件。</p>
-<figure class="highlight plain"><figcaption><span>-y \</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -y -i test.mp4 -hls_time 30 -hls_key_info_file enc.keyinfo -hls_playlist_type vod -hls_segment_filename &quot;file%d.ts&quot; -hls_base_url http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F; test.m3u8</span><br></pre></td></tr></table></figure>
-
-<p>上述命令中<code>-hls_time 30</code> 即每个片段30s，<code>-hls_playlist_type vod</code> 表示这是一个点播播放列表，<code>hls_segment_filename &quot;file%d.ts&quot;</code>规定了片断的文件名。生成的m3u8文件如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">#EXTM3U</span><br><span class="line">#EXT-X-VERSION:3</span><br><span class="line">#EXT-X-TARGETDURATION:36</span><br><span class="line">#EXT-X-MEDIA-SEQUENCE:0</span><br><span class="line">#EXT-X-PLAYLIST-TYPE:VOD</span><br><span class="line">#EXT-X-KEY:METHOD&#x3D;AES-128,URI&#x3D;&quot;http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;enc.key&quot;,IV&#x3D;0xef157287b9fc922ed1cc101a09e742b3</span><br><span class="line">#EXTINF:35.704711,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file0.ts</span><br><span class="line">#EXTINF:24.984956,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file1.ts</span><br><span class="line">#EXTINF:31.450178,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file2.ts</span><br><span class="line">#EXTINF:29.614889,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file3.ts</span><br><span class="line">#EXTINF:29.531467,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file4.ts</span><br><span class="line">#EXTINF:28.780667,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file5.ts</span><br><span class="line">#EXTINF:31.992422,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file6.ts</span><br><span class="line">#EXTINF:31.241622,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file7.ts</span><br><span class="line">#EXTINF:28.196711,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file8.ts</span><br><span class="line">#EXTINF:29.823444,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file9.ts</span><br><span class="line">#EXTINF:32.451244,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file10.ts</span><br><span class="line">#EXTINF:30.824511,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file11.ts</span><br><span class="line">#EXTINF:26.820244,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file12.ts</span><br><span class="line">#EXTINF:13.931511,</span><br><span class="line">http:&#x2F;&#x2F;172.16.26.2&#x2F;media&#x2F;file13.ts</span><br><span class="line">#EXT-X-ENDLIST</span><br></pre></td></tr></table></figure>
-
-<p>这样通过加密生成的每个ts片断都需要解密才能播放。HTTP Live Streaming中内容加密有两种，一种是对TS切片文件直接加密；另一种是对H.264编码文件中类型为1和5的NAL单元进行加密，其它类型的NAL单元不加密。HLS中媒体分块如果是加密的，其加密密钥通过M3U8文件中的<code>#EXT-X-KEY</code>来指定，密钥文件由客户端从服务器请求认证获得。一个播放列表可以有一个以上的<code>#EXT-X-KEY</code>，同一个媒体段也可以有多个不同KEYFORMAT属性值的<code>#EXT-X-KEY</code>，在本例中使用的是对每个TS片断进行加密。</p>
-<p>在上面的示例m3u8文件中，<code>#EXT-X-KEY</code>有一个属性URI，其实这个URI就是秘钥的地址，在实际音视频版权保护的案例中，TS切片文件的加解密是非常重要的一环，因为客户端只有在拿到了key文件之后才能对TS切片文件进行解密，所以在URI上面做文章就很关键，这里只是用了一个简单的HTTP URL表示了key文件的地址，实际场景中需要配合用户Token等一系列校验过程才能使客户端拿到真正的key，另外如果key文件本身也是加密的话还需要对Key文件本身进行解密，如果把解密的代码放到SO库里（也就是C/C++编写的库），那么要破译Key就更难了。所以为了防盗链还是有很多的方法流程的。</p>
-<h2><span id="代码中解密ts文件">代码中解密TS文件</span></h2><p>在很多播放器内就内置了解密m3u8文件的功能，但是必须是在本例中这样直接给出key的URL才可以。对于这样的直接给出Key的地址的情况，只需要根据对应的Key做解密操作就行了。上面的每一个TS文件未解密都不能播放，因此每个TS文件都需要进行解密。下面是我写的关于TS文件AES128加解密的代码：</p>
-<p>先引入Java实现AES加密模块的依赖</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation <span class="string">group:</span> <span class="string">'org.bouncycastle'</span>, <span class="string">name:</span> <span class="string">'bcprov-jdk16'</span>, <span class="string">version:</span> <span class="string">'1.46'</span></span><br></pre></td></tr></table></figure>
-<p>AES128Utils.java</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AES128Utils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        Security.addProvider(<span class="keyword">new</span> BouncyCastleProvider());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 序号格式化为32字节长度字符串</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> index 片断序号</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 32字节长度序号</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getIvValue</span><span class="params">(<span class="keyword">int</span> index)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">"%032x"</span>, index);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 加密的TS文件加密为字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcTsFileBytes 加密的TS文件字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> keyBytes key文件的字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> iv iv偏移量（m3u8文件中）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 解密后的字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception 编解码、IO异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] decryptTsFile(<span class="keyword">byte</span>[] srcTsFileBytes, <span class="keyword">byte</span>[] keyBytes, String iv) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        Cipher cipher = Cipher.getInstance(<span class="string">"AES/CBC/PKCS7Padding"</span>);</span><br><span class="line">        SecretKeySpec keySpec = <span class="keyword">new</span> SecretKeySpec(keyBytes, <span class="string">"AES"</span>);</span><br><span class="line">        <span class="keyword">byte</span>[] ivByte = iv.getBytes();</span><br><span class="line">        <span class="keyword">if</span> (ivByte.length != <span class="number">16</span>) ivByte = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">16</span>];</span><br><span class="line">        AlgorithmParameterSpec paramSpec = <span class="keyword">new</span> IvParameterSpec(ivByte);</span><br><span class="line">        cipher.init(Cipher.DECRYPT_MODE, keySpec, paramSpec);</span><br><span class="line">        <span class="keyword">return</span> cipher.doFinal(srcTsFileBytes, <span class="number">0</span>, srcTsFileBytes.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 加密的TS文件加密为字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcTsFile 加密的TS文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key key文件的字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> iv iv偏移量（m3u8文件中）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 解密后的字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception 编解码、IO异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] decryptTsFile(File srcTsFile, String key, String iv) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> decryptTsFile(IOUtils.fileToByteArray(srcTsFile), key.getBytes(), iv);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 加密的TS文件加密为字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcTsFile 加密的TS文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> keyFile key文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> iv iv偏移量（m3u8文件中）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 解密后的字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception 编解码、IO异常</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] decryptTsFile(File srcTsFile, File keyFile, String iv) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> decryptTsFile(IOUtils.fileToByteArray(srcTsFile), IOUtils.fileToByteArray(keyFile), iv);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>IOUtils.java</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IOUtils</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"IOUtils"</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 合并Ts片断文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> tsFiles Ts文件集合</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> descFile 目标文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeTsFiles</span><span class="params">(Map&lt;String, File&gt; tsFiles, List&lt;String&gt; tsList,</span></span></span><br><span class="line"><span class="function"><span class="params">                                    File descFile, <span class="keyword">boolean</span> deleteSrcFile)</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">        FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(descFile);</span><br><span class="line">        <span class="keyword">for</span>(String name: tsList)&#123;</span><br><span class="line">            File file = tsFiles.get(name);</span><br><span class="line">            Log.i(TAG, <span class="string">"mergeTsFiles: key = "</span> + name + <span class="string">", path = "</span>+ file.getAbsolutePath());</span><br><span class="line">            fileOutputStream.write(IOUtils.fileToByteArray(file));</span><br><span class="line">            fileOutputStream.flush();</span><br><span class="line">            <span class="keyword">if</span>(deleteSrcFile) file.delete();</span><br><span class="line">        &#125;</span><br><span class="line">        fileOutputStream.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 文件转字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcFile 源文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 字节数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException IO</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] fileToByteArray(File srcFile) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        FileInputStream inputStream = <span class="keyword">new</span> FileInputStream(srcFile);</span><br><span class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4096</span>];</span><br><span class="line">        ByteArrayOutputStream byteArrayOutputStream = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">        <span class="keyword">int</span> read;</span><br><span class="line">        <span class="keyword">while</span> ((read = inputStream.read(buffer)) != -<span class="number">1</span>)&#123;</span><br><span class="line">            byteArrayOutputStream.write(buffer, <span class="number">0</span>, read);</span><br><span class="line">        &#125;</span><br><span class="line">        inputStream.close();</span><br><span class="line">        byteArrayOutputStream.close();</span><br><span class="line">        <span class="keyword">return</span> byteArrayOutputStream.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 字节数组写入文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> srcByte 组接数组</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> descFile 目标文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException IO</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">byteArrayToFile</span><span class="params">(<span class="keyword">byte</span>[] srcByte, File descFile)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        FileOutputStream os = <span class="keyword">new</span> FileOutputStream(descFile);</span><br><span class="line">        os.write(srcByte);</span><br><span class="line">        os.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>M3u8Parser.java</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">M3u8Parser</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String baseUrl;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"M3u8Parser"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> File m3u8File;</span><br><span class="line">    List&lt;String&gt; tsList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> Activity context;</span><br><span class="line">    <span class="keyword">private</span> File cacheDir;</span><br><span class="line">    <span class="keyword">private</span> File keyFile;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">M3u8Parser</span><span class="params">(String baseUrl, File m3u8File, Activity context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.baseUrl = baseUrl;</span><br><span class="line">        <span class="keyword">this</span>.m3u8File = m3u8File;</span><br><span class="line">        <span class="keyword">this</span>.context = context;</span><br><span class="line">        cacheDir = context.getExternalCacheDir();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initParser</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> FileReader(m3u8File));</span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = bufferedReader.readLine()) != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(line.startsWith(<span class="string">"#EXT-X-KEY"</span>))&#123;</span><br><span class="line">                String[] split = line.split(<span class="string">","</span>);</span><br><span class="line">                <span class="keyword">if</span>(split.length == <span class="number">3</span>)&#123;</span><br><span class="line">                    String keyUrl = split[<span class="number">1</span>].substring(<span class="number">5</span>, split[<span class="number">1</span>].length() - <span class="number">1</span>);</span><br><span class="line">                    System.out.println(keyUrl);</span><br><span class="line">                    NetWorkUtils.doGet(keyUrl, <span class="keyword">new</span> NetWorkUtils.ResultListener() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">success</span><span class="params">(File keyFile)</span> </span>&#123;</span><br><span class="line">                            Log.i(TAG, <span class="string">"success: "</span> + keyFile.getAbsolutePath());</span><br><span class="line">                            M3u8Parser.<span class="keyword">this</span>.keyFile = keyFile;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failed</span><span class="params">(IOException e)</span> </span>&#123;</span><br><span class="line">                            Log.e(TAG, <span class="string">"failed: "</span>, e);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(!line.startsWith(<span class="string">"#"</span>))&#123;</span><br><span class="line">                tsList.add(line);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startDownload</span><span class="params">(DownloadListener downloadListener)</span> </span>&#123;</span><br><span class="line">        CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(tsList.size());</span><br><span class="line">        Map&lt;String, File&gt; downloadTsFiles = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(String ts: tsList)&#123;</span><br><span class="line">            String url = baseUrl + ts;</span><br><span class="line">            Log.i(TAG, <span class="string">"startDownload: ts = "</span> + ts);</span><br><span class="line">            Log.i(TAG, <span class="string">"startDownload: url = "</span> + url);</span><br><span class="line">            <span class="keyword">int</span> finalIndex = index;</span><br><span class="line">            NetWorkUtils.doGet(url, <span class="keyword">new</span> NetWorkUtils.ResultListener() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">success</span><span class="params">(File downloadFile)</span> </span>&#123;</span><br><span class="line">                    String iv = AES128Utils.getIvValue(finalIndex);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">// 下载后直接解码</span></span><br><span class="line">                        <span class="keyword">byte</span>[] bytes = AES128Utils.decryptTsFile(downloadFile, keyFile, iv);</span><br><span class="line">                        IOUtils.byteArrayToFile(bytes, downloadFile);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    downloadTsFiles.put(ts, downloadFile);</span><br><span class="line">                    countDownLatch.countDown();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failed</span><span class="params">(IOException e)</span> </span>&#123;</span><br><span class="line">                    Log.e(TAG, <span class="string">"TS文件下载失败"</span>, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            index++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            countDownLatch.await(<span class="number">1200</span>, TimeUnit.SECONDS);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            File descFile = <span class="keyword">new</span> File(cacheDir, <span class="string">"main.ts"</span>);</span><br><span class="line">            IOUtils.mergeTsFiles(downloadTsFiles, tsList, descFile, <span class="keyword">false</span>);</span><br><span class="line">            context.runOnUiThread(()-&gt;&#123;</span><br><span class="line">                Toast.makeText(context, <span class="string">"缓存完成："</span> + descFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();</span><br><span class="line">            &#125;);</span><br><span class="line">            downloadListener.finishDownload();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DownloadListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">finishDownload</span><span class="params">()</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="参考资料">参考资料</span></h2><p>1、<a href="https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming" target="_blank" rel="noopener">Example Playlists for HTTP Live Streaming</a></p>
-<p>2、<a href="https://developer.apple.com/documentation/http_live_streaming" target="_blank" rel="noopener">HTTP Live Streaming</a></p>
-<p>3、<a href="https://segmentfault.com/a/1190000021126567" target="_blank" rel="noopener">知识付费——移动端音视频加密、防盗播实现方案</a></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -360,21 +277,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -382,180 +299,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/901333507.html" title="HLS流媒体服务与加解密" target="_blank">https://zouchanglin.cn/901333507.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Nginx</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">流媒体</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">ffmpeg</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/音视频技术//" class="article-tag-list-link color1">音视频技术</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/901333507.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2067425926.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          自定义View（一）
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3213001717.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">流媒体协议之HLS</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">编译安装Nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">apt安装ffmpeg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">使用ffmpeg切割媒体文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">使用ffmpeg合并ts文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">ffmpeg切割并加密媒体文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">代码中解密TS文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -564,13 +369,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

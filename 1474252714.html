@@ -216,96 +216,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-面试MySQL索引失效分析" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      【面试】MySQL索引失效分析
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1474252714.html" class="archive-article-date">
-        <time datetime="2019-09-22T13:30:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-09-22</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">974字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">4分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>本文主要向大家介绍了MySQL数据库之索引会失效的原因分析及解决索引失效的方法 ，通过具体的内容向大家展现，希望对大家学习MySQL数据库有所帮助。 </p>
-<a id="more"></a>
-
-<p>先看下面的一个示例：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test_03(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span> primary <span class="keyword">key</span> <span class="keyword">not</span> <span class="literal">null</span> auto_increment,</span><br><span class="line">    c1 <span class="built_in">char</span>(<span class="number">10</span>),</span><br><span class="line">    c2 <span class="built_in">char</span>(<span class="number">10</span>),</span><br><span class="line">    c3 <span class="built_in">char</span>(<span class="number">10</span>),</span><br><span class="line">    c4 <span class="built_in">char</span>(<span class="number">10</span>),</span><br><span class="line">    c5 <span class="built_in">char</span>(<span class="number">10</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test_03(c1, c2, c3, c4, c5) <span class="keyword">values</span> (<span class="string">'a1'</span>, <span class="string">'a2'</span>, <span class="string">'a3'</span>, <span class="string">'a4'</span>, <span class="string">'a5'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test_03(c1, c2, c3, c4, c5) <span class="keyword">values</span> (<span class="string">'b1'</span>, <span class="string">'b2'</span>, <span class="string">'b3'</span>, <span class="string">'b4'</span>, <span class="string">'b5'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test_03(c1, c2, c3, c4, c5) <span class="keyword">values</span> (<span class="string">'c1'</span>, <span class="string">'c2'</span>, <span class="string">'c3'</span>, <span class="string">'c4'</span>, <span class="string">'c5'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test_03(c1, c2, c3, c4, c5) <span class="keyword">values</span> (<span class="string">'d1'</span>, <span class="string">'d2'</span>, <span class="string">'d3'</span>, <span class="string">'d4'</span>, <span class="string">'d5'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test_03(c1, c2, c3, c4, c5) <span class="keyword">values</span> (<span class="string">'e1'</span>, <span class="string">'e2'</span>, <span class="string">'e3'</span>, <span class="string">'e4'</span>, <span class="string">'e5'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_test03_c1234 <span class="keyword">on</span> test_03(c1, c2, c3, c4);</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">index</span> <span class="keyword">from</span> test_03;</span><br><span class="line"></span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> test_03 <span class="keyword">where</span> c1=<span class="string">'a1'</span> <span class="keyword">and</span> c2=<span class="string">'a2'</span> <span class="keyword">and</span> c3=<span class="string">'a3'</span> <span class="keyword">and</span> c4=<span class="string">'a4'</span>;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> test_03 <span class="keyword">where</span> c4=<span class="string">'a1'</span> <span class="keyword">and</span> c3=<span class="string">'a2'</span> <span class="keyword">and</span> c1=<span class="string">'a3'</span> <span class="keyword">and</span> c2=<span class="string">'a4'</span>;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200202/s9M52sGxGDe5.png" alt="mark"></p>
-<p>很显然最下面的SQL语句并没有按照索引的建立顺序来查询，但是由于MySQL优化器对这条SQL做了优化，使得优化后的语句和上面的是一样的顺序，这样就能顺利用到索引了！但是由于这样写SQL语句还是会让底层做一次SQL优化，所以还不如一开始就按照建立索引的顺序来写SQL。</p>
-<p><img src="https://img.zouchanglin.cn///20200202/H38okJGwwnrY.png" alt="mark"></p>
-<p>上面的SQL会导致c4这个索引失效，那么如果是c4的范围条件写前面呢？同样的道理，SQL优化器会对SQL语句做优化，优化后的语句成了<code>explain select * from test_03 where c1=&#39;a1&#39; and c2=&#39;a2&#39; and c3=&#39;a3&#39; and c4&gt;&#39;c4&#39;;</code> 所以自然会用到四个索引了！</p>
-<p>再看看下面的order by的例子，很显然用于查找的索引有两个就是c1、c2。c3用于排序了而不是查找，c4这个索引没有用到：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/fv3VlPV2PmYg.png" alt="mark"></p>
-<p>所以上面的SQL和<code>explain select * from test_03 where c1=&#39;a1&#39; and c2=&#39;a2&#39; order by c3;</code> 一样的，和c4根本没有关系了</p>
-<p><img src="https://img.zouchanglin.cn///20200202/0IDudxaXxkig.png" alt="mark"></p>
-<p>上面这个例子呢主要是说中间兄弟没了，也就是你都没有给我第三层梯子，我怎么通过第四层排序，所以只能硬着头皮完成任务，那就Using filesort 呗！</p>
-<p><img src="https://img.zouchanglin.cn///20200202/1JFPUNYc7532.png" alt="mark"></p>
-<p>用到了一个c1索引，但是c2、c3用于排序，无filesort</p>
-<p><img src="https://img.zouchanglin.cn///20200202/XfDGGCzT6ohr.png" alt="mark"></p>
-<p>用了c1、c2两个字段索引，但是c2、c3用于排序，无filesort。看看下面这一种情况，为什么<code>explain select * from test_03 where c1=&#39;a1&#39; and c2=&#39;a2&#39; and c5=&#39;a5&#39; order by c3, c2;</code> 并没有产生文件内排序呢？</p>
-<p><img src="https://img.zouchanglin.cn///20200202/BpAO3eS4nFpm.png" alt="mark"></p>
-<p>因为c2已经是常量了，在已知字段是常量的情况下需要排序吗？肯定不需要。所以即使你写成了order by c3,c2 但是实际上只是对c3排序！</p>
-<p><img src="https://img.zouchanglin.cn///20200202/qDbYwawpN1WI.png" alt="mark"></p>
-<p>由上面的例子可以看出，用到了c1来查找，c4由于中间兄弟的消失是失效的索引，c2、c3用于分组，但是c2、c3如果不按照顺序分组的话就基本是是死掉了，出现了using temporary，这个是什么意思呢？看这个<a href="http://zouchanglin.cn/articles/2019/09/17/1568720691924.html#b3_solo_h4_14">Explain中的Using temporary</a> </p>
-<p>group 表面上是分组，分组之前必排序，所以说和order by排序的法则和索引优化的原则是一致的！</p>
-<p>定值、范围还是排序，一般order by是给个范围。group by 基本上都需要进行排序，会有临时表产生</p>
-<p>一般性建议：</p>
-<p>对于单键索引，尽量选择针对当前query过滤性更好的索引</p>
-<p>在选择组合索引的时候，当前Query中过滤性最好的字段在索引字段顺序中，位置越靠前越好。</p>
-<p>在选择组合索引的时候，尽量选择可以能包含当前query中的where子句中更多字段的索引</p>
-<p>尽可能通过分析统计信息和调整query的写法来达到选择合适索引的目的</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -315,21 +279,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -337,172 +301,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1474252714.html" title="【面试】MySQL索引失效分析" target="_blank">https://zouchanglin.cn/1474252714.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据库//" class="article-tag-list-link color4">数据库</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1474252714.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/127856370.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          谈谈两次比赛的感想
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1649611076.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">如何避免MySQL索引失效与三个优化实例</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    目录，不存在的…
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -511,13 +371,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

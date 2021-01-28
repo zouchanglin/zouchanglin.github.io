@@ -215,107 +215,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-O(nLogn)的归并排序" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      O(nLogn)的归并排序
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/507263713.html" class="archive-article-date">
-        <time datetime="2020-04-09T10:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-09</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>之前几篇文章我介绍了三种O(n²)的排序算法<a href="https://zouchanglin.cn/2020/04/07/3265364542.html">《O(n²)的三个排序算法》</a>（选择排序、插入排序和冒泡排序）以及它们的优化，然后顺便还写了一篇希尔排序的文章<a href="https://zouchanglin.cn/2020/04/09/4284449870.html">《插入排序的优化之希尔排序》</a>，但是其实用的比较多的还是直接插入排序，它们比较适合于小规模数据的排序 。下面我将记录时间复杂度为nlog(n)的几种排序算法之一 —— 归并排序算法，这种排序算法适合大规模的数据排序，比之前的O(n²)的三种排序算法更为常用，在学习之前我们可以先对比一下nlog(n)和n²是什么概念。</p>
-<a id="more"></a>
-
-<h1><span id="nlogn比n2快多少">nlog(n)比n²快多少</span></h1><p><img src="https://img.zouchanglin.cn///20200409/JeWMKqoPBepD.png" alt="mark"></p>
-<p>我们可以看出，在n越来越大的时候，nlogn比n²快上千倍甚至上万倍，所以nlogn的排序算法相对于n²的排序算法在大规模的数据的情况下更常用，也更实用。</p>
-<h1><span id="归并排序-mergesort">归并排序 MergeSort</span></h1><p>归并排序的核心思想还是蛮简单的。如果要排序一个数组，我们先把数组从中间分成前后两部分，然后对前后两部分分别排序，再将排好序的两部分合并在一起，这样整个数组就都有序了。 </p>
-<p><img src="https://img.zouchanglin.cn///20200409/6n3V1SP0QgHV.png" alt="mark"></p>
-<p>归并排序使用的就是<strong>分治思想</strong>。分治，顾名思义，就是分而治之，将一个大问题分解成小的子问题来解决。小的子问题解决了，大问题也就解决了。 分治思想跟递归思想很像，分治算法一般都是用递归来实现的。<strong>分治是一种解决问题的处理思想，递归是一种编程技巧</strong>，这两者并不冲突。 </p>
-<p>通过上面的示意图，很容易可以写出对应的伪代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 归并排序算法, A 是数组，n 表示数组大小</span><br><span class="line">merge_sort(A, n) &#123;</span><br><span class="line">  merge_sort_c(A, 0, n-1)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">&#x2F;&#x2F; 递归调用函数</span><br><span class="line">merge_sort_c(A, p, r) &#123;</span><br><span class="line">  &#x2F;&#x2F; 递归终止条件</span><br><span class="line">  if p &gt;&#x3D; r  then return</span><br><span class="line"> </span><br><span class="line">  &#x2F;&#x2F; 取 p 到 r 之间的中间位置 q</span><br><span class="line">  q &#x3D; (p+r) &#x2F; 2</span><br><span class="line">  &#x2F;&#x2F; 分治递归</span><br><span class="line">  merge_sort_c(A, p, q)</span><br><span class="line">  merge_sort_c(A, q+1, r)</span><br><span class="line">  &#x2F;&#x2F; 将 A[p...q] 和 A[q+1...r] 合并为 A[p...r]</span><br><span class="line">  merge(A[p...r], A[p...q], A[q+1...r])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以发现，其实最重要的两个步骤就是分支递归的过程和合并的过程，那么是如何合并的呢？</p>
-<p><img src="https://img.zouchanglin.cn///20200410/Ug8C8E0gk3jV.png" alt="mark"></p>
-<p>下面是Java版本的伪码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">    mergeChild(arr, <span class="number">0</span>, arr.length-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用递归进行归并排序，对arr[start, end]的范围进行排序</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeChild</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span></span>&#123;</span><br><span class="line">    <span class="comment">//代表处理的数据集为空</span></span><br><span class="line">    <span class="keyword">if</span>(start &gt;= end) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> mid = (end - start) / <span class="number">2</span> + start;</span><br><span class="line">    mergeChild(arr, start, mid);</span><br><span class="line">    mergeChild(arr, mid + <span class="number">1</span>, end);</span><br><span class="line">    merge(arr, start, mid, end);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将arr[start ... mid]和arr[mid+1 ... end] 两部分进行归并</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> mid, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建临时数组</span></span><br><span class="line">    <span class="keyword">int</span>[] aux = <span class="keyword">new</span> <span class="keyword">int</span>[end - start + <span class="number">1</span>];</span><br><span class="line">    System.arraycopy(arr, start, aux, <span class="number">0</span>, end - start + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">int</span> i = start;</span><br><span class="line">    <span class="keyword">int</span> j = mid + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = start; k &lt;= end ; k++) &#123;</span><br><span class="line">        <span class="comment">//左部分的已经归并完毕</span></span><br><span class="line">        <span class="keyword">if</span>(i &gt; mid)&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">            <span class="comment">//右部分的已经归并完毕</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(j &gt; end)&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(aux[i - start] &lt; aux[j - start])&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="算法稳定性">算法稳定性</span></h2><p>归并排序是稳定的排序算法吗？归并排序稳不稳定关键要看 merge() 函数，也就是两个有序子数组合并成一个有序数组的那部分代码。  由于是直接拷贝进了临时数组，这样就保证了值相同的元素，在合并前后的先后顺序不变。所以，归并排序是一个稳定的排序算法。 </p>
-<h2><span id="最好和最坏情况">最好和最坏情况</span></h2><p>从我们的原理分析和伪代码可以看出，归并排序的执行效率与要排序的原始数组的有序程度无关，所以其时间复杂度是非常稳定的，不管是最好情况、最坏情况，还是平均情况，时间复杂度都是 O(nlogn)。 </p>
-<h1><span id="归并排序的优化">归并排序的优化</span></h1><p>通过测试我们发现如果是对大批的随机数进行排序的话，相对于插入排序性能有百倍或者千倍的优势，如如我现在对50万个随机数用归并和插入进行排序：</p>
-<p><img src="https://img.zouchanglin.cn///20200410/42H232YDit7F.png" alt="mark"></p>
-<p>可以看出，归并排序的速度快280倍。可是如果是排接近有序的数组呢？我们知道，在插入排序最优的情况下就是已经有序，此时时间复杂度为O(n)，那么归并排序并不能达到O(n)的时间复杂度。现在对1000万个接近有序的数进行排序，只交换十次：</p>
-<p><img src="https://img.zouchanglin.cn///20200410/oeAVAb0KORjn.png" alt="mark"></p>
-<p>所以我们需要对归并排序进行优化：</p>
-<p>我们可以回顾一下归并排序的过程，假设在merge之前，如果<code>arr[mid] &lt;= arr[mid+1]</code>，那么是不是说明已经有序了呢？因为我们保证了arr[start, mid]是有序的，arr[mid+1, end]也是有序的。例如：[1,2 , 3 , 4, 5]、[6, 7, 8, 9, 10]，如果arr[mid] &lt;= arr[mid+1]，那么此时数组已经有序，无需执行merge操作。</p>
-<p>优化后的代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">    mergeChild(arr, <span class="number">0</span>, arr.length-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用递归进行归并排序，对arr[start, end]的范围进行排序</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeChild</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span></span>&#123;</span><br><span class="line">    <span class="comment">//代表我们处理的数据集为空</span></span><br><span class="line">    <span class="keyword">if</span>(start &gt;= end) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> mid = (end - start) / <span class="number">2</span> + start;</span><br><span class="line">    mergeChild(arr, start, mid);</span><br><span class="line">    mergeChild(arr, mid + <span class="number">1</span>, end);</span><br><span class="line">    <span class="comment">//优化掉不必要的merge操作</span></span><br><span class="line">    <span class="keyword">if</span>(arr[mid] &gt; arr[mid] + <span class="number">1</span>)</span><br><span class="line">        merge(arr, start, mid, end);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将arr[start ... mid]和arr[mid+1 ... end] 两部分进行归并</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> mid, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建临时数组</span></span><br><span class="line">    <span class="keyword">int</span>[] aux = <span class="keyword">new</span> <span class="keyword">int</span>[end - start + <span class="number">1</span>];</span><br><span class="line">    System.arraycopy(arr, start, aux, <span class="number">0</span>, end - start + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">int</span> i = start;</span><br><span class="line">    <span class="keyword">int</span> j = mid + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = start; k &lt;= end ; k++) &#123;</span><br><span class="line">        <span class="comment">//左部分的已经归并完毕</span></span><br><span class="line">        <span class="keyword">if</span>(i &gt; mid)&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">            <span class="comment">//右部分的已经归并完毕</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(j &gt; end)&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(aux[i - start] &lt; aux[j - start])&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上面是第一个优化点，其实还能优化，就是我们在递归到最后数据量非常小的时候我们直接使用插入排序来解决排序问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">    mergeChild(arr, <span class="number">0</span>, arr.length-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用递归进行归并排序，对arr[start, end]的范围进行排序</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeChild</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span></span>&#123;</span><br><span class="line">    <span class="comment">//代表我们处理的数据集为空</span></span><br><span class="line">    <span class="comment">//if(start &gt;= end) return;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(end - start &lt;= <span class="number">15</span>)&#123;</span><br><span class="line">        insertionSort(arr, start, end);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> mid = (end - start) / <span class="number">2</span> + start;</span><br><span class="line">    mergeChild(arr, start, mid);</span><br><span class="line">    mergeChild(arr, mid + <span class="number">1</span>, end);</span><br><span class="line">    <span class="comment">//优化点：优化掉不必要的merge操作</span></span><br><span class="line">    <span class="keyword">if</span>(arr[mid] &gt; arr[mid] + <span class="number">1</span>)</span><br><span class="line">        merge(arr, start, mid, end);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将arr[start ... mid]和arr[mid+1 ... end] 两部分进行归并</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> mid, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建临时数组</span></span><br><span class="line">    <span class="keyword">int</span>[] aux = <span class="keyword">new</span> <span class="keyword">int</span>[end - start + <span class="number">1</span>];</span><br><span class="line">    System.arraycopy(arr, start, aux, <span class="number">0</span>, end - start + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">int</span> i = start;</span><br><span class="line">    <span class="keyword">int</span> j = mid + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = start; k &lt;= end ; k++) &#123;</span><br><span class="line">        <span class="comment">//左部分的已经归并完毕</span></span><br><span class="line">        <span class="keyword">if</span>(i &gt; mid)&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">            <span class="comment">//右部分的已经归并完毕</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(j &gt; end)&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(aux[i - start] &lt; aux[j - start])&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//优化点：在数据规模小的时候直接使用插入排序（对arr[start, end]范围的插入数据排序）</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">insertionSort</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = start + <span class="number">1</span>; i &lt;= end; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> e = arr[i];</span><br><span class="line">        <span class="keyword">int</span> j;</span><br><span class="line">        <span class="keyword">for</span> (j = i; j &gt; start &amp;&amp; arr[j - <span class="number">1</span>] &lt; e; j--) &#123;</span><br><span class="line">            arr[i] = arr[j - <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        arr[j] = e;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200410/9UsWxMWfWNgf.png" alt="mark"></p>
-<p>经过上面的两个优化步骤之后，直接插入排序和归并排序在排序大量几乎有序的数组的时候，效率并差不了多少</p>
-<h1><span id="归并排序空间复杂度">归并排序空间复杂度</span></h1><p>归并排序的时间复杂度任何情况下都是 O(nlogn)，看起来非常优秀。  即便是快速排序，最坏情况下，时间复杂度也是 O(n²)，但是归并排序并没有像快排那样，应用广泛，这是为什么呢？因为它有一个致命的弱点，那就是归并排序不是原地排序算法。 </p>
-<p>实际上，递归代码的空间复杂度并不能像时间复杂度那样累加。<strong>尽管每次合并操作都需要申请额外的内存空间，但在合并完成之后，临时开辟的内存空间就被释放掉了。在任意时刻，CPU 只会有一个函数在执行，也就只会有一个临时的内存空间在使用。</strong>临时内存空间最大也不会超过 n 个数据的大小，所以空间复杂度是 O(n)。 </p>
-<p>但是在如今更多的场景是时间换空间，所以归并排序时间复杂度稳定为nlog(n)，空间复杂度稳定为O(n)，而且是稳定排序算法，用处还是挺多的。</p>
-<h1><span id="自底向上的归并排序">自底向上的归并排序</span></h1><p>如下图，我们先把数组划分为4部分，排序后划分为4部分进行归并为两部分，再把两部分归并为一部分：</p>
-<p><img src="https://img.zouchanglin.cn///20200412/Mhsg1lTXRhnX.png" alt="mark"></p>
-<p>这样就免去了递归的过程，而是一个迭代的过程。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bottomUpMergeSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> size = <span class="number">1</span>; size &lt;= arr.length; size += size) &#123;</span><br><span class="line">        <span class="comment">//i + size &lt; arr.length 防止越界</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i + size &lt; arr.length; i += size + size) &#123;</span><br><span class="line">            <span class="keyword">int</span> index = i + size + size - <span class="number">1</span>;</span><br><span class="line">            <span class="comment">//取i + size + size - 1 和 arr.length的最小值</span></span><br><span class="line">            merge(arr, i, i + size - <span class="number">1</span>, index &gt; arr.length ? arr.length - <span class="number">1</span>: index);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将arr[start ... mid]和arr[mid+1 ... end] 两部分进行归并</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">int</span> mid, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建临时数组</span></span><br><span class="line">    <span class="keyword">int</span>[] aux = <span class="keyword">new</span> <span class="keyword">int</span>[end - start + <span class="number">1</span>];</span><br><span class="line">    System.arraycopy(arr, start, aux, <span class="number">0</span>, end - start + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">int</span> i = start;</span><br><span class="line">    <span class="keyword">int</span> j = mid + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = start; k &lt;= end ; k++) &#123;</span><br><span class="line">        <span class="comment">//左部分的已经归并完毕</span></span><br><span class="line">        <span class="keyword">if</span>(i &gt; mid)&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">            <span class="comment">//右部分的已经归并完毕</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(j &gt; end)&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(aux[i - start] &lt; aux[j - start])&#123;</span><br><span class="line">            arr[k] = aux[i - start];</span><br><span class="line">            i++;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            arr[k] = aux[j - start];</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上面的代码其实还没有加入之前的两个优化点，加上之后效果更好。这种归并排序有一个很明显的特点就是没有使用数组的特性，即没有使用数组下标，正因为如此，这样的自底向上的归并排序可以对链表进行排序。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -325,21 +278,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -347,172 +300,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/507263713.html" title="O(nLogn)的归并排序" target="_blank">https://zouchanglin.cn/507263713.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">排序算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据结构与算法//" class="article-tag-list-link color3">数据结构与算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/507263713.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2191454998.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          快速排序及其优化
-        
-      </div>
-    </a>
-  
-  
-    <a href="/4284449870.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">插入排序的优化之希尔排序</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">nlog(n)比n²快多少</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">归并排序 MergeSort</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">算法稳定性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">最好和最坏情况</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">归并排序的优化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">归并排序空间复杂度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">自底向上的归并排序</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -521,13 +370,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

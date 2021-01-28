@@ -212,122 +212,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-SYN Cookie" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      SYN Cookie
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2692502944.html" class="archive-article-date">
-        <time datetime="2020-02-07T14:20:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-07</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.4k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">5分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p><img src="https://img.zouchanglin.cn///20200207/zezNAjgSvS3I.png" alt="mark"></p>
-<h2><span id="syn泛洪攻击">SYN泛洪攻击</span></h2><p>SYN攻击其实就是Server收到Client的SYN，Server向Client发送SYN-ACK之后未收到Client的ACK确认报文， 这样服务器就需要维护海量的半开连接 ，等待客户端的 ACK, 最终导致服务器资源耗尽(sync queue 满)而丢弃新的连接。  Server会不断重发SYN-ACK，Linux服务器默认直到63秒才断开连接！</p>
-<h2><span id="syn-cookie">SYN Cookie</span></h2><p>其中一种防护方式是SYN Cookie， SYN Cookies 的应用允许服务器当 SYN 队列被填满时避免丢弃连接。相反，服务器会表现得像 SYN 队列扩大了一样。服务器会返回适当的SYN+ACK响应，但会丢弃 SYN 队列条目。如果服务器接收到客户端随后的ACK响应，服务器能够使用编码在 TCP 序号内的信息重构 SYN 队列条目。</p>
-<a id="more"></a>
-
-<h2><span id="linux内核实现">Linux内核实现</span></h2><p>服务器会构造一个 sequence  number，根据 TCP 规范，由端点发送的第一个序号可以是由该端点决定的任何值。SYN Cookies 是根据以下规则构造的初始序号：  </p>
-<ul>
-<li>令t为一个缓慢递增的时间戳（通常为 <code>time() &gt;&gt; 6</code>，提供 64 秒的分辨率）；</li>
-<li>令m为服务器会在 SYN 队列条目中存储的最大分段大小（maximum segment size，简称为 MSS）；</li>
-<li>令s为一个加密散列函数对服务器和客户端各自的 IP 地址和端口号以及 t 进行运算的结果。返回得到的数值 s 必须是一个24位值，取低24位</li>
-</ul>
-<p>为了达到最佳的传输效能，TCP协议在建立连接的时候通常要协商双方的MSS值，这个值TCP协议在实现的时候往往用MTU值代替（需要减去IP数据包包头的大小20Bytes和TCP数据段的包头20Bytes）所以一般MSS值1460</p>
-<p>则初始序列号<code>n</code>为：</p>
-<ul>
-<li>高 <strong>5</strong> 位为<code>t mod 32</code>（mod是一种同余运算）</li>
-<li>接下来<strong>3</strong>位为<code>m</code>的编码值</li>
-<li>低 <strong>24</strong> 位为<code>s</code></li>
-</ul>
-<p>下面是具体过程，主要是低24位s得计算过程，服务器收到一个SYN包，计算一个消息摘要mac。</p>
-<p>mac = MAC(A, k);</p>
-<p>MAC是密码学中的一个消息认证码函数，也就是满足某种安全性质的带密钥的hash函数，它能够提供cookie计算中需要的安全性。在Linux实现中，MAC函数为SHA1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A &#x3D; SOURCE_IP || SOURCE_PORT || DST_IP || DST_PORT || t || MSSIND</span><br></pre></td></tr></table></figure>
-
-<p>k为服务器独有的密钥，实际上是一组随机数。t为系统启动时间，每60秒加1。MSSIND为MSS对应的索引。</p>
-<p>其实就是根据源IP、源端口、目的IP、目的端口、系统启动时间，MSS索引通过哈希函数计算出的一个值</p>
-<p>SYN Cookie在Linux内核中的实现</p>
-<p>如果SYN Cookie功能有编译进内核(CONFIG_SYN_COOKIE)，且选项tcp_syncookies不为0，那么可使用SYN Cookie。同时设置SYN Flood标志(listen_opt-&gt;synflood_warned)</p>
-<p><img src="https://img.zouchanglin.cn///20200207/WyWJ0MwUP5YJ.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200207/LBg9Hbr6iWTI.png" alt="mark"></p>
-<p>SHA1 安全哈希算法(Secure HASH Algorithm)主要适用于数字签名。</p>
-<p>对于长度小于2^64位的消息，SHA1会产生一个160位的消息摘要。当接收到消息的时候，这个消息摘要可以用来<br>验证数据的完整性。在传输的过程中，数据可能会发生变化，那么这时候就会产生不同的消息摘要。<br>SHA1有如下特性：</p>
-<ul>
-<li><p>不可以从消息摘要中复原信息。</p>
-</li>
-<li><p>两个不同的消息不会产生同样的消息摘要。</p>
-</li>
-</ul>
-<p>当客户端收到此<code>SYN+ACK</code> 报文后，根据<code>TCP</code>标准，它会回复<code>ACK</code>报文，且报文中<code>ack = n + 1</code>，那么在服务器收到它时，将<code>ack - 1</code>就可以拿回当初发送的<code>SYN+ACK</code>报文中的序号了！服务器巧妙地通过这种方式间接保存了一部分<code>SYN</code>报文的信息。 看到这里在回顾一个这个序列号的组成</p>
-<ul>
-<li>高 <strong>5</strong> 位为<code>t mod 32</code>（mod是一种同余运算）</li>
-<li>接下来<strong>3</strong>位为<code>m</code>的编码值</li>
-<li>低 <strong>24</strong> 位为<code>s</code></li>
-</ul>
-<p>接下来，服务器需要对<code>ack - 1</code>这个序号进行检查：</p>
-<ul>
-<li>将高 <strong>5</strong> 位表示的<code>t</code>与当前之间比较，看其到达地时间是否能接受。</li>
-<li>根据<code>t</code>和连接元组重新计算<code>s</code>，看是否和低 <strong>24</strong> 一致，若不一致，说明这个报文是被伪造的。</li>
-<li>解码序号中隐藏的<code>mss</code>信息</li>
-</ul>
-<p>如果成功匹配， 服务器就会为新的连接创建和初始化一个传输控制块，然后把完成三次握手的req和新sock关联起来，下面看看验证这段逻辑的代码</p>
-<p><img src="https://img.zouchanglin.cn///20200207/XFz6jkwLFrbc.png" alt="mark"></p>
-<p><code>SYN Cookie</code>技术可以让服务器在收到客户端的<code>SYN</code>报文时，不分配资源保存客户端信息，而是将这些信息保存在<code>SYN+ACK</code>的初始序号和时间戳中。对正常的连接，这些信息会随着<code>ACK</code>报文被带回来。 </p>
-<h2><span id="syn-cookie总结">SYN Cookie总结</span></h2><p>由于cookie的计算只涉及到包头部分信息，在建立连接的过程。中不在服务器端保存任何信息，所以失去了协议的许多功能，比如超时重传。此外，由于计算cookie有一定的运算量，增加了连接建立的延迟时间，因此，SYN Cookie技术不能作为高性能服务器的防御手段。一些SYN攻击的防火墙也是基于SYN Cookie，只是把这个功能移动到内核之外的代理服务器上。</p>
-<p>参考资料：</p>
-<p><a href="https://lwn.net/Articles/277146/" target="_blank" rel="noopener">https://lwn.net/Articles/277146/</a> </p>
-<p><a href="https://zh.wikipedia.org/wiki/SYN_cookie" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/SYN_cookie</a></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -337,21 +275,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -359,172 +297,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2692502944.html" title="SYN Cookie" target="_blank">https://zouchanglin.cn/2692502944.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/计算机网络//" class="article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2692502944.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/244262852.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          NIO与缓冲区
-        
-      </div>
-    </a>
-  
-  
-    <a href="/4042845221.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">康威法则与微服务</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">SYN泛洪攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">SYN Cookie</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Linux内核实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">SYN Cookie总结</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -533,13 +367,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

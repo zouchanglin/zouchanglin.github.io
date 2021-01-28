@@ -214,244 +214,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-谈谈京东的JSF" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      谈谈京东的服务框架
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/621394972.html" class="archive-article-date">
-        <time datetime="2020-06-28T07:19:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-28</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.5k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>最近由于在实习期间接触到了京东的自研服务框架JSF，简称“杰夫”，目前我写的一些新功能里面调用的下游接口就是杰夫提供的。现有有很多高效的服务框架，如阿里巴巴的Dubbo配合Apache的ZooKeeper，那么为什么京东却自研了JSF服务框架呢？于是看了看京东的JSF的演化历史，不得不感叹好的架构果然不是一朝一夕就能实现的，都是逐步演变而来的。</p>
-<a id="more"></a>
-
-<h2><span id="一-dubbo与zookeeper的组合拳">一、Dubbo与Zookeeper的组合拳</span></h2><p>Dubbo是阿里巴巴开源的一个高性能的服务框架，Dubbo使得应用之间可通过高性能的RPC实现服务的输出和输入功能，而且可以和 Spring框架无缝集成。我们可以看看Dubbo架构路线图：从单一应用架构 → 垂直应用架构 → 分布式服务架构 → 流动计算架构 ，也可以看我的另一篇文章<a href="https://zouchanglin.cn/2020/05/14/1934360474.html">《服务拆分方法论》</a>:</p>
-<p><img src="https://img.zouchanglin.cn///20200514/reUxUKbU80SK.png" alt></p>
-<p>从上图可以看出互联网的架构演变经历了单一应用架构、垂直应用架构、分布式服务架构和流动计算架构。服务的粒度越来越细化，多个Tomcat的Servlet之间相互调用，服务治理的尤为重要，所以一个优秀的架构来替我们解决服务之间的调用问题，而且还要保证高可用，甚至是实现负载均衡。于是Dubbo框架就出现了，它提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册与发现。 </p>
-<p>下面是Dubbo框架的架构图：</p>
-<p><img src="https://img.zouchanglin.cn/blog/20200725/kwlNBqbWf1YY.png" alt="mark"></p>
-<table>
-<thead>
-<tr>
-<th align="left">节点</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Provider</td>
-<td align="left">暴露服务的服务提供方</td>
-</tr>
-<tr>
-<td align="left">Consumer</td>
-<td align="left">调用远程服务的服务消费方</td>
-</tr>
-<tr>
-<td align="left">Registry</td>
-<td align="left">服务注册与发现的注册中心</td>
-</tr>
-<tr>
-<td align="left">Monitor</td>
-<td align="left">统计服务的调用次数和调用时间的监控中心</td>
-</tr>
-<tr>
-<td align="left">Container</td>
-<td align="left">服务运行容器</td>
-</tr>
-</tbody></table>
-<p>先用容器Container，通过Docker来启动我们的服务Provider。Dubbo本身没有使用任何的注册中心，而是用一种直连的方式进行的。但是，实际上很多时候都是使用 Dubbo + Zookeeper 的方式，使用 zookeeper 作为注册中心，服务调用方Comsumer就会去注册中心去订阅Subscribe相关服务。注册中心会异步的方式将消费者需要的服务的地址列表推送Notify给你。消费者就会将整个地址列表缓存在本地，当业务需求到来时，就会使用地址列表里的地址去请求相关的服务程序。至于Monitor顾名思义就是监视器的含义，消费者和提供者会定时将服务的调用次数和被调用的次数发送给监视器。关于Dubbo和Zookeeper的使用案例在此就不介绍了，可以参考<a href="https://segmentfault.com/a/1190000019896723" target="_blank" rel="noopener">《Dubbo一篇文章就够了：从入门到实战》</a>。</p>
-<h2><span id="二-zookeeper适合作为注册中心吗">二、Zookeeper适合作为注册中心吗</span></h2><p>当我们提出“Zookeeper作为注册中心合适吗”这个问题的时候，首先考虑的是具体使用场景，我想说的是，在京东，Zookeeper真的不合适！</p>
-<p>关于服务注册中心重要性不必多说，注册中心相当于是服务提供者和服务调用者之间的引路人，在服务治理中的作用极为重要，注册中心必须必须必须是高可用的，拥有极强的稳定性。那么如何选择服务器注册中心呢？下面列出一些作为注册中心基本要考量点：</p>
-<ul>
-<li>服务注册：接收注册信息的方式</li>
-<li>服务订阅：返回订阅信息的方式，推还是拉</li>
-<li>状态检测：检测服务端存活状态</li>
-</ul>
-<p>状态检测尤其重要，因为这个要是检测不准确会误判，导致严重后果，例如Zookeeper是强一致性的，Zookeeper根据服务端注册的临时节点进行状态检测，如果服务端和Zookeeper之间的网络闪断，导致Zookeeper认为服务端已经死了，从而摘掉这个节点；但是其实客户端和服务端直接的网络是好的，这样就有可能把节点全部摘掉，导致无可用节点。</p>
-<p>如果是从开源框架里面选择，那么还需要考量：</p>
-<ul>
-<li>成熟度：包括学习成本，社区热度，文档数（盲目追求的不一定是最适合）</li>
-<li>维护成本：注册中心维护</li>
-<li>数据结构：是否能快速定位结果，是否能遍历</li>
-<li>性能和稳定性</li>
-<li>CAP原则：CP（关注一致性）还是AP（关注可用性）</li>
-</ul>
-<p>下面比较一下我知道的两个注册中心</p>
-<table>
-<thead>
-<tr>
-<th align="left"></th>
-<th align="left">ZooKeeper</th>
-<th align="left">Eureka</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">一致性</td>
-<td align="left">强一致性</td>
-<td align="left">弱一致性</td>
-</tr>
-<tr>
-<td align="left">数据结构</td>
-<td align="left">Tree</td>
-<td align="left">K/V</td>
-</tr>
-<tr>
-<td align="left">通讯协议</td>
-<td align="left">TCP</td>
-<td align="left">HTTP</td>
-</tr>
-<tr>
-<td align="left">客户端</td>
-<td align="left">ZKClient</td>
-<td align="left">Eureka-client</td>
-</tr>
-<tr>
-<td align="left">CAP原则</td>
-<td align="left">CP</td>
-<td align="left">AP</td>
-</tr>
-</tbody></table>
-<p>注册中心的选型总结：</p>
-<ul>
-<li>规模小选择CP，RPC框架可以直接接入数据源</li>
-<li>规模大选择AP， RPC框架不可以直接接入数据源</li>
-<li>存在跨机房，跨地域的尽量不要选有强一致性协议的注册中心</li>
-<li>RPC框架必须要有注册中心不可用的容灾策略</li>
-<li>服务状态检测十分重要</li>
-</ul>
-<p>说完了注册中心选型和特点后，我们再来分析Zookeeper是否在适合在京东作为服务注册中心，答案是<strong>不适合</strong>。Zookeeper在大流量场景下不适合作为注册中心，因为Zookeeper不是为高可用性设计的。</p>
-<p><strong>由于要跨机房容灾，很多系统实际上是需要跨机房部署的。出于性价比的考虑我们通常会让多个机房同时工作，而不会搭建N倍的冗余。也就是说单个机房肯定撑不住全流量。由于Zookeeper集群只能有一个master节点，因此一旦机房之间连接出现故障，Zookeeper master就只能照顾一个机房，其他机房运行的业务模块由于没有master都只能停掉。于是所有流量集中到有master的那个机房，于是系统宕机。</strong> 这是就是京东在2015年的双十一注册中心挂掉的根本原因。后端容器服务重启以后之前缓存的服务地址列表丢失，服务无法调用。而且Zookeeper没有动态水平扩展的能力，Zookeeper作为注册中心称为了双十一这种高并发场景下的瓶颈。</p>
-<p>即使是在同一个机房里面，由于网段的不同，在调整机房交换机的时候偶尔也会发生网段隔离的情况。实际上机房每个月基本上都会发生短暂的网络隔离之类的子网段调整。在那个时刻Zookeeper将处于不可用状态。如果整个业务系统基于Zookeeper（比如要求每个业务请求都先去Zookeeper获取业务系统的master地址），则系统的可用性将非常脆弱。由于Zookeeper对于网络隔离的极度敏感，导致Zookeeper对于网络的任何风吹草动都会做出激烈反应。这使得Zookeeper的服务失效时间比较多，Zookeeper的不可用将导致整个系统的不可用。</p>
-<h2><span id="三-理想的服务框架是什么样">三、理想的服务框架是什么样</span></h2><p><img src="https://img.zouchanglin.cn/blog/20200725/xNLDTfzd60wd.png" alt="mark"></p>
-<h3><span id="接口文档管理">接口文档管理</span></h3><p>提供一个接口文档管理以及接口查询的入口，可以是一个公共的WIKI，也可以是独立的系统，等等。这里可以定义接口的文档，包括接口描述，方法定义，字段定义。可以定义接口的SLA，包括支持的并发数，建议配置是什么。还有就是接口的负责人等一些查询的入口。</p>
-<h3><span id="配置中心">配置中心</span></h3><p>提供一个配置管理的地方，这里说的配置主要指的是服务相关的一些配置。配置包括分组配置、路由策略、黑白名单、降级开关、限流信息、超时时间、重试次数等等，任何可以动态变更的所有数据。这样服务提供者和服务调用者可以不需要重启自己的应用，直接进行配置的变更。配置中心可以独立于注册中心，也可以和注册中心合并。</p>
-<h3><span id="监控中心">监控中心</span></h3><p>监控服务关注接口维度，实例（例如所在JVM实例）维度的数据。RPC框架可以定时上报调用次数，耗时，异常等信息。监控中心可以统计出服务质量信息，也可以进行监控报警。</p>
-<h3><span id="分布式跟踪">分布式跟踪</span></h3><p>区别于监控中心，以调用链的模式对服务进行。RPC框架作为分布式跟踪系统的一个天然埋点，可以很好的进行一个数据输出。</p>
-<h3><span id="服务治理">服务治理</span></h3><p>我这边列了常见的服务治理功能，例如：</p>
-<ul>
-<li>服务路由：<ul>
-<li>权重：例如机器配置高的权重高，机器配置低的权重低；</li>
-<li>IP路由：例如某几台机器只能调某几台机器；</li>
-<li>分组路由：例如自动根据配置调某个分组；</li>
-<li>参数路由：例如根据方法名进行读写分类，或者根据参数走不同的节点；</li>
-<li>机房路由：例如只走同机房，或者同机房优先。</li>
-</ul>
-</li>
-<li>调用授权：<ul>
-<li>应用授权：只有授权后的应用才能调这组服务</li>
-<li>token：只有token对的调这组服务</li>
-<li>黑白名单：只有名单允许的才能调这组服务</li>
-</ul>
-</li>
-<li>动态分组：<ul>
-<li>服务端切分组：可以根据分组的情况，对服务提供者进行一个动态的分组调度；</li>
-<li>客户端切分组：可以对调用者进行一个分组调度。</li>
-</ul>
-</li>
-<li>调用限流：<ul>
-<li>服务端限流：服务端基于令牌桶或者漏桶模型进行限流；</li>
-<li>客户端限流：根据客户端的标识，进行调用次数限流。</li>
-</ul>
-</li>
-<li>灰度部署：<ul>
-<li>灰度上线：先启动，验证后在提供服务；</li>
-<li>预发标识：表示该服务为预发布服务；</li>
-<li>接口测试：方便的提供接口自动化功能测试功能。</li>
-</ul>
-</li>
-<li>服务降级：<ul>
-<li>Mock：出现异常或者测试情况下，返回Mock数据；</li>
-<li>熔断：客户端超时或者服务端超时；</li>
-<li>拒绝服务：服务端压力大时，自动拒绝服务，保护自己。<h3><span id="网关">网关</span></h3></li>
-</ul>
-</li>
-</ul>
-<p>RPC框架大部分场景都是自己调用的，什么时候会需要一个网关呢？</p>
-<p>网关可以提供如下功能：</p>
-<ul>
-<li>统一的鉴权服务；</li>
-<li>限流服务；</li>
-<li>协议转换：外部协议转统一内部协议；</li>
-<li>Mock：服务测试，降级等；</li>
-<li>其它一些统一处理逻辑（例如请求解析，响应包装）。</li>
-</ul>
-<h2><span id="四-京东的jsf迭代">四、京东的JSF迭代</span></h2><h3><span id="jsf雏形asf">JSF雏形——ASF</span></h3><p>JSF早期叫做ASF，当时的选择如下：</p>
-<ul>
-<li>RPC框架：基于dubbo2.3.2做配置扩展，以及功能扩展包括：rest（resteasy）、webservice（cxf）、kryo/thrift序列化、调用压缩等；</li>
-<li>注册中心：Zookeeper，RPC框架直接接入数据源；</li>
-<li>监控中心：监控服务+HBase；</li>
-<li>管理平台：读取Zookeeper做管理平台，提供基本的上下线、黑白名单等功能。</li>
-</ul>
-<h3><span id="现在的jsf构成">现在的JSF构成</span></h3><p>目前的JSF几乎是全部自研</p>
-<ul>
-<li>RPC框架：轻量级，更佳的性能，兼容旧版本协议；</li>
-<li>注册中心：基于DB作为数据源，前置Index服务；支持十倍接入量；部分逻辑放在注册中心减少客户端负担；</li>
-<li>监控中心：监控Proxy服务+InfluxDB（2015后改为ElasticSearch）；</li>
-<li>管理端：基于DB，功能更强大，提供完善的服务治理管理功能；打通京东应用管理平台，提供应用依赖关系梳理；</li>
-<li>HTTP网关：基于Netty，支持跨语言调用。</li>
-</ul>
-<p>目前的JSF是基于DB做的数据最终一致，也就是AP系统。注册中心主要实现的就是服务列表的注册订阅推送，服务配置的获取下发，服务状态的实时查看等功能。注册中心节点是无状态的，可水平扩展的。整个注册中心集群下的所有注册中心几点都是等价的。 </p>
-<h3><span id="jsf优化与特点">JSF优化与特点</span></h3><ul>
-<li>引入Index服务概念：该服务就是一个最简单HTTP的服务，用于找注册中心节点（同机房或者压力最小或者其它特定场景），可以认为是不会挂的服务，RPC框架会优先连该服务拿注册中心地址，这样子的好处是注册中心地址变化后，RPC框架不用修改任何设置； </li>
-</ul>
-<ul>
-<li>注册中心内存有服务列表全量缓存，连不上数据库也保证可读；</li>
-<li>数据库的数据结构更适合各种维度展示、过滤、分析等，例如根据分组/IP/应用/机房等不同维度；</li>
-<li>注册中心就是个JSF服务，监控到压力大即可进行动态水平扩展，不会出现2015年双十一那样的事故了；</li>
-<li>服务列表推送逻辑改进：例如原来100个Provider，现在加1个节点，之前的SAF是需要下发101个节点，自己判断加了哪个节点，进行长链接建立；现在的改进是：修改为下发一个add事件，告知RPC框架加了1个节点，RPC框架进行长链接建立；这样做大大减少了推送的数据量；</li>
-<li>注册中心与RPC框架可各种交互：注册中心和RPC框架是长链接，而且JSF是支持Callback的，注册中心可以调用RPC框架进行服务列表变化之外的操作；例如查看状态，查看配置，配置下发等。</li>
-</ul>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -461,21 +277,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -483,184 +299,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/621394972.html" title="谈谈京东的服务框架" target="_blank">https://zouchanglin.cn/621394972.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RPC</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">负载均衡</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">动态扩容</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">高可用</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/分布式理论//" class="article-tag-list-link color1">分布式理论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/621394972.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/329748250.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Netty的Reactor线程模型
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1424587188.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">RabbitMQ学习</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">一、Dubbo与Zookeeper的组合拳</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">二、Zookeeper适合作为注册中心吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">三、理想的服务框架是什么样</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">接口文档管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">配置中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">监控中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">分布式跟踪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.5.</span> <span class="toc-text">服务治理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.6.</span> <span class="toc-text">网关</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">四、京东的JSF迭代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">JSF雏形——ASF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">现在的JSF构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">JSF优化与特点</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -669,13 +369,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

@@ -223,113 +223,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-NAT技术与ARP协议" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      NAT技术与ARP协议
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1894999249.html" class="archive-article-date">
-        <time datetime="2019-10-29T11:36:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-29</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.3k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">8分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h1><span id="私有ip地址">私有IP地址</span></h1><p>之前我们讨论了， IPv4协议中，IP地址数量不充足的问题<br>NAT技术当前解决IP地址不够用的主要手段，是路由器的一个重要功能；<br>NAT能够将私有IP对外通信时转为全局IP。也就是就是一种将私有IP和全局IP相互转化的技术方法；<br>很多学校, 家庭, 公司内部采用每个终端设置私有IP，而在路由器或必要的服务器上设置全局IP；<br>全局IP要求唯一，但是私有IP不需要；在不同的局域网中出现相同的私有IP是完全不影响的；</p>
-<a id="more"></a>
-
-<p><img src="https://img.zouchanglin.cn///20200202/95dUmTIigudH.png" alt="mark"></p>
-<p>路由器对目的地址是私有IP地址的数据报一律不进行转发。</p>
-<h1><span id="网络地址转换-nat">网络地址转换 NAT</span></h1><p>网络地址转换NAT (Network Address Translation) ：在专用网连接到因特网的路由器上安装NAT软件，安装了NAT软件的路由器叫NAT路由器，它至少有一个有效的外部全球IP地址。</p>
-<p><img src="https://img.zouchanglin.cn///20200202/xs4EieqTNKXs.png" alt="mark"></p>
-<p>NAT路由器将源地址从10.0.0.10替换成全局的IP 202.244.174.37；<br>NAT路由器收到外部的数据时，又会把目标IP从202.244.174.37替换回10.0.0.10；<br>在NAT路由器内部，有一张自动生成的，用于地址转换的表；<br>当 10.0.0.10 第一次向 163.221.120.9 发送数据时就会生成表中的映射关系；</p>
-<p><img src="https://img.zouchanglin.cn///20200202/zywNzuz0hOr6.png" alt="mark"></p>
-<h1><span id="网段划分">网段划分</span></h1><p>IP地址分为两个部分，网络号和主机号</p>
-<p>网络号：保证相互连接的两个网段具有不同的标识；<br>主机号：同一网段内，主机之间具有相同的网络号，但是必须有不同的主机号；</p>
-<p>不同的子网其实就是把网络号相同的主机放到一起，如果在子网中新增一台主机，则这台主机的网络号和这个子网的网络号一致，但是主机号必须不能和子网中的其他主机重复。通过合理设置主机号和网络号，就可以保证在相互连接的网络中，每台主机的IP地址都不相同。</p>
-<p>手动管理子网内的IP，是一个相当麻烦的事情。有一种技术叫做DHCP，能够自动的给子网内新增主机节点分配IP地址，避免了手动管理IP的不便。一般的路由器都带有DHCP功能。因此路由器也可以看做一个DHCP服务器。</p>
-<p>过去曾经提出一种划分网络号和主机号的方案，把所有IP 地址分为五类，如下图所示：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/j3gV4eHP9QAV.png" alt="mark"></p>
-<p>A类 0.0.0.0到127.255.255.255<br>B类 128.0.0.0到191.255.255.255<br>C类 192.0.0.0到223.255.255.255<br>D类 224.0.0.0到239.255.255.255<br>E类 240.0.0.0到247.255.255.255</p>
-<p>随着Internet的飞速发展，这种划分方案的局限性很快显现出来，大多数组织都申请B类网络地址，导致B类地址很快就分配完了，而A类却浪费了大量地址。</p>
-<p>分类的IP地址的弱点:<br>1、IP地址空间的利用率有时很低<br>2、两级IP地址不够灵活</p>
-<p>针对这种情况提出了新的划分方案，称为CIDR(Classless Interdomain Routing)：<br>引入一个额外的子网掩码(subnet mask)来区分网络号和主机号；子网掩码也是一个32位的正整数，通常用一串 “0” 来结尾；将IP地址和子网掩码进行 “按位与” 操作, 得到的结果就是网络号；网络号和主机号的划分与这个IP地址是A类、B类还是C类无关；</p>
-<p>子网掩码可以分离出IP地址中的网络地址和主机地址，那为什么要分离呢？因为两台计算机要通讯，首先要判断是否处于同一个广播域内，即网络地址是否相同。如果网络地址相同，表明接受方在本网络上，那么可以把数据包直接发送到目标主机，否则就需要路由网关将数据包转发送到目的地。 </p>
-<p><img src="https://img.zouchanglin.cn///20200202/xynSbGRxGmyy.png" alt="mark"></p>
-<h1><span id="路由">路由</span></h1><p>在复杂的网络结构中， 找出一条通往终点的路线；</p>
-<p>当IP数据包，到达路由器时， 路由器会先查看目的IP；路由器决定这个数据包是能直接发送给目标主机，还是需要发送给下一个路由器；依次反复；一直到达目标IP地址；</p>
-<p>那么如何判定当前这个数据包该发送到哪里呢？这个就依靠每个节点内部维护一个路由表；可以使用route查看路由表：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/PfTfYNWzc24p.png" alt="mark"></p>
-<p>路由表的Destination是目的网络地址，Genmask是子网掩码，Gateway是下一跳地址，Iface是发送接<br>口，也就是网卡，Flags中的U标志表示此条目有效(可以禁用某些条目)，G标志表示此条目的下一跳地址是某个路由器的地址，没有G标志的条目表示目的网络地址是与本机接口直接相连的网络，不必经路由器转发；</p>
-<p>如果要发送的数据包的目的地址是192.168.45.3 </p>
-<p>跟第一行的子网掩码做与运算，与第一行的目的网络地址不符<br>跟第二行的子网掩码做与运算，与第二行的目的网络地址不符<br>跟第三行的子网掩码做与运算，得到192.168.45.0，正是第三行的目的网络地址，因此从eth1接口发送出去；</p>
-<p>如果要发送的数据包的目的地址是202.10.1.2</p>
-<p>依次和路由表前几项进行对比，发现都不匹配；<br>按缺省路由条目，从eth34接口发出去，发往192.168.10.1路由器；<br>由192.168.10.1路由器根据它的路由表决定下一跳地址；</p>
-<h1><span id="arp协议">ARP协议</span></h1><p>ARP不是一个单纯的数据链路层的协议，而是一个介于数据链路层和网络层之间的协议</p>
-<p>ARP协议的作用：ARP协议建立了主机IP地址和MAC地址的映射关系。</p>
-<p>在网络通讯时，源主机的应用程序知道目的主机的IP地址和端口号，却不知道目的主机的硬件地址；数据包首先是被网卡接收到再去处理上层协议的，如果接收到的数据包的硬件地址与本机不符，则直接丢弃；因此在通讯前必须获得目的主机的硬件地址；不过ARP协议只能用于IPv4，不能够用于IPv6，IPv6中可以用ICMPv6替代ARP发送邻居探索消息！</p>
-<p><img src="https://img.zouchanglin.cn///20200202/e5xwIUPWG860.png" alt="mark"></p>
-<p>源主机发出ARP请求，询问 IP地址是172.20.1.2的主机的硬件地址是多少，并将这个请求广播到本地网段(以太网帧首部的硬件地址填FF:FF:FF:FF:FF:FF表示广播)；<br>目的主机接收到广播的ARP请求，发现其中的IP地址与本机相符，则发送一个ARP应答数据包给源主机，将自<br>己的硬件地址填写在应答包中；<br>每台主机都维护一个ARP缓存表，可以用arp -a命令查看。缓存表中的表项有过期时间(一般为20分钟)，如果20分钟内没有再次使用某个表项，则该表项失效，下次还要发ARP请求来获得目的主机的硬件地址：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/DIx2kKCiG68L.png" alt="mark"></p>
-<p>这种缓存可以有效减少ARP包的发送，反之，接受ARP包的主机也可以通过这个ARP包把发送方的MAC地址缓存起来，从而根据MAC地址发送ARP响应包给发送端主机，并作为响应，因此在接收主机缓存MAC地址也是一种提高效率的方式。</p>
-<p>MAC地址的缓存是有期限的，超过这个期限，缓存的内容将被清除，这使得MAC地址与IP地址对应关系发生了变化，也依旧能够将IP数据报正确的发给目标地址。</p>
-<p>ARP包格式：<br><img src="https://img.zouchanglin.cn///20200202/BTiESWRKqpA4.png" alt="mark"></p>
-<p>硬件类型指链路层网络类型，1为以太网；</p>
-<p>上层协议类型指要转换的地址类型，0x0800为IP地址；</p>
-<p>HLEN：MAC地址的长度 = 6 (字节)；</p>
-<p>PLEN：IP地址的长度 = 4 (字节)；</p>
-<p>操作码 ： 该字段为1表示ARP请求，op字段为2表示ARP应答。</p>
-<h2><span id="ip地址和mac地址缺一不可">IP地址和MAC地址缺一不可</span></h2><p>如图所示，主机A想要发IP数据报给主机B的时候必须经过路由器c，即使主机A知道了主机B的MAC地址，，由于路由器会隔断两个网络，还是无法实现从主机A直接发送到主机B，此时主机A必须先把数据报发送给路由器C的MAC地址C1：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/uiQxrUtd29WJ.png" alt="mark"></p>
-<p>在以太网上发送IP数据包的时候，“下一次要经过那个路由发送数据包” 这一信息非常重要，而这里的“下一个路由器” 就是相应的MAC地址。由此看来IP地址和MAC地址缺一不可，将这两个地址关联起来就形成了ARP协议。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -339,21 +286,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -361,161 +308,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1894999249.html" title="NAT技术与ARP协议" target="_blank">https://zouchanglin.cn/1894999249.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/计算机网络//" class="article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1894999249.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1623410974.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          DNS域名解析
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3639119748.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">计算机网络性能指标</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">私有IP地址</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">网络地址转换 NAT</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">网段划分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">路由</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">ARP协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">IP地址和MAC地址缺一不可</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -524,13 +378,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

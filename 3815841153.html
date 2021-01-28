@@ -221,135 +221,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-InnoDB秒级快照原理与当前读" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      InnoDB秒级快照原理与当前读
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3815841153.html" class="archive-article-date">
-        <time datetime="2020-02-27T12:01:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-27</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.4k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">12分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p><img src="https://img.zouchanglin.cn///20200227/9xbkj74TxjVu.png" alt="mark"></p>
-<p>在之前为文章<a href="https://zouchanglin.cn/2020/02/27/1164259380.html">《分析事务隔离的实现》</a>中我们提到：如果是可重复读隔离级别，事务T启动的时候会创建一个视图 read-view，之后事务 T 执行期间，即使有其他事务修改了数据，事务 T 看到的仍然跟在启动时看到的一样。也就是说，一个在可重复读隔离级别下执行的事务，好像与世无争，不受外界影响。但是，我在介绍MySQL锁机制的文章中<a href="https://zouchanglin.cn/2019/10/25/2652162611.html">《探究MySQL锁机制》</a> 的时候，一个事务要更新一行，如果刚好有另外一个事务拥有这一行的行锁，它会被锁住，进入等待状态。问题是，既然进入了等待状态，那么等到这个事务自己获取到行锁要更新数据的时候，它读到的值又是什么呢？</p>
-<a id="more"></a>
-
-<h1><span id="开始事务的两种方式">开始事务的两种方式</span></h1><p>需要注意的是：<strong>begin/start transaction 命令并不是一个事务的起点，在执行到它们之后的第一个操作InnoDB 表的语句，事务才真正启动。</strong> 如果你想要马上启动一个事务，可以使用transaction with consistent snapshot 这个命令！</p>
-<p>第一种启动方式，一致性视图是在第执行第一个快照读语句时创建的；</p>
-<p>第二种启动方式，一致性视图是在执行 start transaction with consistent snapshot 时创建的；</p>
-<p>事务 C 没有显式地使用 begin/commit，表示这个 update 语句本身就是一个事务，语句完成的时候会自动提交。事务 B 在更新了行之后查询 ; 事务 A 在一个只读事务中查询，并且时间顺序上是在事务 B 的查询之后。但是结果却是：事务 B 查到的 k 的值是 3，而事务 A 查到的 k 的值是 1</p>
-<p><img src="https://img.zouchanglin.cn///20200227/m8uKq072shnE.png" alt="mark"></p>
-<p>按照我们想象的情况应该是如下所示：</p>
-<p><img src="https://img.zouchanglin.cn///20200227/YFyGJrShejou.png" alt="mark"></p>
-<p>最终得到的结果是事务A查询的结果为1，事务B查询的结果是2，但是为什么事务B查询后为3呢？？</p>
-<p>需要注意的是，在 MySQL 里，有两个<code>视图</code>的概念：</p>
-<p>1、一个是view，它是一个用查询语句定义的虚拟表，在调用的时候执行查询语句并生成结果。创建视图的语法是 create view … ，而它的查询方法与表一样。</p>
-<p>2、另一个是 InnoDB 在实现 MVCC(Multi-Version Concurrency Control，多版本并发控制)时用到的一致性读视图，即 consistent read view，用于支持 RC（Read Committed，读提交）和 RR（Repeatable Read，可重复读）隔离级别的实现。</p>
-<h1><span id="innodb创建秒级快照原理">InnoDB创建秒级快照原理</span></h1><p>本文的首图即是MVCC的实现原理，在可重复读隔离级别下，事务在启动的时候就”拍了个快照”。注意，这个快照是基于整库的。如果一个库有 100G，那么我启动一个事务，MySQL就要拷贝 100G 的数据出来，这个过程得多慢啊。可是平时的事务执行起来很快啊，实际上，我们并不需要拷贝出这 100G 的数据。我们先来看看这个快照是怎么实现的：</p>
-<blockquote>
-<p><strong>InnoDB 里面每个事务有一个唯一的事务 ID，叫作 transaction id。它是在事务开始的时候向 InnoDB 的事务系统申请的，是按申请顺序严格递增的。而每行数据也都是有多个版本的。每次事务更新数据的时候，都会生成一个新的数据版本，并且把 transaction id 赋值给这个数据版本的事务 ID，记为 row trx_id。同时，旧的数据版本要保留，并且在新的数据版本中，能够有信息可以直接拿到它。也就是说，数据表中的一行记录，其实可能有多个版本 (即row中的每个数据)，每个版本有自己的 row trx_id。</strong></p>
-</blockquote>
-<p>如所示，就是一个记录被多个事务连续更新后的状态。</p>
-<p><img src="https://img.zouchanglin.cn///20200227/u4NmGEC0XxJf.png" alt="mark"></p>
-<p>图中的三个虚线箭头，就是 undo log（回滚日志）；而 V1、V2、V3 并不是物理上真实存在的，而是每次需要的时候根据当前版本和 undo log 计算出来的。比如，需要 V2 的时候，就是通过 V4 依次执行 U3、U2 算出来。</p>
-<p>按照可重复读的定义，一个事务启动的时候，能够看到所有已经提交的事务结果。但是之后，这个事务执行期间，其他事务的更新对它不可见。</p>
-<p>因此，一个事务只需要在启动的时候声明说，“以我启动的时刻为准，如果一个数据版本是在我启动之前生成的，就认；如果是我启动以后才生成的，我就不认，我必须要找到它的上一个版本”。如果是这个事务自己更新的数据，它自己还是要认的。</p>
-<p>在实现上， InnoDB 为每个事务构造了一个数组，用来保存这个事务启动瞬间，当前正处于<code>启动了但还没提交</code>的所有事务ID。数组里面事务 ID 的最小值记为低水位，当前系统里面已经创建过的事务 ID 的最大值加1记为高水位。这个视图数组和高水位，就组成了当前事务的一致性视图（read-view）而数据版本的可见性规则，就是基于数据的 row trx_id 和这个一致性视图的对比结果得到的。这个视图数组把所有的 row trx_id 分成了几种不同的情况:</p>
-<p><img src="https://img.zouchanglin.cn///20200227/9xbkj74TxjVu.png" alt="mark"></p>
-<p>这样，对于当前事务的启动瞬间来说，一个数据版本的 row trx_id，有以下几种可能：</p>
-<p>1、如果落在绿色部分，表示这个版本是已提交的事务或者是当前事务自己生成的，这个数据是可见的；</p>
-<p>2、如果落在红色部分，表示这个版本是由将来启动的事务生成的，是肯定不可见的；</p>
-<p>3、如果落在黄色部分，那就包括两种情况</p>
-<ul>
-<li>若 row trx_id 在数组中，表示这个版本是由还没提交的事务生成的，不可见；</li>
-<li>若 row trx_id 不在数组中，表示这个版本是已经提交了的事务生成的，可见。</li>
-</ul>
-<p><strong>重点要理解落在黄色部分的两种情况，一条数据被多个事物更新（事务还未提交），那么肯定在数组中含有row trx_id，即这个版本是由还没提交的事务生成的</strong></p>
-<p>所以InnoDB如何秒级创建快照的呢？我的总结如下：</p>
-<p>1、事务开启时InnoDB会赋给事务一个ID，为了方便我们直接叫做事务ID</p>
-<p>2、表中每行数据有多个版本，A事务更新数据的时候，都会生成一个新的数据版本，并且把A事务的事务ID赋值给这个数据版本的事务ID</p>
-<p>3、通过回滚日志来计算事务ID对应的数据版本，比如A事务更新了 id=1的数据的value为1，那么就存在id=1那一条数据的新版本，(id=1，value=1)这一条数据对应的事务ID就是A事务的事务ID</p>
-<p>4、如果一个数据版本的事务ID落在黄色部分并且还在事务数组中就判定此数据版本是其他未提交事务对数据修改产生的数据新版本；如果一个数据版本的事务ID落在黄色部分并且不在自己的事务数组中，那么说明事务已经提交，是合法数据</p>
-<p>所以InnoDB的秒级快照的创建能力的原理无非和Linux的AUFS文件系统如出一撤，那就是你只要改了某一条数据，我就复制那一条让你改，并且不会影响其他人的数据：</p>
-<p><img src="https://img.zouchanglin.cn///20200227/WzMLU8s5xwpq.png" alt="mark"></p>
-<h1><span id="都是当前读惹的祸">都是”当前读”惹的祸</span></h1><p>我们在明白了InnoDB如何实现的创建秒级快照的原理后，开篇的疑惑其实很好解答：</p>
-<p>我们不妨做如下假设，事务 A 开始前，系统里面只有一个活跃事务 ID 是 99；事务 A、B、C 的版本号分别是 100、101、102，且当前系统里只有这四个事务；三个事务开始前，(1,1）这一行数据的 row trx_id 是 90</p>
-<p>这样，事务 A 的视图数组就是 [99,100]，事务 B 的视图数组是 [99,100,101]，事务 C 的视图数组是 [99,100,101,102]。</p>
-<p><img src="https://img.zouchanglin.cn///20200227/zNXilTegqBxX.png" alt="mark"></p>
-<p>这其实就很容易理解了，事务C发现，此时的已开启事务但是未提交的有四个（99,100,101,102），由于其他事务还并未对id=1这条数据进行修改，所以此时只有一个版本那就是(id=1, k=1，事务ID=90)，并且90号事务ID处于低水位，说明事务ID为90的事务已经提交了，数据有效，随后事务C把k置为了2，并且提交了事务，所以此时生成了新版本（id=1，k=2，事务ID为102）</p>
-<p>最后A事务去查询k的值，发现已经有三个版本了，当A事务看到最新版本（id=1，k=3，事务ID为101）的数据时，发现101在高水位，不能读到，接着读到版本为（id=1，k=2，事务ID为102）时候同样事务102也是高水位，不能读到，继续读，读到（id=1，k=1，事务ID为90）的版本的数据，事务ID为90的事务处于低水位，数据时可见的，于是得到的数据依旧是（id=1， k=1， 事务ID为90）的数据版本</p>
-<p><strong>问题来了？事务B是如何看到事务C的修改结果的？？对于事务B来说，事务C不是高水位吗？按道理应该不可见高水位事务的修改呀！！！</strong></p>
-<p>事务 B 的视图数组是先生成的，之后事务 C 才提交，不是应该看不见 (1,2)吗，怎么能算出 (1,3) 来？</p>
-<p><img src="https://img.zouchanglin.cn///20200227/e9YGCjWEGJvP.png" alt="mark"></p>
-<p>是的，如果事务 B 在更新之前查询一次数据，这个查询返回的 k 的值确实是 1。但是，当它要去更新数据的时候，就不能再在历史版本上更新了，否则事务 C 的更新就丢失了。因此，事务 B 此时的 set k=k+1 是在（1,2）的基础上进行的操作。所以，这里就用到了这样一条规则：</p>
-<p><strong>更新数据都是先读后写的，而这个读，只能读当前的值，称为“当前读”（current read）。</strong></p>
-<p>因此，在更新的时候，当前读拿到的数据是 (1,2)，更新后生成了新版本的数据 (1,3)，这个新版本的 row trx_id 是 101。所以，在执行事务 B 查询语句的时候，一看自己的版本号是 101，最新数据的版本号也是101，是自己的更新，可以直接使用，所以查询得到的 k 的值是 3。</p>
-<p>但是select的结果却是1，所以我们队开始的例子稍做修改，让更新的时候值不在是k=k+1，这样就避免了<strong>当前读</strong>，所以下面的例子就是避免的当前读所产生的结果：</p>
-<p><img src="https://img.zouchanglin.cn///20200227/5LdneNEo3k3e.png" alt="mark"></p>
-<blockquote>
-<p>因为在MYSQL中：不能在同一表中查询的数据作为同一表的更新数据，所以我这里使用了临时表</p>
-</blockquote>
-<p>其实，除了 update 语句外，select 语句如果加锁，也是当前读。</p>
-<p>现在假设事务 C 不是马上提交的，而是变成了下面的事务 C’，会怎么样呢？</p>
-<p><img src="https://img.zouchanglin.cn///20200227/YXhozOHq70GJ.png" alt="mark"></p>
-<p>事务 C’的不同是，更新后并没有马上提交，在它提交前，事务 B 的更新语句先发起了。前面说过了，虽然事务 C’还没提交，但是 (1,2) 这个版本也已经生成了，并且是当前的最新版本。那么，事务 B 的更新语句会怎么处理呢？。</p>
-<p>事务 C’没提交，也就是说 (1,2) 这个版本上的写锁还没释放。而事务 B 是当前读，必须要读最新版本，而且必须加锁，因此就被锁住了，必须等到事务 C’ 释放这个锁，才能继续它的当前读。</p>
-<p><img src="https://img.zouchanglin.cn///20200227/e7vVHLTMF4bq.png" alt="mark"></p>
-<p>到这里，我们把一致性读、当前读和行锁就串起来了。</p>
-<h1><span id="可重复读的实现">可重复读的实现</span></h1><p>可重复读的核心就是一致性读（consistent read）；而事务更新数据的时候，只能用当前读。如果当前的记录的行锁被其他事务占用的话，就需要进入锁等待。</p>
-<p>而读提交的逻辑和可重复读的逻辑类似，它们最主要的区别是：在可重复读隔离级别下，只需要在事务开始的时候创建一致性视图，之后事务里的其他查询都共用这个一致性视图；在读提交隔离级别下，每一个语句执行前都会重新算出一个新的视图。</p>
-<p>InnoDB 的行数据有多个版本，每个数据版本有自己的 row trx_id，每个事务或者语句有自己的一致性视图。普通查询语句是一致性读，一致性读会根据 row trx_id 和一致性视图确定数据版本的可见性。<strong>对于可重复读，查询只承认在事务启动前就已经提交完成的数据；对于读提交，查询只承认在语句启动前就已经提交完成的数据；而当前读，总是读取已经提交完成的最新版本。</strong></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -359,21 +284,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -381,180 +306,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3815841153.html" title="InnoDB秒级快照原理与当前读" target="_blank">https://zouchanglin.cn/3815841153.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">索引</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">文件系统</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据库//" class="article-tag-list-link color4">数据库</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3815841153.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/293026705.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Redis的常见问题
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1164259380.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">分析事务隔离的实现</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">开始事务的两种方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">InnoDB创建秒级快照原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">都是”当前读”惹的祸</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">可重复读的实现</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -563,13 +376,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

@@ -209,163 +209,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-C++内存管理" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      C++内存管理
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3767073988.html" class="archive-article-date">
-        <time datetime="2018-11-14T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-14</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.1k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">13分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="内存管理的形式">内存管理的形式</span></h2><ul>
-<li>栈： 栈又叫堆栈，非静态局部变量/函数参数/返回值等等，栈是向下增长的,当方法和语句块一结束，空间马上释放</li>
-<li>内存映射段：是高效的I/O映射方式，用于装载一个共享的动态内存库。用户可使用系统接口创建共享共享内存，做进程间通信</li>
-<li>堆：堆用于程序运行时动态内存分配，堆是可以上增长的，存放的是成员变量，随着对象而产生，随对象销毁而销毁</li>
-<li>数据段：存储全局数据和静态数据</li>
-<li>代码段：可执行的代码/只读常量</li>
-</ul>
-<a id="more"></a>
-
-<h2><span id="malloccallocrealloc函数">malloc/calloc/realloc函数</span></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">malloc</span><span class="params">(<span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *ptr)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">calloc</span><span class="params">(<span class="keyword">size_t</span> nmemb, <span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">realloc</span><span class="params">(<span class="keyword">void</span> *ptr, <span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>The malloc() function allocates size bytes and returns a pointer to the allocated memory. The memory is not initialized.<br>If size is 0, then malloc() returns either NULL, or a unique pointer value that can later be successfully passed to free().</p>
-<p>The free() function frees the memory space pointed to by ptr, which must have been returned by a previous call to malloc(),calloc() or realloc(). Otherwise, or if free(ptr) has already been called before, undefined behavior occurs. If ptr is NULL, no operation is performed.</p>
-<p>The calloc() function allocates memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory. The memory is set to zero. If nmemb or size is 0, then calloc() returns either NULL, or a unique pointer value that can later be successfully passed to free().</p>
-<p>The realloc() function changes the size of the memory block pointed to by ptr to size bytes. The contents will be unchanged in the range from the start of the region up to the minimum of the old and new sizes. If the new size is larger than the old size, the added memory will not be initialized. If ptr is NULL, then the call is equivalent to malloc(size), for all values of size; if size is equal to zero, and ptr is not NULL, then the call is equivalent to free(ptr). Unless ptr is NULL, it must have been returned by an earlier call to malloc(), calloc() or realloc(). If the area pointed to was moved, a free(ptr) is done.</p>
-<p>malloc()函数分配指定大小字节并返回指向已分配内存的指针。内存未初始化。<br>如果size为0，则malloc()返回NULL或一个以后可以成功传递给free()的唯一指针值。</p>
-<p>free()函数释放ptr指向的内存空间，该内存空间必须由之前调用malloc()，calloc()或realloc()返回。否则，或者如果之前已经调用了free(ptr)，则会发生未定义的行为。如果ptr为NULL，则不执行任何操作。</p>
-<p>calloc()函数为每个大小为nmemb字节的元素数组分配内存，并返回指向该区域的指针，存储内容设置为零。如果nmemb或size为0，则calloc()返回NULL或一个以后可以成功传递给free()的唯一指针值。</p>
-<p>realloc()函数将ptr指向的内存块的大小更改为size字节。内容将在从区域的开始到新旧尺寸的最小范围内保持不变。如果新大小大于旧的大小，则不会初始化添加的内存。如果ptr为NULL，则对于所有size值，调用等效于malloc(size)；如果size等于零，并且ptr不为NULL，则调用等效于free(ptr)。除非ptr为NULL，否则必须由之前调用malloc()，calloc()或realloc()返回。如果指向的区域被移动，则free(ptr)。</p>
-<h2><span id="newdelete关键字">new/delete关键字</span></h2><p>C语言内存管理方式在C++中可以继续使用，但有些地方就无能为力而且使用起来比较麻烦，因此C++又提出了自己的内存管理方式：通过new和delete操作符进行动态内存管理</p>
-<h3><span id="newdelete操作基本数据类型">new/delete操作基本数据类型</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> *ptr = <span class="keyword">new</span> <span class="keyword">int</span>;</span><br><span class="line">	<span class="keyword">int</span> *ptr2 = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//cout &lt;&lt; *ptr &lt;&lt; endl;</span></span><br><span class="line">	<span class="comment">//cout &lt;&lt; *ptr2 &lt;&lt; endl;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">//int *arr = new int[3]; //OK 但是没有初始化</span></span><br><span class="line">	<span class="comment">//int *arr = new int[3]&#123;&#125;; //OK 初始化为全0</span></span><br><span class="line">	<span class="comment">//int *arr = new int[3]&#123;1, 2, 3&#125;; //OK 指定内容初始化</span></span><br><span class="line">	<span class="comment">//int *arr = new int[]&#123;1, 2, 3&#125;; //OK 指定内容初始化</span></span><br><span class="line">	<span class="keyword">int</span> *arr = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">3</span>]&#123;<span class="number">1</span>, <span class="number">2</span>&#125;; <span class="comment">//OK 制定部分内容初始化</span></span><br><span class="line">	<span class="comment">//int *arr = new int[3]&#123;1, 2, 3, 4&#125;;//Error 指定个数与实际不符合</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>;i++)&#123;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; arr[i] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">delete</span>[] arr;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="newdelete操作类">new/delete操作类</span></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Demo</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	Demo()&#123;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"构造函数"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~Demo()&#123;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"析构函数"</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	Demo *pd = (Demo*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Demo));</span><br><span class="line">	<span class="built_in">free</span>(pd);</span><br><span class="line">	pd = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	Demo *pd2 = <span class="keyword">new</span> Demo();</span><br><span class="line">	<span class="keyword">delete</span> pd2;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	Demo *pd_arr = <span class="keyword">new</span> Demo[<span class="number">10</span>];</span><br><span class="line">	<span class="keyword">delete</span>[] pd_arr;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/XoStABwY87q9.png" alt="mark"></p>
-<p> 注意：在申请自定义类型的空间时，new会调用构造函数，delete会调用析构函数，而malloc与free不会。 </p>
-<h2><span id="mallocfree-与-newdelete区别">malloc/free 与 new/delete区别</span></h2><ul>
-<li><strong>malloc/free和new/delete的共同点是：</strong><ul>
-<li>都是从堆上申请空间，并且需要用户手动释放。</li>
-</ul>
-</li>
-<li><strong>malloc/free和new/delete的不同点是：</strong><ul>
-<li>malloc和free是函数，new和delete是操作符</li>
-<li>malloc申请的空间不能初始化，new可以初始化</li>
-<li>malloc申请空间时，需要手动计算空间大小并传递，new只需在其后跟上空间的类型即可</li>
-<li>malloc的返回值为void*, 在使用时必须强转，new不需要，因为new后跟的是空间的类型</li>
-<li>malloc申请空间失败时，返回的是NULL，因此使用时必须判空，new不需要，但是new需要捕获异常</li>
-<li>malloc/free只能申请内置类型的空间，不能申请自定义类型的空间，因为其不会调用构造与析构函数， 而new可以，new在申请空间后会调用构造函数完成对象的构造，delete在释放空间前会调用析构函数 完成空间中资源的清理</li>
-<li>malloc申请的空间一定在堆上，new不一定，因为operator new函数可以重新实现 （new的空间可能在哪呢？）</li>
-<li>new/delete比malloc和free的效率稍微低点，因为new/delete的底层封装了malloc/free</li>
-</ul>
-</li>
-</ul>
-<h2><span id="operator-new与operator-delete函数">operator new与operator delete函数</span></h2><p>new和delete是用户进行动态内存申请和释放的操作符，operator new 和operator delete是系统提供的全局函数，new在底层调用operator new全局函数来申请空间，delete在底层通过operator delete全局函数来释放空间。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment">operator new：该函数实际通过malloc来申请空间，当malloc申请空间成功时直接返回</span></span><br><span class="line"><span class="comment">申请空间失败，尝试执行空间不足应对措施，如果改应对措施用户设置了，则继续申请，否则抛异常。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> *__CRTDECL <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="keyword">size_t</span> size)</span> _<span class="title">THROW1</span><span class="params">(_STD bad_alloc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// try to allocate size bytes</span></span><br><span class="line">	<span class="keyword">void</span> *p;</span><br><span class="line">	<span class="keyword">while</span> ((p = <span class="built_in">malloc</span>(size)) == <span class="number">0</span>)</span><br><span class="line">	<span class="keyword">if</span> (_callnewh(size) == <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// report no memory</span></span><br><span class="line">		<span class="keyword">static</span> <span class="keyword">const</span> <span class="built_in">std</span>::bad_alloc nomem;</span><br><span class="line">		_RAISE(nomem);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> (p);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">operator delete: 该函数最终是通过free来释放空间的</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span> *pUserData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	_CrtMemBlockHeader * pHead;</span><br><span class="line">	RTCCALLBACK(_RTC_Free_hook, (pUserData, <span class="number">0</span>));</span><br><span class="line">	<span class="keyword">if</span> (pUserData == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	_mlock(_HEAP_LOCK); <span class="comment">/* block other threads */</span></span><br><span class="line"></span><br><span class="line">	__TRY</span><br><span class="line">		<span class="comment">/* get a pointer to memory block header */</span></span><br><span class="line">		pHead = pHdr(pUserData);</span><br><span class="line">	<span class="comment">/* verify block type */</span></span><br><span class="line">	_ASSERTE(_BLOCK_TYPE_IS_VALID(pHead-&gt;nBlockUse));</span><br><span class="line">	_free_dbg(pUserData, pHead-&gt;nBlockUse);</span><br><span class="line">	__FINALLY</span><br><span class="line">		_munlock(_HEAP_LOCK); <span class="comment">/* release other threads */</span></span><br><span class="line">	__END_TRY_FINALLY</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过上述两个全局函数的实现知道，operator new 实际也是通过malloc来申请空间，如果malloc申请空间成功就直接返回，否则执行用户提供的空间不足应对措施，如果用户提供该措施就继续申请，否则就抛异常。operator delete 最终是通过free来释放空间的。<br>注意：operator new和operator delete用户也可以自己实现，用户实现时即可实现成全局函数，也可实现成类的成员函数，但是一般情况下不需要实现，除非有特殊需求。</p>
-<h3><span id="operator-newoperator-delete与mallocdelete">operator new/operator delete与malloc/delete</span></h3><p>new会调用构造方法，delete会调用析构函数<br>operator new 与 malloc 用法是一样的，不会调用构造函数<br>operator new 实际上就是malloc + 失败抛出异常<br>operator delete 与 free 用法是一样的，不会调用构造与析构函数<br>operator delete 实际上就是free + 失败抛出异常</p>
-<h2><span id="new和delete的实现原理">new和delete的实现原理</span></h2><h3><span id="内置类型">内置类型</span></h3><p>如果申请的是内置类型的空间，new和malloc，delete和free基本类似，不同的地方是：new/delete申请和释放的是单个元素的空间，new[]和delete[]申请的是连续空间，而且new在申请空间失败时会抛异常，malloc会返回NULL。</p>
-<h3><span id="自定义类型">自定义类型</span></h3><p><strong>new的原理</strong></p>
-<ol>
-<li>调用<code>operator new</code>函数申请空间</li>
-<li>在申请的空间上执行构造函数，完成对象的构造</li>
-</ol>
-<p><strong>delete的原理</strong></p>
-<ol>
-<li>在空间上执行析构函数，完成对象中资源的清理工作</li>
-<li>调用<code>operator delete</code>函数释放对象的空间</li>
-</ol>
-<p><strong>new T[N]的原理</strong></p>
-<ol>
-<li>调用<code>operator new[]</code> 函数，在<code>operator new[]</code>中实际调用<code>operator new</code>函数完成N个对象空间的申请</li>
-<li>在申请的空间上执行N次构造函数</li>
-</ol>
-<p><strong>delete[]的原理</strong></p>
-<ol>
-<li>在释放的对象空间上执行N次析构函数，完成N个对象中资源的清理</li>
-<li>调用<code>operator delete[]</code>释放空间，实际在<code>operator delete[]</code>中调用<code>operator delete</code>来释放空间</li>
-</ol>
-<h2><span id="定位new表达式placement-new">定位new表达式(placement-new)</span></h2><p>定位new表达式是在已分配的原始内存空间中调用构造函数初始化一个对象。<br>使用格式：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> (place_address) type</span><br><span class="line"><span class="comment">//或者</span></span><br><span class="line"><span class="keyword">new</span> (place_address) type(initializer-<span class="built_in">list</span>)</span><br></pre></td></tr></table></figure>
-
-<p> place_address必须是一个指针，initializer-list是类型的初始化列表<br>使用场景：<br>定位new表达式在实际中一般是配合内存池使用。因为内存池分配出的内存没有初始化，所以如果是自定义类型的对象，需要使用new的定义表达式进行显示调构造函数进行初始化。 </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Demo</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	Demo()&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"构造函数"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">//pt现在指向的只不过是与Test对象相同大小的一段空间，还不能算是一个对象，因为构造函数没有执行</span></span><br><span class="line">	Demo *p = (Demo*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Demo));</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">new</span>(p)Demo;<span class="comment">// 注意：如果Demo类的构造函数有参数时，此处需要传参</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">delete</span> p;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2><span id="如何设计只能在堆栈上创建的类">如何设计只能在堆/栈上创建的类</span></h2><h3><span id="只能在堆上创建的类">只能在堆上创建的类</span></h3><ol>
-<li>将类的构造函数私有，拷贝构造声明成私有。防止别人调用拷贝在栈上生成对象。</li>
-<li>提供一个静态的成员函数，在该静态成员函数中完成堆对象的创建</li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HeapOnly</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">static</span> HeapOnly* <span class="title">CreatInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">		  <span class="keyword">return</span> <span class="keyword">new</span> HeapOnly;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	HeapOnly()&#123;&#125;</span><br><span class="line">	<span class="comment">// 防拷贝</span></span><br><span class="line">	HeapOnly(<span class="keyword">const</span> HeapOnly&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3><span id="只能在栈上创建的类">只能在栈上创建的类</span></h3><p>只能在栈上创建对象，即不能在堆上创建，因此只要将new的功能屏蔽掉即可，即屏蔽掉operator new和定位new表达式，注意：屏蔽了operator new，实际也将定位new屏蔽掉</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StackOnly</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	StackOnly()&#123;&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="function"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="keyword">size_t</span> size)</span> </span>= <span class="keyword">delete</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span> *p)</span> </span>= <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="设计模式之单例模式">设计模式之单例模式</span></h2><p>一个类只能创建一个对象，即单例模式，该模式可以保证系统中该类只有一个实例，并提供一个访问它的全局访问点，该实例被所有程序模块共享！</p>
-<h3><span id="饿汉式单例模式">饿汉式单例模式</span></h3><p>在程序初始化的时候就会创造出对象！</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function">Singleton* <span class="title">GetInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> &amp;instance;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	Singleton()&#123;&#125;</span><br><span class="line">	Singleton(<span class="keyword">const</span> Singleton&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line">	Singleton&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Singleton&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line">	<span class="keyword">static</span> Singleton instance;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Singleton Singleton::instance;<span class="comment">// 在程序入口之前就完成单例对象的初始化</span></span><br></pre></td></tr></table></figure>
-
-<h3><span id="懒汉式单例模式">懒汉式单例模式</span></h3><p>有时使用饿汉模式会导致程序启动时间变长，所以还有这种懒汉式单例模式来解决这个问题！</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">static</span> Singleton* <span class="title">GetInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">// 注意这里一定要使用Double-Check的方式加锁，才能保证效率和线程安全</span></span><br><span class="line">		<span class="keyword">if</span> (m_pInstance == <span class="literal">nullptr</span>)&#123;</span><br><span class="line">			m_mutex.lock();</span><br><span class="line">			<span class="keyword">if</span> (m_pInstance == <span class="literal">nullptr</span>)&#123;</span><br><span class="line">				m_pInstance = <span class="keyword">new</span> Singleton();</span><br><span class="line">			&#125;</span><br><span class="line">			m_mutex.unlock();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> m_pInstance;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 实现一个内嵌垃圾回收类</span></span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">Recycle</span> &#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		~Recycle()&#123;</span><br><span class="line">			<span class="keyword">if</span> (Singleton::m_pInstance)</span><br><span class="line">				<span class="keyword">delete</span> Singleton::m_pInstance;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 定义一个静态成员变量，程序结束时，系统会自动调用它的析构函数从而释放单例对象</span></span><br><span class="line">	<span class="keyword">static</span> Recycle recycle;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="comment">//构造函数私有</span></span><br><span class="line">	Singleton()&#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//防止拷贝</span></span><br><span class="line">	Singleton(<span class="keyword">const</span> Singleton&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line">	Singleton&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Singleton&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">static</span> Singleton* m_pInstance; <span class="comment">// 单例对象指针</span></span><br><span class="line">	<span class="keyword">static</span> <span class="built_in">std</span>::mutex m_mutex;</span><br><span class="line">&#125;;</span><br><span class="line">Singleton* Singleton::m_pInstance = <span class="literal">nullptr</span>;</span><br><span class="line"><span class="built_in">std</span>::mutex Singleton::m_mutex;</span><br><span class="line">Singleton::Recycle recycle;</span><br></pre></td></tr></table></figure>
-
-
-
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -375,21 +272,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -397,172 +294,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3767073988.html" title="C++内存管理" target="_blank">https://zouchanglin.cn/3767073988.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3767073988.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1358789208.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Git基本使用方法
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2607499960.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">NASA的C语言编程准则</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">内存管理的形式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">malloc&#x2F;calloc&#x2F;realloc函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">new&#x2F;delete关键字</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">new&#x2F;delete操作基本数据类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">new&#x2F;delete操作类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">malloc&#x2F;free 与 new&#x2F;delete区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">operator new与operator delete函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">operator new&#x2F;operator delete与malloc&#x2F;delete</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">new和delete的实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">6.1.</span> <span class="toc-text">内置类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">6.2.</span> <span class="toc-text">自定义类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">定位new表达式(placement-new)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">如何设计只能在堆&#x2F;栈上创建的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.1.</span> <span class="toc-text">只能在堆上创建的类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.2.</span> <span class="toc-text">只能在栈上创建的类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">9.</span> <span class="toc-text">设计模式之单例模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">9.1.</span> <span class="toc-text">饿汉式单例模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">9.2.</span> <span class="toc-text">懒汉式单例模式</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -571,13 +364,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

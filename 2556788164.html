@@ -217,138 +217,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-OpenCV矩阵掩模" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      OpenCV矩阵掩模
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2556788164.html" class="archive-article-date">
-        <time datetime="2018-08-27T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-27</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.5k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">10分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>OpenCV是计算机视觉开源库，主要算法涉及图像处理和机器学习相关方法。是Intel公司贡献出来的，俄罗斯工程师贡献大部分C/C++代码。官网：<a href="https://opencv.org/" target="_blank" rel="noopener">https://opencv.org/</a> 从这里 <a href="https://opencv.org/releases.html" target="_blank" rel="noopener">https://opencv.org/releases.html</a> 你可以下载到自己想要的版本！</p>
-<a id="more"></a> 
-
-<h2><span id="环境搭建">环境搭建</span></h2><p>本人使用的时VisualStudio2015+OpenCV3.4.1-vc14(vc14对应的VisualStudio版本就是VS2015)，配置环境变量，根据自己的路径来配置</p>
-<p><img src="https://img.zouchanglin.cn///20200201/LwXTMbNELUYs.png" alt="mark"></p>
-<h2><span id="测试环境">测试环境</span></h2><p>新建VS空项目，注意是改为<strong><code>X64</code></strong>的解决方案，因为直接下载的exe实际上就是一个自解压文件，里面的库都是在X64的环境下编译好的，如何编译自己的VS对应的OpenCV参考：<a href="https://www.bilibili.com/video/av17968786，根据自己的路径配置即可！" target="_blank" rel="noopener">https://www.bilibili.com/video/av17968786，根据自己的路径配置即可！</a></p>
-<blockquote>
-<p><strong>包括头文件</strong><br>D:\opencv3.4\build\include<br>D:\opencv3.4\build\include\opencv<br>D:\opencv3.4\build\include\opencv2<br><strong>库文件</strong><br>D:\opencv3.4\build\x64\vc14\lib<br><strong>链接器-附加依赖项</strong><br>opencv_world310d.lib</p>
-</blockquote>
-<p><img src="https://img.zouchanglin.cn///20200201/YmN4tW2jnrOw.png" alt="mark"></p>
-<p>注意自己的图片路径，如果其他代码与图片所示一致，那么恭喜你的OpenCV开发环境搭建OK了！</p>
-<h2><span id="图像有关的api">图像有关的API</span></h2><h3><span id="加载图像cvimread">加载图像cv::imread</span></h3><p>imread功能是加载图像文件成为一个Mat对象(什么是Mat对象接下来的文章中将会说到)<br>第一个参数表示图像文件名称(路径)<br>第二个参数，表示加载的图像是什么类型，支持常见的三个参数值</p>
-<ul>
-<li>IMREAD_UNCHANGED (&lt;0) 表示加载原图，不做任何改变</li>
-<li>IMREAD_GRAYSCALE ( 0)表示把原图作为灰度图像加载进来</li>
-<li>IMREAD_COLOR (&gt;0) 表示把原图作为RGB图像加载进来</li>
-</ul>
-<p>注意：OpenCV支持JPG、PNG、TIFF等常见格式图像文件加载<br>例如加载灰度图：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/491zkyJ3Atdm.png" alt="mark"></p>
-<h3><span id="显示图像-cvnamedwindos-与cvimshow">显示图像 cv::namedWindos 与cv::imshow</span></h3><p>namedWindos功能是创建一个OpenCV窗口，它是由OpenCV自动创建与释放，无需手动销毁它。<br>常见用法namedWindow(“窗口标题”, WINDOW_AUTOSIZE)</p>
-<ul>
-<li>WINDOW_AUTOSIZE会自动根据图像大小，显示窗口大小，不能人为改变窗口大小</li>
-<li>WINDOW_NORMAL,跟QT集成的时候会使用，允许修改窗口大小。</li>
-</ul>
-<p>imshow根据窗口名称显示图像到指定的窗口上去，第一个参数是窗口名称，第二参数是Mat对象</p>
-<h3><span id="修改图像-cvcvtcolor">修改图像 (cv::cvtColor)</span></h3><p>cvtColor的功能是把图像从一个彩色空间转换到另外一个色彩空间，有三个参数，第一个参数表示源图像、第二参数表示色彩空间转换之后的图像、第三个参数表示源和目标色彩空间如：COLOR_BGR2HLS 、COLOR_BGR2GRAY 等<br>这是原图转换为COLOR_BGR2HLS色彩空间：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/VrrRYac1cz9p.png" alt="mark"></p>
-<p> 这是原图转换为COLOR_BGR2GRAY 色彩空间： </p>
-<p> 有时容易出现这样的错误 </p>
-<p><img src="https://img.zouchanglin.cn///20200201/KNiFk2dlmpcT.png" alt="mark"></p>
-<p>这个问题一般是由于将已经是灰度图的图片继续转为灰度图时引起的，所以在读取图片转为灰度色彩空间的时候要保证读取到的原图是彩色图像，如果使用灰度图的参数读取那么再次灰度化的时候就会抱这种错误！</p>
-<h3><span id="保存图像cvimwrite">保存图像(cv::imwrite)</span></h3><p>保存图像文件到指定目录路径，只有8位、16位的PNG、JPG、Tiff文件格式而且是单通道或者三通道的BGR的图像才可以通过这种方式保存，保存PNG格式的时候可以保存透明通道的图片可以指定压缩参数！</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2\opencv.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//加载图像，默认IMREAD_UNCHANGED</span></span><br><span class="line">	<span class="comment">//Mat src = imread("C:/Users/Tim/Desktop/Image/a.jpg");</span></span><br><span class="line">	Mat src = imread(<span class="string">"C:/Users/Tim/Desktop/Image/a.jpg"</span>, IMREAD_GRAYSCALE); </span><br><span class="line">    <span class="comment">//以灰度图读取</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//判断是否加载成功</span></span><br><span class="line">	<span class="keyword">if</span> (src.empty())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; <span class="string">"load image filed..."</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//新建一个OpenCV窗口，大小根据图片自动调节</span></span><br><span class="line">	namedWindow(<span class="string">"Test Opencv"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	<span class="comment">//显示图像</span></span><br><span class="line">	imshow(<span class="string">"Test Opencv"</span>, src);</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"Output Window"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	Mat outImg;</span><br><span class="line">	<span class="comment">//色彩空间装换</span></span><br><span class="line">	<span class="comment">//cvtColor(src, outImg, CV_BGR2HLS);</span></span><br><span class="line">	cvtColor(src, outImg, COLOR_BGR2GRAY);</span><br><span class="line">	imshow(<span class="string">"Output Window"</span>, outImg);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//将Mat对象写入文件</span></span><br><span class="line">	imwrite(<span class="string">"C:/Users/Tim/Desktop/Image/a2.png"</span>,outImg);</span><br><span class="line">	waitKey(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="矩阵的掩膜操作">矩阵的掩膜操作</span></h2><h3><span id="掩膜操作解释">掩膜操作解释</span></h3><p>所谓掩膜其实就是一个矩阵，然后根据这个矩阵重新计算图片中像素的值，掩模也叫作<code>kernal</code><br>下图就是通过掩模提高图片对比度的计算公式，根据掩模把图片的对比度提高：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/lNg287Hanf1B.png" alt="mark"></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2\opencv.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Mat src;</span><br><span class="line">	Mat dst;</span><br><span class="line"></span><br><span class="line">	src = imread(<span class="string">"C:/Users/Tim/Desktop/Image/e.jpg"</span>);</span><br><span class="line">	<span class="keyword">if</span> (!src.data)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"load iamge filed..."</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125; </span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"input image"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"input image"</span>, src);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取图像的列数,一定不要忘记图像的通道数</span></span><br><span class="line">	<span class="keyword">int</span> cols = (src.cols<span class="number">-1</span>) * src.channels();</span><br><span class="line">	<span class="keyword">int</span> rows = src.rows;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取通道数目</span></span><br><span class="line">	<span class="keyword">int</span> offsetx = src.channels();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//生成一个和源图像大小相等类型相同的全0矩阵</span></span><br><span class="line">	dst = Mat::zeros(src.size(),src.type());</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取起始时间</span></span><br><span class="line">	<span class="keyword">double</span> start = getTickCount();</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> row = <span class="number">1</span>; row &lt; (rows - <span class="number">1</span>); row++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//获取每一个通道的像素指针</span></span><br><span class="line">		<span class="keyword">const</span> uchar* prev = src.ptr&lt;uchar&gt;(row - <span class="number">1</span>);</span><br><span class="line">		<span class="keyword">const</span> uchar* cur = src.ptr&lt;uchar&gt;(row);</span><br><span class="line">		<span class="keyword">const</span> uchar* next = src.ptr&lt;uchar&gt;(row + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">		uchar* output = dst.ptr&lt;uchar&gt;(row);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> col = offsetx; col &lt; cols; col++)&#123;</span><br><span class="line">			<span class="comment">//output[col] = (5 * cur[col] - (cur[col - offsetx] + cur[col + offsetx] + prev[col] + next[col]));//注意像素值范围在0~255之间！</span></span><br><span class="line">			output[col] = saturate_cast&lt;uchar&gt;(<span class="number">5</span> * cur[col] - (cur[col - offsetx] + cur[col + offsetx] + prev[col] + next[col]));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取处理时间</span></span><br><span class="line">	<span class="keyword">double</span> run_time = (cvGetTickCount() - start)/getTickFrequency();</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; run_time&lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"output image"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"output image"</span>, dst);</span><br><span class="line">	waitKey(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="获取图像像素指针">获取图像像素指针</span></h3><p><code>Mat.ptr (int i = 0)</code>获取像素矩阵的指针，索引i表示第几行，从0开始计行数。<br>获得当前行指针<code>const uchar* current= myImage.ptr(row )</code>;<br>获取当前像素点<code>P(row, col)</code>的像素值 <code>p(row, col) =current[col]</code> </p>
-<h3><span id="saturate_cast-lt-uchar-gt">saturate_cast &lt; uchar &gt;</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">saturate_cast&lt;uchar&gt;（-100），返回0</span><br><span class="line">saturate_cast&lt;uchar&gt;（288），返回255</span><br><span class="line">saturate_cast&lt;uchar&gt;（100），返回100</span><br></pre></td></tr></table></figure>
-
-<p>这个函数的功能是确保RGB值得范围在0<del>255之间!如果不使用这个函数进行转换，将会得到如下所示的效果，这是由于部分像素点在经过公式转化之后范围已经不再0</del>255之间，所以需要用到此函数： </p>
-<p><img src="https://img.zouchanglin.cn///20200201/E3Yb2DV9cW4K.png" alt="mark"></p>
-<p> 经过校正之后的处理效果： </p>
-<p><img src="https://img.zouchanglin.cn///20200201/GVa8Od7qQ7rl.png" alt="mark"></p>
-<h3><span id="filter2d实现掩膜">filter2D实现掩膜</span></h3><p>参数一：源图像<br>参数二：最终输出的图像,需要再定义一个Mat类变量<br>参数三：为像素深度，两个像素深度一定要相同，否则出错<code>src.depth()</code> 或者 <code>-1</code><br>参数四：掩膜</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2\opencv.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Mat src;</span><br><span class="line">	Mat dst;</span><br><span class="line"></span><br><span class="line">	src = imread(<span class="string">"C:/Users/Tim/Desktop/Image/e.jpg"</span>);</span><br><span class="line">	<span class="keyword">if</span> (!src.data)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"load iamge filed..."</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125; </span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"input image"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"input image"</span>, src);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取图像的列数,一定不要忘记图像的通道数</span></span><br><span class="line">	<span class="keyword">int</span> cols = (src.cols<span class="number">-1</span>) * src.channels();</span><br><span class="line">	<span class="keyword">int</span> rows = src.rows;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取通道数目</span></span><br><span class="line">	<span class="keyword">int</span> offsetx = src.channels();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//生成一个和源图像大小相等类型相同的全0矩阵</span></span><br><span class="line">	dst = Mat::zeros(src.size(),src.type());</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取起始时间</span></span><br><span class="line">	<span class="keyword">double</span> start = getTickCount();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//定义一个掩模</span></span><br><span class="line">	<span class="comment">//Mat kernal = (Mat_&lt;char&gt;(3, 3) &lt;&lt; 0, 1, 0, -1, 5, -1, 0, -1, 0);//对比度增强</span></span><br><span class="line">	Mat kernal = (Mat_&lt;<span class="keyword">char</span>&gt;(<span class="number">3</span>, <span class="number">3</span>) &lt;&lt; <span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">6</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="number">-1</span>, <span class="number">0</span>);<span class="comment">//提高锐度</span></span><br><span class="line">	filter2D(src, dst, src.depth(), kernal);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取处理时间</span></span><br><span class="line">	<span class="keyword">double</span> run_time = (cvGetTickCount() - start)/getTickFrequency();</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; run_time&lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">	namedWindow(<span class="string">"output image"</span>, CV_WINDOW_AUTOSIZE);</span><br><span class="line">	imshow(<span class="string">"output image"</span>, dst);</span><br><span class="line">	waitKey(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="掩模的主要应用">掩模的主要应用</span></h3><ul>
-<li><p>实现图像对比度调整</p>
-</li>
-<li><p>提取感兴趣区,用预先制作的感兴趣区掩模与待处理图像相乘,得到感兴趣区图像,感兴趣区内图像值保持不变,而区外图像值都为0<br>掩膜是一种图像滤镜的模板，实用掩膜经常处理的是遥感图像。当提取道路或者河流，或者房屋时，通过一个n*n的矩阵来对图像进行像素过滤，然后将我们需要的地物或者标志突出显示出来。这个矩阵就是一种掩膜</p>
-</li>
-<li><p>屏蔽作用,用掩模对图像上某些区域作屏蔽,使其不参加处理或不参加处理参数的计算,或仅对屏蔽区作处理或统计</p>
-</li>
-<li><p>结构特征提取,用相似性变量或图像匹配方法检测和提取图像中与掩模相似的结构特征</p>
-</li>
-<li><p>特殊形状图像的制作</p>
-<h3><span id="各种掩膜的作用">各种掩膜的作用</span></h3><p>3x3</p>
-<p>邻域平均 全是1</p>
-</li>
-</ul>
-<p>3x3高斯均值滤波器<br>filters(0) = 1: filters(1) = 2:filters(2) = 1<br>filters(3) = 2: filters(4) = 4: filters(5) = 2<br>filters(6) = 1: filters(7) = 2: filters(8) = 1</p>
-<p>拉普拉斯1型滤波器 高通边缘检测器掩膜<br>filters(0) = -1: filters(1) = 0: filters(2) = -1<br>filters(3) = 0: filters(4) = 4: filters(5) = 0<br>filters(6) = -1: filters(7) = 0: filters(8) = -1</p>
-<p>锐化 (中锐化：filters(4) = 5 ， 高锐化：filters(4) = 6)<br>filters(0) = 0: filters(1) = -1: filters(2) = 0<br>filters(3) = -1: filters(4) = 6: filters(5) = -1<br>filters(6) = 0: filters(7) = -1: filters(8) = 0</p>
-<p>垂直掩膜<br>filters(0) = 3: filters(1) = -6: filters(2) = 3<br>filters(3) = 3: filters(4) = -6: filters(5) = 3<br>filters(6) = 3: filters(7) = -6: filters(8) = 3</p>
-<p>水平掩膜<br>filters(0) = 3: filters(1) = 3: filters(2) = 3<br>filters(3) = -6: filters(4) = -6: filters(5) = -6<br>filters(6) = 3: filters(7) = 3: filters(8) = 3</p>
-<p>对角线掩膜<br>filters(0) = 3: filters(1) = 3: filters(2) = -6<br>filters(3) = 3: filters(4) = -6: filters(5) = 3<br>filters(6) = -6: filters(7) = 3: filters(8) = 3</p>
-<p>高斯滤镜5x5<br>f(0) = 1: f(1) = 4: f(2) = 6: f(3) = 4: f(4) = 1<br>f(5) = 4: f(6) = 16: f(7) = 24: f(8) = 16: f(9) = 4<br>f(10) = 6: f(11) = 24: f(12) = 36: f(13) = 24: f(14) = 6<br>f(15) = 4: f(16) = 16: f(17) = 24: f(18) = 16: f(19) = 4<br>f(20) = 1: f(21) = 4: f(22) = 6: f(23) = 4: f(24) = 1</p>
-<p>根据掩模的设定不同效果也就不同，比如上述代码中一个掩模是增强对比度，一个掩模是增强锐度： </p>
-<p><img src="https://img.zouchanglin.cn///20200201/QFCnEfib2uGO.png" alt="mark"></p>
-<p><strong>注意代码中的如何计算图片的处理时间，以及如何生成全0矩阵！</strong></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -358,21 +280,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -380,172 +302,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2556788164.html" title="OpenCV矩阵掩模" target="_blank">https://zouchanglin.cn/2556788164.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">openCV</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/图像处理//" class="article-tag-list-link color5">图像处理</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2556788164.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2477429062.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          图像亮度对比度调整
-        
-      </div>
-    </a>
-  
-  
-    <a href="/246082244.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Validate做表单校验</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">测试环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">图像有关的API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">加载图像cv::imread</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">显示图像 cv::namedWindos 与cv::imshow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">修改图像 (cv::cvtColor)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.4.</span> <span class="toc-text">保存图像(cv::imwrite)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">矩阵的掩膜操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">掩膜操作解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">获取图像像素指针</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">saturate_cast &lt; uchar &gt;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">filter2D实现掩膜</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.5.</span> <span class="toc-text">掩模的主要应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.6.</span> <span class="toc-text">各种掩膜的作用</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -554,13 +372,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

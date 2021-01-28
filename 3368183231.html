@@ -207,115 +207,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-浅谈函数栈帧" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      浅谈函数栈帧
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3368183231.html" class="archive-article-date">
-        <time datetime="2018-05-21T15:29:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-21</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>先说说函数栈帧的概念，函数栈帧又叫函数运行时堆栈，栈帧也叫过程活动记录，是编译器用来实现函数调用的一种数据结构。这个该概念说起来比较抽象，简单的说就是函数在被调用时的一块空间，这个空间由esp寄存器和ebp寄存器共同维护。首先应该明白，栈是从高地址向低地址延伸的。每个函数的每次调用，都有它自己独立的一个栈帧，这个栈帧中维持着所需要的各种信息。寄存器ebp指向当前的栈帧的底部(高地址)，寄存器esp指向当前的栈帧的顶部(低地址)。</p>
-<a id="more"></a>
-
-<h2><span id="main函数的调用">main函数的调用</span></h2><p>程序的入口必须是main吗？每当我们在点击一个(或者在命令行打开)一个C程序的时候，程序立马就能运行起来，从刚开始学习C语言的时候我们都直到main函数是程序的入口。至于为什么这么说完全是因为ANSIC就是这么规定的，一个程序的执行并不一定需要main函数，但是一定需要一个入口，做过单片机的同学应该深有体会。起来从CPU角度来看，将要执行的指令地址放在程序计数器里，程序需要执行必然需要一个入口地址。通用的可执行文件格式总会指定一个入口地址，这样操作系统才可以调度这样一个程序执行指令。所谓的main函数，就是执行时把这个程序装入任务调度器中，调度器执行调度的入口函数而已，而main函数只是个程序员和调度器之间的约定。</p>
-<p>mainCRTStartup函数：扯得有点远了，在VC++下，连接器对控制台程序设置的入口函数是 mainCRTStartup，mainCRTStartup再调用main函数，mainCRTStartup所做的初始化准备工作，例如获取命令行参数、获取环境变量值，是通过调用相应的Windows系统调用来实现的。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Add</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> z = x + y;</span><br><span class="line">	<span class="keyword">return</span> z;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line">	<span class="keyword">int</span> b = <span class="number">20</span>;</span><br><span class="line">	<span class="keyword">int</span> c = Add(a, b);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"c = %d\n"</span>,c);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> 下面是其反汇编代码： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">int Add(int x, int y)&#123;</span><br><span class="line">009613D0  push        ebp  </span><br><span class="line">009613D1  mov         ebp,esp  </span><br><span class="line">009613D3  sub         esp,0CCh  </span><br><span class="line">009613D9  push        ebx  </span><br><span class="line">009613DA  push        esi  </span><br><span class="line">009613DB  push        edi  </span><br><span class="line">009613DC  lea         edi,[ebp-0CCh]  </span><br><span class="line">009613E2  mov         ecx,33h  </span><br><span class="line">009613E7  mov         eax,0CCCCCCCCh  </span><br><span class="line">009613EC  rep stos    dword ptr es:[edi]  </span><br><span class="line">	int z &#x3D; x + y;</span><br><span class="line">009613EE  mov         eax,dword ptr [x]  </span><br><span class="line">009613F1  add         eax,dword ptr [y]  </span><br><span class="line">009613F4  mov         dword ptr [z],eax  </span><br><span class="line">	return z;</span><br><span class="line">009613F7  mov         eax,dword ptr [z]  </span><br><span class="line">&#125;</span><br><span class="line">009613FA  pop         edi  </span><br><span class="line">009613FB  pop         esi  </span><br><span class="line">009613FC  pop         ebx  </span><br><span class="line">009613FD  mov         esp,ebp  </span><br><span class="line">009613FF  pop         ebp  </span><br><span class="line">00961400  ret  </span><br><span class="line">------------------- main.c ------------------------</span><br><span class="line"></span><br><span class="line">int main(void)&#123;</span><br><span class="line">00961410  push        ebp  </span><br><span class="line">00961411  mov         ebp,esp  </span><br><span class="line">00961413  sub         esp,0E4h  </span><br><span class="line">00961419  push        ebx  </span><br><span class="line">0096141A  push        esi  </span><br><span class="line">0096141B  push        edi  </span><br><span class="line">0096141C  lea         edi,[ebp-0E4h]  </span><br><span class="line">00961422  mov         ecx,39h  </span><br><span class="line">00961427  mov         eax,0CCCCCCCCh  </span><br><span class="line">0096142C  rep stos    dword ptr es:[edi]  </span><br><span class="line">	int a &#x3D; 10;</span><br><span class="line">0096142E  mov         dword ptr [a],0Ah  </span><br><span class="line">	int b &#x3D; 20;</span><br><span class="line">00961435  mov         dword ptr [b],14h  </span><br><span class="line">	int c &#x3D; Add(a, b);</span><br><span class="line">0096143C  mov         eax,dword ptr [b]  </span><br><span class="line">0096143F  push        eax  </span><br><span class="line">00961440  mov         ecx,dword ptr [a]  </span><br><span class="line">00961443  push        ecx  </span><br><span class="line">00961444  call        _Add (09610E6h)  </span><br><span class="line">00961449  add         esp,8  </span><br><span class="line">0096144C  mov         dword ptr [c],eax  </span><br><span class="line">	printf(&quot;c &#x3D; %d\n&quot;,c);</span><br><span class="line">0096144F  mov         esi,esp  </span><br><span class="line">	printf(&quot;c &#x3D; %d\n&quot;,c);</span><br><span class="line">00961451  mov         eax,dword ptr [c]  </span><br><span class="line">00961454  push        eax  </span><br><span class="line">00961455  push        965858h  </span><br><span class="line">0096145A  call        dword ptr ds:[969118h]  </span><br><span class="line">00961460  add         esp,8  </span><br><span class="line">00961463  cmp         esi,esp  </span><br><span class="line">00961465  call        __RTC_CheckEsp (0961140h)  </span><br><span class="line">	system(&quot;pause&quot;);</span><br><span class="line">0096146A  mov         esi,esp  </span><br><span class="line">0096146C  push        965864h  </span><br><span class="line">00961471  call        dword ptr ds:[969110h]  </span><br><span class="line">00961477  add         esp,4  </span><br><span class="line">0096147A  cmp         esi,esp  </span><br><span class="line">0096147C  call        __RTC_CheckEsp (0961140h)  </span><br><span class="line">	return 0;</span><br><span class="line">00961481  xor         eax,eax  </span><br><span class="line">&#125;</span><br><span class="line">00961483  pop         edi  </span><br><span class="line">00961484  pop         esi  </span><br><span class="line">00961485  pop         ebx  </span><br><span class="line">00961486  add         esp,0E4h  </span><br><span class="line">0096148C  cmp         ebp,esp  </span><br><span class="line">0096148E  call        __RTC_CheckEsp (0961140h)  </span><br><span class="line">00961493  mov         esp,ebp  </span><br><span class="line">00961495  pop         ebp  </span><br><span class="line">00961496  ret</span><br></pre></td></tr></table></figure>
-
-<p>由此也可以看出编程语言的进化历程，要是现在还是由我们来写这些汇编代码，想想都难受…</p>
-<h2><span id="汇编指令简述">汇编指令简述</span></h2><h3><span id="数据传送指令">数据传送指令</span></h3><p>这部分指令包括通用数据传送指令MOV、条件传送指令CMOVcc、堆栈操作指令PUSH/PUSHA/PUSHAD/POP/POPA/POPAD、交换指令XCHG/XLAT/BSWAP、地址或段描述符选择子传送指令LEA/LDS/LES/LFS/LGS/LSS等。注意，CMOVcc不是一条具体的指令，而是一个指令簇，包括大量的指令，用于根据EFLAGS寄存器的某些位状态来决定是否执行指定的传送操作。</p>
-<p>在本例中，可以将MOV指令理解为赋值语句，例如 mov ebp，esp就是将esp中的值赋给ebp；push指令理解为压栈，例如 push ebx 就是将ebx寄存器压栈(入栈)，同样的道理，pop ebx 就是将ebx寄存器弹栈(出栈)，例如 lea edi,[ebp-0E4h] 就是取源操作数地址的偏移量，并把它传送到目的操作数所在的单元</p>
-<h3><span id="整数和逻辑运算指令">整数和逻辑运算指令</span></h3><p>这部分指令用于执行算术和逻辑运算，包括加法指令ADD/ADC、减法指令SUB/SBB、加一指令INC、减一指令DEC、比较操作指令CMP、乘法指令MUL/IMUL、除法指令DIV/IDIV、符号扩展指令CBW/CWDE/CDQE、十进制调整指令DAA/DAS/AAA/AAS、逻辑运算指令NOT/AND/OR/XOR/TEST等。</p>
-<p>在本例中用到了 add和sub 指令，例如add esp,8，就是给esp寄存器中的值加上8，执行加法运算；还有一个是cmp指令，cmp是比较指令,cmp的功能是相当于减法指令,只是不保存结果.cmp指令执行后,将对标志寄存器产生影响.其他相关指令通过识别这些被影响的标志寄存器来得知比较结果.</p>
-<h3><span id="串操作指令">串操作指令</span></h3><p>这部分指令用于对数据串进行操作，包括串传送指令MOVS、串比较指令CMPS、串扫描指令SCANS、串加载指令LODS、串保存指令STOS，这些指令可以有选择地使用REP/REPE/REPZ/REPNE和REPNZ的前缀以连续操作。</p>
-<p>本例中使用到了rep stos等等<br>lea edi,[ebp-0C0h]<br>mov ecx,30h<br>mov eax,0CCCCCCCCh<br>rep stos dword ptr es:[edi]<br>rep指令的目的是重复其上面的指令.ECX的值是重复的次数.<br>STOS指令的作用是将eax中的值拷贝到ES:EDI指向的地址.<br>LEA叫做loadEffectiveAddress，加载有效的地址</p>
-<p>其他指令在本例中未出现，故在此不再赘述</p>
-<h2><span id="函数栈帧解析">函数栈帧解析</span></h2><p>看完上述的汇编指令简述，再次看到汇编语言应该就不那么陌生了，接下来正式进入函数栈帧的分析环节main的函数栈帧</p>
-<p>由前面我们已经知道，是mainCRTStartup函数调用的main函数，main函数终究也是一个函数，是函数调用就肯定需要空间的，由esp寄存器和ebp寄存器来维护这块空间，这块空间就叫函数栈帧</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">00961410  push        ebp  </span><br><span class="line">00961411  mov         ebp,esp  </span><br><span class="line">00961413  sub         esp,0E4h  </span><br><span class="line">00961419  push        ebx  </span><br><span class="line">0096141A  push        esi  </span><br><span class="line">0096141B  push        edi  </span><br><span class="line">0096141C  lea         edi,[ebp-0E4h]  </span><br><span class="line">00961422  mov         ecx,39h  </span><br><span class="line">00961427  mov         eax,0CCCCCCCCh  </span><br><span class="line">0096142C  rep stos    dword ptr es:[edi]</span><br></pre></td></tr></table></figure>
-
-<p>首先将ebp寄存器压栈，然后将ebp的位置移向了esp的位置，esp有向上移动了04E个位置，然后将ebx、esi、edi寄存器压栈，然后让edi寄存器加载红线所示的地址，从edi的位置开始copy，重复拷贝ecx次数据，一次拷贝的大小是双字节(4个字节)，拷贝到eax里面!</p>
-<p>0CCCCCCCC在被解析的时候就是乱码，对应的ACCSI码也就是”烫”,所以我们在使用未初始化的变量的时候又时会打印出”烫烫烫…”这也就不足为奇了</p>
-<p>变量的创建以及函数调用时参数拷贝：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int a &#x3D; 10;</span><br><span class="line">0096142E  mov         dword ptr [a],0Ah  </span><br><span class="line">int b &#x3D; 20;</span><br><span class="line">00961435  mov         dword ptr [b],14h  </span><br><span class="line">int c &#x3D; Add(a, b);</span><br><span class="line">0096143C  mov         eax,dword ptr [b]  </span><br><span class="line">0096143F  push        eax  </span><br><span class="line">00961440  mov         ecx,dword ptr [a]  </span><br><span class="line">00961443  push        ecx</span><br></pre></td></tr></table></figure>
-
-<p>可以看出，首先创建了a和b变量并做了相应的初始化操作，然后将b的值放入到eax寄存器中，然后将eax寄存器压栈，同样把a变量放入ecx寄存器中，然后将ecx压栈:</p>
-<p>也可以得出结论：</p>
-<ul>
-<li>C语言中所有的参数传递都是值传递，形式参数只是实参的一份临时拷贝</li>
-<li>后面的参数先被压入栈中，即参数传递的顺序是右向左的</li>
-</ul>
-<p>Add函数的函数的函数栈帧</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">00961444  call        _Add (09610E6h)  </span><br><span class="line">00961449  add         esp,8</span><br></pre></td></tr></table></figure>
-
-<p> call指令先将下一条指令语句的给地址存起来了，方便在函数执行完毕之后执行下一条语句，这一点至关重要，一个函数执行完毕一定要跳到下一条语句的地方继续执行才可以。Add函数栈帧的创建于main函数栈帧的创建与初始化操作是一样的，同样的道理Add函数也是采用同样的方式初始化 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">009613D0  push        ebp  </span><br><span class="line">009613D1  mov         ebp,esp  </span><br><span class="line">009613D3  sub         esp,0CCh  </span><br><span class="line">009613D9  push        ebx  </span><br><span class="line">009613DA  push        esi  </span><br><span class="line">009613DB  push        edi  </span><br><span class="line">009613DC  lea         edi,[ebp-0CCh]  </span><br><span class="line">009613E2  mov         ecx,33h  </span><br><span class="line">009613E7  mov         eax,0CCCCCCCCh  </span><br><span class="line">009613EC  rep stos    dword ptr es:[edi]</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;接下来就是创建Z变量并且执行加法操作将结果返回</span><br><span class="line">00DE13EE  mov         eax,dword ptr [x]  </span><br><span class="line">00DE13F1  add         eax,dword ptr [y]  </span><br><span class="line">00DE13F4  mov         dword ptr [z],eax  </span><br><span class="line">00DE13F7  mov         eax,dword ptr [z]</span><br><span class="line">00DE13FA  pop         edi  </span><br><span class="line">00DE13FB  pop         esi  </span><br><span class="line">00DE13FC  pop         ebx  </span><br><span class="line">00DE13FD  mov         esp,ebp  </span><br><span class="line">00DE13FF  pop         ebp  </span><br><span class="line">00DE1400  ret</span><br></pre></td></tr></table></figure>
-
-<p> 首先将x的值放入eax寄存器中，然后执行加法运算将结果放入eax寄存器中，然后把eax寄存器中的值放入变量z，然后将z的值存入eax寄存器作为返回，接着将edi、esi、ebx三个寄存器分别弹栈，又将ebp移向了esp的位置，此时Add函数的栈帧销毁，代表整个Add函数的结束！当pop ebp的时候，将ebp弹栈，此时下面正好就是Call指令下一条指令的地址，这样就能接着Add的函数的结束继续执行下面的代码了！ </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">00961449  add         esp,8  </span><br><span class="line">0096144C  mov         dword ptr [c],eax</span><br></pre></td></tr></table></figure>
-
-<p> 然后把eax寄存器中的值放入变量c，这样就拿到了Add函数的返回值，所以说返回值是寄存器带回来的！ </p>
-<h2><span id="vc60之坑">VC6.0之坑</span></h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> tmp = <span class="number">10</span>;</span><br><span class="line">	<span class="keyword">int</span> *p = (<span class="keyword">int</span>*)(* (&amp;tmp+<span class="number">1</span>));</span><br><span class="line">	* (p<span class="number">-1</span>) = <span class="number">20</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span>  <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">	fun();</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"a = %d\n"</span>,a);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在VC6.0的编译器下打印结果是20（VC6.0是多么可怕从这里也就可以看出了…），只要了解函数栈帧的话本题就不难解释，tmp的地址加一再解引用刚好就是main函数的ebp的地址，然后p-1得到的就是main函数中a的地址，这样的话打印出20也就不足为奇了！</p>
-<p>函数栈帧的理解还是很重要的，其中涉及到函数栈帧的初始化，参数传递，返回值传递等等问题，学习函数栈帧就是明白函数的整个调用过程，还是非常重要的一部分！</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -325,21 +270,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -347,172 +292,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3368183231.html" title="浅谈函数栈帧" target="_blank">https://zouchanglin.cn/3368183231.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3368183231.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2714529611.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          结构体、位段与联合体
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2773484598.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Linux下如何进行文件转码</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">main函数的调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">汇编指令简述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">数据传送指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">整数和逻辑运算指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">串操作指令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">函数栈帧解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">VC6.0之坑</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -521,13 +362,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

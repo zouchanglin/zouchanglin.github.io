@@ -212,168 +212,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Linux进程通信之消息队列" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Linux进程通信之消息队列
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/4206507360.html" class="archive-article-date">
-        <time datetime="2018-11-22T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-22</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.4k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">14分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="消息队列">消息队列</span></h2><p>消息队列提供了一个从一个进程向另外一个进程发送一块数据的方法<br>每个数据块都被认为是有一个类型，接收者进程接收的数据块可以有不同的类型值<br>消息队列也有管道一样的不足，就是<strong>每个消息的最大长度是有上限的</strong>（MSGMAX），每个消息队列的总的字节数是有上限的（MSGMNB），系统上消息队列的总数也有一个上限（MSGMNI）</p>
-<p><strong>消息队列不提供同步与互斥</strong></p>
-<p><strong>消息队列不提供同步与互斥</strong></p>
-<p><strong>消息队列不提供同步与互斥</strong></p>
-<p><img src="https://img.zouchanglin.cn///20200201/rdHW6qDct3mF.png" alt="mark"></p>
-<a id="more"></a>
-
-<h2><span id="ipc对象数据结构">IPC对象数据结构</span></h2><p>IPC全称是：Inter Process Communication (进程间通信)<br>IPC的源码：/include/linux/ipc.h<br><strong>PS:这个链接可以下载到1.0版本的源码<br><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/v1.0/</a></strong></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ipc_perm</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">key_t</span>  key;</span><br><span class="line">  ushort uid;   <span class="comment">/* owner euid and egid */</span></span><br><span class="line">  ushort gid;</span><br><span class="line">  ushort cuid;  <span class="comment">/* creator euid and egid */</span></span><br><span class="line">  ushort cgid;</span><br><span class="line">  ushort mode;  <span class="comment">/* access modes see mode flags below */</span></span><br><span class="line">  ushort seq;   <span class="comment">/* sequence number */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p> 消息队列结构源码：/include/linux/msg.h </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* one msqid structure for each queue on the system */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msqid_ds</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ipc_perm</span> <span class="title">msg_perm</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msg</span> *<span class="title">msg_first</span>;</span>  <span class="comment">/* first message on queue */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msg</span> *<span class="title">msg_last</span>;</span>   <span class="comment">/* last message in queue */</span></span><br><span class="line">    <span class="keyword">time_t</span> msg_stime;       <span class="comment">/* last msgsnd time */</span></span><br><span class="line">    <span class="keyword">time_t</span> msg_rtime;       <span class="comment">/* last msgrcv time */</span></span><br><span class="line">    <span class="keyword">time_t</span> msg_ctime;       <span class="comment">/* last change time */</span> </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wait_queue</span> *<span class="title">wwait</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wait_queue</span> *<span class="title">rwait</span>;</span></span><br><span class="line">    ushort msg_cbytes;      <span class="comment">/* current number of bytes on queue */</span></span><br><span class="line">    ushort msg_qnum;        <span class="comment">/* number of messages in queue */</span></span><br><span class="line">    ushort msg_qbytes;      <span class="comment">/* max number of bytes on queue */</span></span><br><span class="line">    ushort msg_lspid;       <span class="comment">/* pid of last msgsnd */</span></span><br><span class="line">    ushort msg_lrpid;       <span class="comment">/* last receive pid */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/1o4GMc90tHYA.png" alt="mark"></p>
-<p>在管道的通信方式中，两个进程需要看到同一份资源那就是管道文件，具有亲缘关系的进程之间其实很容易使用匿名管道进行通信，没有亲缘关系的进程也可以使用文件名来识别同一块资源(管道)，<strong>因为Linux下，同一个目录下不可能出现同名文件，根据这个道理，每个文件的路径+自身的文件名就会形成唯一的标识</strong>，那么对于两个不相干的进程如何看到同一份消息队列呢？其实<code>ipc_perm</code>结构体的<code>key_t key</code>值解决了这个问题，可以把这个消息队列的唯一标识存储在<code>key_t key</code>中，这样只要是<code>key_t key</code>一致，那么看到的消息对列就是一致的！</p>
-<h2><span id="ftok">ftok</span></h2><p>根据指定的路径和一个8位的整数来生成一个唯一的识别码</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">key_t</span> <span class="title">ftok</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">int</span> proj_id)</span></span></span><br></pre></td></tr></table></figure>
-
-<p><code>pathname</code>:指定的文件路径<br><code>proj_id</code>:自己设定的序列号<br><code>return</code>:唯一标识ID<br>The ftok() function uses the identity of the file named by the given pathname (which must refer to an existing, accessible file) and the least significant 8 bits of proj_id (which must be nonzero) to generate a key_t type System V IPC key, suitable for use with msgget(2),semget(2), or shmget(2).<br>The resulting value is the same for all pathnames that name the same file, when the same value of proj_id is used. The value returned should be different when the (simultaneously existing) files or the project IDs differ.<br>On success, the generated key_t value is returned. On failure -1 is returned, with errno indicating the error as for the stat(2) system call.<br>ftok()函数使用由给定路径名命名的文件的标识(必须引用现有的可访问文件)和proj_id的最低8位（必须非零）来生成key_t类型System V IPC密钥 ，适用于msgget，semget或shmget。<br>当使用相同的proj_id值时，对于命名同一文件的所有路径名，结果值是相同的。 当（同时存在的）文件或项目ID不同时，返回的值应该不同。<br>成功时，返回生成的key_t值。 失败时返回-1，errno指示stat系统调用的错误。</p>
-<p>共享内存，信号量，消息队列都是通过共享文件的方式进行通信，但是这些共享文件的区分方式就是需要一个识别码，你可以理解为每个人都有自己的身份证号码一样，都是唯一的，简言之就是：ftok函数可以根据指定的路径和一个8位的整数来生成一个唯一的识别码，一般在UNIX中，通常是将文件的索引节点取出，然后在前面加上子序号就得到key_t的值。<br><strong>注意：ftok根据文件路径生成ID和文件的权限无关</strong></p>
-<h2><span id="msgget">msgget</span></h2><p>用来创建和访问一个消息队列</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span><span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> msgflg)</span></span></span><br></pre></td></tr></table></figure>
-
-<p> <code>key</code>: 某个消息队列的名字<br><code>msgflg</code>:由九个权限标志构成，用法和创建文件时使用的mode模式标志一致<br><code>return</code>：成功返回一个非负整数，即该消息队列的标识码；失败返回-1 </p>
-<p><img src="https://img.zouchanglin.cn///20200201/t5K4a2riMLgs.png" alt="mark"></p>
-<p>关键点：<br>IPC_CREAT：如果内核中不存在键值与key相等的消息队列，则新建一个消息队列；如果存在这样的消息队列，返回此消息队列的标识符<br>IPC_CREAT|IPC_EXCL：如果内核中不存在键值与key相等的消息队列，则新建一个消息队列；如果存在这样的消息队列则报错</p>
-<p>错误代码：<br>EACCES：指定的消息队列已存在，但调用进程没有权限访问它<br>EEXIST：key指定的消息队列已存在，而msgflg中同时指定IPC_CREAT和IPC_EXCL标志<br>ENOENT：key指定的消息队列不存在同时msgflg中没有指定IPC_CREAT标志<br>ENOMEM：需要建立消息队列，但内存不足<br>ENOSPC：需要建立消息队列，但已达到系统的限制</p>
-<h2><span id="msgctl">msgctl</span></h2><p>控制消息队列</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgctl</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">int</span> cmd, struct msqid_ds *buf)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p><code>msqid</code>: 由msgget函数返回的消息队列标识码<br><code>cmd</code>:是将要采取的动作,（有三个可取值）<br><code>return</code>：成功返回0，失败返回-1 </p>
-<blockquote>
-<p><strong>cmd:将要采取的动作，分别如下</strong> </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="left">命令</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">IPC_STAT</td>
-<td align="left">把msqid_ds结构中的数据设置为消息队列的当前关联值，获得msgid的消息队列头数据到buf中</td>
-</tr>
-<tr>
-<td align="left">IPC_SET</td>
-<td align="left">在进程有足够权限的前提下，把消息队列的当前关联值设置为msqid_ds数据结构中给出的值，设置消息队列的属性，要设置的属性需先存储在buf中，可设置的属性包括：msg_perm.uid、msg_perm.gid、msg_perm.mode以及msg_qbytes</td>
-</tr>
-<tr>
-<td align="left">IPC_RMID</td>
-<td align="left">删除消息队列</td>
-</tr>
-</tbody></table>
-<p>错误代码：<br>EACCESS：参数cmd为IPC_STAT，确无权限读取该消息队列<br>EFAULT：参数buf指向无效的内存地址<br>EIDRM：标识符为msqid的消息队列已被删除<br>EINVAL：无效的参数cmd或msqid<br>EPERM：参数cmd为IPC_SET或IPC_RMID，却无足够的权限执行 </p>
-<h2><span id="msgsnd函数">msgsnd函数</span></h2><p>把一条消息添加到消息队列中</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *msgp, <span class="keyword">size_t</span> msgsz, <span class="keyword">int</span> msgflg)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p><code>msgid</code>: 由msgget函数返回的消息队列标识码<br><code>msgp</code>:是一个指向结构体的指针，指针指向准备发送的消息</p>
-<ul>
-<li>msgp可以是任何类型的结构体，但第一个字段必须为long类型，即表明此发送消息的类型，msgrcv根据此接收消息</li>
-</ul>
-<p><code>msgsz</code>:是msgp指向的消息长度，这个长度不含保存消息类型的那个long int长整型<br><code>msgflg</code>:控制着当前消息队列满或到达系统上限时将要发生的事情，</p>
-<ul>
-<li>0：当消息队列满时，msgsnd将会阻塞，直到消息能写进消息队列</li>
-<li>IPC_NOWAIT：当消息队列已满的时候，msgsnd函数不等待立即返回</li>
-<li>IPC_NOERROR：若发送的消息大于size字节，则把该消息截断，截断部分将被丢弃，且不通知发送进程</li>
-</ul>
-<p><code>return</code>：成功返回0；失败返回-1<br>注意：消息结构必须小于系统规定的上限值；其次，必须以一个long int长整数开始，接收者函数将利用这个长整数确定消息的类型，消息结构参考形式如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msgbuf</span> &#123;</span></span><br><span class="line">	<span class="keyword">long</span> mtype;</span><br><span class="line">	<span class="keyword">char</span> mtext[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> msgsnd()解除阻塞的三个条件：<br>① 不满足消息队列满或个数满两个条件，即消息队列中有容纳该消息的空间。<br>② msqid代表的消息队列被删除。<br>③ 调用msgsnd函数的进程被信号中断。 </p>
-<h2><span id="msgrcv">msgrcv</span></h2><p>从标识符为msqid的消息队列读取消息并存于msgp中，读取后把此消息从消息队列中删除</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *msgp, <span class="keyword">size_t</span> msgsz, <span class="keyword">int</span> msgflg)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p><code>msgid</code>: 由msgget函数返回的消息队列标识码<br><code>msgp</code>:是一个指针，指针指向准备接收的消息，<br><code>msgsz</code>:是msgp指向的消息长度，这个长度不含保存消息类型的那个long int长整型<br><code>msgtype</code>:它可以实现接收优先级的简单形式<br><code>msgflg</code>:控制着队列中没有相应类型的消息可供接收时将要发生的事</p>
-<ul>
-<li>0: 阻塞式接收消息，没有该类型的消息msgrcv函数一直阻塞等待</li>
-<li>IPC_NOWAIT：如果没有返回条件的消息调用立即返回，此时错误码为ENOMSG</li>
-<li>IPC_EXCEPT：与msgtype配合使用返回队列中第一个类型不为msgtype的消息</li>
-<li>IPC_NOERROR：如果队列中满足条件的消息内容大于所请求的size字节，则把该消息截断，截断部分将被丢弃</li>
-</ul>
-<p><code>return</code>:成功返回实际放到接收缓冲区里去的字符个数，失败返回-1</p>
-<p>msgtype=0返回队列第一条信息<br>msgtype&gt;0返回队列第一条类型等于msgtype的消息　<br>msgtype&lt;0返回队列第一条类型小于等于msgtype绝对值的消息，并且是满足条件的消息类型最小的消息 </p>
-<h2><span id="ipcs-ipcrm">ipcs、ipcrm</span></h2><p>这是两个命令，ipcs:可以显示IPC资源，ipcrm用于手动删除IPC资源<br>管道虽然也可以用于进程间通信，但是管道的声明周期是随进程的，但是消息队列、信号量、共享内存的声明周期是随内核，需要我们自己调用函数或者命令手动清除，所以当每次使用消息队列的时候不要忘记删除IPC资源：</p>
-<h3><span id="ipcs">ipcs</span></h3><p>显示 IPC 设施的信息。<br><code>ipcs [资源选项...] [输出选项]</code><br><code>ipcs -m|-q|-s -i</code><br>选项：<br>-i, –id 打印由标识的资源的详细信息<br>-h, –help display this help<br>-V, –version display version</p>
-<p>资源选项：<br>-m, –shmems 共享内存段<br>-q, –queues 消息队列<br>-s, –semaphores 信号量<br>-a, –all 全部(默认)<br>输出选项：<br>-t, –time 显示附加、脱离和更改时间<br>-p, –pid 显示创建者和最后操作者的 PID<br>-c, –creator 显示创建者和拥有者<br>-l, –limits 显示资源限制<br>-u, –summary 显示状态摘要<br>-h, –human 以易读格式显示大小<br>-b, –bytes 以字节数显示大小</p>
-<h3><span id="ipcrm">ipcrm</span></h3><p>移除某个 IPC 资源。<br>ipcrm [选项]<br><code>ipcrm shm|msg|sem ...</code><br>选项：<br>-m, –shmem-id 按 id 号移除共享内存段<br>-M, –shmem-key &lt;键&gt; 按键值移除共享内存段<br>-q, –queue-id 按 id 号移除消息队列<br>-Q, –queue-key &lt;键&gt; 按键值移除消息队列<br>-s, –semaphore-id 按 id 号移除信号量<br>-S, –semaphore-key &lt;键&gt; 按键值移除信号量<br>-a, –all[=&lt;shm|msg|sem&gt;] (将指定类别中的)全部移除<br>-v, –verbose 解释正在进行的操作</p>
-<p>方式一：使用ipcs -q命令查询IPC资源中消息队列的msqid，再使用ipcrm</p>
-<p><img src="https://img.zouchanglin.cn///20200201/lrKOvaHJ1fBe.png" alt="mark"></p>
-<p> 方式二：在代码中使用消息队列控制函数msgctl设置参数为IPC_RMID<br>下面是两个进程之间使用消息队列通信的代码：<br>comm.c </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"comm.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">CommGetMsgQueue</span><span class="params">(<span class="keyword">int</span> flag)</span></span>&#123;</span><br><span class="line">    <span class="keyword">key_t</span> k = ftok(PATHNAME, PROJID);<span class="comment">//失败返回-1</span></span><br><span class="line">    <span class="keyword">if</span>(k &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        perror(<span class="string">"ftok error"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> msgid = msgget(k, flag);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(msgid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        perror(<span class="string">"msgget error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> msgid;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CreateMsgQueue</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> CommGetMsgQueue(IPC_CREAT|IPC_EXCL|<span class="number">0666</span>);<span class="comment">//附加权限</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//打开消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">OpenMsgQueue</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> CommGetMsgQueue(IPC_CREAT);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//发送消息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SendMsg</span><span class="params">(<span class="keyword">int</span> msgid, <span class="keyword">char</span> msg[], <span class="keyword">int</span> type)</span></span>&#123;</span><br><span class="line">    <span class="comment">//准备要发出的数据</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msgbuf</span> <span class="title">s_msg</span>;</span></span><br><span class="line">    s_msg.mtype = type;</span><br><span class="line">    <span class="built_in">strcpy</span>(s_msg.mtext, msg);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(msgsnd(msgid, (<span class="keyword">void</span>*)&amp;s_msg, <span class="keyword">sizeof</span>(s_msg.mtext), <span class="number">0</span>) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"msgsend error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//接受消息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RecvMsg</span><span class="params">(<span class="keyword">int</span> msgid, <span class="keyword">char</span> msg[], <span class="keyword">int</span> type)</span></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msgbuf</span> _<span class="title">msg</span>;</span></span><br><span class="line">    <span class="comment">//读取消息到_msg中</span></span><br><span class="line">    <span class="keyword">if</span>(msgrcv(msgid, (<span class="keyword">void</span>*)&amp;_msg, <span class="keyword">sizeof</span>(_msg.mtext),type, <span class="number">0</span>) &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//把数据传出去</span></span><br><span class="line">        <span class="built_in">strcpy</span>(msg, _msg.mtext);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//删除消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DestroyMsgQueue</span><span class="params">(<span class="keyword">int</span> msgid)</span></span>&#123;</span><br><span class="line">    msgctl(msgid, IPC_RMID, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>comm.h </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> INC_32_CODE_COMM_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INC_32_CODE_COMM_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PATHNAME <span class="meta-string">"/tmp"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PROJID 0x6666</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SERVER_TYPE 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CLIENT_TYPE 2</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msgbuf</span>&#123;</span></span><br><span class="line">    <span class="keyword">long</span> mtype;</span><br><span class="line">    <span class="keyword">char</span> mtext[<span class="number">256</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CreateMsgQueue</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//打开消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">OpenMsgQueue</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//删除消息队列</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DestroyMsgQueue</span><span class="params">(<span class="keyword">int</span> msgid)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//发送消息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SendMsg</span><span class="params">(<span class="keyword">int</span> msgid, <span class="keyword">char</span> msg[], <span class="keyword">int</span> type)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//接受消息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RecvMsg</span><span class="params">(<span class="keyword">int</span> msgid, <span class="keyword">char</span> msg[], <span class="keyword">int</span> type)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">//INC_32_CODE_COMM_H</span></span></span><br></pre></td></tr></table></figure>
-
-<p>client.c </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"comm.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> msgid = OpenMsgQueue();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//接收其他进程（server）发的消息</span></span><br><span class="line">    <span class="keyword">char</span> msg[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>server.c</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"comm.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> msgid = CreateMsgQueue();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"msgid = %d\n"</span>,msgid);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="comment">//发送消息到消息队列</span></span><br><span class="line">        SendMsg(msgid, <span class="string">"hello,xpu"</span>, SERVER_TYPE);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    SendMsg(msgid, <span class="string">"hello,xpu"</span>, SERVER_TYPE);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    SendMsg(msgid, <span class="string">"hello,xpu"</span>, SERVER_TYPE);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    SendMsg(msgid, <span class="string">"hello,xpu"</span>, SERVER_TYPE);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    SendMsg(msgid, <span class="string">"hello,xpu"</span>, SERVER_TYPE);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//自己接收自己发的消息</span></span><br><span class="line">    <span class="keyword">char</span> msg[<span class="number">256</span>];</span><br><span class="line">    RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    RecvMsg(msgid,msg,SERVER_TYPE);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RECV = %s\n"</span>, msg);</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    DestroyMsgQueue(msgid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -383,21 +275,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -405,172 +297,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/4206507360.html" title="Linux进程通信之消息队列" target="_blank">https://zouchanglin.cn/4206507360.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/操作系统实战//" class="article-tag-list-link color2">操作系统实战</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/4206507360.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1924247344.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          使用git的一些规范
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1803873511.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Linux进程通信之管道</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">消息队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">IPC对象数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">ftok</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">msgget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">msgctl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">msgsnd函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">msgrcv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">ipcs、ipcrm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.1.</span> <span class="toc-text">ipcs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">8.2.</span> <span class="toc-text">ipcrm</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -579,13 +367,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

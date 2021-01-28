@@ -215,131 +215,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Golang的常用容器" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Golang的常用容器
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/761533839.html" class="archive-article-date">
-        <time datetime="2020-02-15T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-16</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.6k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">7分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>本篇主要是讲述了数组和切片、Map的初始化方式与基本使用、重点阐述了如何使用Map实现Set、用Map实现工厂模式，以及字符串的使用，字符串常用API、Unicode与UTF8的关系！</p>
-<p><img src="https://img.zouchanglin.cn///20200216/cdGfnUuRhwPr.png" alt="mark"></p>
-<a id="more"></a>
-
-<h2><span id="数组和切片">数组和切片</span></h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestArray01</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	<span class="comment">//声明并初始化为默认值</span></span><br><span class="line">	<span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span></span><br><span class="line">	a[<span class="number">0</span>] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">	b := [<span class="number">3</span>] <span class="keyword">int</span> &#123;<span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>&#125;</span><br><span class="line">	c := [<span class="number">2</span>][<span class="number">2</span>] <span class="keyword">int</span> &#123;&#123;<span class="number">11</span>, <span class="number">22</span>&#125;, &#123;<span class="number">33</span>, <span class="number">44</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _,data := <span class="keyword">range</span> b&#123;</span><br><span class="line">		t.Log(data)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _,data := <span class="keyword">range</span> c&#123;</span><br><span class="line">		t.Log(data)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestArraySection</span><span class="params">(t *testing.T)</span></span>&#123;</span><br><span class="line">	arr := [...]<span class="keyword">int</span>&#123;<span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>, <span class="number">44</span>&#125;</span><br><span class="line">	arr_sec := arr[:<span class="number">3</span>] <span class="comment">//取前三个元素</span></span><br><span class="line">	t.Log(arr_sec)</span><br><span class="line">	arr_sec = arr[<span class="number">3</span>:] <span class="comment">//取下标为3的后面的所有元素</span></span><br><span class="line">	t.Log(arr_sec)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://img.zouchanglin.cn///20200216/cdGfnUuRhwPr.png" alt="mark"></p>
-<p>其实切片的内部结构和Buffer的结构是差不多的，切片的使用:</p>
-<p>make函数相当于申请空间、并且可以控制多少空间初始化！</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> slice_test</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"testing"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSlice</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> s0 []<span class="keyword">int</span> <span class="comment">//切片的声明</span></span><br><span class="line">	t.Log(<span class="built_in">len</span>(s0), <span class="built_in">cap</span>(s0)) <span class="comment">//0 0</span></span><br><span class="line">	s0 = <span class="built_in">append</span>(s0, <span class="number">1</span>)</span><br><span class="line">	t.Log(<span class="built_in">len</span>(s0), <span class="built_in">cap</span>(s0)) <span class="comment">//1 1</span></span><br><span class="line"></span><br><span class="line">	s1 := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">	t.Log(<span class="built_in">len</span>(s1), <span class="built_in">cap</span>(s1)) <span class="comment">//4 4</span></span><br><span class="line"></span><br><span class="line">	s2 := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">3</span>, <span class="number">5</span>) </span><br><span class="line">	t.Log(<span class="built_in">len</span>(s2), <span class="built_in">cap</span>(s2)) <span class="comment">//4 4</span></span><br><span class="line"></span><br><span class="line">	s2 = <span class="built_in">append</span>(s2, <span class="number">1</span>)</span><br><span class="line">	t.Log(<span class="built_in">len</span>(s2), <span class="built_in">cap</span>(s2)) <span class="comment">//4 4</span></span><br><span class="line">	t.Log(s2[<span class="number">0</span>], s2[<span class="number">1</span>], s2[<span class="number">2</span>], s2[<span class="number">3</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>切片如何扩容呢？</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSliceGrowing</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	s := []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&#123;</span><br><span class="line">		s = <span class="built_in">append</span>(s, i)</span><br><span class="line">		t.Log(<span class="built_in">len</span>(s), <span class="built_in">cap</span>(s))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200216/DOGC35keMn10.png" alt="mark"></p>
-<p>可以看出来，每次增长二倍的关系，所以就解释了为什么每次append之后都要接收append的返回值，因为go的内部实现就是内存区域Copy的形式，所以随时可能返回新的内存地址，所以需要接收！</p>
-<p><img src="https://img.zouchanglin.cn///20200216/NGPk6z3x1N7N.png" alt="mark"></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSliceShareMemory</span><span class="params">(t *testing.T)</span></span>&#123;</span><br><span class="line">	year := []<span class="keyword">string</span>&#123;<span class="string">"Jan"</span>, <span class="string">"Feb"</span>, <span class="string">"Mar"</span>, <span class="string">"Apr"</span>, <span class="string">"May"</span>, <span class="string">"Jun"</span>,</span><br><span class="line">		<span class="string">"Jul"</span>, <span class="string">"Aug"</span>, <span class="string">"Sep"</span>, <span class="string">"Oct"</span>, <span class="string">"Nov"</span>, <span class="string">"Dec"</span>&#125;</span><br><span class="line"></span><br><span class="line">	Q2 := year[<span class="number">3</span>:<span class="number">6</span>]</span><br><span class="line">	t.Log(Q2, <span class="built_in">len</span>(Q2), <span class="built_in">cap</span>(Q2)) <span class="comment">//[Apr May Jun] 3 9</span></span><br><span class="line">	summer := year[<span class="number">5</span>:<span class="number">8</span>]</span><br><span class="line">	t.Log(summer, <span class="built_in">len</span>(summer), <span class="built_in">cap</span>(summer)) <span class="comment">//[Jun Jul Aug] 3 7</span></span><br><span class="line">	summer[<span class="number">0</span>] = <span class="string">"UnKnow"</span></span><br><span class="line">	t.Log(Q2, <span class="built_in">len</span>(Q2), <span class="built_in">cap</span>(Q2)) <span class="comment">//[Apr May UnKnow] 3 9</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>数组和切片的比较：数组不可伸缩、切片可以伸缩；相同维数且相同长度的数组才是可以比较的，切片是不可以比较的，下面的代码会编译不通过：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSliceCompare</span><span class="params">(t *testing.T)</span></span>&#123;</span><br><span class="line">	a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span> , <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">	b := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span> , <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">	<span class="keyword">if</span> a == b&#123; <span class="comment">//error</span></span><br><span class="line">		t.Log(<span class="string">"equal"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="map的基本使用">Map的基本使用</span></h2><p><img src="https://img.zouchanglin.cn///20200216/ClBh2cs3qp6h.png" alt="mark"></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> map_test</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"testing"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestInitMap</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	m1 := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;<span class="string">"one"</span>:<span class="number">1</span>, <span class="string">"two"</span>:<span class="number">2</span>, <span class="string">"three"</span>:<span class="number">3</span>&#125;</span><br><span class="line">	t.Log(m1, <span class="built_in">len</span>(m1)) <span class="comment">//map[one:1 three:3 two:2] 3</span></span><br><span class="line"></span><br><span class="line">	m2 := <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	m2[<span class="number">4</span>] = <span class="number">16</span></span><br><span class="line">	t.Log(m2, <span class="built_in">len</span>(m2)) <span class="comment">//map[4:16] 1</span></span><br><span class="line"></span><br><span class="line">	m3 := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>, <span class="number">10</span>)</span><br><span class="line">	t.Log(m3, <span class="built_in">len</span>(m3)) <span class="comment">//map[] 0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200216/WIg4FQ1nJYUd.png" alt="mark"></p>
-<p>Map的遍历</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestForEachMap</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	m1 := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;<span class="string">"one"</span>:<span class="number">1</span>, <span class="string">"two"</span>:<span class="number">2</span>, <span class="string">"three"</span>:<span class="number">3</span>&#125;</span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> m1&#123;</span><br><span class="line">		t.Log(k, <span class="string">"="</span>, v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="map与工厂模式">Map与工厂模式</span></h2><p>Map的Value可以是一个方法，因为在Golang中，方法也是一种类型，可以当做参数传递的，与Dock type接口方式一起，可以方便的实现单一方法对象的工厂模式</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestMapWithFunValue</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	<span class="comment">//Key是整型、Value是方法类型</span></span><br><span class="line">	m := <span class="keyword">map</span>[<span class="keyword">int</span>] <span class="function"><span class="keyword">func</span><span class="params">(op <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">	m[<span class="number">1</span>] = <span class="function"><span class="keyword">func</span><span class="params">(op <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> op</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	m[<span class="number">2</span>] = <span class="function"><span class="keyword">func</span><span class="params">(op <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> op * op</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	m[<span class="number">3</span>] = <span class="function"><span class="keyword">func</span><span class="params">(op <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> op * op * op</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	t.Log(m[<span class="number">1</span>](<span class="number">2</span> ), m[<span class="number">2</span>](<span class="number">2</span>), m[<span class="number">3</span>](<span class="number">2</span>)) <span class="comment">//2 4 8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="map实现set">Map实现Set</span></h2><p>Go内置集合没有Set实现，可以map[type]bool</p>
-<p>1、元素的唯一性</p>
-<p>2、基本操作</p>
-<ul>
-<li>添加元素</li>
-<li>判断元素是否存在</li>
-<li>删除元素</li>
-<li>元素个数</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestMapForSet</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	mySet := <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">bool</span>&#123;&#125;</span><br><span class="line">	<span class="comment">//1、添加元素</span></span><br><span class="line">	mySet[<span class="number">1</span>] = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//n := 3 //3 is not existing</span></span><br><span class="line">	n := <span class="number">1</span>  <span class="comment">//1 is existing</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//2、判断一个元素是否存在</span></span><br><span class="line">	<span class="keyword">if</span> mySet[n]&#123;</span><br><span class="line">		t.Logf(<span class="string">"%d is existing"</span>, n) <span class="comment">//1 is existing</span></span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		t.Logf(<span class="string">"%d is not existing"</span>, n)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//3、获取Set的长度</span></span><br><span class="line">	mySet[<span class="number">2</span>] = <span class="literal">true</span></span><br><span class="line">	mySet[<span class="number">3</span>] = <span class="literal">true</span></span><br><span class="line">	t.Log(<span class="string">"len ="</span>, <span class="built_in">len</span>(mySet)) <span class="comment">//len = 3</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//4、从Set删除元素</span></span><br><span class="line">	<span class="built_in">delete</span>(mySet, <span class="number">1</span>)</span><br><span class="line">	n = <span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span> mySet[n]&#123;</span><br><span class="line">		t.Logf(<span class="string">"%d is existing"</span>, n)</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		t.Logf(<span class="string">"%d is not existing"</span>, n) <span class="comment">//1 is not existing</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="字符串">字符串</span></h2><p>与其他主要编程语言的差异：</p>
-<p>string 是数据类型，不是引用或指针类型</p>
-<p>string 是只读的byte slice, len 函数可以它所包含的byte数</p>
-<p>string 的byte数组可以存放任何数据</p>
-<p>string实际上就是一个不可变的切片</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestString</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> s <span class="keyword">string</span></span><br><span class="line">	t.Log(s) <span class="comment">//初始化默认值""</span></span><br><span class="line">	s = <span class="string">"hello"</span></span><br><span class="line">	t.Log(<span class="built_in">len</span>(s))</span><br><span class="line"></span><br><span class="line">	<span class="comment">//s[3] = 'c' error string不可变</span></span><br><span class="line">	s = <span class="string">"\xE4\xB8\xA5"</span> <span class="comment">//可以存储任意二进制数据</span></span><br><span class="line">	t.Log(s, <span class="built_in">len</span>(s)) <span class="comment">//严</span></span><br><span class="line">	s = <span class="string">"中国"</span></span><br><span class="line">	t.Log(<span class="built_in">len</span>(s)) <span class="comment">//len求的是字节数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2><span id="unicode与utf8">Unicode与UTF8</span></h2><p>1、Unicode是一种字符集（code point）</p>
-<p>2、UTF8是Unicode的存储实现（转为字节序列的规则）</p>
-<p>Unicode为世界上所有字符都分配了一个唯一的数字编号，这个编号范围从 0x000000 到 0x10FFFF(十六进制)，有110多万，每个字符都有一个唯一的Unicode编号，这个编号一般写成16进制， Unicode就相当于一张表，建立了字符与编号之间的联系，而UTF8是具体实现， 在UTF8中编号小的使用的字节就少，编号大的使用的字节就多。使用的字节个数从1到4个不等。 </p>
-<p>rune函数</p>
-<p>在Go当中 string底层是用byte数组存的，并且是不可以改变的。fmt.Println(len(“Go编程”)) 输出结果应该是8因为中文字符是用3个字节存的， len(string(rune(‘编’)))的结果是3 ，如果想要获得我们想要的情况的话，需要先转换为rune切片再使用内置的len函数： fmt.Println(len([]rune(s)))  结果就是4了。  所以用string存储unicode的话，如果有中文，按下标是访问不到的，因为你只能得到一个byte。 要想访问中文的话，还是要用rune切片，这样就能按下标访问。 </p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestString</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">    s := <span class="string">"中"</span></span><br><span class="line">	t.Log(<span class="built_in">len</span>(s)) <span class="comment">//3</span></span><br><span class="line"></span><br><span class="line">	c := []<span class="keyword">rune</span>(s)</span><br><span class="line"></span><br><span class="line">	t.Logf(<span class="string">"中 unicode %x"</span>, c[<span class="number">0</span>]) <span class="comment">//中 unicode 4e2d</span></span><br><span class="line">	t.Logf(<span class="string">"中 UTF8 %x"</span>, s) <span class="comment">//中 UTF8 e4b8ad</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200216/ERhzEfsGOftr.png" alt="mark"></p>
-<p>常用的字符串处理函数：<br>strings包：<br><a href="https://golang.org/pkg/strings" target="_blank" rel="noopener">https://golang.org/pkg/strings</a></p>
-<p>strconv包<br><a href="https://golang.org/pkg/strconv" target="_blank" rel="noopener">https://golang.org/pkg/strconv</a></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStringFunc</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	<span class="comment">//切割字符串</span></span><br><span class="line">	s := <span class="string">"A,B,C"</span></span><br><span class="line">	split := strings.Split(s, <span class="string">","</span>)</span><br><span class="line">	<span class="keyword">for</span> _, ch := <span class="keyword">range</span> split&#123;</span><br><span class="line">		t.Log(ch)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//连接字符串数组的元素</span></span><br><span class="line">	t.Log(strings.Join(split, <span class="string">"-"</span>))</span><br><span class="line"></span><br><span class="line">	<span class="comment">//字符串与数字的转换</span></span><br><span class="line">	s = strconv.Itoa(<span class="number">250</span>)</span><br><span class="line">	t.Logf(<span class="string">"s = %s"</span>, s)</span><br><span class="line"></span><br><span class="line">	num := <span class="string">"100"</span></span><br><span class="line">	<span class="comment">//返回两个值，err代表是否发生错误</span></span><br><span class="line">	<span class="keyword">if</span> i, err := strconv.Atoi(num); err == <span class="literal">nil</span>&#123;</span><br><span class="line">		t.Log(<span class="number">100</span> + i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -349,21 +278,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -371,172 +300,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/761533839.html" title="Golang的常用容器" target="_blank">https://zouchanglin.cn/761533839.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Golang</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/761533839.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/4287568955.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Golang值得注意的点
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1290997768.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">IDEA插件推荐</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">数组和切片</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Map的基本使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">Map与工厂模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">Map实现Set</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">Unicode与UTF8</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -545,13 +370,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

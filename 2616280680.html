@@ -214,200 +214,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Listener和Filter" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Listener和Filter
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2616280680.html" class="archive-article-date">
-        <time datetime="2018-04-29T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-30</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.1k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">13分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="监听器-listener">监听器 listener</span></h2><p>其中 servlet规范包括三个技术点：servlet listener filter</p>
-<h3><span id="什么是监听器">什么是监听器？</span></h3><p>监听器就是监听某个对象的的状态变化的组件</p>
-<p>监听器的相关概念：<br>事件源：被监听的对象 —– 三个域对象 request、session、servletContext<br>监听器：监听事件源对象 事件源对象的状态的变化都会触发监听器 —6+2<br>注册监听器：将监听器与事件源进行绑定<br>响应行为：监听器监听到事件源的状态变化时 所涉及的功能代码 —程序员编写代码</p>
-<h3><span id="监听器有哪些">监听器有哪些？</span></h3><p>第一维度：按照被监听的对象划分：ServletRequest域 HttpSession域 ServletContext域<br>第二维度：监听的内容分：监听域对象的创建与销毁的 监听域对象的属性变化的</p>
-<p><img src="https://img.zouchanglin.cn///20200201/HIPzHwHg3yKn.png" alt="mark"></p>
-<a id="more"></a>
-
-
-
-<h3><span id="监听三大域对象的创建与销毁">监听三大域对象的创建与销毁</span></h3><h4><span id="监听servletcontext域的创建与销毁的监听器servletcontextlistener">监听ServletContext域的创建与销毁的监听器：ServletContextListener</span></h4><h5><span id="servlet域的生命周期">Servlet域的生命周期</span></h5><p>何时创建：服务器启动创建<br>何时销毁：服务器关闭销毁</p>
-<h5><span id="监听器的编写步骤重点">监听器的编写步骤（重点）</span></h5><p>a、编写一个监听器类去实现监听器接口<br>b、覆盖监听器的方法<br>c、需要在web.xml中进行配置—注册</p>
-<h5><span id="监听的方法">监听的方法：</span></h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServletContextListener</span> <span class="keyword">implements</span> <span class="title">ServletContextListener</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="comment">//监听context域对象的销毁</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextDestroyed</span><span class="params">(ServletContextEvent con)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"context销毁..."</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="comment">//监听context域对象的创建</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextInitialized</span><span class="params">(ServletContextEvent arg0)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"context创建..."</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 在web.xml中注册监听器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">listener</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">listener-class</span>&gt;</span>com.xpu.create.MyServletContextListener<span class="tag">&lt;/<span class="name">listener-class</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">listener</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h5><span id="servletcontextlistener监听器的主要作用">ServletContextListener监听器的主要作用</span></h5><ul>
-<li>初始化的工作：初始化对象 初始化数据 —- 加载数据库驱动 连接池的初始化</li>
-<li>加载一些初始化的配置文件 — spring的配置文件</li>
-<li>任务调度—-定时器—-Timer/TimerTask</li>
-</ul>
-<h4><span id="监听httpsession域的创建于销毁的监听器httpsessionlistener">监听Httpsession域的创建于销毁的监听器：HttpSessionListener</span></h4><h5><span id="httpsession对象的生命周期">HttpSession对象的生命周期</span></h5><p>何时创建：第一次调用request.getSession时创建</p>
-<p>何时销毁：服务器关闭销毁、session过期、手动销毁</p>
-<h5><span id="httpsessionlistener的方法">HttpSessionListener的方法</span></h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHTTPSessionListener</span> <span class="keyword">implements</span> <span class="title">HttpSessionListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sessionCreated</span><span class="params">(HttpSessionEvent se)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"sessionCreated:"</span>+se.getSession().getId());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sessionDestroyed</span><span class="params">(HttpSessionEvent se)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"sessionDestroyed:"</span>+se.getSession().getId());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4><span id="监听servletrequest域创建与销毁的监听器servletrequestlistener">监听ServletRequest域创建与销毁的监听器：ServletRequestListener</span></h4><h5><span id="servletrequest的生命周期">ServletRequest的生命周期</span></h5><p>何时创建：每一次请求都会创建request</p>
-<p>何时销毁：请求结束</p>
-<h5><span id="servletrequestlistener的方法">ServletRequestListener的方法</span></h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServletRequqestListener</span> <span class="keyword">implements</span> <span class="title">ServletRequestListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestDestroyed</span><span class="params">(ServletRequestEvent sre)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"创建request"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestInitialized</span><span class="params">(ServletRequestEvent sre)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"销毁request"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="监听三大域对象的属性变化">监听三大域对象的属性变化</span></h3><h4><span id="域对象的通用的方法">域对象的通用的方法</span></h4><p>setAttribute(name,value) 方法创建或改变某个新属性</p>
-<p>getAttribute(name) 方法通过名称获取属性的值</p>
-<p>removeAttribute(name) 方法通过名称删除属性的值</p>
-<h4><span id="servletcontextattibutelistener的方法">ServletContextAttibuteListener的方法</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyServletContextAttributeListener</span> <span class="keyword">implements</span> <span class="title">ServletContextAttributeListener</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">attributeAdded</span><span class="params">(ServletContextAttributeEvent scae)</span> </span>&#123;</span><br><span class="line">		System.out.println(scae.getName());<span class="comment">//放到域中的name</span></span><br><span class="line">		System.out.println(scae.getValue());<span class="comment">//放到域中的value</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">attributeRemoved</span><span class="params">(ServletContextAttributeEvent scae)</span> </span>&#123;</span><br><span class="line">		System.out.println(scae.getName());<span class="comment">//获得修改前的name</span></span><br><span class="line">		System.out.println(scae.getValue());<span class="comment">//获得修改前的value</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">attributeReplaced</span><span class="params">(ServletContextAttributeEvent scae)</span> </span>&#123;</span><br><span class="line">		System.out.println(scae.getName());<span class="comment">//修改域中的name</span></span><br><span class="line">		System.out.println(scae.getValue());<span class="comment">//修改域中的value</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>HttpSessionAttributeListener、ServletRequestAriibuteListenr监听器方法同上，故此不再赘述</p>
-<h3><span id="与session中的绑定的对象相关监听器">与session中的绑定的对象相关监听器</span></h3><p>与session中的绑定的对象相关监听器即是对象感知监听器</p>
-<p>绑定状态：就一个对象被放到session域中</p>
-<p>解绑状态：就是这个对象从session域中移除了</p>
-<p>钝化状态：是将session内存中的对象持久化（序列化）到磁盘</p>
-<p>活化状态：就是将磁盘上的对象再次恢复到session内存中</p>
-<p>当用户很多时，怎样对服务器进行优化？这就涉及到对象的钝化与活化，只要把内存中的对象存储到磁盘中就可以从很大程度上减轻内存的消耗，从而达到服务器优化的目的！</p>
-<h4><span id="绑定与解绑的监听器httpsessionbindinglistener">绑定与解绑的监听器：HttpSessionBindingListener</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">implements</span> <span class="title">HttpSessionBindingListener</span></span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="comment">//绑定的方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">valueBound</span><span class="params">(HttpSessionBindingEvent event)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"Person 被绑定"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="comment">//解绑的方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">valueUnbound</span><span class="params">(HttpSessionBindingEvent event)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"Person 解绑"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		HttpSession session = request.getSession();</span><br><span class="line">		Person p = <span class="keyword">new</span> Person(<span class="string">"tom"</span>, <span class="number">19</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//触发绑定的监听器方法valueBound()</span></span><br><span class="line">		session.setAttribute(<span class="string">"person"</span>, p);</span><br><span class="line">		<span class="comment">//触发解除绑定的监听器方法valueUnbound()</span></span><br><span class="line">		session.removeAttribute(<span class="string">"person"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4><span id="钝化与活化的监听器httpsessionactivationlistener">钝化与活化的监听器:HttpSessionActivationListener</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Students</span> <span class="keyword">implements</span> <span class="title">HttpSessionActivationListener</span>,<span class="title">Serializable</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> String name;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">	<span class="comment">//钝化（内存----&gt;硬盘）</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sessionWillPassivate</span><span class="params">(HttpSessionEvent se)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"Student对象被钝化了！"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//活化（硬盘----&gt;内存）</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sessionDidActivate</span><span class="params">(HttpSessionEvent se)</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"Student对象被活化了！"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> <strong>想要实现对象的钝化和活化的时候需要实现Serializable接口</strong>，这个属于对象序列化的接口就不赘述了 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		HttpSession session = request.getSession();</span><br><span class="line">		Students students = <span class="keyword">new</span> Students(<span class="string">"tom"</span>, <span class="number">19</span>);</span><br><span class="line">		</span><br><span class="line">		session.setAttribute(<span class="string">"students"</span>, students);</span><br><span class="line">		System.out.println(<span class="string">"students被放入session域中"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p> 首先我们访问这个AServlet，然后关掉服务器，注意：不要点击控制台那个停止，如图所示： </p>
-<p><img src="https://img.zouchanglin.cn///20200131/TkAr3iezXP6s.png" alt="mark"></p>
-<p>此时session域的对象会转储到<code>apache-tomcat-7.0.92\work\Catalina\localhost\你的工程路径</code>这个文件夹中</p>
-<p>重新启动服务器后访问BServlet的时候，对象便会活化，重新加载到内存，监听器监听到后便会执行相关的函数：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		<span class="comment">//从session域中获得students</span></span><br><span class="line">		HttpSession session = request.getSession();</span><br><span class="line">		Students attribute = (Students)session.getAttribute(<span class="string">"students"</span>);</span><br><span class="line">		</span><br><span class="line">		System.out.println(attribute.getName()+<span class="string">":"</span>+attribute.getAge());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以通过配置文件指定对象钝化时间 —&gt; 对象多长时间不用被钝化</p>
-<p>在META-INF下创建一个context.xml：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Context</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- maxIdleSwap:session中的对象多长时间不使用就钝化(以分钟为单位) --&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- directory:钝化后的对象的文件写到磁盘的哪个目录下 配置钝化的对象文件在 work/catalina/localhost/钝化文件 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">Manager</span></span></span><br><span class="line"><span class="tag">		<span class="attr">className</span>=<span class="string">"org.apache.catalina.session.PersistentManager"</span></span></span><br><span class="line"><span class="tag">		<span class="attr">maxIdleSwap</span>=<span class="string">"1"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">Store</span> <span class="attr">className</span>=<span class="string">"org.apache.catalina.session.FileStore"</span></span></span><br><span class="line"><span class="tag">			<span class="attr">directory</span>=<span class="string">"mydirectory"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">Manager</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2><span id="过滤器-filter">过滤器 filter</span></h2><h3><span id="filter的简介">filter的简介</span></h3><p>过滤器可以拦截所有访问web资源的请求或响应操作。执行过滤任务的对象，这些任务是针对对某一资源（servlet 或静态内容）的请求或来自某一资源的响应执行的，抑或同时针对这两者执行 ，是对客户端访问资源的过滤，符合条件放行，不符合条件不放行，并且可以对目标资源访问前后进行逻辑处理，下面是Filter的基本使用流程：</p>
-<ol>
-<li>编写一个过滤器的类实现Filter接口</li>
-<li>实现接口中尚未实现的方法(着重实现doFilter方法)</li>
-<li>在web.xml中进行配置(主要是配置要对哪些资源进行过滤)</li>
-</ol>
-<p><img src="https://img.zouchanglin.cn///20200131/XrsdFjVnbtGC.png" alt="mark"></p>
-<h3><span id="filter生命周期及其api">filter生命周期及其API</span></h3><p>Filter接口有三个方法，并且这个三个都是与Filter的生命相关的方法</p>
-<p>init(Filterconfig)：代表filter对象初始化方法 filter对象创建时执行</p>
-<p>doFilter(ServletRequest,ServletResponse,FilterCha)：代表filter执行过滤的核心方法，如果某资源在已经被配置到这个filter进行过滤的话，那么每次访问这个资源都会执行doFilter方法</p>
-<p>destory()：代表是filter销毁方法 当filter对象销毁时执行该方法</p>
-<p>Filter对象的生命周期：</p>
-<p>Filter何时创建：服务器启动时就创建该filter对象</p>
-<p>Filter何时销毁：服务器关闭时filter销毁</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QuickFilter1</span> <span class="keyword">implements</span> <span class="title">Filter</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"init"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">		<span class="comment">//拦截别人的访问</span></span><br><span class="line">		System.out.println(<span class="string">"quick1 running ..."</span>);</span><br><span class="line">		<span class="comment">//放行请求</span></span><br><span class="line">		chain.doFilter(request, response);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"destroy"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>web.xml文件的配置：</p>
-<p><strong>注意：Filter的过滤顺序是按照filter-mapping的顺序过滤的</strong></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>QuickFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>com.xpu.web.filter.QuickFilter1<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>QuickFilter1<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 默认过滤所有url --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>QuickFilter2<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3><span id="filter的api详解">Filter的API详解</span></h3><h4><span id="initfilterconfig方法">init(FilterConfig)方法</span></h4><p>其中参数config代表 该Filter对象的配置信息的对象，内部封装是该filter的配置信息。</p>
-<p>假设web.xml配置了如下的Filter：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>QuickFilter3<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>QuickFilter3<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>com.xpu.web.filter.QuickFilter3<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>aaa<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>AAA<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p> 那么在filterConfig中就油API可以获取这些配置： </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Filter的过滤顺序是按照filter-mapping的顺序过滤的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig fConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">	<span class="comment">//fConfig维护着Filter的配置信息</span></span><br><span class="line">	System.out.println(fConfig.getFilterName());<span class="comment">//&lt;filter-name&gt;QuickFilter3&lt;/filter-name&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//获取初始化参数</span></span><br><span class="line">	System.out.println(fConfig.getInitParameter(<span class="string">"aaa"</span>)); <span class="comment">//AAA</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//获取servletContext</span></span><br><span class="line">	ServletContext servletContext = fConfig.getServletContext();</span><br><span class="line">	System.out.println(<span class="string">"init"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4><span id="destory方法">destory()方法</span></h4><p>filter对象销毁时执行</p>
-<h4><span id="dofilter方法">doFilter方法</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">doFilter(ServletRequest,ServletResponse,FilterChain)</span><br></pre></td></tr></table></figure>
-
-<p>其中的参数：</p>
-<p>ServletRequest/ServletResponse：每次在执行doFilter方法时 web容器负责创建一个request和一个response对象作为doFilter的参数传递进来。该request个该response就是在访问目标资源的service方法时的request和response。</p>
-<p>FilterChain：过滤器链对象，通过该对象的doFilter方法可以放行该请求</p>
-<p><img src="https://img.zouchanglin.cn///20200131/mkhCIOP5olAy.png" alt="mark"></p>
-<h3><span id="filer的配置">Filer的配置</span></h3><p>url-pattern配置时：</p>
-<ul>
-<li>完全匹配 <code>/sertvle1</code></li>
-<li>目录匹配 <code>/aaa/bbb/*</code> 使用的最多的方法</li>
-</ul>
-<p><code>/user/*</code>：访问前台的资源进入此过滤器</p>
-<p><code>/admin/*</code>：访问后台的资源时执行此过滤器</p>
-<ul>
-<li>扩展名匹配 <code>*.txt</code> 、<code>*.jsp</code></li>
-</ul>
-<p>注意：url-pattern可以使用servlet-name替代，也可以混用</p>
-<p>dispatcher：该属性指定了对某种访问方式的过滤：</p>
-<p>REQUEST：默认值，代表直接访问某个资源时执行filter</p>
-<p>FORWARD：转发时才执行filter</p>
-<p>INCLUDE: 包含资源时执行filter</p>
-<p>ERROR：发生错误时 进行跳转是执行filter<br><img src="https://img.zouchanglin.cn///20200131/fPzNGQgd9YKy.png" alt="mark"></p>
-<h3><span id="filter的作用">Filter的作用</span></h3><ul>
-<li><p>公共代码的提取</p>
-</li>
-<li><p>可以对request和response中的方法进行增强(装饰者模式/动态代理)</p>
-<p>这个特点用一个示例来解决get请求或者post请求乱码的问题</p>
-</li>
-</ul>
-<p>对于POST请求：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第一种</span></span><br><span class="line">request.setCharacterEncoding(<span class="string">"utf-8"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//第二种</span></span><br><span class="line">request.setCharacterEncoding(<span class="keyword">this</span>.getServletContext().getInitParameter(<span class="string">"charset"</span>));</span><br><span class="line"><span class="comment">//备注：这种获取方式是因为在web.xml中进行了如下配置</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 设置编码 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">context-param</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">param-name</span>&gt;</span>charset<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">context-param</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p> 对于GET请求： </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EncodingFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">		<span class="comment">//在传递request之前对request的getParameter方法进行增强</span></span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * 装饰者模式(包装)</span></span><br><span class="line"><span class="comment">		 * </span></span><br><span class="line"><span class="comment">		 * 1、增强类与被增强的类要实现统一接口</span></span><br><span class="line"><span class="comment">		 * 2、在增强类中传入被增强的类</span></span><br><span class="line"><span class="comment">		 * 3、需要增强的方法重写 不需要增强的方法调用被增强对象的</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		</span><br><span class="line">		<span class="comment">//被增强的对象</span></span><br><span class="line">		HttpServletRequest req = (HttpServletRequest) request;</span><br><span class="line">		<span class="comment">//增强对象</span></span><br><span class="line">		EnhanceRequest enhanceRequest = <span class="keyword">new</span> EnhanceRequest(req);</span><br><span class="line">	</span><br><span class="line">		chain.doFilter(enhanceRequest, response);	</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EnhanceRequest</span> <span class="keyword">extends</span> <span class="title">HttpServletRequestWrapper</span></span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> HttpServletRequest request;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">EnhanceRequest</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>(request);</span><br><span class="line">		<span class="keyword">this</span>.request = request;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//对getParaameter增强</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getParameter</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		String parameter = request.getParameter(name);<span class="comment">//乱码</span></span><br><span class="line">		<span class="keyword">if</span>(value == <span class="keyword">null</span> || value.trim().equals(<span class="string">""</span>))&#123;</span><br><span class="line">         	value=<span class="string">""</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			parameter = <span class="keyword">new</span> String(parameter.getBytes(<span class="string">"iso8859-1"</span>),<span class="string">"UTF-8"</span>);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> parameter;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>进行权限控制</li>
-</ul>
-<p>下面是一个使用了过滤器自动登录的示例：</p>
-<p><img src="https://img.zouchanglin.cn///20200131/GQrsrqticmK4.png" alt="mark"></p>
-<p> 过滤器的核心代码：（其他业务逻辑如上图所示） </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AutoLoginFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">		</span><br><span class="line">		HttpServletRequest req = (HttpServletRequest) request;</span><br><span class="line">		HttpServletResponse resp = (HttpServletResponse) response;</span><br><span class="line">		HttpSession session = req.getSession();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//获得cookie中用户名和密码 进行登录的操作</span></span><br><span class="line">		<span class="comment">//定义cookie_username</span></span><br><span class="line">		String cookie_username = <span class="keyword">null</span>;</span><br><span class="line">		<span class="comment">//定义cookie_password</span></span><br><span class="line">		String cookie_password = <span class="keyword">null</span>;</span><br><span class="line">		<span class="comment">//获得cookie</span></span><br><span class="line">		Cookie[] cookies = req.getCookies();</span><br><span class="line">		<span class="keyword">if</span>(cookies!=<span class="keyword">null</span>)&#123;</span><br><span class="line">			<span class="keyword">for</span>(Cookie cookie : cookies)&#123;</span><br><span class="line">				<span class="comment">//获得名字是cookie_username和cookie_password</span></span><br><span class="line">				<span class="keyword">if</span>(<span class="string">"cookie_username"</span>.equals(cookie.getName()))&#123;</span><br><span class="line">					cookie_username = cookie.getValue();</span><br><span class="line">					<span class="comment">//恢复中文用户名</span></span><br><span class="line">					cookie_username = URLDecoder.decode(cookie_username, <span class="string">"UTF-8"</span>);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span>(<span class="string">"cookie_password"</span>.equals(cookie.getName()))&#123;</span><br><span class="line">					cookie_password = cookie.getValue();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//判断username和password是否是null</span></span><br><span class="line">		<span class="keyword">if</span>(cookie_username!=<span class="keyword">null</span>&amp;&amp;cookie_password!=<span class="keyword">null</span>)&#123;</span><br><span class="line">			<span class="comment">//登录的代码</span></span><br><span class="line">			UserService service = <span class="keyword">new</span> UserService();</span><br><span class="line">			User user = <span class="keyword">null</span>;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				user = service.login(cookie_username,cookie_password);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//将登录的用户的user对象存到session中</span></span><br><span class="line">			session.setAttribute(<span class="string">"user"</span>, user);</span><br><span class="line">		&#125;</span><br><span class="line">        </span><br><span class="line">		<span class="comment">//放行</span></span><br><span class="line">		chain.doFilter(req, resp);	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123; &#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -417,21 +277,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -439,172 +299,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2616280680.html" title="Listener和Filter" target="_blank">https://zouchanglin.cn/2616280680.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">JavaWeb</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Web开发//" class="article-tag-list-link color1">Web开发</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2616280680.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/2773484598.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Linux下如何进行文件转码
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2592080764.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">《C陷阱与缺陷》笔记</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">监听器 listener</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">什么是监听器？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">监听器有哪些？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">监听三大域对象的创建与销毁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.</span> <span class="toc-text">监听ServletContext域的创建与销毁的监听器：ServletContextListener</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">Servlet域的生命周期</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">监听器的编写步骤（重点）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">监听的方法：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.4.</span> <span class="toc-text">ServletContextListener监听器的主要作用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.3.2.</span> <span class="toc-text">监听Httpsession域的创建于销毁的监听器：HttpSessionListener</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">HttpSession对象的生命周期</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">HttpSessionListener的方法</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.3.3.</span> <span class="toc-text">监听ServletRequest域创建与销毁的监听器：ServletRequestListener</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">ServletRequest的生命周期</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">ServletRequestListener的方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">监听三大域对象的属性变化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.4.1.</span> <span class="toc-text">域对象的通用的方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.4.2.</span> <span class="toc-text">ServletContextAttibuteListener的方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">与session中的绑定的对象相关监听器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.5.1.</span> <span class="toc-text">绑定与解绑的监听器：HttpSessionBindingListener</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">1.5.2.</span> <span class="toc-text">钝化与活化的监听器:HttpSessionActivationListener</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">过滤器 filter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">filter的简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">filter生命周期及其API</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">Filter的API详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.3.1.</span> <span class="toc-text">init(FilterConfig)方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.3.2.</span> <span class="toc-text">destory()方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.3.3.</span> <span class="toc-text">doFilter方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">Filer的配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.5.</span> <span class="toc-text">Filter的作用</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -613,13 +369,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

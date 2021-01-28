@@ -210,191 +210,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-MySQL库表操作" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      MySQL库表操作
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/498041550.html" class="archive-article-date">
-        <time datetime="2018-06-08T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-08</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.8k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">12分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="数据库操作">数据库操作</span></h2><h3><span id="字符集与校验规则">字符集与校验规则</span></h3><p>当我们创建数据库没有指定字符集和校验规则时，系统使用默认字符集：<code>utf8</code>，校验规则<br>是：<code>utf8_ general_ ci</code> ，这个校验规则中的 <code>ci</code>就是Case insensitive意为不区分大小写</p>
-<p>创建一个使用<code>utf8</code> 的字符集，并带校对规则为<code>utf8_general_ci</code>的数据库。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create database DBName charset&#x3D;utf8 collate utf8_general_ci;</span><br></pre></td></tr></table></figure>
-
-<p>查看系统默认字符集、默认校验规则</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#39;character_set_database&#39;; </span><br><span class="line">show variables like &#39;collation_database&#39;;</span><br></pre></td></tr></table></figure>
-
-<p> 支持的字符集、支持的校验规则 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">show charset;</span><br><span class="line">show collation;</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<h3><span id="创建数据库">创建数据库</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database myDB;</span><br><span class="line">Query OK, 1 row affected (0.90 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show create database myDB;</span><br><span class="line">+----------+---------------------------------------------------------------+</span><br><span class="line">| Database | Create Database                                               |</span><br><span class="line">+----------+---------------------------------------------------------------+</span><br><span class="line">| myDB     | CREATE DATABASE &#96;myDB&#96; &#x2F;*!40100 DEFAULT CHARACTER SET utf8 *&#x2F; |</span><br><span class="line">+----------+---------------------------------------------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; create database &#96;myDB2&#96;;</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show create database myDB2;</span><br><span class="line">+----------+----------------------------------------------------------------+</span><br><span class="line">| Database | Create Database                                                |</span><br><span class="line">+----------+----------------------------------------------------------------+</span><br><span class="line">| myDB2    | CREATE DATABASE &#96;myDB2&#96; &#x2F;*!40100 DEFAULT CHARACTER SET utf8 *&#x2F; |</span><br><span class="line">+----------+----------------------------------------------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-
-<p> MySQL 建议我们关键字使用大写，但是不是必须的。<br>数据库名字的反引号,是为了防止使用的数据库名刚好是关键字<br><code>/*!40100 DEFAULT CHARACTER SET utf8 */</code>这个不是注释，表示当前Mysql版本大于4.01版本，就执行这句话 </p>
-<h3><span id="修改数据库">修改数据库</span></h3><p>对数据库的修改主要指的是修改数据库的字符集，校验规则</p>
-<p>例如把 mytest 数据库字符集改为 gbk</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter database mytest charset&#x3D;gbk</span><br></pre></td></tr></table></figure>
-
-<h3><span id="删除数据库">删除数据库</span></h3><p>不要随意删除数据库，否则还是容易<strong>从删库到跑路的</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop databse [if exists] 数据库名称</span><br></pre></td></tr></table></figure>
-
-<p>如果加上<code>if exists</code>那么删除一个不存在的数据库也不会出错，但是会有警告(查看警告就使用<code>show warnings;</code>)，如果不加<code>if exists</code>去删除一个不存在的数据库就会报错</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; drop database mydbs;</span><br><span class="line">ERROR 1008 (HY000): Can&#39;t drop database &#39;mydbs&#39;; database doesn&#39;t exist</span><br><span class="line">mysql&gt; drop database if exists mydbs;</span><br><span class="line">Query OK, 0 rows affected, 1 warning (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show warnings;</span><br><span class="line">+-------+------+-----------------------------------------------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| Level | Code | Message                                                                                                                                                   |</span><br><span class="line">+-------+------+-----------------------------------------------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">| Error | 1064 | You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &#39;warning&#39; at line 1 |</span><br><span class="line">+-------+------+-----------------------------------------------------------------------------------------------------------------------------------------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-
-<h3><span id="备份和恢复">备份和恢复</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -P3306 -uroot -p -B 数据库名称 &gt; 路径+数据库名称.sql</span><br></pre></td></tr></table></figure>
-
-<p>使用示例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show databases;</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| information_schema |</span><br><span class="line">| mydb1              |</span><br><span class="line">| performance_schema |</span><br><span class="line">| sakila             |</span><br><span class="line">| test               |</span><br><span class="line">| userdata           |</span><br><span class="line">| world              |</span><br><span class="line">+--------------------+</span><br><span class="line">11 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; exit;</span><br><span class="line">Bye</span><br><span class="line"></span><br><span class="line">C:\Users\15291\Desktop&gt;mysqldump -P3306 -uroot -p -B mydb1 &gt; .&#x2F;mydb1.sql</span><br><span class="line">Enter password: ****</span><br></pre></td></tr></table></figure>
-
-<p>备份后会生成mydb1.sql文件，通过执行这个sql脚本就会恢复数据库：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; source C:&#x2F;Users&#x2F;15291&#x2F;Desktop&#x2F;mydb1.sql;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>如果备份的不是整个数据库，而是其中的一张表:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p 数据库名 表名1 表名2 &gt; .&#x2F;mytest.sql</span><br></pre></td></tr></table></figure>
-
-
-
-<p>同时备份多个数据库:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p -B 数据库名1 数据库名2 ... &gt; 数据库存放路路径</span><br></pre></td></tr></table></figure>
-
-<p>如果备份一个数据库时，没有带上-B参数， 在恢复数据库时，需要先创建空数据库，然后使用数据库，再使用source来还原</p>
-<h3><span id="查看连接情况">查看连接情况</span></h3><p>可以告诉我们当前有哪些用户连接到我们的MySQL，如果查出某个用户不不是你正常登陆的，很有可能数据库被人入侵了。如果发现数据库比较慢时，可以用这个指令来查看数据库连接情况：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show processlist;</span><br><span class="line">+----+------+-----------------+------+---------+------+-------+------------------+</span><br><span class="line">| Id | User | Host            | db   | Command | Time | State | Info             |</span><br><span class="line">+----+------+-----------------+------+---------+------+-------+------------------+</span><br><span class="line">|  9 | root | localhost:55469 | NULL | Query   |    0 | init  | show processlist |</span><br><span class="line">+----+------+-----------------+------+---------+------+-------+------------------+</span><br><span class="line">1 row in set (0.04 sec)</span><br></pre></td></tr></table></figure>
-
-<h2><span id="表的操作">表的操作</span></h2><h3><span id="创建表">创建表</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE table_name (</span><br><span class="line">	field1 datatype,</span><br><span class="line">	field2 datatype,</span><br><span class="line">	field3 datatype</span><br><span class="line">) character set 字符集 collate 校验规则 engine 存储引擎;</span><br></pre></td></tr></table></figure>
-
-<p>不同的存储引擎，创建表的文件不一样，这个在<code>Myisam</code>存储引擎中说到过<br>假设users表存储引擎是<code>Myisam</code>，在数据目中有三个不同的文件，分别是：<br>users.frm：表结构<br>users.MYD：表数据<br>users.MYI：表索引</p>
-<h3><span id="查看表结构">查看表结构</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; desc users;</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| Field    | Type        | Null | Key | Default | Extra |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| id       | int(11)     | YES  |     | NULL    |       |</span><br><span class="line">| name     | varchar(20) | YES  |     | NULL    |       |</span><br><span class="line">| password | char(32)    | YES  |     | NULL    |       |</span><br><span class="line">| birthday | date        | YES  |     | NULL    |       |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">4 rows in set (0.03 sec)</span><br></pre></td></tr></table></figure>
-
-<h3><span id="修改表表结构">修改表/表结构</span></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE tablename ADD (column datatype [DEFAULT expr][,column datatype]...);</span><br><span class="line">ALTER TABLE tablename MODIfy (column datatype [DEFAULT expr][,column datatype]...);</span><br><span class="line">ALTER TABLE tablename DROP (column);</span><br></pre></td></tr></table></figure>
-
-<p>使用示例：</p>
-<p>在users表的password字段后添加assets字段，类型为varchar(50)，备注为图片路径</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table users add assets varchar(50) comment &#39;图片路径&#39; after password;</span><br><span class="line">Query OK, 0 rows affected (0.14 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; desc users;                                                            </span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| Field    | Type        | Null | Key | Default | Extra |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| id       | int(11)     | YES  |     | NULL    |       |</span><br><span class="line">| name     | varchar(20) | YES  |     | NULL    |       |</span><br><span class="line">| password | char(32)    | YES  |     | NULL    |       |</span><br><span class="line">| assets   | varchar(50) | YES  |     | NULL    |       |</span><br><span class="line">| birthday | date        | YES  |     | NULL    |       |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">5 rows in set (0.02 sec)</span><br></pre></td></tr></table></figure>
-
-<p> 修改users表中name字段的类型为varchar(30) </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table users modify name varchar(30);</span><br><span class="line">Query OK, 0 rows affected (0.09 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; desc users;</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| Field    | Type        | Null | Key | Default | Extra |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| id       | int(11)     | YES  |     | NULL    |       |</span><br><span class="line">| name     | varchar(30) | YES  |     | NULL    |       |</span><br><span class="line">| password | char(32)    | YES  |     | NULL    |       |</span><br><span class="line">| assets   | varchar(50) | YES  |     | NULL    |       |</span><br><span class="line">| birthday | date        | YES  |     | NULL    |       |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">5 rows in set (0.02 sec)</span><br></pre></td></tr></table></figure>
-
-<p> 删除users表中assets字段 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table users drop assets;</span><br><span class="line">Query OK, 0 rows affected (0.09 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; desc users;</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| Field    | Type        | Null | Key | Default | Extra |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| id       | int(11)     | YES  |     | NULL    |       |</span><br><span class="line">| name     | varchar(30) | YES  |     | NULL    |       |</span><br><span class="line">| password | char(32)    | YES  |     | NULL    |       |</span><br><span class="line">| birthday | date        | YES  |     | NULL    |       |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">4 rows in set (0.01 sec)</span><br></pre></td></tr></table></figure>
-
-<p> 对user表的名字进行重命名 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table users rename to user;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br></pre></td></tr></table></figure>
-
-<p> 对user表中的name字段进行重命名并更改字段类型 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table user change name xingming varchar(50);</span><br><span class="line">Query OK, 0 rows affected (0.09 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; desc user;</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| Field    | Type        | Null | Key | Default | Extra |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">| id       | int(11)     | YES  |     | NULL    |       |</span><br><span class="line">| xingming | varchar(50) | YES  |     | NULL    |       |</span><br><span class="line">| password | char(32)    | YES  |     | NULL    |       |</span><br><span class="line">| birthday | date        | YES  |     | NULL    |       |</span><br><span class="line">+----------+-------------+------+-----+---------+-------+</span><br><span class="line">4 rows in set (0.02 sec)</span><br></pre></td></tr></table></figure>
-
-<p>删除user表</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; drop table user;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show tables;</span><br><span class="line">+---------------+</span><br><span class="line">| Tables_in_db1 |</span><br><span class="line">+---------------+</span><br><span class="line">| person        |</span><br><span class="line">+---------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-
-<h3><span id="mysql数据类型">Mysql数据类型</span></h3><h4><span id="数值类型">数值类型</span></h4><h4><span id="tinyint-bigint">tinyint-bigint</span></h4><p>这是有符号的范围，无符号的返回自行推导，和C的无符号是一致的</p>
-<p><img src="https://img.zouchanglin.cn///20200201/IMGDPPQdThD5.png" alt="mark"></p>
-<p>在MySQL中，整型可以指定是有符号的和无符号的，默认是有符号的。<br>可以通过UNSIGNED来说明某个字段是无符号的，但是一般遇到存储类型不足以存储数据的大小时，应该换成更大的类型，而不是换成对应的无符号类型！</p>
-<h4><span id="bit">bit</span></h4><p><code>bit[(M)]</code>: 位字段类型。M表示每个值的位数，范围从1到64。如果M被忽略，默认为1<br>注意bit类型，bit字段在显示时，是按照ASCII码对应的值显示！<br>如果我们有这样的值:只存放0或1，这时可以定义bit(1)，这样可以节省空间！</p>
-<h4><span id="float">float</span></h4><p><code>float[(m, d)] [unsigned]</code>: M指定显示长度，d指定小数位数，占用空间4个字节！</p>
-<h4><span id="decimal">decimal</span></h4><p>浮点数float与定点数decimal的存储方式的不同决定了他们的用途不同：<a href="https://blog.csdn.net/JoJoJo1234/article/details/79968358" target="_blank" rel="noopener">《浮点数的存储方式》</a><br>decimal用于保存必须为确切精度的值，很显然底层是用字符串来存储的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">decimal(m, d) [unsigned]</span><br></pre></td></tr></table></figure>
-
-
-
-<p>定点数m指定长度，d表示小数点的位数</p>
-<p>float表示的精度大约是7位。decimal整数最大位数m为65。支持小数最大位数d是30。如果d被省略，默认为0.如果m被省略，默认是10。<br>建议：如果希望小数的精度高，推荐使用decimal(对于银行这种对小数要求非常高的业务，decimal还是大有用处的)</p>
-<h4><span id="字符串类型">字符串类型</span></h4><h5><span id="char">char</span></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">char(L)</span><br></pre></td></tr></table></figure>
-
-<p>固定长度字符串，L是可以存储的长度，单位为字符，最大长度值可以为255，这里需要注意的是一个汉字和一个字母均被视为一个字符！</p>
-<h5><span id="varchar">varchar</span></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">varchar(L)</span><br></pre></td></tr></table></figure>
-
-<p>可变长度字符串，L表示字符长度，最大长度65535个字节<br>关于varchar(len)，len到底是多大，这个len值，和表的编码密切相关：varchar长度可以指定为0到65535之间的值，但是有两个字节用于记录数据大小，所以说有效字节数65532。<br>当我们的表的编码是utf8时，varchar(n)的参数n最大值是65532/3=21844[因为utf中，一个字符占用3个字节]，如果编码是gbk，varchar(n)的参数n最大是65532/2=32766（因为gbk中，一个字符占用2字节）</p>
-<h5><span id="char和varcahr比较">char和varcahr比较</span></h5><p><img src="https://img.zouchanglin.cn///20200201/x96YqR8BPgFm.png" alt="mark"></p>
-<p>两者如何选择？<br>如果数据确定长度都一样，就使用定长（char），比如：身份证，手机号，md5<br>如果数据长度有变化,就使用变长(varchar), 比如：名字，地址，但是你要保证最长的能存的进去<br>定长的磁盘空间比较浪费，但是效率高<br>变长的磁盘空间比较节省，但是效率</p>
-<h4><span id="日期和时间类型">日期和时间类型</span></h4><p>常用的日期有如下三个：</p>
-<ul>
-<li>datetime 时间日期格式 ‘yyyy-mm-dd HH:ii:ss’ 表示范围从1000到9999，占用八字节</li>
-<li>date:日期 ‘yyyy-mm-dd’，占用三字节</li>
-<li>timestamp：时间戳，从1970年开始的 yyyy-mm-dd HH:ii:ss格式和datetime完全一致，占用四字节</li>
-</ul>
-<p>使用示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table birthday (t1 date, t2 datetime, t3 timestamp);</span><br><span class="line">Query OK, 0 rows affected (1.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show tables;</span><br><span class="line">+---------------+</span><br><span class="line">| Tables_in_db1 |</span><br><span class="line">+---------------+</span><br><span class="line">| birthday      |</span><br><span class="line">| person        |</span><br><span class="line">+---------------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; insert into birthday(t1,t2) values(&#39;1997-7-1&#39;,&#39;2008-8-8 12:1:1&#39;);</span><br><span class="line">Query OK, 1 row affected (0.22 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from birthday;</span><br><span class="line">+------------+---------------------+---------------------+</span><br><span class="line">| t1         | t2                  | t3                  |</span><br><span class="line">+------------+---------------------+---------------------+</span><br><span class="line">| 1997-07-01 | 2008-08-08 12:01:01 | 2018-12-07 18:57:58 |</span><br><span class="line">+------------+---------------------+---------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-
-<h4><span id="enum和set">enum和set</span></h4><p>语法：<br>enum：枚举，“单选”类型；</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enum(&#39;选项1&#39;,&#39;选项2&#39;,&#39;选项3&#39;,...);</span><br></pre></td></tr></table></figure>
-
-
-
-<p>该设定只是提供了若干个选项的值，最终一个单元格中，实际只存储了其中一个值；而且出于效率考虑，这些值实际存储的是“数字”，因为这些选项的每个选项值依次对应如下数字：1,2,3,….最多65535个；当我们添加枚举值时，也可以添加对应的数字编号。</p>
-<p>set：集合，“多选”类型；</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set(&#39;选项值1&#39;,&#39;选项值2&#39;,&#39;选项值3&#39;, ...);</span><br></pre></td></tr></table></figure>
-
-
-
-<p>该设定只是提供了若干个选项的值，最终一个单元格中，设计可存储了其中任意多个值；而且出于效率考虑，这些值实际存储的是“数字”，因为这些选项的每个选项值依次对应如下数字：1,2,4,8,16,32，…. 最多64个。</p>
-<p>不建议在添加枚举值，集合值的时候采用数字的方式，因为不利于阅读。<br>使用示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table votes(</span><br><span class="line">    -&gt; username varchar(30),</span><br><span class="line">    -&gt; hobby set(&#39;登山&#39;,&#39;黎狗子吃粑粑&#39;,&#39;运动&#39;),</span><br><span class="line">    -&gt; gender enum(&#39;男&#39;,&#39;女&#39;));</span><br><span class="line">Query OK, 0 rows affected (0.43 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; insert into votes values(&#39;LiLiNaNa&#39;,&#39;登山,黎狗子吃粑粑&#39;,&#39;男&#39;);</span><br><span class="line">Query OK, 1 row affected (0.09 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from votes;</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">| username | hobby             | gender |</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">| LiLiNaNa | 登山,黎狗子吃粑粑 | 男     |</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">1 row in set (0.02 sec)</span><br></pre></td></tr></table></figure>
-
-<p>集合查询使用<code>find_ in_ set</code>函数：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find_in_set(sub,str_list)</span><br></pre></td></tr></table></figure>
-
-<p>如果sub 在str_list 中，则返回下标；如果不在，返回0； str_list 用逗号分隔的字符串。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; insert into votes values(&#39;Juse&#39;,&#39;登山&#39;,2);</span><br><span class="line">Query OK, 1 row affected (0.07 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from votes where find_in_set(&#39;登山&#39;, hobby);</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">| username | hobby             | gender |</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">| LiLiNaNa | 登山,黎狗子吃粑粑 | 男     |</span><br><span class="line">| Juse     | 登山              | 女     |</span><br><span class="line">+----------+-------------------+--------+</span><br><span class="line">2 rows in set (0.09 sec)</span><br></pre></td></tr></table></figure>
-
-
-
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -404,21 +273,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -426,172 +295,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/498041550.html" title="MySQL库表操作" target="_blank">https://zouchanglin.cn/498041550.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数据库//" class="article-tag-list-link color4">数据库</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/498041550.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/3293372011.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          冯诺依曼架构
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1336292242.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">MySQL存储引擎</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">数据库操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">字符集与校验规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">创建数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">修改数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">删除数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">备份和恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.6.</span> <span class="toc-text">查看连接情况</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">表的操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">创建表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">查看表结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">修改表&#x2F;表结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">Mysql数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.1.</span> <span class="toc-text">数值类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.2.</span> <span class="toc-text">tinyint-bigint</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.3.</span> <span class="toc-text">bit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.4.</span> <span class="toc-text">float</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.5.</span> <span class="toc-text">decimal</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.6.</span> <span class="toc-text">字符串类型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">2.4.6.1.</span> <span class="toc-text">char</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">2.4.6.2.</span> <span class="toc-text">varchar</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#null"><span class="toc-number">2.4.6.3.</span> <span class="toc-text">char和varcahr比较</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.7.</span> <span class="toc-text">日期和时间类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#null"><span class="toc-number">2.4.8.</span> <span class="toc-text">enum和set</span></a></li></ol></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -600,13 +365,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

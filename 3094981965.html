@@ -217,136 +217,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Java内存模型的回顾" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Java内存模型的回顾
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3094981965.html" class="archive-article-date">
-        <time datetime="2020-03-09T23:01:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-03-10</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.6k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">9分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p><img src="https://img.zouchanglin.cn///20200310/6jem5nNs1Jug.png" alt="mark"></p>
-<p>本篇文章主要讲述了Java内存模型中的程序计数器、虚拟机栈、本地方法栈、元空间与堆，以及堆中的常量池。前面通过javap反编译class文件得到<code>int add(int a, int b)</code>函数的栈帧，主要分析了栈帧中JVM指令对应的局部变量表、操作数栈、程序计数器的状态变化。以及JDK7以后出现了替代永久代的元数据区，并分析了元数据区替换了永久代有哪些好处，主要分析了给字符串常量池带来的影响，并通过代码验证了元数据区相比永久代的优越性。学习了JVM性能调优的三个参数的意义和普通用法，最后探讨了并验证了JDK1.6与JDK1.7+的版本String类的intern方法的不同表现结果，分析了出现不同结果的原因，其实主要是JDK1.6的版本是建立副本再放入字符串常量池，而JDK1.7+版本时直接把堆上的对象的引用入池。</p>
-<a id="more"></a>
-
-<h1><span id="线程私有的空间">线程私有的空间</span></h1><p>程序计数器( Program Counter Register )</p>
-<p>1、当前线程所执行的字节码行号指示器(逻辑)</p>
-<p>2、改变计数器的值来选取下一条需要执行的字节码指令</p>
-<p>3、和线程是一对一的关系即：线程私有</p>
-<p>4、对Java方法计数，如果是Native方法则计数器值为Undefined</p>
-<p>5、由于只是对指令行号进行计数，所以不会发生内存泄漏</p>
-<p>Java虚拟机栈（Stack）</p>
-<p>Java虚拟机栈是Java方法执行的内存模型，包含多个栈帧，栈帧里面有哪些内容呢？</p>
-<p>局部变量表、操作栈、动态链接、返回地址等。局部变量表包含了方法执行过程中的所有变量。操作数栈主要是：入栈、出栈、复制、交换、产生消费变量。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ByteCodeSimple</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> c = <span class="number">0</span>;</span><br><span class="line">        c = a + b;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过javac编译出class文件，再通过<code>javap -verbose ByteCodeSimple.class</code>编译出如下内容：</p>
-<p><img src="https://img.zouchanglin.cn///20200310/QFQCc32yrrrT.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200310/jkKALE5YcoXd.png" alt="mark"></p>
-<p>每一个蓝色的长方形就代表了一个栈帧的存在状态，对应上面的代码，总共有7个栈帧状态图。</p>
-<p>iconst指令就是将操作数0压入操作数栈中，入参为1,2因此局部变量表就是1和2。istore指令的意思就是把操作数栈的元素给pop出来，放入局部变量表的第二个变量中（因为是istore_2），iload_0就是将局部变量表中第0个的元素压入到操作数栈当中，接着又把局部变量表中第1个元素压入到操作数栈中，接着执行iadd指令（将操作数栈中的元素取出来，执行相加的操作，将结果放回栈顶），接着把栈顶的结算结果弹栈，放到局部变量表中的第二个变量里面，然后再次把局部变量表中的第二个变量放到操作数栈当中。最后调用ireturn这个指令把栈顶的元素给返回，最后执行的是销毁栈帧。</p>
-<p>所以可以看出调用一个Java方法就是需要建立栈帧，如果递归层数过多，超出虚拟机栈的深度限制，就会引发java.lang.StackOverFlowError异常。</p>
-<p>另一个异常就是java.lang.OutOfMemoryError，虚拟机栈过多会引发java.lang.OutOfMemoryError异常，如要尝试可以使用如下代码，<strong>Windows测试之前请备份好重要文档</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stackLeakByThread</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>本地方法栈，与虚拟机栈相似，主要作用于标注了native的方法。</p>
-<h1><span id="线程共享的空间">线程共享的空间</span></h1><p>先说说MetaSpace（元空间）与永久代的区别：</p>
-<p>首先，得明白方法区只是JVM的一个规范，而MetaSpace和永久代均是方法区的实现，在Java7之后，原先位于方法区的字符串常量池已经被移动到了堆中，并且在JDK8以后，使用MetaSpace替代了永久代。不仅仅只是名字上的替代：</p>
-<p>1、元空间使用本地内存，而永久代使用的是JVM的内存，使用本地内存有什么好处呢？那就是默认的类的元数据分配只受到本地内存大小的限制，解决了空间不足的问题， 所有的被intern的String被存储在PermGen的串常量池中，解决了以前在老版本的JDK中出现的OutOfMemoryError的问题，JVM默认在运行的时候会根据需要动态的设置其大小。</p>
-<p>2、字符串常量池存在永久代中，容易出现性能问题和内存溢出</p>
-<p>3、永久代会为GC带来不必要的复杂性</p>
-<p>4、方便HotSpot与其他JVM如Jrockit的集成</p>
-<p>堆这个空间其实就是存放对象实例用的（当然也包括数组和字符串常量池）。Java堆空间可以处于物理上不连续的空间，只要逻辑是连续的即可。</p>
-<h1><span id="jvm三大性能调优参数">JVM三大性能调优参数</span></h1><p>-Xms、-Xmx、-Xss</p>
-<p>-Xss 规定了每个线程虚拟机栈的大小，一般来说256K足够用了，此配置将会影响并发线程数的大小</p>
-<p>-Xms 堆的初始值，即进程刚创建时的堆的大小，一旦除过了堆的初始容量，将会自动扩容</p>
-<p>-Xmx 堆能达到的最大值</p>
-<p>通常情况下我们将 -Xms 和 -Xmx 设置成一样的，因为当堆内存不够用的时候，会发生扩容，此时会产生内存抖动，影响程序运行时的稳定性。</p>
-<h1><span id="内存分配策略">内存分配策略</span></h1><p>1、静态存储：编译时确定每个数据目标在运行时的存储空间需求</p>
-<p>2、栈式存储：数据区需求在编译时未知，运行时模块入口前确定，如：虚拟机栈</p>
-<p>3、堆式存储：编译时或运行时模块入口都无法确定，动态分配，如：对象的存储和销毁</p>
-<h1><span id="java内存模型中堆和栈的区别">Java内存模型中堆和栈的区别</span></h1><p>1、管理方式：栈自动释放，堆需要GC</p>
-<p>2、空间大小：栈比堆小</p>
-<p>3、碎片相关：栈产生的碎片远小于堆</p>
-<p>4、分配方式：栈支持静态和动态分配，而堆仅支持动态分配</p>
-<p>5、效率：栈的效率比堆高</p>
-<h1><span id="不同jdk版本的intern">不同JDK版本的intern()</span></h1><p>String对象的intern方法就是把字符串放入字符串常量池中。</p>
-<p>JDK6：当调用intern方法时，如果字符串常量池先前已创建出该字符串对象，则返回池中的该字符串的引用。否则，将此字符串对象添加到字符串常量池中，并且返回该字符串对象的引用。</p>
-<p>JDK6+：当调用intern 方法时，如果字符串常量池先前已创建出该字符串对象，则返回池中的该字符串的引用。否则，如果该字符串对象已经存在于Java堆中，则将堆中对此对象的引用添加到字符串常量池中，并且返回该引用;如果堆中不存在，则在池中创建该字符串并返回其引用。</p>
-<blockquote>
-<p><strong>先演示一个OutOfMemoryError：PermGen space的例子</strong></p>
-</blockquote>
-<p>下面是一个一直向常量池中放入随机字符串的程序示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PermGenErrTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">            getRandomString(<span class="number">1000000</span>).intern();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"success"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getRandomString</span><span class="params">(<span class="keyword">int</span> length)</span> </span>&#123;</span><br><span class="line">        String str = <span class="string">"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"</span>;</span><br><span class="line">        Random random = <span class="keyword">new</span> Random();</span><br><span class="line">        StringBuilder stringBuilder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> num = random.nextInt(<span class="number">62</span>);</span><br><span class="line">            stringBuilder.append(str.charAt(num));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> stringBuilder.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200310/Wq89hpIpFyDG.png" alt="mark"></p>
-<p>我的JDK版本选择了JDK1.6，并且配置了永久代的初始大小为6M，而且最大为6M，然后一直往常量池里面放字符串，最终出现了OutOfMemoryError：PermGen space，那么如果是换成JDK1.7+呢？</p>
-<p><img src="https://img.zouchanglin.cn///20200310/Dr0KF38xpzWX.png" alt="mark"></p>
-<p>可以看到成功执行完毕，而且JDK1.7+是不受MaxPerSize这个参数的限制的，因为已经移除了永久代。</p>
-<blockquote>
-<p><strong>不同JDK版本的intern()</strong></p>
-</blockquote>
-<p>对于JDK1.6会输出什么？JDK1.7+呢？</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InternDifference</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String s1 = <span class="keyword">new</span> String(<span class="string">"a"</span>);</span><br><span class="line">        s1.intern();</span><br><span class="line">        String s2 = <span class="string">"a"</span>;</span><br><span class="line">        System.out.println(s1 == s2); </span><br><span class="line"></span><br><span class="line">        String s3 = <span class="keyword">new</span> String(<span class="string">"a"</span>) + <span class="keyword">new</span> String(<span class="string">"a"</span>);</span><br><span class="line">        s3.intern();</span><br><span class="line">        String s4 = <span class="string">"aa"</span>;</span><br><span class="line">        System.out.println(s3 == s4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>对于JDK1.7+，输出结果是false、true</strong></p>
-<p><img src="https://img.zouchanglin.cn///20200310/kjm5UTFvcs26.png" alt="mark"></p>
-<p>String s = new String(“a”)的时候， “a”会被首先创建，放入字符串常量池中，然后new出的对象放在堆中，在调用intern()的时候，会尝试将字符串对象放入字符串常量池中，但是发现字符串常量池中已经有了，就不能放了，在String s2 = “a”的时候，会先在常量池中寻找有没有对应的字符串，如果有，就直接返回它的引用。所以s1 == s2 比较的是字符串常量池中的”a” 的地址和堆中对象的地址，肯定是flase。在String s3 = new String(“a”) + new String(“a”)，字符串常量池是不会创建“aa”这个字符串的，因为“”中只有单个a，所以在调用intern()的时候，会尝试将“aa”也就是堆中的那个<strong>字符串对象的引用</strong>放入常量池中，并将该引用返回，由于这两个都是同一个地址引用，于是s3==s4是true。 </p>
-<p>对于JDK1.6，输出结果是false、false**，如下图</p>
-<p><img src="https://img.zouchanglin.cn///20200310/P9m4AFFpdBEM.png" alt="mark"></p>
-<p>String s1 = new String(“a”)的时候， “a”会被首先创建，放入字符串常量池中，然后new出的对象放在堆中，在调用intern()的时候，会尝试将字符串对象放入字符串常量池中，但是发现字符串常量池中已经有了，就不能放了，在String s2 = “a”的时候，会先在常量池中寻找有没有对应的字符串，如果有，就直接返回它的引用。所以s1 == s2 比较的是字符串常量池中的”a” 的地址和堆中对象的地址，肯定是flase。 在String s3 = new String(“a”) + new String(“a”)，字符串常量池是不会创建“aa”这个字符串的，因为“”中只有单个a，所以在调用intern()的时候，会尝试将“aa”也就是堆中的那个字符串对象放入常量池中，并返回字符串常量池中“aa”的引用，但是由于常量池中放的相当于是一个对象副本，当返回它的引用时，地址是永久区的，因此s3和s4不会相等。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -356,21 +280,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -378,180 +302,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3094981965.html" title="Java内存模型的回顾" target="_blank">https://zouchanglin.cn/3094981965.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">字符串</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3094981965.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/4008935095.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          垃圾标记与收集算法
-        
-      </div>
-    </a>
-  
-  
-    <a href="/1384953149.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">ClassLoader</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">线程私有的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">线程共享的空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">JVM三大性能调优参数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">内存分配策略</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">Java内存模型中堆和栈的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">不同JDK版本的intern()</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -560,13 +372,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

@@ -226,121 +226,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-基于Redis实现分布式锁" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      基于Redis实现分布式锁
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/238802463.html" class="archive-article-date">
-        <time datetime="2019-12-08T13:57:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-08</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.4k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">4分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>在并发编程中，我们通过锁，来避免由于竞争而造成的数据不一致问题。通常，我们以<code>synchronized 、Lock</code>来使用它。  但是Java中的锁，只能保证在同一个JVM进程内中执行。如果在分布式集群环境下呢？  分布式锁的实现有很多，比如基于数据库、memcached、Redis、系统文件、zookeeper等。它们的核心的理念跟上面的过程大致相同。 本篇文章，主要讲如何用Redis的形式实现分布式锁。 </p>
-<a id="more"></a>
-
-<h1><span id="1-秒杀示例">1、秒杀示例</span></h1><p>首先，下面的例子是一个特价商品得秒杀案例，直接看代码</p>
-<p><img src="https://img.zouchanglin.cn///20200202/s4HB1MLjH93M.png" alt="mark"></p>
-<p>服务层</p>
-<p><img src="https://img.zouchanglin.cn///20200202/nAnvwkbU2vWx.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200202/0Ntyj0iQtqaN.png" alt="mark"></p>
-<p>单个电脑上直接拿鼠标点链接肯定不会有问题，因为是串行的操作，接下用使用Apache ab工具模拟并发的情况：</p>
-<p><code>http://httpd.apache.org/docs/2.0/programs/ab.html</code> 这个是它的官网，使用说明里面也有，下面直接使用它进行模拟测压：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/KBdkg8IEO5dr.png" alt="mark"></p>
-<p>经过测试之后发现：卖超了，意料之中的事情</p>
-<p><img src="https://img.zouchanglin.cn///20200202/T5DaRI4dOza2.png" alt="mark"></p>
-<p>为什么会出现这种情况呢？ 没有做同步呗，很正常，首先要解决的是数据同步问题</p>
-<p>使用synchronized对方法加锁：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/n4Xa2iApU5Ci.png" alt="mark"></p>
-<p>加了synchronized之后肯定是数据同步了：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/aTWdPX4N3ubL.png" alt="mark"></p>
-<p>但是速度却太慢了，无法实现细粒度控制，而且系统根本无法实现水平拓展，问题很多，下面用分布式锁来解决这些问题。</p>
-<h1><span id="2-redis的几个命令">2、Redis的几个命令</span></h1><p><a href="http://www.redis.cn/commands/setnx.html" target="_blank" rel="noopener">http://www.redis.cn/commands/setnx.html</a> 可以先看看这个文档：</p>
-<p>第一个命令：SETNX</p>
-<blockquote>
-<p>Design pattern: Locking with !SETNX<br>设计模式：使用!SETNX加锁<br>Please note that:<br>请注意：<br>不鼓励以下模式来实现the Redlock algorithm ，该算法实现起来有一些复杂，但是提供了更好的保证并且具有容错性。<br>无论如何，我们保留旧的模式，因为肯定存在一些已实现的方法链接到该页面作为引用。而且，这是一个有趣的例子说明Redis命令能够被用来作为编程原语的。<br>无论如何，即使假设一个单例的加锁原语，但是从 2.6.12 开始，可以创建一个更加简单的加锁原语，相当于使用SET命令来获取锁，并且用一个简单的 Lua 脚本来释放锁。该模式被记录在SET命令的页面中。<br>也就是说，SETNX能够被使用并且以前也在被使用去作为一个加锁原语。例如，获取键为foo的锁，客户端可以尝试一下操作：<br>SETNX lock.foo &lt;current Unix time + lock timeout + 1&gt;<br>如果客户端获得锁，SETNX返回1，那么将lock.foo键的Unix时间设置为不在被认为有效的时间。客户端随后会使用DEL lock.foo去释放该锁。<br>如果SETNX返回0，那么该键已经被其他的客户端锁定。如果这是一个非阻塞的锁，才能立刻返回给调用者，或者尝试重新获取该锁，直到成功或者过期超时。</p>
-</blockquote>
-<p>第二个命令：GETSET</p>
-<blockquote>
-<p>自动将key对应到value并且返回原来key对应的value。如果key存在但是对应的value不是字符串，就返回错误。</p>
-<p>设计模式</p>
-<p><a href="http://www.redis.cn/commands/getset.html" target="_blank" rel="noopener">GETSET</a>可以和<a href="http://www.redis.cn/commands/incr.html" target="_blank" rel="noopener">INCR</a>一起使用实现支持重置的计数功能。举个例子：每当有事件发生的时候，一段程序都会调用<a href="http://www.redis.cn/commands/incr.html" target="_blank" rel="noopener">INCR</a>给key mycounter加1，但是有时我们需要获取计数器的值，并且自动将其重置为0。这可以通过GETSET mycounter “0”来实现：</p>
-</blockquote>
-<p>其实就是先GET、再SET，所以返回SET之前的值</p>
-<h1><span id="3-使用redis实现分布式锁">3、使用Redis实现分布式锁</span></h1><p>首先搞清楚锁的是什么，即搞清楚什么是进行同步和互斥的数据，对于上面的秒杀系统示例程序来说，当然是商品，而且是同样的商品需要同步与互斥，假设现在是华为Mate30 Pro的秒杀活动，大家肯定买的都是这一款产品，所以其实需要关心的就是成交订单量和库存的关系，如果不进行同步与互斥，那么肯定会出现买超的情况，限量秒杀1000台，可能实际成交订单变成了1200或更多，所以需要进行数据的同步与互斥</p>
-<p>我直接使用Docker跑了一个Redis实例</p>
-<p><img src="https://img.zouchanglin.cn///20200202/qQ8xwSNxNHII.png" alt="mark"></p>
-<p>测试通过可以使用！</p>
-<p>pom文件引入redis-starter</p>
-<p><img src="https://img.zouchanglin.cn///20200202/rwtsygu5pXRS.png" alt="mark"></p>
-<p>写入最基础的连接配置</p>
-<p><img src="https://img.zouchanglin.cn///20200202/UQOEd1vmNsNl.png" alt="mark"></p>
-<p>RedisLock实现:</p>
-<p><img src="https://img.zouchanglin.cn///20200202/zmNwClkmOViQ.png" alt="mark"></p>
-<p>在秒杀系统中使用：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/s7c81EHhnKWi.png" alt="mark"></p>
-<p>在设计的时候把商品的Id设置为Key，当前时间+超时时间为Value</p>
-<p>通过代码注释可以看清楚实现流程：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/D3x9AjAvqSJA.png" alt="mark"></p>
-<p>如果锁未超时也是返回False，这说明别的线程已经持有锁！</p>
-<h1><span id="4-redis分布式锁的好处">4、Redis分布式锁的好处</span></h1><p>保证了数据的同步与互斥，通过模拟10个线程模拟500次请求的结果，对了我还统计了一下未能成功获得锁的请求次数，本次实验是469次请求未能成功获得锁，所以订单成交了31个，仓库剩余99969份！</p>
-<p><img src="https://img.zouchanglin.cn///20200202/NWUCJdrcpLOx.png" alt="mark"></p>
-<p>另外分布式锁可以很好的支持分布式部署，本例中因为为了方便直接在一个服务中写死了，所以就不演示集群似的测试了。</p>
-<p>效率上也是很大的进步：</p>
-<p>使用Redis分布式锁：</p>
-<p><img src="https://img.zouchanglin.cn/sync08-966e272e.gif" alt></p>
-<p>使用synchronized：</p>
-<p><img src="https://img.zouchanglin.cn/sync09-461b14339.gif" alt></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -350,21 +289,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -372,180 +311,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/238802463.html" title="基于Redis实现分布式锁" target="_blank">https://zouchanglin.cn/238802463.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">分布式</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/分布式理论//" class="article-tag-list-link color1">分布式理论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/238802463.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/3728000607.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          重新认识volatile
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3947143266.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">TCP协议基本特性</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">1、秒杀示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">2、Redis的几个命令</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">3、使用Redis实现分布式锁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">4、Redis分布式锁的好处</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -554,13 +381,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

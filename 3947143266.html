@@ -225,134 +225,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-TCP协议基本特性" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      TCP协议基本特性
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3947143266.html" class="archive-article-date">
-        <time datetime="2019-11-21T14:32:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-11-21</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">10分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h1><span id="tcp协议特点">TCP协议特点</span></h1><h2><span id="1-面向连接">1、面向连接</span></h2><p>传输控制协议Transmission Control Protocol 要对数据的传输进行一个详细的控制，TCP是面向连接(虚连接)的传输层协议，但注意此处的连接是虚连接：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/l7oGtXYuJdbY.png" alt="mark"></p>
-<a id="more"></a>
-
-<h2><span id="2-每个tcp连接只能是点对点">2、每个TCP连接只能是点对点</span></h2><p>TCP连接是点对点的连接，而不是向广播那样的形式</p>
-<h2><span id="3-可靠有序不丢不重">3、可靠有序，不丢不重</span></h2><p>TCP提供可靠交付的服务，无差错、不丢失、不重复、按序到达。可靠有序，不丢不重，后面会写到这些功能是如何实现的</p>
-<h2><span id="4-tcp提供全双工通信">4、TCP提供全双工通信</span></h2><p>发送缓存：准备发送的数据 + 已发送但尚未收到确认的数据<br>接收缓存：按序到达但尚未被接受应用程序读取的数据 + 不按序到达的数据</p>
-<h2><span id="5-面向字节流">5、面向字节流</span></h2><p>TCP面向字节流，TCP把应用程序交下来的数据看成仅仅是一连串的无结构的字节流。</p>
-<h1><span id="tcp报文格式">TCP报文格式</span></h1><p><img src="https://img.zouchanglin.cn///20200202/vxkBwpejRsai.png" alt="mark"></p>
-<h2><span id="1-填充字段">1、填充字段</span></h2><p>首先看看填充字段，这个字段主要是为了保证添加选项字段后TCP首部是还是4字节的整数倍（通常填充的是全零字段）。</p>
-<p>固定首部就是20字节（图中一行就是32位，8位是一个字节，所以图中的一行就是4字节，五行就是20字节）</p>
-<h2><span id="2-源端口和目的端口">2、源端口和目的端口</span></h2><p>源端口和目的端口分别占用4字节，总占用8字节</p>
-<h2><span id="3-序号">3、序号</span></h2><p>序号：在一个TCP连接中传送的字节流中的每一个字节都按顺序编号，本字段表示本报文段所发送数据的第一个字节的序号。如下图，如果发的是123号字节的数据，那么TCP报文中的头部序号就是1，如果发送的是456号字节的数据，那么TCP报文中的头部序号就是4：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/AYighlCt0SzU.png" alt="mark"></p>
-<h2><span id="4-确认号">4、确认号</span></h2><p>确认号：期望收到对方下一一个报文段的第一个数据字节的序号。若确认号为N，则证明到序号N-1为止的所有数据都已正确收到。如下图：接收端收到数据后要反馈给发送端，还是向发送端发一个确认报文，填写自己的确认号，发送端就知道了接收端收到了那些数据，没收到的超时要重发：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/G9zVHcPk1VDr.png" alt="mark"></p>
-<h2><span id="5-数据偏移">5、数据偏移</span></h2><p>数据偏移(首部长度) ： TCP报文段的数据起始处距离TCP报文段的起始处有多远，以4字节为单位，即1个数值是4字节，首部长度包含固定的20字节，还有选项字段和填充字段，所以需要知道首部的长度，就需要这个字段来说明首部长度。 由于数据偏移字段只有4位的存储空间，最大为 1111 ，就是最大值为15，15 * 4 = 60字节，所以TCP协议首部最长为60字节（20字节固定大小 + 40字节的选项和填充字段）。</p>
-<h2><span id="6-6个控制位">6、6个控制位</span></h2><h3><span id="urg-紧急位">URG - 紧急位</span></h3><p>紧急位URG，URG=1时， 标明此报文段中有紧急数据，是高优先级的数据，应尽快传送，不用在缓存里排队，配合紧急指针字段使用</p>
-<h3><span id="ack-确认位">ACK - 确认位</span></h3><p>确认位ACK，ACK=1时确认号有效，在连接建立后所有传送的报文段都必须把ACK置为1</p>
-<h3><span id="psh-推送位">PSH - 推送位</span></h3><p>推送位PSH，PSH=1时， 接收方尽快交付接收应用进程，不再等到缓存填满再向上交付</p>
-<p><img src="https://img.zouchanglin.cn///20200202/bicpSyPNCKy8.png" alt="mark"></p>
-<h3><span id="rst-复位">RST - 复位</span></h3><p>复位RST，RST=1时， 表明TCP连接中出现严重差错，必须释放连接，然后再重新建立传输链接。</p>
-<h3><span id="syn-同部位">SYN - 同部位</span></h3><p>同步位SYN，SYN=1时，表明是一个连接请求/连接接受报文，建立连接的时候表示此报文段为请求/连接接受报文</p>
-<h3><span id="fin-终止位">FIN - 终止位</span></h3><p>终止位FIN，FIN=1时， 表明此报文段发送方数据已发完，要求释放放连接</p>
-<p>不过在书中也有这样描述的：</p>
-<p><img src="https://img.zouchanglin.cn///20200202/KV2t6YEFCVaH.png" alt="mark"></p>
-<p>这个会在后面的拥塞控制中讲到！</p>
-<h2><span id="7-窗口">7、窗口</span></h2><p>窗口指的是发送本报文段的一方的接收窗口，即现在允许对方发送的数据量，反映了自己可以缓存的字节流，那么对方就知道了你的接收能力怎么样，以此决定向你发送报文的数据量应该控制在多大的范围。举个简单的例子，如果接收方发来的报文确认号是701， 窗口是1000，那么发送方接下来要发的报文就是701~1700的数据。</p>
-<h2><span id="8-校验和">8、校验和</span></h2><p>检验首部+数据，检验时要加上12字节的伪首部（IP首部）第四个字段为6（UDP中是17）</p>
-<h2><span id="9-紧急指针">9、紧急指针</span></h2><p>当URG=1时，这个字段才有用，指出本报文段中紧急数据的字节数，假设紧急指针为50，那么数据部分的1-50的数据才是紧急数据，剩下的是普通数据</p>
-<h2><span id="10-选项">10、选项</span></h2><p>选项，例如最大报文段长度MSS、窗口扩大、时间戳、选择确认…</p>
-<h1><span id="tcp的连接管理">TCP的连接管理</span></h1><p>建立连接 —-＞数据传送—-＞释放连接</p>
-<p>TCP连接的建立采用客户服务器方式，主动发起连接建立的应用进程叫做客户，而被动等待连接建立的应用进程叫服务器。</p>
-<h2><span id="1-建立连接过程">1、建立连接过程</span></h2><p>step1、客户端发送连接请求报文段，无应用层数据， SYN = 1，seq = x(随机值，由客户端主机产生)，SYN为1很好理解，前面说到了SYN=1表明是一个连接请求/连接接受报文，建立连接的时候表示此报文段为请求/连接接受报文</p>
-<p>step2、服务器端为该TCP连接分配缓存和变量，并向客户端返回确认报文段，允许连接，无应用层数据，SYN = 1，ACK = 1，seq=y(随机值)，ack=x+1。怎么理解呢？客户端首次发报文，这个报文是建立连接用的，所以客户端随机产生了一个序号seq=y，但是这个序号对于服务器是有用的，因为服务器通过客户端发来的seq就知道需要接收的下一个报文段的序号了，那就是seq的值再加一；</p>
-<p><img src="https://img.zouchanglin.cn///20200202/sUAAnuTapm7S.png" alt="mark"></p>
-<p>step3、客户端为该TCP连接分配缓存和变量，并向服务器端返回确认的确认，并且可以携带数据</p>
-<p><img src="https://img.zouchanglin.cn///20200202/fodoGNAiudca.png" alt="mark"></p>
-<p>总结一下就是：</p>
-<p><strong>第一次发数据包 (客户端-&gt;服务器)：客户端知道自己的发送能力正常；服务器知道自己的接收能力正常，也知道客户端的发送能力正常</strong></p>
-<p><strong>第二次发数据包 (服务器-&gt;客户端)：客户端知道服务器的接收、发送能力正常，客户端知道自己的接收能力正常；服务器知道自己的发送能力正常</strong></p>
-<p><strong>那么现在的问题就是：</strong></p>
-<p><strong>客户端知道服务器的发送、接收能力都正常，同时也知道自己的发送、接收都正常，那么是不是可以通信了呢？？？？ 不可以，因为服务器目前只知道：自己的发送、接收能力正常，客户端的发送能力正常</strong></p>
-<p><strong>唯一不能确定的是客户端的接收能力是否正常，所以通过第三次握手，确定了客户端的接收能力也是正常的！</strong></p>
-<p>补上一张加上状态的图</p>
-<p><img src="https://img.zouchanglin.cn///20200202/eiPTrLTjntCv.png" alt="mark"></p>
-<h2><span id="2-连接的释放过程">2、连接的释放过程</span></h2><p><img src="https://img.zouchanglin.cn///20200202/8LcDIo1Qlu4q.png" alt="mark"></p>
-<p>可以看出这是一个四次握手的过程</p>
-<p>参与一条TCP连接的两个进程中的任何一个都能终止该连接，连接结束后，主机中的 资源 (缓存和变量) 将被释放。</p>
-<p>step1、客户端发送连接释放报文段，停止发送数据，主动关闭TCP连接。</p>
-<p>FIN=1，seq=u （u就等于前面已经传送过来的数据的最后一个字节的序号加1） </p>
-<p>step2、服务器端回送一个确认报文段，客户到服务器这个方向的连接就释放了，处于半关闭状态（close_wait），这个半关闭状态就是客户端停止发送数据，服务器端还可以发送数据。 TCP服务器通知高层的应用进程，客户端向服务器的方向就释放了，这时候处于半关闭状态，即客户端已经没有数据要发送了，但是服务器若发送数据，客户端依然要接受。这个状态还要持续一段时间，也就是整个CLOSE-WAIT状态持续的时间。 </p>
-<p>ACK=1，seq=v，ack=u+1</p>
-<p>step3、服务器端发完数据，就发出来连接释放报文段，主动关闭TCP连接</p>
-<p>FIN=1，ACK=1，seq=w，ack=u+1</p>
-<p>step4、客户端回送确认报文段，再等待时间计时器设置的2MSL（最长报文段寿命）后，连接彻底关闭</p>
-<p>ACK=1，seq=u+1，ack=w+1</p>
-<p><img src="https://img.zouchanglin.cn///20200202/fC6LyiuWsotS.png" alt="mark"><br><img src="https://img.zouchanglin.cn///20200202/MscWXH1jLF4c.png" alt="mark"></p>
-<h1><span id="tcp的其他问题">TCP的其他问题</span></h1><h2><span id="1-tcp泛洪攻击">1、TCP泛洪攻击</span></h2><p>SYN洪泛攻击，这种方式利用TCP协议的特性，就是三次握手。攻击者发送TCP SYN, SYN是TCP三次握手中的第-一个数据包，而当服务器返回ACK后，该攻击者就不对其进行再确认，那这个TCP连接就处于挂起状态，也就是所谓的半连接状态，服务器收不到再确认的话，还会重复发送ACK给攻击者。这样更加会浪费服务器的资源。攻击者就对服务器发送非常大量的这种TCP连接，由于每一个 都没法完成三次握手，所以在服务器上，这些TCP连接会因为挂起状态而消耗CPU和内存，最后服务器可能死机，就无法为正常用户提供服务了。</p>
-<p>如何解决TCP泛洪攻击？</p>
-<p>① 无效连接的监视释放</p>
-<p> 监视系统的半开连接和不活动连接，当达到一定阈值时拆除这些连接，从而释放系统资源 </p>
-<p>② SYN Cookie</p>
-<p>它使用一种特殊的算法生成seq，这种算法考虑到了对方的IP、端口、己方IP、端口的固定信息，以及对方无法知道而己方比较固定的一些信息，如MSS(Maximum Segment Size，最大报文段大小，指的是TCP报文的最大数据报长度，其中不包括TCP首部长度)、时间等，在收到对方的ACK报文后，重新计算一遍，看其是否与对方回应报文中的（seq-1）相同，从而决定是否分配TCB资源</p>
-<p>③ SYN Cache</p>
-<p>系统在收到一个SYN报文时，在一个专用HASH表中保存这种半连接信息，直到收到正确的回应ACK报文再分配TCB。这个开销远小于TCB的开销。当然还需要保存序列号。</p>
-<p>④ SYN Proxy防火墙</p>
-<p> 一种方式是防止墙dqywb连接的有效性后，防火墙才会向内部服务器发起SYN请求。防火墙代服务器发出的SYN ACK包使用的序列号为c, 而真正的服务器回应的序列号为c’, 这样，在每个数据报文经过防火墙的时候进行序列号的修改。另一种方式是防火墙确定了连接的安全后，会发出一个safe reset命令，client会进行重新连接，这时出现的syn报文会直接放行。这样不需要修改序列号了。但是，client需要发起两次握手过程，因此建立连接的时间将会延长。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -362,21 +288,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -384,161 +310,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3947143266.html" title="TCP协议基本特性" target="_blank">https://zouchanglin.cn/3947143266.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/计算机网络//" class="article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3947143266.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/238802463.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          基于Redis实现分布式锁
-        
-      </div>
-    </a>
-  
-  
-    <a href="/4183462900.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">辅助IP的ICMP</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">TCP协议特点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">1、面向连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">2、每个TCP连接只能是点对点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">3、可靠有序，不丢不重</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">4、TCP提供全双工通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.5.</span> <span class="toc-text">5、面向字节流</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">TCP报文格式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">1、填充字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">2、源端口和目的端口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">3、序号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">4、确认号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.5.</span> <span class="toc-text">5、数据偏移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.6.</span> <span class="toc-text">6、6个控制位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.1.</span> <span class="toc-text">URG - 紧急位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.2.</span> <span class="toc-text">ACK - 确认位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.3.</span> <span class="toc-text">PSH - 推送位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.4.</span> <span class="toc-text">RST - 复位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.5.</span> <span class="toc-text">SYN - 同部位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.6.6.</span> <span class="toc-text">FIN - 终止位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.7.</span> <span class="toc-text">7、窗口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.8.</span> <span class="toc-text">8、校验和</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.9.</span> <span class="toc-text">9、紧急指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.10.</span> <span class="toc-text">10、选项</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">TCP的连接管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">1、建立连接过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">2、连接的释放过程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">TCP的其他问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">1、TCP泛洪攻击</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -547,13 +380,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

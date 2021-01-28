@@ -210,137 +210,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-生成器、迭代器、闭包与装饰器" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      生成器、迭代器、闭包与装饰器
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/397426745.html" class="archive-article-date">
-        <time datetime="2018-01-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-25</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.7k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">11分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h1><span id="生成器">生成器</span></h1><h2><span id="创建生成器方法一">创建生成器方法一</span></h2><p>要创建⼀个⽣成器，有很多种⽅法。第⼀种⽅法很简单，只要把⼀个列表⽣成式的 [ ] 改成 ( )</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: L = [x*<span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>)]</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: L</span><br><span class="line">Out[<span class="number">2</span>]: [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>]</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: G = (x*<span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: G</span><br><span class="line">Out[<span class="number">4</span>]: &lt;generator object &lt;genexpr&gt; at <span class="number">0x000001B281507A98</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>创建 L 和 G 的区别仅在于最外层的 [ ] 和 ( ) ， L 是列表，G 是生成器。我们可以直接打印出L的每个元素，但我们怎么打印出G的每个元素呢？使用<code>next</code>函数</p>
-<a id="more"></a>
-
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">3</span>]: G = (x*<span class="number">2</span> <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: G</span><br><span class="line">Out[<span class="number">4</span>]: &lt;generator object &lt;genexpr&gt; at <span class="number">0x000001B281507A98</span>&gt;</span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: next(G)</span><br><span class="line">Out[<span class="number">5</span>]: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">6</span>]: next(G)</span><br><span class="line">Out[<span class="number">6</span>]: <span class="number">2</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">7</span>]: next(G)</span><br><span class="line">Out[<span class="number">7</span>]: <span class="number">4</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">8</span>]: next(G)</span><br><span class="line">Out[<span class="number">8</span>]: <span class="number">6</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">9</span>]: next(G)</span><br><span class="line">Out[<span class="number">9</span>]: <span class="number">8</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">10</span>]: next(G)</span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line">StopIteration                             Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input<span class="number">-10</span>-b4d1fcb0baf1&gt; <span class="keyword">in</span> &lt;module&gt;()</span><br><span class="line">----&gt; 1 next(G)</span><br></pre></td></tr></table></figure>
-
-<p>⽣成器保存的是算法，每次调⽤ next(G) ，就计算出 G 的下⼀个元素的值,直到计算到最后.个元素，没有更多的元素时，抛出 StopIteration 的异常。当然，这种不断调⽤ next（）实在是太变态了，正确的⽅法是使⽤ for 循环，因为⽣成器也是可迭代对象。所以，我们创建了⼀个⽣成器后，基本上永远不会调⽤ next（），而是通过for循环来迭代它，并且不需要关心StopIteration 异常！</p>
-<h2><span id="创建生成器方法二">创建生成器方法二</span></h2><p>先看看这个斐波那契函数的例子：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">3</span>]: <span class="function"><span class="keyword">def</span> <span class="title">creatNum</span><span class="params">()</span>:</span></span><br><span class="line">   ...:     a,b = <span class="number">0</span>,<span class="number">1</span></span><br><span class="line">   ...:     <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>): <span class="comment"># 生成5个斐波那契数</span></span><br><span class="line">   ...:         print(b)</span><br><span class="line">   ...:         a,b = b,a+b</span><br><span class="line">   ...:</span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: creatNum()</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们把它改成生成器：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#-*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">creatNum</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">"---start---"</span>)</span><br><span class="line">    a,b = <span class="number">0</span>,<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>):</span><br><span class="line">        print(<span class="string">"---1---"</span>)</span><br><span class="line">        <span class="keyword">yield</span> b</span><br><span class="line">        print(<span class="string">"---2---"</span>)</span><br><span class="line">        a,b = b,a+b</span><br><span class="line">        print(<span class="string">"---3---"</span>)</span><br><span class="line">    print(<span class="string">"---stop---"</span>)</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们将这个模块导入：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="keyword">from</span> test <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: a = creatNum()</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: next(a)</span><br><span class="line">---start---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">Out[<span class="number">3</span>]: <span class="number">1</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: next(a)</span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">Out[<span class="number">4</span>]: <span class="number">1</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: next(a)</span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">Out[<span class="number">5</span>]: <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-<p>我们在循环过程中不断调⽤ yield ，就会不断中断。当然要给循环设置⼀个条件来退出循环，不然就会产⽣⼀个⽆限数列出来。同样的，把函数改成generator后，我们基本上从来不会⽤ next() 来获取下⼀个返回值，⽽是直接使⽤ for 循环来迭代!</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="keyword">from</span> test <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: a = creatNum()</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">   ...:     <span class="keyword">try</span>:</span><br><span class="line">   ...:         print(<span class="string">"value:%d"</span> % next(a))</span><br><span class="line">   ...:     <span class="keyword">except</span> StopIteration <span class="keyword">as</span> e:</span><br><span class="line">   ...:         print(<span class="string">"生成器返回值：%s"</span> % e.value)</span><br><span class="line">   ...:         <span class="keyword">break</span></span><br><span class="line">   ...:</span><br><span class="line">---start---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">value:<span class="number">1</span></span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">value:<span class="number">1</span></span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">value:<span class="number">2</span></span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">value:<span class="number">3</span></span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">--<span class="number">-1</span>---</span><br><span class="line">value:<span class="number">5</span></span><br><span class="line">--<span class="number">-2</span>---</span><br><span class="line">--<span class="number">-3</span>---</span><br><span class="line">---stop---</span><br><span class="line">生成器返回值：<span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>注意：<code>next(a)</code>与<code>a.__next__（）</code>是等价的</strong></p>
-<h2><span id="send">send</span></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">   ...:     i = <span class="number">0</span></span><br><span class="line">   ...:     <span class="keyword">while</span> i&lt;<span class="number">5</span>:</span><br><span class="line">   ...:         tmp = <span class="keyword">yield</span> i</span><br><span class="line">   ...:         print(tmp)</span><br><span class="line">   ...:         i += <span class="number">1</span></span><br><span class="line">   ...:</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: t = test()</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: t.__next__()</span><br><span class="line">Out[<span class="number">3</span>]: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: t.__next__()</span><br><span class="line"><span class="literal">None</span></span><br><span class="line">Out[<span class="number">4</span>]: <span class="number">1</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: t.__next__()</span><br><span class="line"><span class="literal">None</span></span><br><span class="line">Out[<span class="number">5</span>]: <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-<p>为什么会打印出None呢？是应为<code>yield i</code>执行完毕之后会把结果直接返回，但是不会赋值给tmp，所以每次打印都是None，此时使用send方法就会在<code>yield i</code>执行完毕之并返回结果之后给<code>yield i</code>赋值：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">   ...:     i = <span class="number">0</span></span><br><span class="line">   ...:     <span class="keyword">while</span> i&lt;<span class="number">5</span>:</span><br><span class="line">   ...:         tmp = <span class="keyword">yield</span> i</span><br><span class="line">   ...:         print(tmp)</span><br><span class="line">   ...:         i += <span class="number">1</span></span><br><span class="line">   ...:</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: t = test()</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: t.__next__()</span><br><span class="line">Out[<span class="number">3</span>]: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: t.__next__()</span><br><span class="line"><span class="literal">None</span></span><br><span class="line">Out[<span class="number">4</span>]: <span class="number">1</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: t.__next__()</span><br><span class="line"><span class="literal">None</span></span><br><span class="line">Out[<span class="number">5</span>]: <span class="number">2</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">6</span>]: t.send(<span class="string">"Hello"</span>)</span><br><span class="line">Hello</span><br><span class="line">Out[<span class="number">6</span>]: <span class="number">3</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">7</span>]: t.send(<span class="string">"HelloWorld"</span>)</span><br><span class="line">HelloWorld</span><br><span class="line">Out[<span class="number">7</span>]: <span class="number">4</span></span><br></pre></td></tr></table></figure>
-
-<h3><span id="send的注意事项">send的注意事项</span></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">8</span>]: <span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">   ...:    ...:     i = <span class="number">0</span></span><br><span class="line">   ...:    ...:     <span class="keyword">while</span> i&lt;<span class="number">5</span>:</span><br><span class="line">   ...:    ...:         tmp = <span class="keyword">yield</span> i</span><br><span class="line">   ...:    ...:         print(tmp)</span><br><span class="line">   ...:    ...:         i += <span class="number">1</span></span><br><span class="line">   ...:    ...:</span><br><span class="line">   ...:</span><br><span class="line"></span><br><span class="line">In [<span class="number">9</span>]: a = test()</span><br><span class="line"></span><br><span class="line">In [<span class="number">10</span>]: a.send(<span class="string">"---"</span>)</span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line">TypeError                                 Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input<span class="number">-10</span>-dc33d05574fa&gt; <span class="keyword">in</span> &lt;module&gt;()</span><br><span class="line">----&gt; 1 a.send("---")</span><br><span class="line"></span><br><span class="line">TypeError: can<span class="string">'t send non-None value to a just-started generator</span></span><br></pre></td></tr></table></figure>
-
-<p>不能在第一次生成的时候就调用send方法，因为代码还未执行到<code>yield i</code>，所以要先使用<code>__next()__</code>，再使用<code>send()</code></p>
-<p>当然还有一个方法：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">11</span>]: <span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    ...:    ...:     i = <span class="number">0</span></span><br><span class="line">    ...:    ...:     <span class="keyword">while</span> i&lt;<span class="number">5</span>:</span><br><span class="line">    ...:    ...:         tmp = <span class="keyword">yield</span> i</span><br><span class="line">    ...:    ...:         print(tmp)</span><br><span class="line">    ...:    ...:         i += <span class="number">1</span></span><br><span class="line">    ...:    ...:</span><br><span class="line">    ...:</span><br><span class="line"></span><br><span class="line">In [<span class="number">12</span>]: t = test()</span><br><span class="line"></span><br><span class="line">In [<span class="number">13</span>]: t.send(<span class="literal">None</span>)</span><br><span class="line">Out[<span class="number">13</span>]: <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-<h2><span id="总结">总结</span></h2><p>生成器是这样一个函数，它记住上一次返回时在函数体中的位置。对生成器函数的第二次（或者第n次）调用跳转至该函数体中间，而上次调用的所有局部变量都保持不变！</p>
-<p>⽣成器不仅“记住”了它数据状态；⽣成器还“记住”了它在流控制构造（在命令式编程中，这种构造不只是数据值）中的位置</p>
-<p><strong>生成器的特点</strong></p>
-<ul>
-<li>节约内存，在超大列表的情况下是非常吃内存的！</li>
-<li>迭代到下⼀次的调⽤时，所使⽤的参数都是第⼀次所保留下的，即是说，在整个所有函数调⽤的参数都是第⼀次所调⽤时保留的，⽽不是新创建的，这样非常高效！<br>迭代是访问集合元素的⼀种⽅式。迭代器是⼀个可以记住遍历的位置的对象。迭代器对象从集合的第⼀个元素开始访问，直到所有的元素被访问完结束。迭代器只能往前不会后退！<h1><span id="可迭代对象">可迭代对象</span></h1>以直接作⽤于 for 循环的数据类型有以下⼏种：<br>⼀类是集合数据类型，如 list 、 tuple 、 dict 、 set 、 str 等；<br>⼀类是 generator ，包括⽣成器和带 yield 的generator function。<br>这些可以直接作⽤于 for 循环的对象统称为可迭代对象： Iterable<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="keyword">for</span> s <span class="keyword">in</span> <span class="string">"Hello"</span>:</span><br><span class="line">   ...:     print(s)</span><br><span class="line">   ...:</span><br><span class="line">H</span><br><span class="line">e</span><br><span class="line">l</span><br><span class="line">l</span><br><span class="line">o</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: b = (x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: b</span><br><span class="line">Out[<span class="number">3</span>]: &lt;generator object &lt;genexpr&gt; at <span class="number">0x0000021FEBC98A40</span>&gt;</span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: <span class="keyword">for</span> tmp <span class="keyword">in</span> b:</span><br><span class="line">   ...:     print(tmp)</span><br><span class="line">   ...:</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">4</span></span><br></pre></td></tr></table></figure>
-<h1><span id="判断是否可以迭代">判断是否可以迭代</span></h1>可以使⽤<code>isinstance()</code>判断一个对象是否是Iterable (可迭代的)对象：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="keyword">from</span> collections <span class="keyword">import</span> Iterable</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: isinstance([],Iterable)</span><br><span class="line">Out[<span class="number">2</span>]: <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: isinstance(&#123;&#125;,Iterable)</span><br><span class="line">Out[<span class="number">3</span>]: <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: isinstance(<span class="string">'abc'</span>,Iterable)</span><br><span class="line">Out[<span class="number">4</span>]: <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: isinstance((x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">5</span>)),Iterable)</span><br><span class="line">Out[<span class="number">5</span>]: <span class="literal">True</span></span><br></pre></td></tr></table></figure>
-⽽⽣成器不但可以作⽤于 for 循环，还可以被 next() 函数不断调⽤并返回下⼀个值，直到最后抛出 StopIteration 错误表示⽆法继续返回下⼀个值了!<h1><span id="迭代器">迭代器</span></h1>可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator。<br>可以使用<code>isinstance()</code> 判断某个对象是否是 Iterator (迭代器)对象<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">1</span>]: <span class="keyword">from</span> collections <span class="keyword">import</span> Iterator</span><br><span class="line"></span><br><span class="line">In [<span class="number">2</span>]: isinstance((x <span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">10</span>)),Iterator)</span><br><span class="line">Out[<span class="number">2</span>]: <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">3</span>]: isinstance([],Iterator)</span><br><span class="line">Out[<span class="number">3</span>]: <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">4</span>]: isinstance(&#123;&#125;,Iterator)</span><br><span class="line">Out[<span class="number">4</span>]: <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">5</span>]: isinstance(<span class="string">"abc"</span>,Iterator)</span><br><span class="line">Out[<span class="number">5</span>]: <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">6</span>]: isinstance(<span class="number">100</span>,Iterator)</span><br><span class="line">Out[<span class="number">6</span>]: <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-所以说，生成器也是迭代器的一种！</li>
-</ul>
-<h1><span id="iter函数">iter()函数</span></h1><p>生成器都是Iterator对象，但是list、dict、str虽然是Iterable，去不是Iterator</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">In [7]: isinstance(iter(&quot;abc&quot;),Iterator)</span><br><span class="line">Out[7]: True</span><br><span class="line"></span><br><span class="line">In [8]: isinstance(iter([]),Iterator)</span><br><span class="line">Out[8]: True</span><br></pre></td></tr></table></figure>
-<h1><span id="总结">总结</span></h1><ul>
-<li>凡是可作⽤于 for 循环的对象都是 Iterable 类型</li>
-<li>凡是可作⽤于 next() 函数的对象都是 Iterator 类型</li>
-<li>集合数据类型如 list 、 dict 、 str 等是 Iterable 但不是 Iterator，不过可以通过 iter() 函数获得⼀个 Iterator 对象。<h1><span id="闭包">闭包</span></h1>内部函数对外部函数作用域变量的引用（非全局变量），则称内部函数为闭包！<br><img src="https://img.zouchanglin.cn/blog/20200822/4811pq5YLEo3.png" alt="mark"></li>
-</ul>
-<h2><span id="应用实例">应用实例</span></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">linr_conf</span><span class="params">(a, b)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">line</span><span class="params">(x)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> a*x + b</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> line</span><br><span class="line"></span><br><span class="line"><span class="comment"># 相当于通过同一个方法构建了两种直线模型</span></span><br><span class="line">line1 = linr_conf(<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">line2 = linr_conf(<span class="number">4</span>,<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">print(line1(<span class="number">5</span>))</span><br><span class="line">print(line2(<span class="number">5</span>))</span><br></pre></td></tr></table></figure>
-<p>这个例子中，函数line与变量a,b构成闭包。在创建闭包的时候，我们通过line_conf的参数a,b说明了这两个变量的取值，这样，我们就确定了函数的最终形式(y = x + 1和y = 4x + 5)。我们只需要变换参数a,b，就可以获得不同的直线表达函数。由此，我们可以看到，闭包也具有提高代码可复用性的作用！<br>如果没有闭包，我们需要每次创建直线函数的时候同时说明a,b,x。这样，我们就需要更多的参数传递，也减少了代码的可移植性！</p>
-<h2><span id="总结">总结</span></h2><ul>
-<li>闭包似优化了变量，原来需要类对象完成的工作，闭包也可以完成</li>
-<li>由于闭包引用了外部函数的局部变量，则外部函数局部变量没有释放，消耗内存<h1><span id="装饰器">装饰器</span></h1>装饰器是程序开发中经常会⽤到的⼀个功能，⽤好了装饰器，开发效率如⻁添翼，所以这也是Python⾯试中必问的问题，但对于好多初次接触这个知识的⼈来讲，这个功能有点绕，⾃学时直接绕过去了，然后⾯试问到了就挂了，因为装饰器是程序开发的基础知识，这个都不会，别跟⼈家说你会Python, 看了下⾯的⽂章，保证你学会装饰器！<h2><span id="模拟场景">模拟场景</span></h2>假设这些都是核心业务方法，但是现在的需求是：不能让每一个人都随意的调用这些方法，为了安全起见，在调用这些方法的时候必须进行权限验证！<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode2</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode3</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
-为了增加权限验证的逻辑，修改后的代码如下：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="comment"># 验证一</span></span><br><span class="line">	<span class="comment"># 验证二</span></span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode2</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="comment"># 验证一</span></span><br><span class="line">	<span class="comment"># 验证二</span></span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode3</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="comment"># 验证一</span></span><br><span class="line">	<span class="comment"># 验证二</span></span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
-很显然这是极不合理的，代码太过于冗余，修改之后：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_call</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="comment"># 验证-</span></span><br><span class="line">	<span class="comment"># 验证二</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode</span><span class="params">()</span>:</span></span><br><span class="line">	check_call()</span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode2</span><span class="params">()</span>:</span></span><br><span class="line">	check_call()</span><br><span class="line">	...</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode3</span><span class="params">()</span>:</span></span><br><span class="line">	check_call()</span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
-这回修改之后的代码显得不是很冗余，但是违反了<strong>开放封闭原则</strong>，这样会修改核心业务代码，也是非常不推荐的做法，接着装饰器就登场了：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check</span><span class="params">(func)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></span><br><span class="line">		<span class="comment"># 验证1</span></span><br><span class="line">		<span class="comment"># 验证2</span></span><br><span class="line">		func()</span><br><span class="line">	<span class="keyword">return</span> inner</span><br><span class="line"></span><br><span class="line"><span class="meta">@check</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br><span class="line">	</span><br><span class="line"><span class="meta">@check</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode2</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br><span class="line">	</span><br><span class="line"><span class="meta">@check	</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">coreCode3</span><span class="params">()</span>:</span></span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
-对于上述代码，也是仅仅对基础平台的代码进行修改，就可以实现在其他人调用coreCode1、coreCode2、coreCode3的时候都进行验证操作！<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">def check(func):</span><br><span class="line">	def inner():</span><br><span class="line">		print(&quot;验证1...&quot;)</span><br><span class="line">		print(&quot;验证2...&quot;)</span><br><span class="line">		print(&quot;验证3...&quot;)</span><br><span class="line">		func()</span><br><span class="line">	return inner</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@check</span><br><span class="line">def  coreCode1():</span><br><span class="line">	print(&quot;coreCode1...&quot;)</span><br><span class="line"></span><br><span class="line">def  coreCode2():</span><br><span class="line">	print(&quot;coreCode2...&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">coreCode1()</span><br><span class="line">print(&quot;-&quot;*30)</span><br><span class="line">coreCode2()</span><br></pre></td></tr></table></figure>
-<img src="https://img.zouchanglin.cn/blog/20200822/HNCTA6BFwxFL.png" alt="mark"><br>python解释器就会从上到下解释代码，步骤如下:</li>
-</ul>
-<ol>
-<li>def check(func): ==&gt;将check函数加载到内存</li>
-<li>@check<br>没错， 从表⾯上看解释器仅仅会解释这两句代码，因为函数在没有被调⽤之前其内部代码不会被执行。从表面上看解释器着实会执行这两句，但是 @check 这⼀句代码里却有大文章， @函数名 是python的⼀种语法糖.<h2><span id="check到底做了什么">@check到底做了什么</span></h2></li>
-</ol>
-<ul>
-<li>执行check函数，并且会把@check下面的函数当做check函数的参数，所以内部就会执行验证的逻辑，执行完毕才去调用参数中的方法！</li>
-<li>check的返回值，将执行完毕的check函数返回值赋值给@check下面的函数名coreCode</li>
-<li>所以想要执行coreCode 函数时，就会执行新coreCode函数，在新coreCode函数内部先执⾏验证，再执行原来的coreCode函数，然后将原来coreCode函数的返回值返回给了业务调⽤者。</li>
-</ul>
-<h2><span id="再议装饰器">再议装饰器</span></h2><p>装饰器的装饰执行时间：并不是在调用的时候才去装饰函数，而是在解释器解释到那一句的时候就已经装饰了函数！</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -350,21 +273,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -372,172 +295,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/397426745.html" title="生成器、迭代器、闭包与装饰器" target="_blank">https://zouchanglin.cn/397426745.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/397426745.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1080137699.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          网页启动本地Activity
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3674622550.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Python语法学习日志</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">生成器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">创建生成器方法一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">创建生成器方法二</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">send</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.1.</span> <span class="toc-text">send的注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">可迭代对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">判断是否可以迭代</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">迭代器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">iter()函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">7.</span> <span class="toc-text">闭包</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.1.</span> <span class="toc-text">应用实例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">7.2.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">8.</span> <span class="toc-text">装饰器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.1.</span> <span class="toc-text">模拟场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.2.</span> <span class="toc-text">@check到底做了什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">8.3.</span> <span class="toc-text">再议装饰器</span></a></li></ol></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -546,13 +365,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

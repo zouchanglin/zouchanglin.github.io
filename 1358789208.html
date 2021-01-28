@@ -214,183 +214,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Git基本使用方法" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Git基本使用方法
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1358789208.html" class="archive-article-date">
-        <time datetime="2018-11-17T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-17</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.9k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">7分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="git基本概念">Git基本概念</span></h2><p><img src="https://img.zouchanglin.cn///20200201/jambXWN0Amn2.png" alt="mark"></p>
-<p>Workspace：工作区<br>Index / Stage：暂存区<br>Repository：仓库区（或本地仓库）<br>Remote：远程仓库</p>
-<a id="more"></a>
-
-<h2><span id="git常用命令">Git常用命令</span></h2><p>初始化一个仓库：<code>git init</code><br>添加文件：<code>git add 文件名</code><br>添加所有文件：<code>git add *</code><br>提交到本地仓库： <code>git commit -m &quot;提交说明&quot;</code><br>查看仓库的状态：<code>git status</code><br>查看发生更改的文件的具体改变位置：<code>git diff 文件名</code><br>查看我们提交历史（以便确定要回退到哪个版本。）：<code>git log</code><br>查看我们提交历史(单行显示)：<code>git log--pretty=oneline</code><br>回退到上一个版本：<code>git reset --hard HEAD^</code><br>回退到上上一个版本：<code>git reset --hard HEAD^^</code><br>回退到100个之前的版本：<code>git reset --hard HEAD~100</code><br>回退到指定版本：<code>git reset --hard 版本号</code>（版本号也就是git log–pretty=oneline前面显示的id，只需要记住前几位即可）<br>查看命令历史（用来重返未来）：<code>git reflog</code><br>用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”：<code>git checkout</code><br>删除一个文件：<code>git rm 文件名</code></p>
-<p>提交到远程仓库：<br>1、在远程创建一个与本地仓库名一致的仓库<br>2、git remote add origin <a href="mailto:git@github.com">git@github.com</a>:用户名/仓库名.git<br>3、git push -u origin master</p>
-<h2><span id="初次使用配置git">初次使用配置Git</span></h2><p>第一步：设置用户名和邮箱，并且生成秘钥<br>不要密码的话直接一直Enter就行！</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name <span class="string">"你的名字"</span></span><br><span class="line">git config --global user.email <span class="string">"你的邮箱"</span> </span><br><span class="line">ssh-keygen -t rsa -C <span class="string">"你的邮箱"</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/EkvwxL6c2N1v.png" alt="mark"></p>
-<p>第二步：到git仓库，添加秘钥<br>如果你没有改变秘钥的生成路径，那么通过家目录的<code>.ssh</code>下通过cat命令应该可以看到生成的秘钥，添加到GitHub（这里以Github为例）的秘钥中！ </p>
-<p><img src="https://img.zouchanglin.cn///20200201/gSMFwmRFovC3.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200201/E3X4jDpJTqqL.png" alt="mark"></p>
-<p>第三步: <code>ssh -T git@github.com</code> 测试一下通不通，不通就是<code>ssh-agent -s</code> <code>ssh-add ~/.ssh/id_rsa</code>操作这两步</p>
-<p>第四步：把代码clone下来，使用<code>git clone</code> 命令将仓库拷贝下来！ </p>
-<p><img src="https://img.zouchanglin.cn///20200201/khCSE2WKSSf1.png" alt="mark"></p>
-<h2><span id="分类操作的命令">分类操作的命令</span></h2><h3><span id="新建代码库">新建代码库</span></h3><ul>
-<li>在当前目录新建一个Git代码库<code>git init</code></li>
-<li>新建一个目录，将其初始化为Git代码库<code>git init [project-name]</code></li>
-<li>下载一个项目和它的整个代码历史<code>git clone [url]</code></li>
-</ul>
-<h3><span id="配置">配置</span></h3><ul>
-<li>Git的设置文件为 <strong>.gitconfig</strong> ，它可以在用户主目录下（全局配置），也可以在项目目录下（项目配置）</li>
-<li>显示当前的Git配置<code>git config --list</code></li>
-<li>编辑Git配置文件<code>git config -e [--global]</code></li>
-<li>设置提交代码时的用户信息<ul>
-<li><code>git config [--global] user.name &quot;[name]&quot;</code></li>
-<li><code>git config [--global] user.email &quot;[email address]&quot;</code></li>
-</ul>
-</li>
-</ul>
-<h3><span id="增加删除文件">增加/删除文件</span></h3><ul>
-<li>添加指定文件到暂存区<code>git add [file1] [file2] ...</code></li>
-<li>添加指定目录到暂存区，包括子目录<code>git add [dir]</code></li>
-<li>添加当前目录的所有文件到暂存区<code>git add .</code></li>
-<li>删除工作区文件，并且将这次删除放入暂存区<code>git rm [file1] [file2] ...</code></li>
-<li>停止追踪指定文件，但该文件会保留在工作区<code>git rm --cached [file]</code></li>
-<li>改名文件，并且将这个改名放入暂存区<code>git mv [file-original] [file-renamed]</code></li>
-</ul>
-<h3><span id="代码提交">代码提交</span></h3><ul>
-<li>提交暂存区到仓库区<code>git commit -m [message]</code></li>
-<li>提交暂存区的指定文件到仓库区<code>git commit [file1] [file2] ... -m [message]</code></li>
-<li>提交工作区自上次commit之后的变化，直接到仓库区<code>git commit -a</code></li>
-<li>提交时显示所有diff信息<code>git commit -v</code><br>*使用一次新的commit，替代上一次提交如果代码没有任何新变化，则用来改写上一次commit的提交信息<code>git commit --amend -m [message]</code></li>
-<li>重做上一次commit，并包括指定文件的新变化<code>git commit --amend ...</code></li>
-</ul>
-<h3><span id="分支">分支</span></h3><ul>
-<li>列出所有本地分支<code>git branch</code></li>
-<li>列出所有远程分支<code>git branch -r</code></li>
-<li>列出所有本地分支和远程分支<code>git branch -a</code></li>
-<li>新建一个分支，但依然停留在当前分支<code>git branch [branch-name]</code></li>
-<li>新建一个分支，并切换到该分支<code>git checkout -b [branch]</code></li>
-<li>新建一个分支，指向指定commit<code>git branch [branch] [commit]</code></li>
-<li>新建一个分支，与指定的远程分支建立追踪关系<code>git branch --track [branch] [remote-branch]</code></li>
-<li>切换到指定分支，并更新工作区<code>git checkout [branch-name]</code></li>
-<li>建立追踪关系，在现有分支与指定的远程分支之间<code>git branch --set-upstream [branch] [remote-branch]</code></li>
-<li>合并指定分支到当前分支<code>git merge [branch]</code></li>
-<li>选择一个commit，合并进当前分支<code>git cherry-pick [commit]</code></li>
-<li>删除分支<code>git branch -d [branch-name]</code></li>
-<li>删除远程分支<code>git push origin --delete</code>、<code>git branch -dr</code></li>
-</ul>
-<h3><span id="标签">标签</span></h3><ul>
-<li>列出所有tag <code>git tag</code></li>
-<li>新建一个tag在当前commit<code>git tag [tag]</code></li>
-<li>新建一个tag在指定commit<code>git tag [tag] [commit]</code></li>
-<li>查看tag信息<code>git show [tag]</code></li>
-<li>提交指定tag<code>git push [remote] [tag]</code></li>
-<li>提交所有tag<code>git push [remote] --tags</code></li>
-<li>新建一个分支，指向某个tag<code>git checkout -b [branch] [tag]</code></li>
-</ul>
-<h3><span id="查看信息">查看信息</span></h3><ul>
-<li>显示有变更的文件<code>git status</code></li>
-<li>显示当前分支的版本历史<code>git log</code></li>
-<li>显示commit历史，以及每次commit发生变更的文件<code>git log --stat</code></li>
-<li>显示某个文件的版本历史，包括文件改名<code>git log --follow [file]</code>、<code>git whatchanged [file]</code></li>
-<li>显示指定文件相关的每一次diff<code>git log -p [file]</code></li>
-<li>显示指定文件是什么人在什么时间修改过<code>git blame [file]</code></li>
-<li>显示暂存区和工作区的差异<code>git diff</code></li>
-<li>显示暂存区和上一个commit的差异<code>git diff --cached []</code></li>
-<li>显示工作区与当前分支最新commit之间的差异<code>git diff HEAD</code></li>
-<li>显示两次提交之间的差异<code>git diff [first-branch]...[second-branch]</code></li>
-<li>显示某次提交的元数据和内容变化<code>git show [commit]</code></li>
-<li>显示某次提交发生变化的文件<code>git show --name-only [commit]</code></li>
-<li>显示某次提交时，某个文件的内容<code>git show [commit]:[filename]</code></li>
-</ul>
-<ul>
-<li>显示当前分支的最近几次提交<code>git reflog</code> </li>
-</ul>
-<h3><span id="远程同步">远程同步</span></h3><ul>
-<li>下载远程仓库的所有变动<code>git fetch [remote]</code></li>
-<li>显示所有远程仓库<code>git remote -v</code></li>
-<li>显示某个远程仓库的信息<code>git remote show [remote]</code></li>
-<li>增加一个新的远程仓库，并命名<code>git remote add [shortname] [url]</code></li>
-<li>取回远程仓库的变化，并与本地分支合并<code>git pull [remote] [branch]</code></li>
-<li>上传本地指定分支到远程仓库<code>git push [remote] [branch]</code></li>
-<li>强行推送当前分支到远程仓库，即使有冲突<code>git push [remote] --force</code></li>
-<li>推送所有分支到远程仓库<code>git push [remote] --all</code></li>
-</ul>
-<h3><span id="撤销">撤销</span></h3><ul>
-<li>恢复暂存区的指定文件到工作区<code>git checkout [file]</code></li>
-<li>恢复某个commit的指定文件到工作区<code>git checkout [commit] [file]</code></li>
-<li>恢复上一个commit的所有文件到工作区<code>git checkout .</code></li>
-<li>重置暂存区的指定文件，与上一次commit保持一致，但工作区不变<code>git reset [file]</code></li>
-<li>重置暂存区与工作区，与上一次commit保持一致<code>git reset --hard</code></li>
-<li>重置当前分支的指针为指定commit，同时重置暂存区，但工作区不变<code>git reset [commit]</code></li>
-<li>重置当前分支的HEAD为指定commit，同时重置暂存区和工作区，与指定commit一致<code>git reset --hard [commit]</code></li>
-<li>重置当前HEAD为指定commit，但保持暂存区和工作区不变<code>git reset --keep [commit]</code></li>
-<li>新建一个commit，用来撤销指定commit后者的所有变化都将被前者抵消，并且应用到当前分支<code>git revert [commit]</code></li>
-</ul>
-<h3><span id="其他">其他</span></h3><ul>
-<li>生成一个可供发布的压缩包<code>git archive</code></li>
-<li>备份当前工作区的内容<code>git stash</code></li>
-<li>从Git栈中读取最近一次保存的内容，恢复工作区的相关内容<code>git stash pop</code></li>
-<li>显示Git栈内的所有备份<code>git stash list</code></li>
-<li>清空Git栈<code>git stash clear</code></li>
-</ul>
-<h2><span id="常用的命令图">常用的命令图</span></h2><p><img src="https://img.zouchanglin.cn///20200201/vYjfBcoQ9Du0.png" alt="mark"></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -400,21 +277,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -422,172 +299,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1358789208.html" title="Git基本使用方法" target="_blank">https://zouchanglin.cn/1358789208.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/版本控制//" class="article-tag-list-link color5">版本控制</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1358789208.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/1803873511.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Linux进程通信之管道
-        
-      </div>
-    </a>
-  
-  
-    <a href="/3767073988.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">C++内存管理</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">Git基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">Git常用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">初次使用配置Git</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">分类操作的命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">新建代码库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">增加&#x2F;删除文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">代码提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.5.</span> <span class="toc-text">分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.6.</span> <span class="toc-text">标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.7.</span> <span class="toc-text">查看信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.8.</span> <span class="toc-text">远程同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.9.</span> <span class="toc-text">撤销</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.10.</span> <span class="toc-text">其他</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">常用的命令图</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -596,13 +369,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

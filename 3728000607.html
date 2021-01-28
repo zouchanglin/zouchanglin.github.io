@@ -227,122 +227,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-重新认识volatile" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      重新认识volatile
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/3728000607.html" class="archive-article-date">
-        <time datetime="2019-12-11T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-12-11</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.6k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">5分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h1><span id="1-cpu多核心缓存架构分析">1、CPU多核心缓存架构分析</span></h1><p>并发编程：肯定是为了更合理充分的利用多核CPU架构的性能</p>
-<p>CPU 主频率远远高于主存，所以引入CPU缓存，CPU加载数据无法绕过缓存，而且对于多核CPU，一级缓存不是共享的，二级和三级缓存是线程共享的！CPU计算的数据并不是直接从主存中去拿，而且通过层层在缓存中寻找。</p>
-<a id="more"></a>
-
-<p>下图是一个单CPU多核心的架构图：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/24FFIEvLSVIm.png" alt="mark"></p>
-<h1><span id="2-cpu缓存一致性协议">2、CPU缓存一致性协议</span></h1><p>先看这样一段代码：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/iDRYlT3KP4bK.png" alt="mark"></p>
-<p>加载过程就是ThreadA通过read指令读取到flag，在通过load指令加载到缓存，也就是JMM中的本地内存，CPU再通过寄存器去使用flag，ThreadB也是同样的流程，通过assign指令为本地内存中的flag赋值，再写入主存：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/iPetMyQrMYAi.png" alt="mark"></p>
-<p>由于while(true)并没有释放时间片，所以在这里可以让它去进行上下文切换，则就会有时间清除缓存</p>
-<p><img src="https://img.zouchanglin.cn///20200201/gi6mMfLRsxgH.png" alt="mark"></p>
-<p>两次的执行结果肯定很简单</p>
-<p><img src="https://img.zouchanglin.cn///20200201/T5hyPEeWBOYV.png" alt="mark"></p>
-<p>什么情况下的上下文切换不会清除缓存呢？可以设置一个非常小的休眠时间</p>
-<p><img src="https://img.zouchanglin.cn///20200201/8bSnHw0qSx8D.png" alt="mark"></p>
-<p>这个时候，设置500纳秒的Sleep和500000纳秒的等待会导致结果完全不一样！！</p>
-<p>这与CPU多核心架构有关系，CPU修改之后的值并不会立即刷新到主存，这便导致了缓存不一致的问题，这是属于CPU架构的问题，不仅仅存在于JVM层面，只要是这种的CPU架构都会出现这种问题，所以首先得靠加锁来解决这种问题，在早期有一种东西叫做总线锁：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/Dg18RIUeEYKI.png" alt="mark"></p>
-<p>一旦发生数据修改的回写操作，直接把总线加锁，这样别的线程在使用数据的时候就不得不重新从主存得到新的数据，而且存在严重的性能问题，如果存在大量IO操作时，还使用这种总线锁，那么肯定IO性能肯定会下降！</p>
-<p>于是出现了缓存一致性协议：</p>
-<p>主要用到的缓存一致性协议时MESI协议（M修改、E独占、S共享、I无效四种状态，这四种状态记录的是缓存行的转态）。</p>
-<p>这里还有一个机制叫做总线嗅探机制，嗅探通过总线的数据，如果只有一个核心用到，那么就会给这个缓存行一个状态叫做E状态（独占状态），当另一个线程也用到了这个变量的时候，CPU就会通过广播机制通知其他的核心把这个缓存行的状态修改为S状态（共享状态），接下来其中一个线程对这个变量进行了修改，那么对于这个线程来说，这个变量的缓存行变成了M状态（修改状态），回写的时候会通过总线，总线嗅探机制嗅探到这个变量的缓存行已经是M状态，它就会通过其他的核心，说缓存无效，则其他核心上的缓存行就会变成I状态（无效状态），变成无效状态后如果还需要使用这个变量，那么肯定只能重新从主存中去加载这个变量到缓存，而且必须等待修改核心修改（回写主存）完成！</p>
-<p><img src="https://img.zouchanglin.cn///20200201/Id5pv2ES62r4.png" alt="mark"></p>
-<p>这里锁的缓存行最大值为 64 byte ，总线锁主要是用到了lock原语</p>
-<h1><span id="3-内存模型jmm实现原理">3、内存模型JMM实现原理</span></h1><p>JMM描述的是一种抽象的概念，一组规则，通过这组规则控制程序中各个变量在共享数据区域和私有数据区域的访问方式，JMM是围绕原子性、有序性、可见性展开的</p>
-<p><img src="https://img.zouchanglin.cn///20200201/SoIbOydo9ypK.png" alt="mark"></p>
-<p>这个JMM模型只是一个抽象的概念，图上画出的也只是逻辑空间，通过对应到硬件内存架构是这样的：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/oXWAj2CVMNxg.png" alt="mark"></p>
-<h1><span id="4-volatile关键字原理剖析">4、Volatile关键字原理剖析</span></h1><p>在上面的例子中，我们明显可以通过volatile关键字来解决这个问题，那么volatile又是如何实现的呢？</p>
-<p>通过汇编指令来看看就知道了，运行时加虚拟机运行参数：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly -Xcomp</span><br></pre></td></tr></table></figure>
-
-<p>但是Mac环境可能会由于缺少部分包：hsdis-amd64.dylib，在这里下载就好了 <a href="https://github.com/evolvedmicrobe/benchmarks/blob/master/hsdis-amd64.dylib，下载完毕后放在：/Library/Java/JavaVirtualMachines/jdk1.8.0_231.jdk/Contents/Home/jre" target="_blank" rel="noopener">https://github.com/evolvedmicrobe/benchmarks/blob/master/hsdis-amd64.dylib，下载完毕后放在：/Library/Java/JavaVirtualMachines/jdk1.8.0_231.jdk/Contents/Home/jre</a> 就好了</p>
-<p>先看看如何保证可见性的：</p>
-<p>底层实现了 lock addl $0x0,(%rsp) ，触发了缓存一致性协议 </p>
-<p><img src="https://img.zouchanglin.cn///20200201/IWgK9WdYGyPp.png" alt="mark"></p>
-<p>什么是重排序呢？是指编译器生成了指令序列，处理乱序执行！</p>
-<p>接下来看看指令重排序的一个例子：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/nPft5BeoBtvy.png" alt="mark"></p>
-<p>打印出来（0，0）（0，1）（1，0）（1，1）都有</p>
-<p>这就好比单例模式，请看下面这个例子：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/cocuuCxlyLWi.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200201/8fiF6sAm3ipw.png" alt="mark"></p>
-<p>myInstance = new SingletonFactory()，这句话主要是三个指令构成的，如果不能保证指令有序性的话，那么拿到的对象就是未被初始化的对象，是无效的！</p>
-<p>对于x86架构的CPU，加上volatile写后面的storeLoad内存屏障，我们也可以手动加上内存屏障：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/UlVphp4q2knW.png" alt="mark"></p>
-<p>这个加上内存屏障的方法定义是 public native void storeFence(); 因此是原生实现，可以看看OpenJDK的虚拟机实现，可以看到对于64位机器使用的是rsp寄存器，对于非64位用的是esp寄存器</p>
-<p><img src="https://img.zouchanglin.cn///20200201/vAA6EPpKUhth.png" alt="mark"></p>
-<h1><span id="5-可见性-有序性-原子性详解">5、可见性、有序性、原子性详解</span></h1><p>并发编程的三大特性：</p>
-<p>可见性、有序性、原子性</p>
-<p>volatile保证可见性与有序性，但是不能保证原子性，要保证原子性需要借助 synchronized、Lock锁机制，同理也能保证有序性与可见性，因为 synchronized和Lock能够保证任一时刻只有个线程访问该代码块。关于volatile不保证原子性这个其实很好证明：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/HA5SKqo66Jcm.png" alt="mark"></p>
-<p>因为线程进行了很多次无效计算，所以结果并不是100000，他们都是从主存中拿的值，而且值都是对的，但是计算过程却不是原子的，准确的说应该是资源并没有被锁定，导致自己修改的时候别人也在修改，所以正确理解volatile的作用是很重要的！ </p>
-<p>最后看看CAS操作对应的汇编指令：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/L2dPr9fjKqMH.png" alt="mark"></p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -352,21 +290,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -374,176 +312,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/3728000607.html" title="重新认识volatile" target="_blank">https://zouchanglin.cn/3728000607.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3728000607.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/40756677.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          CentOS7虚拟机设置固定IP
-        
-      </div>
-    </a>
-  
-  
-    <a href="/238802463.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">基于Redis实现分布式锁</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">1、CPU多核心缓存架构分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">2、CPU缓存一致性协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">3、内存模型JMM实现原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">4、Volatile关键字原理剖析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">5、可见性、有序性、原子性详解</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -552,13 +382,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

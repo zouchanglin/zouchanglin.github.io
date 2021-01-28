@@ -225,263 +225,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-深入理解进程" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      深入理解进程
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/1569686293.html" class="archive-article-date">
-        <time datetime="2018-09-27T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-27</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">6k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">21分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<h2><span id="现代计算机体系结构">现代计算机体系结构</span></h2><h3><span id="冯诺依曼结构">冯·诺依曼结构</span></h3><p>要了解进程的概念得先从计算机的体系结构说起，首先了解一些世界上用得最多的计算机体系结构：冯·诺依曼结构(还有其他的计算机体系结构：如哈佛结构)</p>
-<p><img src="https://img.zouchanglin.cn///20200201/2BqIjDIWful9.png" alt="mark"></p>
-<p>冯·诺曼结构处理器具有以下几个特点：必须有一个<strong>存储器</strong>；必须有一个<strong>控制器</strong>；必须有一个<strong>运算器</strong>，用于完成算术运算和逻辑运算；必须有<strong>输入和输出设备</strong>，用于进行人机通信</p>
-<h3><span id="存储设备对比">存储设备对比</span></h3><p><img src="https://img.zouchanglin.cn///20200201/eKrhr0zIISk7.png" alt="mark"></p>
-<p>上图从容量、传输速度、价格上来作比较，可以看出来为什么我们平时见到的计算机为什么硬盘几百G甚至几个T，而内存却只有8G或者16G，内存的IO速度是非常快的，跟硬盘的IO速度是 <strong>数量级</strong> 的差距，和内存相比寄存器就更快了，也是数量级的差距，于是出现了缓存，现在(2018/09/27)都是三级缓存，也就几M的大小，每次CPU在执行一些指令的时候会将需要的数据放在缓存中，其实就相当于是一个过渡元件！</p>
-<a id="more"></a>
-
-<h3><span id="操作系统的定位">操作系统的定位</span></h3><p><img src="https://img.zouchanglin.cn///20200201/RcmvPPH6zoUh.png" alt="mark"></p>
-<p>操作系统本质上就是一款软件，一款搞<strong>管理</strong>的软件，操作系统管理软件、管理硬件，为了安全操作系统不会让用户直接操作硬件，而是对外提供一套接口：也就是我们常用的系统调用接口</p>
-<h2><span id="什么是进程">什么是进程</span></h2><p>早期的内存比较小，但是伴随着应用程序(可以理解为安装包)越来越大，现在的计算机至少都是500M内存，连500M的都很少见了。为什么应用程序越大需要的内存也越大？这与冯·诺依曼计算机体系结构有关：</p>
-<p>首先我们都学过C语言，C程序也是一个文件，既然是文件那就是在磁盘上放着的，<strong>磁盘并不属于冯诺依曼结构中的一部分，磁盘属于外部设备</strong>，这一点需要注意，因为在冯诺依曼计算机体系中只有运算器、控制器、存储器、输入输出设备，运算器和控制器集成在CPU中，<strong>存储器实际上是内存</strong>，这也就意味着没有硬盘计算机也是可以正常工作的：<a href="https://www.pc841.com/wenda/86469.html" target="_blank" rel="noopener">《网吧电脑为什么没有硬盘 那没硬盘的电脑怎么运行？》</a></p>
-<p><img src="https://img.zouchanglin.cn///20200201/tBkfr1ktoSw0.png" alt="mark"></p>
-<p>可以看出计算机在执行任务的时候，都是把应用程序加载到内存中，CPU会去内存中取数据、取指令然后才执行，这也就是为什么网吧的电脑没有硬盘也可以正常使用，只要在开机的时候把操作系统加载到内存中(操作系统也是一个软件)，然后要执行某个游戏的时候再次请求服务器将游戏也加载到内存中即可！<br>通过上面的论述我们得出一个初步结论：<strong>一个应用程序想要被CPU执行必须要先加载到内存，这个被加载到内存的程序就叫做一个进程</strong></p>
-<h2><span id="操作系统怎么维护进程">操作系统怎么维护进程</span></h2><p>当你在听音乐的时候同时也可以编辑文档，还可以挂着TIM，很显然不止一个程序在执行，既然执行一个应用程序需要把它加载到内存中，那么当前肯定不止一个进程，每个程序一旦加载到内存中就是一个进程，那么这么多的进程如何维护呢？</p>
-<h3><span id="pcb">PCB</span></h3><p>PCB的全称是：Processing Control Block，翻译过来叫做进程控制块<br>操作系统是根据PCB来对并发执行的进程进行控制和管理的。 <strong>PCB存放着操作系统用于描述进程情况及控制进程运行所需的全部信息</strong>，PCB本质上就是一个结构体，这个结构体里面封装了描述进程的全部信息，它使一个在多道程序环境下不能独立运行的程序成为一个能独立运行的基本单位或一个能与其他进程并发执行的进程。所以这就叫做： <strong>并发</strong><br>那么什么是并行呢？并行指的是多核CPU同时执行多个任务，可见并发并不是真的同时执行，并行才是真的同时执行！<br>如果仅仅是把程序的代码和数据拷贝到内存中毫无意义，操作系统是无法管理好这个进程的，于是出现了PCB，<strong>进程之间是相互独立的，每个进程都对应一个PCB！</strong><br>在Linux下描述进程的结构体叫做task_struct，接下来看看它的源码<br>地址是：<a href="https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h" target="_blank" rel="noopener">https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h</a><br>描述task_struct的位置在第593行（2019/09/27）</p>
-<p>源码有点长，操作系统想要管理好这么多的进程必须把控进程的每一个信息，所以这就和学校管理学生一样，学号、地址、电话、身份证号….信息量很大的情况下必须封装成一个结构体来管理！<br>我们选择部分主要的内容看一下：</p>
-<table>
-<thead>
-<tr>
-<th align="left">结构体成员</th>
-<th align="left">作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">标识符</td>
-<td align="left">描述本进程的唯标一符，用来区别其他进程</td>
-</tr>
-<tr>
-<td align="left">状态</td>
-<td align="left">任务状态，退出代码，退出信号等。</td>
-</tr>
-<tr>
-<td align="left">优先级</td>
-<td align="left">相对于其他进程的优先级</td>
-</tr>
-<tr>
-<td align="left">程序计数器</td>
-<td align="left">程序中即将被执的下一条指令的地址</td>
-</tr>
-<tr>
-<td align="left">内存指针</td>
-<td align="left">包括程序代码和进程相关数据的指针，还有和其他进程共享的内存块的指针</td>
-</tr>
-<tr>
-<td align="left">上下文数据</td>
-<td align="left">进程执行时处理器的寄存器中的数据</td>
-</tr>
-<tr>
-<td align="left">I／O状态信息</td>
-<td align="left">包括显式的I/O请求,分配给进程的I／O设备和被进程使用的文件列表</td>
-</tr>
-<tr>
-<td align="left">记账信息</td>
-<td align="left">可能包括处理器时间总和，使用的时钟数总和，时间限制，记账号等</td>
-</tr>
-<tr>
-<td align="left">其他信息</td>
-<td align="left">…</td>
-</tr>
-</tbody></table>
-<p>所有运在系统的进程都以 task_struct 链表的形式存在内核里。<br>进程的信息可以通过 /proc 系统 件夹查看。要获取PID为400的进程信息，你需要查看 / proc/400 这个件夹。 多数进程信息同样可以使 top和ps这些户集具来获取</p>
-<h3><span id="获取进程id与父进程id">获取进程ID与父进程ID</span></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"pid=%d ppid=%d\n"</span>, getpid(), getppid());</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="初识fork">初识fork</span></h3><p>man 2 fork之后：fork() creates a new process by duplicating the calling process. The new process is referred to as the child process. The calling process is referred to as the parent process.<br>The child process and the parent process run in separate memory spaces. At the time of fork() both memory spaces have the same content. Memory writes, file mappings<br>(mmap(2)), and unmappings (munmap(2)) performed by one of the processes do not affect the other.</p>
-<p>综合上面的意思来讲就是fork函数是用来开辟子进程的，fork() 函数正常的话对父进程返回子进程的id，对子进程返回0，返回-1则表示开辟子进程失败，所以一般使用if的结构开辟子进程：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;error.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> id = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//获取当前进程的进程ID和父进程</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"pid:%d ppid=%d\n"</span>,getpid(),getppid());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//开辟子进程</span></span><br><span class="line">        id = fork();</span><br><span class="line">        <span class="keyword">if</span>(id &lt; <span class="number">0</span>)&#123;</span><br><span class="line">                perror(<span class="string">"fork failed\n"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>( id == <span class="number">0</span>)</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Child,id = %d, ppid = %d\n"</span>, getpid(), getppid());</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Parent,id = %d, ppid = %d\n"</span>,getpid(), getppid());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/y9jlHKwvOjOL.png" alt="mark"></p>
-<p>很显然，子进程的ppid与父进程的id是一致的，那么父进程的ppid又是谁呢？<br>是Bash，记得开始学习Linux的时候老师讲过shell就是外壳程序，而Linux下面的shell就是叫做Bash，也就是命令行解释器，每当我们用Bash执行一条指令的时候，Bash就会开启一个子进程去完成需要被执行的指令！</p>
-<h2><span id="进程状态">进程状态</span></h2><p>Linux内核源代码的解释：为了弄明白正在运行的进程是什么意思，我们需要知道进程的不同状态。一个进程可以有几个状态，在Linux内核里,进程有时候也叫做任务。 下面的状态在kernel源代码里定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* The task state array is a strange "bitmap" of reasons to sleep. Thus "running" is zero, and </span></span><br><span class="line"><span class="comment">*  you can test for combinations of others with simple bit tests.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> * <span class="keyword">const</span> task_state_array[] = &#123;</span><br><span class="line"><span class="string">"R (running)"</span>, <span class="comment">/* 0 */</span></span><br><span class="line"><span class="string">"S (sleeping)"</span>, <span class="comment">/* 1 */</span></span><br><span class="line"><span class="string">"D (disk sleep)"</span>, <span class="comment">/* 2 */</span></span><br><span class="line"><span class="string">"T (stopped)"</span>, <span class="comment">/* 4 */</span></span><br><span class="line"><span class="string">"t (tracing stop)"</span>, <span class="comment">/* 8 */</span></span><br><span class="line"><span class="string">"X (dead)"</span>, <span class="comment">/* 16 */</span></span><br><span class="line"><span class="string">"Z (zombie)"</span>, <span class="comment">/* 32 */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h3><span id="进程状态说明">进程状态说明</span></h3><ul>
-<li>R运行状态(running)<br>并不意味着进程一定在运行行中,它表明进程要么是在运行中要么在运行队列里里，这个其实不难理解，因为对于单核CPU而言每个单位时间里只能运行一个进程，为了看似表面上同时执行多个任务，CPU会在多个进程之间来回切换，速度非常快以至于我们是察觉不到CPU的切换，也就造成了我们误以为在同时运行多个任务的假象！</li>
-<li>S睡眠状态(sleeping)<br>意味着进程在等待事件完成(这里里的睡眠有时候也叫做可中断睡眠(interruptible sleep)，也就是说可以随时被唤醒，或者被杀死都有可能！</li>
-<li>D磁盘休眠状态(Disk sleep)<br>有时候也叫不可中断睡眠状态(uninterruptible sleep),在这个状态的进程通常会等待IO的结束，如果IO一直没有结束这个进程是无法结束的！处在这种状态的进程不接受外来的任何信号，就算使用kill -9也不可以杀掉，如果长时间未响应就说明IO出了问题！比如说我开了8个进程同时访问一个IO，访问的时候势必会加锁来保护资源，那么，当一个进程正在访问的时候，其他进程如果在等待锁，那么就会进入disk sleep，当你执行kill，它不会立即响应，当锁满足条件的时候才可能响应信号。</li>
-<li>T停止止状态(stopped)<br>可以通过发送 SIGSTOP 信号给进程来停止止(T)进程。这个被暂停的进程可以通过发送 SIGCONT 信号让进程继续运行。</li>
-<li>X死亡状态(dead)<br>这个状态只是一个返回状态，你不会在任务列表里看到这个状态</li>
-</ul>
-<h3><span id="修改进程状态">修改进程状态</span></h3><p>通过<code>kill -l</code>命令查看可以发送的信号：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/oqx2iRSUY5c8.png" alt="mark"></p>
-<p> 比如我们经常使用的<code>kill -9 pid</code>就是向ID为pid的进程发送9号信号，9号信号对应的是SIGKILL </p>
-<h3><span id="zzombie-僵尸进程">Z(zombie)-僵尸进程</span></h3><p>僵死状态(Zombies)是一个比较特殊的状态。当进程退出并且父进程(使用用wait()系统调用用,后面讲)没有读取到子进程退出的返回代码时就会产生僵死(尸)进程<br>僵死进程会以终止状态保持在进程表中,并且会一直在等待父进程读取退出状态代码。<br>所以，只要子进程退出，父进程还在运行，但父进程没有读取子进程状态,子进程进入Z状态<br>模拟僵尸进程：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/tNUTU38cpotw.png" alt="mark"></p>
-<p>接下来我们写一个shell脚本来监视这两个进程的情况 </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> :; <span class="keyword">do</span> ps aux|grep test.out|grep -v grep;</span><br><span class="line">sleep 1; <span class="built_in">echo</span> <span class="string">"#######################"</span>;<span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/vgY9pACzFiP9.png" alt="mark"></p>
-<p>可以看到父进程还没有结束的时候子进程却死掉了，子进程在死掉的时候由于PCB是不会释放的，这样就没有进程来回收这个子进程，最终导致的结果就是内存泄漏!<br>进程的退出状态必须被维持下去，因为他要告诉关心它的进程(父进程),你交给我的任务,我办的怎么样了。可父父进程如果一直不读取,那子进程就一直处于Z状态?是的!<br>维护退出状态本身就是要用数据维护，也属于进程基本信息，所以保存在task_struct(PCB)中,换句话说,Z状态一直不退出，PCB一直都要维护?是的!<br>那一个父进程创建了很多子进程，就是不回收，是不是就会造成内存资源的浪费?是的!<br>因为数据结构对象本身身就要占用用内存，想想C中定义一个结构体变量(对象)，是要在内存的某个位置进行行开辟空间!</p>
-<h3><span id="孤儿进程">孤儿进程</span></h3><p>接下来说说孤儿进程，顾名思义孤儿进程就是没有父进程的进程，如果父进程比子进程先退出，那么这个子进程就是孤儿进程了，下面使用代码模拟一下孤儿进程：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pid = fork();</span><br><span class="line">	<span class="keyword">if</span>(pid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">		perror(<span class="string">"fork failed..."</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"child[%d], my parentid[%d]..\n"</span>, getpid(), getppid());</span><br><span class="line">		sleep(<span class="number">5</span>);</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"child[%d], my parentid[%d]..\n"</span>, getpid(), getppid());</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"parent[%d]...\n"</span>, getpid());</span><br><span class="line">		sleep(<span class="number">2</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">0</span>);	</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/lo3LCwdKSp1z.png" alt="mark"></p>
-<p>由图中可以看出，子进程还没有退出但是父进程已经退出了，于是子进程的ID变成了2915，2915号进程是<code>/lib/systemd/systemd --user</code>，但是远程链接的结果却是： </p>
-<p><img src="https://img.zouchanglin.cn///20200201/4UXicuPWEr2d.png" alt="mark"></p>
-<blockquote>
-<p><strong>其实Ubuntu自带的终端是个桌面软件，如果不在图形界面下运行就变成了1！</strong></p>
-</blockquote>
-<h1><span id="进程优先级">进程优先级</span></h1><h2><span id="优先级概述">优先级概述</span></h2><p>cpu资源分配的先后顺序,就是指进程的优先权(priority)。<br>优先权高的进程有优先执行权利。配置进程优先权对多任务环境的linux很有用用,可以改善系统性能。还可以把进程运行行到指定的CPU上,这样一一来,把不重要的进程安排到某个CPU,可以大大大大改善系统整体性能</p>
-<p><img src="https://img.zouchanglin.cn///20200201/UF58yNa7RLCU.png" alt="mark"></p>
-<h3><span id="pri-and-ni">PRI and NI</span></h3><p>PRI也还是比比较好理解的，即进程的优先级,或者通俗点说就是程序被CPU执行的先后顺序,此值越小进程的优先级别越高高，那NI呢？就是我们所要说的nice值了，其表示进程可被执行的优先级的修正数值，PRI值越小越快被执行，那么加入nice值后，将会使得PRI变为<code>PRI(new)=PRI(old)+nice</code> 这样，当nice值为负值的时候,那么该程序将会优先级值将变小，即其优先级会变高,则其越快被执行<br>所以，调整进程优先级,在Linux下,就是调整进程nice值，nice其取值范围是-20至19,一共40个级别！</p>
-<h3><span id="修改进程优先级的命令">修改进程优先级的命令</span></h3><ul>
-<li><p>启动进程前调整: nice(开始执行程序就指定nice值:)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nice -n -5 .&#x2F;test.out</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>调整已存在进程的nice: renice </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">renice -5 -p 5200  &#x2F;&#x2F;PID为5200的进程nice设为-5</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用top命令更改已存在进程的nice<br>进入top后按<code>r</code>-&gt;输入进程PID-&gt;输入nice值 </p>
-</li>
-<li><h3><span id="其他概念">其他概念</span></h3></li>
-<li><p>竞争性: 系统进程数目众多，而而CPU资源只有少量,甚至至1个,所以进程之间是具有竞争属性的。为了高效完成任务，更合理竞争相关资源，便具有了优先级</p>
-</li>
-<li><p>独立性: 多进程运行，需要独享各种资源，多进程运行期间互不干扰</p>
-</li>
-<li><p>并行: 多个进程在多个CPU下分别同时运行，这称之为并行</p>
-</li>
-</ul>
-<h2><span id="环境变量">环境变量</span></h2><p>环境变量(environment variables)一般是指在操作系统中用来指定操作系统运行环境的一些参数<br>如:我们在编写C/C++代码的时候，在链接的时候，从来不知道我们的所链接的动态静态库在哪里，但是照样可以链接成功，生成可执行程序，原因就是有相关环境变量帮助编译器进行查找。环境变量通常具有某些特殊用途,还有在系统当中通常具有全局特性！</p>
-<h3><span id="常见的环境变量">常见的环境变量</span></h3><p>PATH: 指定命令的搜索路径<br>HOME: 指定用户的主工作目录(即用用户登陆到Linux系统中时,默认的目录)<br>HISTSIZE: 指保存历史命令记录的条数<br>SHELL: 当前Shell，它的值通常是/bin/bash</p>
-<h3><span id="和环境变量有关的命令">和环境变量有关的命令</span></h3><ol>
-<li><p>echo: 显示某个环境变量值</p>
-</li>
-<li><p>export: 设置一个新的环境变量</p>
-</li>
-<li><p>env: 显示所有环境变量</p>
-</li>
-<li><p>unset: 清除环境变量</p>
-</li>
-<li><p>set: 显示本地定义的shell</p>
-<h3><span id="环境变量的组织形式">环境变量的组织形式</span></h3></li>
-</ol>
-<p><img src="https://img.zouchanglin.cn///20200201/PgmDYeiiuYkr.png" alt="mark"></p>
-<p> 每个程序都会收到一张环境表,环境表是一个字符指针数组，每个指针指向一个以’\0’结尾的环境字符串 </p>
-<h3><span id="通过代码获取环境变量">通过代码获取环境变量</span></h3><p><img src="https://img.zouchanglin.cn///20200201/vtXGdtDJurXn.png" alt="mark"></p>
-<h2><span id="程序地址空间">程序地址空间</span></h2><p>先看这样一段代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> g_val = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span>&#123;</span><br><span class="line">	<span class="keyword">pid_t</span> id = fork();</span><br><span class="line">	<span class="keyword">if</span>(id &lt; <span class="number">0</span>)&#123;</span><br><span class="line">		perror(<span class="string">"fork failed"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(id == <span class="number">0</span>)&#123;</span><br><span class="line">		g_val = <span class="number">100</span>;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"child[%d],val[%d],address[%p]\n"</span>, getpid(), g_val, &amp;g_val);</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		sleep(<span class="number">3</span>);</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"parent[%d],val[%d],address[%p]\n"</span>, getpid(), g_val, &amp;g_val);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	sleep(<span class="number">1</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200201/DN09BavSHKFk.png" alt="mark"></p>
-<p>全局变量<code>g_val</code> 在内存中很显然有两份，这个不难理解，父进程和子进程都有自己的一份变量，所以即使子进程修改了<code>g_val</code> 也是不会影响到父进程中的<code>g_val</code>，但是为什么打印出来的地址是一样的？这就引出来程序地址空间的概念：<br>由此可见打印出的地址都是<strong>虚拟地址</strong>，是操作系统将这写虚拟地址转化为了实际的物理地址！</p>
-<h3><span id="进程地址空间">进程地址空间</span></h3><p>其实说程序地址空间是不准确的，应该叫做进程地址空间<br>早期的内存管理机制：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/frKsTupkIEle.png" alt="mark"></p>
-<ul>
-<li>要运行一个程序，会把这些程序全都装入内存，当计算机同时运行多个程序时，必须保证这些程序用到的内存总量要小于计算机实际物理内存的大</li>
-<li>进程地址空间不隔离。由于程序都是直接访问物理内存，所以恶意程序可以随意修改别的进程的内存数据，以达到破坏的目的</li>
-<li>内存使用效率低。在A和B都运行的情况下，如果用户又运行了程序C，而程序C需要15M大小的内存才能运行，而此时系统只剩下4M的空间可供使用，所以此时系统必须在已运行的程序中选择一个将该程序的数据暂时拷贝到硬盘上，释放出部分空间来供程序C使用，然后再将程序C的数据全部装入内存中运行</li>
-<li>程序运行的地址不确定。当内存中的剩余空间可以满足程序C的要求后，操作系统会在剩余空间中随机分配一段连续的20M大小的空间给程序C使用，因为是随机分配的，所以程序运行的地址是不确定的，这种情况下，程序的起始地址都是物理地址，而物理地址都是在加载之后才能确定。</li>
-</ul>
-<h2><span id="分页amp虚拟地址空间">分页&amp;虚拟地址空间</span></h2><p><img src="https://img.zouchanglin.cn///20200201/IjLGzbMxbCK2.png" alt="mark"></p>
-<p>其实从图中可以看出：虚拟地址空间只不过是操作系统建立了页表，把虚拟地址和实际物理内存建立了联系而已！</p>
-<h2><span id="进程调度算法">进程调度算法</span></h2><p>既然操作系统中有那么多的进程，那CPU应该先调用哪一个呢？这就涉及到进程的调度算法，这里看Linux2.6内核为研究对象：</p>
-<p><img src="https://img.zouchanglin.cn///20200201/HH3VxrGOYLBm.png" alt="mark"></p>
-<p>一个 CPU 拥有一个 runqueue 如果有多个 CPU 就要考虑进程个数的负载均衡(优先级)问题<br>普通优先级： 100 ~ 139 （我们都是普通的优先级，想想 nice 值的取值范围<br>实时优先级：这个可以不用关心</p>
-<h3><span id="活动队列">活动队列</span></h3><ul>
-<li>时间片还没有结束的所有进程都按照优先级放在该队列</li>
-<li>n_active ：总共有多少个运行状态的进程</li>
-<li>queue [ 140] ：一个元素就是一个进程队列，相同优先级的进程按照FIFO 规则进行排队调度，所以，数组下标就是优先级！</li>
-<li>从该结构中，选择一个最合适的进程，过程是怎么的呢？<ol>
-<li>从 0 下表开始遍历queue[140 ]</li>
-<li>找到第一个非空队列，该队列必定为优先级最高的队列</li>
-<li>拿到选中队列的第一个进程，开始运行，调度完成！</li>
-<li>遍历 queue [ 1 40 ］时间复杂度是常数！但还是太低效了！</li>
-</ol>
-</li>
-<li>bitmaP [ 5 ] ：一共 1 40 个优先级，一共 1 40 个进程队列，为了提高查找非空队列的效率，就可以用 5 * 32 个比特位表示队列是否为空，这样，便可以大大提高查找效率！</li>
-</ul>
-<h3><span id="过期队列">过期队列</span></h3><ul>
-<li>过期队列和活动队列结构一模一样</li>
-<li>过期队列上放置的进程都是时间片耗尽的进程</li>
-<li>当活动队列上的进程都被处理完毕之后，对过期队列的进程进行时间片重新计算</li>
-</ul>
-<h3><span id="active指针expired">active指针expired</span></h3><ul>
-<li><p>active 指针永远指向活动队列</p>
-</li>
-<li><p>expired 指针永远指向过期队列可是活动队列上的进程会越来越少，过期队列上的进程会越来越多，因为进程时间片到期时一直都存在的。</p>
-</li>
-<li><p>没关系，在合适的时候，只要能够交换 active 指针和 expired 指针的内容，就相当于有具有了一批新的活动进程！</p>
-<h3><span id="常见的进程调度算法">常见的进程调度算法</span></h3></li>
-<li><p>时间片轮转调度算法（RR）：给每个进程固定的执行时间，根据进程到达的先后顺序让进程在单位时间片内执行，执行完成后便调度下一个进程执行，时间片轮转调度不考虑进程等待时间和执行时间，属于抢占式调度。优点是兼顾长短作业；缺点是平均等待时间较长，上下文切换较费时。适用于分时系统。</p>
-</li>
-<li><p>先来先服务调度算法（FCFS）：根据进程到达的先后顺序执行进程，不考虑等待时间和执行时间，会产生饥饿现象。属于非抢占式调度，优点是公平，实现简单；缺点是不利于短作业。</p>
-</li>
-<li><p>优先级调度算法（HPF）：在进程等待队列中选择优先级最高的来执行。</p>
-</li>
-<li><p>多级反馈队列调度算法：将时间片轮转与优先级调度相结合，把进程按优先级分成不同的队列，先按优先级调度，优先级相同的，按时间片轮转。优点是兼顾长短作业，有较好的响应时间，可行性强，适用于各种作业环境。</p>
-</li>
-<li><p>高响应比优先调度算法：根据“响应比=（进程执行时间+进程等待时间）/ 进程执行时间”这个公式得到的响应比来进行调度。高响应比优先算法在等待时间相同的情况下，作业执行的时间越短，响应比越高，满足段任务优先，同时响应比会随着等待时间增加而变大，优先级会提高，能够避免饥饿现象。优点是兼顾长短作业，缺点是计算响应比开销大，适用于批处理系统。</p>
-<h2><span id="参考资料">参考资料</span></h2></li>
-<li><p><a href="https://www.jianshu.com/p/3bb1cdd44ef0" target="_blank" rel="noopener">《Linux的进程优先级 NI 和 PR》</a></p>
-</li>
-<li><p><a href="https://www.cnblogs.com/Blog-day/p/My_Blog_Days1-11.html" target="_blank" rel="noopener">《进程调度算法》</a></p>
-</li>
-<li><p><a href="https://blog.csdn.net/xuzhiwangray/article/details/50564702" target="_blank" rel="noopener">《五种进程调度算法的总结》</a></p>
-</li>
-<li><p><a href="https://www.jianshu.com/p/84b1f44706db" target="_blank" rel="noopener">《https://www.jianshu.com/p/3bb1cdd44ef0》</a></p>
-</li>
-</ul>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -491,21 +288,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -513,172 +310,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/1569686293.html" title="深入理解进程" target="_blank">https://zouchanglin.cn/1569686293.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/操作系统理论//" class="article-tag-list-link color2">操作系统理论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1569686293.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/3363803762.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          必须避免的C语言大坑
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2496992666.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">哈希与海量数据处理</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">现代计算机体系结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">冯·诺依曼结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">存储设备对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">操作系统的定位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">什么是进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">操作系统怎么维护进程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">PCB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.2.</span> <span class="toc-text">获取进程ID与父进程ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.3.</span> <span class="toc-text">初识fork</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">进程状态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.1.</span> <span class="toc-text">进程状态说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.2.</span> <span class="toc-text">修改进程状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.3.</span> <span class="toc-text">Z(zombie)-僵尸进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.4.</span> <span class="toc-text">孤儿进程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#null"><span class="toc-number"></span> <span class="toc-text">进程优先级</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">优先级概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.1.</span> <span class="toc-text">PRI and NI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.2.</span> <span class="toc-text">修改进程优先级的命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.3.</span> <span class="toc-text">其他概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">环境变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.1.</span> <span class="toc-text">常见的环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.2.</span> <span class="toc-text">和环境变量有关的命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.3.</span> <span class="toc-text">环境变量的组织形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.4.</span> <span class="toc-text">通过代码获取环境变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">程序地址空间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.1.</span> <span class="toc-text">进程地址空间</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">分页&amp;虚拟地址空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">进程调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.1.</span> <span class="toc-text">活动队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.2.</span> <span class="toc-text">过期队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.3.</span> <span class="toc-text">active指针expired</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.4.</span> <span class="toc-text">常见的进程调度算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -687,13 +380,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>

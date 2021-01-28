@@ -217,138 +217,60 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Linux-Cgroups的资源控制" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
+    <% if (post.link || post.title){ %>
       <header class="article-header">
-  
-  
-    <h1 class="article-title" itemprop="name">
-      Linux Cgroups的资源控制
-    </h1>
-  
+  <%- partial('post/title', {class_name: 'article-title'}) %>
+  <% if (!post.noDate){ %>
+  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
+  <% } %>
+  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
+    <%- partial('post/word') %>
+  <% } %>
+  </header>
+  <% } %>
+  <div class="article-entry" itemprop="articleBody">
+    <% if (page.type === "tags") { %>
+<div class="tag-cloud">
+	<div class="tag-cloud-title">
+	<%- _p('', site.tags.length) %>
+	</div>
 
-
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2867679770.html" class="archive-article-date">
-        <time datetime="2020-02-20T12:03:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-20</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">1.9k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">6分</span>
-    </span>
-  </span>
+	<div class="tag-cloud-tags">
+	<%- tagcloud({
+		min_font: 12,
+		max_font: 30,
+		amount: 200,
+		color: true,
+		start_color: '#ccc',
+		end_color: '#111'
+		}) %>
+	</div>
 </div>
 
+<% } else if (page.type === 'categories') { %>
 
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-
+<div class="category-all-page">
+	<div class="category-all-title">
+	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
+	</div>
 	
-		<p>今天主要是说说Linux的Cgroup技术，之前介绍的是构建Linux容器的namespace技术，它能够很好的帮助进程隔离出自己单独的空间，但Docker又是怎么限制每个空间的大小，保证他们不会互相争抢呢？这就要用到Linux的Cgroups技术。</p>
-<p><img src="https://img.zouchanglin.cn///20200221/EHaOfXGVfWwE.png" alt="mark"></p>
-<p>Linux Cgroups(Control Groups) 提供了对一组进程及将来的子进程的资源的限制 ，控制和统计的能力，这些资源包括CPU，内存，存储，网络等。通过Cgroups，可以方便的限制某个进程的资源占用，并且可以实时的监控进程的监控和统计信息。</p>
-<a id="more"></a>
-
-<h2 id="Cgroups三个组件"><a href="#Cgroups三个组件" class="headerlink" title="Cgroups三个组件"></a>Cgroups三个组件</h2><h3 id="1、cgroup"><a href="#1、cgroup" class="headerlink" title="1、cgroup"></a>1、cgroup</h3><p>cgroup 是对进程分组管理的一种机制，一个cgroup包含一组进程，并可以在这个cgroup上增加Linux subsystem的各种参数的配置，将一组进程和一组subsystem的系统参数关联起来。亦即，管理“组进程”并关联参数</p>
-<h3 id="2、subsystem"><a href="#2、subsystem" class="headerlink" title="2、subsystem"></a>2、subsystem</h3><p>subsystem 是一组资源控制的模块，一般包含有：</p>
-<ul>
-<li>blkio 设置对块设备（比如硬盘）的输入输出的访问控制（block/io）</li>
-<li>cpu 设置cgroup中的进程的CPU被调度的策略</li>
-<li>cpuacct 可以统计cgroup中的进程的CPU占用(cpu account)</li>
-<li>cpuset 在多核机器上设置cgroup中的进程可以使用的CPU和内存（此处内存仅使用于NUMA架构）</li>
-<li>devices 控制cgroup中进程对设备的访问</li>
-<li>freezer 用于挂起(suspends)和恢复(resumes) cgroup中的进程</li>
-<li>memory 用于控制cgroup中进程的内存占用</li>
-<li>net_cls 用于将cgroup中进程产生的网络包分类(classify)，以便Linux的tc(traffic controller) (net_classify) 可以根据分类(classid)区分出来自某个cgroup的包并做限流或监控。</li>
-<li>net_prio 设置cgroup中进程产生的网络流量的优先级</li>
-<li>ns 这个subsystem比较特殊，它的作用是cgroup中进程在新的namespace fork新进程(NEWNS)时，创建出一个新的cgroup，这个cgroup包含新的namespace中进程。</li>
-</ul>
-<p>每个subsystem会关联到定义了相应限制的cgroup上，并对这个cgroup中的进程做相应的限制和控制，这些subsystem是逐步合并到内核中的</p>
-<p>可以通过安装cgroup的命令行工具(apt-get install cgroup-bin)看到当前的内核支持哪些subsystem，然后通过lssubsys看到kernel支持的subsystem。</p>
-<p><img src="https://img.zouchanglin.cn///20200221/sCBdfAsvyshf.png" alt="mark"></p>
-<h3 id="3、hierarchy"><a href="#3、hierarchy" class="headerlink" title="3、hierarchy"></a>3、hierarchy</h3><p>hierarchy 的功能是<strong>把一组cgroup串成一个树状的结构</strong>，一个这样的树便是一个hierarchy，通过这种树状的结构，Cgroups可以做到继承。比如我的系统对一组定时的任务进程通过cgroup1限制了CPU的使用率，然后其中有一个定时dump日志的进程还需要限制磁盘IO，为了避免限制了影响到其他进程，就可以创建cgroup2继承于cgroup1并限制磁盘的IO，这样cgroup2便继承了cgroup1中的CPU的限制，并且又增加了磁盘IO的限制而不影响到cgroup1中的其他进程。</p>
-<h2 id="三个组件之间的关系"><a href="#三个组件之间的关系" class="headerlink" title="三个组件之间的关系"></a>三个组件之间的关系</h2><p>Cgroups的是靠这三个组件的相互协作实现的，那么三个组件之间的关系是怎样的呢？</p>
-<ul>
-<li><p>系统在创建新的hierarchy之后，系统中所有的进程都会加入到这个hierarchy的根cgroup节点中，这个cgroup根节点是hierarchy默认创建，后面在这个hierarchy中创建cgroup都是这个根cgroup节点的子节点。</p>
-</li>
-<li><p>一个subsystem只能附加到一个hierarchy上面</p>
-</li>
-<li><p>一个hierarchy可以附加多个subsystem</p>
-</li>
-<li><p>一个进程可以作为多个cgroup的成员，但是这些cgroup必须是在不同的hierarchy中</p>
-</li>
-<li><p>一个进程fork出子进程的时候，子进程是和父进程在同一个cgroup中的，也可以根据需要将其移动到其他的cgroup中</p>
-</li>
-</ul>
-<p><img src="https://img.zouchanglin.cn///20200221/EHaOfXGVfWwE.png" alt="mark"></p>
-<p><strong>其实上图很能说明问题，Cgroup包括了一组进程，subsystem(子系统)负责控制资源，资源控制包括CPU调度策略、块设备访问控制、内存占用、设备访问、进程的挂起和恢复等，很多Cgroup组成树状结构形成hierarchy，subsystem不但可以控制一个Cgroup，也可以控制多个Cgroup，Cgroup与Cgroup之间形树状，可以有继承关系，进程不但可以属于一个Cgroup、还可以属于多个Cgroup，但是肯定不是在同一个hierarchy中，Cgroup中的进程可以移动</strong></p>
-<h2 id="调用Kernel配置Cgroups"><a href="#调用Kernel配置Cgroups" class="headerlink" title="调用Kernel配置Cgroups"></a>调用Kernel配置Cgroups</h2><p>之前了解到Cgroups中的hierarchy是一种树状的组织结构，Kernel为了让对Cgroups的配置更直观，<strong>Cgroups通过一个虚拟的树状文件系统去做配置的</strong>，通过层级的目录虚拟出cgroup树，下面我们就以一个配置的例子来了解下如何操作Cgroups。</p>
-<p> 首先，我们要创建并挂载一个hierarchy(cgroup树)： </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~<span class="comment"># mkdir cgroup-test</span></span><br><span class="line">root@ubuntu:~<span class="comment"># mount -t cgroup -o none,name=cgroup-test cgroup-test ./cgroup-test</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://img.zouchanglin.cn///20200220/3TfoTDlea5mP.png" alt=""></p>
-<p>如上图，接下来挂载后我们就可以看到系统在这个目录下生成了一些默认文件 ：cgroup.clone_children  cgroup.procs  cgroup.sane_behavior  notify_on_release  release_agent  tasks</p>
-<p>这些文件就是这个hierarchy中根节点cgroup配置项 ：</p>
-<ul>
-<li><p>cgroup.clone_children cpuset的subsystem会读取这个配置文件，如果这个的值是1(默认是0)，子cgroup才会继承父cgroup的cpuset的配置。</p>
-</li>
-<li><p>cgroup.procs是树中当前节点的cgroup中的进程组ID，现在我们在根节点，这个文件中会有现在系统中所有进程组ID。</p>
-</li>
-<li><p>notify_on_release和release_agent会一起使用，notify_on_release表示当这个cgroup最后一个进程退出的时候是否执行release_agent，release_agent则是一个路径，通常用作进程退出之后自动清理掉不再使用的cgroup。</p>
-</li>
-<li><p>tasks也是表示该cgroup下面的进程ID，如果把一个进程ID写到tasks文件中，便会将这个进程加入到这个cgroup中。</p>
-</li>
-</ul>
-<p>如上图，接下来我们创建在刚才创建的hierarchy的根cgroup中扩展出两个子cgroup，一个是cgroup-1，一个是cgroup-2，可以看到，在一个cgroup 的目录下创建文件夹时， Kernel 会把文件夹标记为这个cgroup的子cgroup ，它们会继承父cgroup 的属性。</p>
-<p>接下来尝试一下在cgroup中添加和移动进程 ：</p>
-<ul>
-<li>一个进程在一个Cgroups的hierarchy中只能存在在一个cgroup节点上，</li>
-<li>系统的所有进程默认都会在根节点，</li>
-<li>可以将进程在cgroup节点间移动，只需要将进程ID写到移动到的cgroup节点的tasks文件中。</li>
-</ul>
-<p>可以看出我的当前进程是1449，通过把进程号写入task中的方式已经成功把当前进程，也就是Bash进程加入到了cgroup-test中，又开了一个Bash，把Bash进程加入到cgroup-1中：</p>
-<p><img src="https://img.zouchanglin.cn///20200221/RbMyIV4996RY.png" alt="mark"></p>
-<p><img src="https://img.zouchanglin.cn///20200222/gSF7c2L9wRCu.png" alt="mark"></p>
-<p>接下来看看如何通过subsystem限制cgroup中进程的资源 ？</p>
-<p><strong>上面我们创建hierarchy的时候，但这个hierarchy并没有关联到任何subsystem</strong>，所以没办法通过那个hierarchy中的cgroup限制进程的资源占用，<strong>其实系统默认就已经把每个subsystem创建了一个默认的hierarchy</strong>，比如memory的hierarchy:</p>
-<p><img src="https://img.zouchanglin.cn///20200222/NemNWmWOyKMi.png" alt="mark"></p>
-<p>可以看到，在<code>/sys/fs/cgroup/memory</code>目录便是挂在了memory subsystem的hierarchy。下面我们就通过在这个hierarchy中创建cgroup，限制下占用的进程占用的内存：</p>
-<p>首先，我们不做限制启动一个占用内存的stress进程， stress 命令主要用来模拟系统负载较高时的场景，关于stress指令可以看看这篇文章 <a href="https://www.cnblogs.com/sparkdev/p/10354947.html" target="_blank" rel="noopener">《Linux stress 命令》</a></p>
-<p><img src="https://img.zouchanglin.cn///20200222/w9ujejHQpYGf.png" alt="mark"></p>
-<p>可以看到通过cgroup，我们成功的将stress进程的最大内存占用限制到了100m以内。</p>
-
+	<div class="category-all">
+	<%- list_categories() %>
+	</div>
 	
+</div>
 
+<% } else { %>
 
-    
+	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
+	<% } else { %>
+		<%- post.content %>
+	<% } %>
+<% } %>
+
+    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -358,21 +280,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
+                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  
+                  <% if(theme.alipay) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
+                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  
-                  
+                  <% } %>
+                  <% if(theme.weixin) {%>
                   <div class="reward-box-item">
-                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
+                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
                     <span class="reward-type">微信</span>
                   </div>
-                  
+                  <% } %>
                 </div>
               </span>
             </span>
@@ -380,176 +302,68 @@
         </div>
       </a>
     </div>
-    
+    <% } %>
 
-    
+    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Tim
+          <%= config.author%>
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="https://zouchanglin.cn/2867679770.html" title="Linux Cgroups的资源控制" target="_blank">https://zouchanglin.cn/2867679770.html</a>
+          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
         </li>
-        
+        <% if (theme.copyright_text || theme.copyright_text == null){ %>
         <li>
           <strong>版权声明： </strong>
-          
-          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
+          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
         </li>
-        
+        <% } %>
       </ul>
     </div>
-    
+    <% } %>
 
   </div>
   <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/虚拟化技术//" class="article-tag-list-link color1">虚拟化技术</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-    
-	
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2867679770.html" alt="微信分享二维码"> -->
+    <%if(post.top){%>
+    <div class="article-pop-out tagcloud">
+      <i class="icon-tuding"></i>
+      <a class="article-tag-list-link color3">置顶</a>
     </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
+    <% } %>
+    <%- partial('post/tag') %>
+    <%- partial('post/category') %>
+    <% if (index && theme.show_all_link){ %>
+    <p class="article-more-link">
+      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
+    </p>
+    <% } %>
+	
+    <% if (!index && theme.share_jia){ %>
+    <%- partial('post/share') %>
+    <% } %>
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
+<% if (!index){ %>
+<%- partial('post/nav') %>
+<% } %>
+<%- partial('_partial/aside') %>
 
 
-<nav id="article-nav">
-  
-    <a href="/103657947.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Apache Freemarker的一个小坑
-        
-      </div>
-    </a>
-  
-  
-    <a href="/4168222464.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">通过Namespace实现隔离</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
+<% if (!index && post.comments){ %>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Cgroups三个组件"><span class="toc-number">1.</span> <span class="toc-text">Cgroups三个组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、cgroup"><span class="toc-number">1.1.</span> <span class="toc-text">1、cgroup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、subsystem"><span class="toc-number">1.2.</span> <span class="toc-text">2、subsystem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、hierarchy"><span class="toc-number">1.3.</span> <span class="toc-text">3、hierarchy</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三个组件之间的关系"><span class="toc-number">2.</span> <span class="toc-text">三个组件之间的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调用Kernel配置Cgroups"><span class="toc-number">3.</span> <span class="toc-text">调用Kernel配置Cgroups</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-
-
+<% if (theme.changyan_appid && theme.changyan_conf){ %>
+<%- partial('post/changyan', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
 <!-- 自己加的 -->
 <iframe id="comment-box" width="100%" height="700" frameborder="0">
@@ -558,13 +372,48 @@
 <script>
 	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
 </script>
+<% if (theme.disqus || config.disqus_shortname){ %>
+<section id="comments">
+  <div id="disqus_thread">
+  
+  </div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname =
+    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
+      Disqus.</a></noscript>
+</section>
+<% } %>
 
+<% if (theme.giteement && theme.giteement.enable){ %>
+<%- partial('post/giteement', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+<% } %>
 
+<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
+  <%- partial('post/gitment', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+    }) %>
+  <% } %>
 
-
-
+<% } %>
 
           </div>
         </div>
