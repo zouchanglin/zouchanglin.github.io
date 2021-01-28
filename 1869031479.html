@@ -219,60 +219,96 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-IP数据报格式及分片" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      IP数据报格式及分片
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/1869031479.html" class="archive-article-date">
+        <time datetime="2019-10-29T04:10:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-29</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.2k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">4分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<h1 id="IP数据报格式"><a href="#IP数据报格式" class="headerlink" title="IP数据报格式"></a>IP数据报格式</h1><p><img src="https://img.zouchanglin.cn///20200202/EJzNVBzNurAo.png" alt="mark"></p>
+<a id="more"></a>
+
+<p>下面是首部的结构：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/w9CMl9WdvEVv.png" alt="mark"></p>
+<p>这里的长度单位都是位（比特位）</p>
+<h2 id="1、版本"><a href="#1、版本" class="headerlink" title="1、版本"></a>1、版本</h2><p>4位版本号(version)：指定IP协议的版本，对于IPv4来说，就是4</p>
+<h2 id="2、首部长度"><a href="#2、首部长度" class="headerlink" title="2、首部长度"></a>2、首部长度</h2><p>4位头部长度(header length)：IP头部的长度，单位是4比特，最小为5（因为固定部分为20字节，所以最小就是5），也就是说首部长度是 4×5=20到 4×15=60之间</p>
+<h2 id="3、区分服务"><a href="#3、区分服务" class="headerlink" title="3、区分服务"></a>3、区分服务</h2><p>8位服务类型(Type Of Service)：3位优先权字段(已经弃用)，4位TOS字段，和1位保留字段(必须置为0)。4位<br>TOS分别表示：最小延时、 最大吞吐量、 最高可靠性、最小成本。 这四者相互冲突，只能选择一个。对于<br>ssh/telnet这样的应用程序，最小延时比较重要；对于ftp这样的程序，最大吞吐量比较重要。</p>
+<h2 id="4、总长度"><a href="#4、总长度" class="headerlink" title="4、总长度"></a>4、总长度</h2><p>16位总长度(total length)：IP数据报整体占多少个字节</p>
+<h2 id="5、标识"><a href="#5、标识" class="headerlink" title="5、标识"></a>5、标识</h2><p>16位标识(id)：唯一的标识主机发送的报文。如果IP报文在数据链路层被分片了，那么每一个片里面的这个<br>id都是相同的。</p>
+<h2 id="6、标志"><a href="#6、标志" class="headerlink" title="6、标志"></a>6、标志</h2><p>3位标志字段：第一位保留（保留的意思是现在不用，但是还没想好说不定以后要用到）。第二位置为1表示禁<br>止分片，这时候如果报文长度超过MTU，IP模块就会丢弃报文。第三位表示“更多分片”，如果分片了的话，最后一个分片置为1，其他是0。类似于一个结束标记。</p>
+<h2 id="7、片偏移"><a href="#7、片偏移" class="headerlink" title="7、片偏移"></a>7、片偏移</h2><p>13位分片偏移(framegament offset)：是分片相对于原始IP报文开始处的偏移。其实就是在表示当前分片<br>在原报文中处在哪个位置，实际偏移的字节数是这个值 * 8 得到的。因此，除了最后一个报文之外，其他报<br>文的长度必须是8的整数倍（否则报文就不连续了）。</p>
+<h2 id="8、生存时间"><a href="#8、生存时间" class="headerlink" title="8、生存时间"></a>8、生存时间</h2><p>8位生存时间(Time To Live, TTL)：数据报到达目的地的最大报文跳数，一般是64。每次经过一个路由，TTL<br>就减一，一直减到0还没到达，那么就丢弃了。这个字段主要是用来防止出现路由循环</p>
+<h2 id="9、协议"><a href="#9、协议" class="headerlink" title="9、协议"></a>9、协议</h2><p>8位协议：表示上层协议的类型</p>
+<p><img src="https://img.zouchanglin.cn///20200202/EdlnqqH6KqRl.png" alt="mark"></p>
+<h2 id="10、首部校验和"><a href="#10、首部校验和" class="headerlink" title="10、首部校验和"></a>10、首部校验和</h2><p>16位头部校验和：使用CRC进行校验，来鉴别头部是否损坏。也就是二进制的和！</p>
+<h2 id="11、源地址和目的地址"><a href="#11、源地址和目的地址" class="headerlink" title="11、源地址和目的地址"></a>11、源地址和目的地址</h2><p>32位源地址和32位目标地址： 表示发送端和接收端</p>
+<h2 id="12、可选字段和填充"><a href="#12、可选字段和填充" class="headerlink" title="12、可选字段和填充"></a>12、可选字段和填充</h2><p>用来支持排错、测量以及安全等措施</p>
+<h1 id="IP数据报分片"><a href="#IP数据报分片" class="headerlink" title="IP数据报分片"></a>IP数据报分片</h1><h2 id="1、最大传送单元MTU"><a href="#1、最大传送单元MTU" class="headerlink" title="1、最大传送单元MTU"></a>1、最大传送单元MTU</h2><p>MTU全称是maximum transmission unit，是指链路层数据帧可封装数据的上限，以太网的MTU是1500字节。</p>
+<p><img src="https://img.zouchanglin.cn///20200202/ztypnMRmrgh6.png" alt="mark"></p>
+<h2 id="2、IP数据报的标识"><a href="#2、IP数据报的标识" class="headerlink" title="2、IP数据报的标识"></a>2、IP数据报的标识</h2><p>回顾一下IP数据报中的标识：唯一的标识主机发送的报文。如果IP报文在数据链路层被分片了，那么每一个片里面的这个id都是相同的。</p>
+<h2 id="3、IP数据报的标识字段"><a href="#3、IP数据报的标识字段" class="headerlink" title="3、IP数据报的标识字段"></a>3、IP数据报的标识字段</h2><p>回顾一下IP数据报中的标志字段：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/bBkflg8QrVmE.png" alt="mark"></p>
+<h2 id="4、IP数据报的片偏移"><a href="#4、IP数据报的片偏移" class="headerlink" title="4、IP数据报的片偏移"></a>4、IP数据报的片偏移</h2><p>片偏移：指出较长分组分片后，某片在原分组中的相对位置，以8B为单位。除了最后一个分片，每个分片长度一定是8B的整数倍。</p>
+<h2 id="5、分片示例"><a href="#5、分片示例" class="headerlink" title="5、分片示例"></a>5、分片示例</h2><p>以太网帧中的数据长度规定最小46字节，最大1500字节，ARP数据包的长度不够46字节，要在后面补填充位；最大值1500称为以太网的最大传输单元(MTU)，不同的网络类型有不同的MTU；</p>
+<p>如果一个数据包从以太网路由到拨号链路上，数据包长度大于拨号链路的MTU了，则需要对数据包进行分片(fragmentation)；不同的数据链路层标准的MTU是不同的；</p>
+<p>下面以1420比特为最大值进行分片：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/j9YudIzeH7MO.png" alt="mark"></p>
+<p>这个例子其实很好理解，首部必须占用了20位，数据划分为1400位+1400位+1000位，他们都来自同一个数据报，所以标识都是一样的（在这里假设都为12345），数据报1、2、3DF都是0则表示允许分片，数据报1、2MF都是1表示后面还有分片，数据报3的MF为0，代表自己是最后一个分片，后面没有分片了，至于片偏移这个额也是可以计算的，数据报1的片偏移为0，1400/8=175，所以数据报2的片偏移为175，数据报3的片偏移为350，通过片偏移就是为了数据重组或者合并后仍然是原来未分片时候的顺序！</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -282,21 +318,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -304,118 +340,180 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/1869031479.html" title="IP数据报格式及分片" target="_blank">https://zouchanglin.cn/1869031479.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/计算机网络//" class="article-tag-list-link color1">计算机网络</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1869031479.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/3639119748.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          计算机网络性能指标
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1516781942.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">分布式架构基础</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#IP数据报格式"><span class="toc-number">1.</span> <span class="toc-text">IP数据报格式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、版本"><span class="toc-number">1.1.</span> <span class="toc-text">1、版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、首部长度"><span class="toc-number">1.2.</span> <span class="toc-text">2、首部长度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、区分服务"><span class="toc-number">1.3.</span> <span class="toc-text">3、区分服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、总长度"><span class="toc-number">1.4.</span> <span class="toc-text">4、总长度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、标识"><span class="toc-number">1.5.</span> <span class="toc-text">5、标识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、标志"><span class="toc-number">1.6.</span> <span class="toc-text">6、标志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、片偏移"><span class="toc-number">1.7.</span> <span class="toc-text">7、片偏移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8、生存时间"><span class="toc-number">1.8.</span> <span class="toc-text">8、生存时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9、协议"><span class="toc-number">1.9.</span> <span class="toc-text">9、协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10、首部校验和"><span class="toc-number">1.10.</span> <span class="toc-text">10、首部校验和</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11、源地址和目的地址"><span class="toc-number">1.11.</span> <span class="toc-text">11、源地址和目的地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12、可选字段和填充"><span class="toc-number">1.12.</span> <span class="toc-text">12、可选字段和填充</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IP数据报分片"><span class="toc-number">2.</span> <span class="toc-text">IP数据报分片</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、最大传送单元MTU"><span class="toc-number">2.1.</span> <span class="toc-text">1、最大传送单元MTU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、IP数据报的标识"><span class="toc-number">2.2.</span> <span class="toc-text">2、IP数据报的标识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、IP数据报的标识字段"><span class="toc-number">2.3.</span> <span class="toc-text">3、IP数据报的标识字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、IP数据报的片偏移"><span class="toc-number">2.4.</span> <span class="toc-text">4、IP数据报的片偏移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、分片示例"><span class="toc-number">2.5.</span> <span class="toc-text">5、分片示例</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -547,10 +645,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -571,15 +665,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -619,15 +717,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -639,11 +737,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -707,10 +805,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -731,7 +825,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -743,7 +845,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -752,14 +858,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -883,19 +981,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -904,6 +994,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

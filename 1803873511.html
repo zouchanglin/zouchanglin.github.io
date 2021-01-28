@@ -214,60 +214,147 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-Linux进程通信之管道" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      Linux进程通信之管道
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/1803873511.html" class="archive-article-date">
+        <time datetime="2018-11-21T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-21</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">2.1k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">8分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p><strong>Linux进程间通信的基本思想是：让两个进程看到一份公共的资源！</strong></p>
+<h2 id="Linux进程间通信的目的"><a href="#Linux进程间通信的目的" class="headerlink" title="Linux进程间通信的目的"></a>Linux进程间通信的目的</h2><ul>
+<li>数据传输：⼀个进程需要将它的数据发送给另⼀个进程</li>
+<li>资源共享：多个进程之间共享同样的资源。</li>
+<li>通知事件：⼀个进程需要向另⼀个或⼀组进程发送消息，通知它们发生了某种事件（如进程终止时要通知父进程）。</li>
+<li>进程控制：有些进程希望完全控制另⼀个进程的执行（如Debug进程），此时控制进程希望能够拦截另一个进程的所有陷入和异常，并能够及时知道它的状态改变</li>
+</ul>
+<h2 id="通信方式之管道"><a href="#通信方式之管道" class="headerlink" title="通信方式之管道"></a>通信方式之管道</h2><p>管道是Unix中最古老的进程间通信的形式。<br>我们把从⼀个进程连接到另⼀个进程的⼀个数据流称为⼀个”管道”</p>
+<ul>
+<li>管道是面向字节流的</li>
+<li>管道的生命周期：与进程一致</li>
+<li>管道只能用于单向通信</li>
+<li>内核会对管道操作进行同步与互斥</li>
+</ul>
+<a id="more"></a>
+
+
+
+<p>接下来看看管道的使用：</p>
+<p><img src="https://img.zouchanglin.cn///20200201/RBhiiWDUdm70.png" alt="mark"></p>
+<h2 id="匿名管道"><a href="#匿名管道" class="headerlink" title="匿名管道"></a>匿名管道</h2><h3 id="pipe函数"><a href="#pipe函数" class="headerlink" title="pipe函数"></a>pipe函数</h3><p>功能：创建匿名管道</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pipe</span><span class="params">(<span class="keyword">int</span> pipefd[<span class="number">2</span>])</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>返回值：<br>On success, zero is returned. On error, -1 is returned, and errno is set appropriately.<br>成功返回0，失败返回错误代码！<br>参数说明：<br>pipe() creates a pipe, a unidirectional data channel that can be used for interprocess communication. The array pipefd is used to return two file descriptors referring to the ends of the pipe. pipefd[0] refers to the read end of the pipe. pipefd[1] refers to the write end of the pipe. Data written to the write end of the pipe is buffered by the kernel until it is read from the read end of the pipe.<br>pipe() 创建一个管道，一个可用于进程间通信的单向数据通道。该文件描述符数组用于返回引用管道末端的两个文件描述符。 pipefd [0]指的是管道的读端。 pipefd [1]指的是管道的写端。写入结束的数据管道由内核缓冲，直到从管道的读取端读取。</p>
+<p>管道简单使用示例：从键盘读取数据，写⼊管道，读取管道，写到屏幕</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> fds[<span class="number">2</span>];</span><br><span class="line">	<span class="keyword">char</span> buf[<span class="number">100</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	<span class="keyword">size_t</span> len;</span><br><span class="line">	<span class="keyword">ssize_t</span> r_len;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (pipe(fds) == <span class="number">-1</span>) &#123;</span><br><span class="line">		perror(<span class="string">"make pipe"</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//read from stdin</span></span><br><span class="line">	<span class="keyword">while</span> (fgets(buf, <span class="number">100</span>, <span class="built_in">stdin</span>)) &#123;</span><br><span class="line">		len = <span class="built_in">strlen</span>(buf);</span><br><span class="line">		<span class="comment">//write to pipe</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">write</span>(fds[<span class="number">1</span>], buf, len) != len) &#123;</span><br><span class="line">			perror(<span class="string">"write to pipe"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">//read from pipe</span></span><br><span class="line">		<span class="keyword">if</span> ((r_len = <span class="built_in">read</span>(fds[<span class="number">0</span>], buf, (<span class="keyword">size_t</span>)<span class="number">100</span>)) == <span class="number">-1</span>) &#123;</span><br><span class="line">			perror(<span class="string">"read form pipe"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//write to stdout</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">write</span>(<span class="number">1</span>, buf, len) != len) &#123;</span><br><span class="line">			perror(<span class="string">"write to stdout"</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="亲缘关系进程直接的通信"><a href="#亲缘关系进程直接的通信" class="headerlink" title="亲缘关系进程直接的通信"></a>亲缘关系进程直接的通信</h3><p>上面的示例演示了管道的基本使用方式，但是不包含进程之间的通信！接下来看看父子进程之间的通信：</p>
+<p><img src="https://img.zouchanglin.cn///20200201/ln71rk9fc6Sy.png" alt="mark"></p>
+<p> 从文件描述符理解管道： </p>
+<p><img src="https://img.zouchanglin.cn///20200201/eJCO0T3Yzevi.png" alt="mark"></p>
+<p> 从内核角度理解管道： </p>
+<p><img src="https://img.zouchanglin.cn///20200201/RYlSkircsikU.png" alt="mark"></p>
+<p>所以可以看到，管道其实也是文件，在Linux下一切皆文件！ </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pipefd[<span class="number">2</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//创建一个匿名管道，失败直接退出</span></span><br><span class="line">    <span class="keyword">if</span>(pipe(pipefd) == <span class="number">-1</span>)&#123;</span><br><span class="line">        perror(<span class="string">"pipe"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">pid_t</span> pid;</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">-1</span>)&#123;</span><br><span class="line">        perror(<span class="string">"pipe"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	 <span class="comment">//父进程</span></span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">close</span>(pipefd[<span class="number">0</span>]);</span><br><span class="line">        <span class="built_in">write</span>(pipefd[<span class="number">1</span>], <span class="string">"hello"</span>, <span class="number">5</span>);</span><br><span class="line">        <span class="built_in">close</span>(pipefd[<span class="number">1</span>]);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(pipefd[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">10</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="built_in">read</span>(pipefd[<span class="number">0</span>], buf, <span class="number">10</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"buf = %s\n"</span>, buf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="管道的读写规则"><a href="#管道的读写规则" class="headerlink" title="管道的读写规则"></a>管道的读写规则</h3><ul>
+<li>当没有数据可读时<ul>
+<li>O_NONBLOCK disable：read调用阻塞，即进程暂停执行，一直等到有数据来到为止</li>
+<li>O_NONBLOCK enable：read调用返回-1，errno值为EAGAIN</li>
+</ul>
+</li>
+<li>当管道满的时候<ul>
+<li>O_NONBLOCK disable： write调用阻塞，直到有进程读走数据</li>
+<li>O_NONBLOCK enable：调用返回-1，errno值为EAGAIN</li>
+</ul>
+</li>
+<li>如果所有管道写端对应的文件描述符被关闭，则read返回0<br>如果所有管道读端对应的文件描述符被关闭，则write操作会产生信号SIGPIPE,进而可能导致write进程退出，这个不难理解，因为没有人从管道读信息时向管道写入东西是没有意义的，这是一种资源的浪费，所以管道读端对应的文件描述符被关闭时其实应该结束掉write进程；</li>
+<li>当要写入的数据量不大于<code>PIPE_BUF</code>时，linux将保证写入的原子性。</li>
+<li>当要写入的数据量大于<code>PIPE_BUF</code>时，linux将不再保证写入的原子性。</li>
+</ul>
+<h3 id="管道的特点"><a href="#管道的特点" class="headerlink" title="管道的特点"></a>管道的特点</h3><ul>
+<li>只能用于具有共同祖先的进程（具有亲缘关系的进程）之间进行通信；通常一个管道由一个进程创建，然后该进程调用fork，此后父、子进程之间就可应用该管道。</li>
+<li>管道提供流式服务</li>
+<li>一般而言，进程退出，管道释放，所以管道的生命周期随进程</li>
+<li>一般而言，内核会对管道操作进行同步与互斥</li>
+<li>管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道</li>
+</ul>
+<h2 id="命名管道"><a href="#命名管道" class="headerlink" title="命名管道"></a>命名管道</h2><p>管道应用的一个限制就是只能在具有共同祖先（具有亲缘关系）的进程间通信。<br>如果我们想在不相关的进程之间交换数据，可以使用FIFO文件来做这项工作，它经常被称为命名管道。命名管道是一种特殊类型的文件!<br>接下来使用一个脚本来演示用管道进行通信：</p>
+<p><img src="https://img.zouchanglin.cn/EsNpWTx35vd.gif" alt=""></p>
+<p>如果此时我们关闭读端，那么写端就会退出，道理很简单，和匿名管道一样，如果读端都关闭了那么此时如果写端还在写的话其实是一种资源浪费，于是操作系统直接向写端发信号终止写端进程！</p>
+<h3 id="匿名管道和命名管道之间的区别"><a href="#匿名管道和命名管道之间的区别" class="headerlink" title="匿名管道和命名管道之间的区别"></a>匿名管道和命名管道之间的区别</h3><ul>
+<li>匿名管道由pipe函数创建并打开，命名管道由mkfifo函数创建，打开用open函数</li>
+<li>FIFO(命名管道)与pipe(匿名管道)之间唯一的区别在它们创建与打开的方式不同</li>
+</ul>
+<h3 id="命名管道的打开规则"><a href="#命名管道的打开规则" class="headerlink" title="命名管道的打开规则"></a>命名管道的打开规则</h3><p>如果当前打开操作是为读而打开FIFO时：</p>
+<ul>
+<li>O_NONBLOCK disable：阻塞直到有相应进程为写而打开该FIFO</li>
+<li>O_NONBLOCK enable：立刻返回失败，错误码为ENXIO<br>如果当前打开操作是为写而打开FIFO时：</li>
+<li>O_NONBLOCK disable：阻塞直到有相应进程为读而打开该FIFO</li>
+<li>O_NONBLOCK enable：立刻返回失败，错误码为ENXIO</li>
+</ul>
+<p>接下来是一个模拟客户端和服务器端通信的示例：</p>
+<p><img src="https://img.zouchanglin.cn///20200201/x5DQGY3VY5pA.gif" alt="mark"></p>
+<p> client.c </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FIFONAME <span class="meta-string">"mypipe"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建一个命名管道</span></span><br><span class="line">    mkfifo(FIFONAME, <span class="number">0664</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打开这个命名管道</span></span><br><span class="line">    <span class="keyword">int</span> fd = <span class="built_in">open</span>(FIFONAME, O_WRONLY);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Please Enter Your Message To Server# "</span>);</span><br><span class="line">        fflush(<span class="built_in">stdout</span>);</span><br><span class="line">        <span class="comment">//从标准输入读取信息</span></span><br><span class="line">        <span class="keyword">ssize_t</span> s = <span class="built_in">read</span>(<span class="number">0</span>,buf,<span class="keyword">sizeof</span>(buf));</span><br><span class="line">        buf[s<span class="number">-1</span>] = <span class="number">0</span>;<span class="comment">//覆盖掉之前的回车换行</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">//向管道写</span></span><br><span class="line">        <span class="built_in">write</span>(fd,buf,<span class="built_in">strlen</span>(buf));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(fd);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> server.c </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FIFONAME <span class="meta-string">"mypipe"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//创建一个命名管道</span></span><br><span class="line">    mkfifo(FIFONAME, <span class="number">0664</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打开这个命名管道</span></span><br><span class="line">    <span class="keyword">int</span> fd = <span class="built_in">open</span>(FIFONAME, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(fd &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">ssize_t</span> s = <span class="built_in">read</span>(fd, buf, <span class="keyword">sizeof</span>(buf)<span class="number">-1</span>);</span><br><span class="line">        <span class="keyword">if</span>(s &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//读取成功</span></span><br><span class="line">            buf[s] = <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"client# %s\n"</span>, buf);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(s == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//写端把文件描述符关闭</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"client quit！server quit too!\n"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> Bash中的管道是采用匿名管道的方式进行通信，由于匿名管道只能用于在具有亲缘关系之间通信，但是由Bash开启的进程之间是属于兄弟关系，自然就可以通过匿名管道进行通信，多个进程(多个管道)的情况下只要每个进程关闭或打开相应的读写端，形成链式数据结构便可以进行通信了(再次佩写服Bash的大佬) </p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -277,21 +364,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -299,118 +386,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/1803873511.html" title="Linux进程通信之管道" target="_blank">https://zouchanglin.cn/1803873511.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/操作系统实战//" class="article-tag-list-link color2">操作系统实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1803873511.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/4206507360.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Linux进程通信之消息队列
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1358789208.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Git基本使用方法</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux进程间通信的目的"><span class="toc-number">1.</span> <span class="toc-text">Linux进程间通信的目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通信方式之管道"><span class="toc-number">2.</span> <span class="toc-text">通信方式之管道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#匿名管道"><span class="toc-number">3.</span> <span class="toc-text">匿名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pipe函数"><span class="toc-number">3.1.</span> <span class="toc-text">pipe函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#亲缘关系进程直接的通信"><span class="toc-number">3.2.</span> <span class="toc-text">亲缘关系进程直接的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管道的读写规则"><span class="toc-number">3.3.</span> <span class="toc-text">管道的读写规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管道的特点"><span class="toc-number">3.4.</span> <span class="toc-text">管道的特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命名管道"><span class="toc-number">4.</span> <span class="toc-text">命名管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#匿名管道和命名管道之间的区别"><span class="toc-number">4.1.</span> <span class="toc-text">匿名管道和命名管道之间的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命名管道的打开规则"><span class="toc-number">4.2.</span> <span class="toc-text">命名管道的打开规则</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -542,10 +702,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -566,15 +722,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -614,15 +774,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -634,11 +794,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -702,10 +862,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -726,7 +882,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -738,7 +902,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -747,14 +915,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,19 +1038,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -899,6 +1051,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

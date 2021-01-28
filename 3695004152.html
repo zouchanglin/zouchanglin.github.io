@@ -214,60 +214,79 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-动手实现AUFS文件系统" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      动手实现AUFS文件系统
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/3695004152.html" class="archive-article-date">
+        <time datetime="2020-02-23T03:37:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-23</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">798字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">2分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p><img src="https://img.zouchanglin.cn///20200223/8sHdcObI1bOG.png" alt="mark"></p>
+<p>在之前的文章中我们探究了Docker是如何使用AUFS文件系统的，现在我们开始动手实践一下AUFS，用简单的命令来创建一个AUFS文件系统，感受下如何使用AUFS和COW实现文件管理。</p>
+<a id="more"></a>
+
+<p>在目录下创建一个aufs的文件夹，然后在aufs目录下创建一个mnt的文件夹作挂载点。接着在aufs目录下创建一个名为container-layer的文件夹，里面有一个名为container-layer.txt的文件，文件内容为”I am container layer”。同样地，继续在aufs目录下创建4个名为image-layern的文件夹(n取值分别为l和4)，里面有一个名为image-layer{n}.txt的文件，文件内容为”I am image layer${n}”。使用如下命令检查文件内容。</p>
+<p><img src="https://img.zouchanglin.cn///20200223/oXETgkVUSyL4.png" alt="mark"></p>
+<p>要联合的文件目录都己经准备好了。接下来把container-layer和4个名为image-layer${n}的文件夹用AUFS的方式挂载到刚刚创建的mnt目录下。在mount aufs的命令中，没有指定待挂载的5个文件夹的权限，默认的行为是dirs指定的左边起第一个目录是read-write权限，后续的都是read-only权限。</p>
+<p>还是<a href="https://zouchanglin.cn/2020/02/22/1588956344.html">《Union File System在Docker中的应用》</a>文中曾经在系统aufs目录下查看文件读写权限的做法，这里依然使用如下命令来确认新mount的文件系统中每个目录的权限。</p>
+<p><img src="https://img.zouchanglin.cn///20200223/qffn783zN4iy.png" alt="mark"></p>
+<p>接下来，执行一个有意思的操作，往mnt/image-layer1.txt的文件末尾添加一行文字 “write to mnt’s image-layer1.txt”。根据上面介绍的COW技术，大家猜想一下会产生什么样的行为。</p>
+<p><img src="https://img.zouchanglin.cn///20200223/QL2sBsowv2z0.png" alt="mark"></p>
+<p>也就是说，当尝试向mnt/image-layer4.txt文件进行写操作的时候，系统首先在mnt目录下查找名为image-layer4.txt的文件，将其拷贝到read-write层的container-layer目录中，接着对container-layer目录中的image-layer4.txt文件进行写操作。至此，我们成功地完成了一个小小的Demo，实现了自己的AUFS文件系统。</p>
+<p><a href="https://zouchanglin.cn/2020/02/18/2859918246.html">《虚拟化的基石——Namespace》</a>、<a href="https://zouchanglin.cn/2020/02/19/4168222464.html">《通过Namespace实现隔离》</a>介绍了Linux Namespace，一共有6种类别的Namespace，分别进行了简单介绍。然后，以Go语言为例实现了一个Demo,使大家能有一个直观的认识。而且对于这些Namespace的应用，会有更加复杂的例子<a href="https://zouchanglin.cn/2020/02/20/2867679770.html">《Linux Cgroups的资源控制》</a>、<a href="https://zouchanglin.cn/2020/02/22/4017713389.html">《Cgroups在Docker中的应用》</a>介绍了LinuxCgroups。通过LinuxCgroups的三种结构，可以随意定制对资源的限制及对资源做监控。最后使用Go语言实现了一个Cgroups限制资源的Demo，介绍了如何用Go语言去操控容器的Cgroups，进而实现限制容器资源的效果。<a href="https://zouchanglin.cn/2020/02/22/1588956344.html">《Union File System在Docker中的应用》</a>介绍了Union File System，列举了其中的几个具体实现，并且讲解了Docker是如何使用分层文件系统来实现镜像不同分层的重复利用的。最后，以AUFS为例子介绍了如何构建，一个简单的分层文件系统。后面在开发自己的容器镜像的过程中就会使用这项技术。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -277,21 +296,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -299,118 +318,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/3695004152.html" title="动手实现AUFS文件系统" target="_blank">https://zouchanglin.cn/3695004152.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">文件系统</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/虚拟化技术//" class="article-tag-list-link color1">虚拟化技术</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3695004152.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/2519060739.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          构造实现简单容器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1588956344.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Union File System在Docker中的应用</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    目录，不存在的…
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -542,10 +642,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -566,15 +662,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -614,15 +714,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -634,11 +734,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -702,10 +802,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -726,7 +822,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -738,7 +842,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -747,14 +855,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,19 +978,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -899,6 +991,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

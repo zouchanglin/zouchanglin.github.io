@@ -209,60 +209,153 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-RecyclerView的应用" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      RecyclerView的应用
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/3653446494.html" class="archive-article-date">
+        <time datetime="2021-01-24T08:48:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-24</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">3.3k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">15分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>RecyclerView是Android 5.0以后提出的新UI控件，可以用来代替传统的ListView。但是RecyclerView并不会完全替代ListView，因为两者的使用场景不一样。但是RecyclerView的出现会让很多开源项目被废弃，例如横向滚动的ListView， 横向滚动的GridView, 瀑布流控件，因为RecyclerView能够实现所有这些功能，这是由于RecyclerView对各个功能进行解耦，从而相对于ListView有更好的拓展性。本篇文章着重讲述RecyclerView的使用方式方式上，以及和ListView的对比。</p>
+<a id="more"></a>
+
+<h2 id="使用RecyclerView"><a href="#使用RecyclerView" class="headerlink" title="使用RecyclerView"></a>使用RecyclerView</h2><p>具体使用是需要在代码中看对应的功能实现就好了。对于AndroidX项目来说，直接使用即可，无需引入依赖。</p>
+<p>activity_main.xml：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:padding</span>=<span class="string">"10dp"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">tools:context</span>=<span class="string">".MainActivity"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"添加数据"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onClickAddData"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"横向排列"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onClickHorizontal"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_marginStart</span>=<span class="string">"3dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"反向展示"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onClickReverse"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_marginStart</span>=<span class="string">"3dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_linear_layout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"线性布局"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onChangeLayout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_grid_layout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"网格布局"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onChangeLayout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_marginStart</span>=<span class="string">"3dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_staggered_grid_layout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"瀑布流布局"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onChangeLayout"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_marginStart</span>=<span class="string">"3dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"插入一条数据"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onInsertDataClick"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"0dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_weight</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"删除一条数据"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_marginStart</span>=<span class="string">"3dp"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:onClick</span>=<span class="string">"onRemoveDataClick"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">androidx.recyclerview.widget.RecyclerView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/recycler_view"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>item.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:background</span>=<span class="string">"#CDDC39"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_margin</span>=<span class="string">"4dp"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">ImageView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:padding</span>=<span class="string">"5dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/iv"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"50dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"50dp"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:scaleType</span>=<span class="string">"fitXY"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">"@+id/tv"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textColor</span>=<span class="string">"@color/black"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:gravity</span>=<span class="string">"center_vertical"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_marginStart</span>=<span class="string">"8dp"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>MyRecycleViewAdapter.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 1、继承RecycleView.Adapter</span></span><br><span class="line"><span class="comment"> * 2、绑定ViewHolder</span></span><br><span class="line"><span class="comment"> * 3、实现Adapter的相关方法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyRecycleViewAdapter</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">Adapter</span>&lt;<span class="title">MyRecycleViewAdapter</span>.<span class="title">MyViewHolder</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Context context;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RecyclerView recyclerView;</span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; dataSource;</span><br><span class="line">    <span class="keyword">private</span> OnItemClickListener listener;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyRecycleViewAdapter</span><span class="params">(Context context, RecyclerView recyclerView)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.context = context;</span><br><span class="line">        <span class="keyword">this</span>.recyclerView = recyclerView;</span><br><span class="line">        <span class="keyword">this</span>.dataSource = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDataSource</span><span class="params">(List&lt;String&gt; dataSource)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.dataSource = dataSource;</span><br><span class="line">        notifyDataSetChanged();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setListener</span><span class="params">(OnItemClickListener listener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.listener = listener;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建并返回ViewHolder</span></span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> MyViewHolder <span class="title">onCreateViewHolder</span><span class="params">(@NonNull ViewGroup parent, <span class="keyword">int</span> viewType)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> MyViewHolder(LayoutInflater.from(context).inflate(R.layout.item, parent, <span class="keyword">false</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过ViewHolder绑定数据</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(@NonNull MyRecycleViewAdapter.MyViewHolder holder, <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        holder.imageView.setImageResource(getIcon(position));</span><br><span class="line">        holder.textView.setText(dataSource.get(position));</span><br><span class="line">        LinearLayout.LayoutParams params;</span><br><span class="line">        <span class="keyword">if</span>(StaggeredGridLayoutManager<span class="class">.<span class="keyword">class</span>.<span class="title">equals</span>(<span class="title">recyclerView</span>.<span class="title">getLayoutManager</span>().<span class="title">getClass</span>()))</span>&#123;</span><br><span class="line">            <span class="keyword">int</span> randomHeight = getRandomHeight();</span><br><span class="line">            <span class="comment">// 只在瀑布流布局中使用随机高度</span></span><br><span class="line">            params = <span class="keyword">new</span> LinearLayout.LayoutParams(</span><br><span class="line">                    ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                    randomHeight &lt; <span class="number">50</span> ? dp2px(context, <span class="number">50f</span>): randomHeight</span><br><span class="line">            );</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            params = <span class="keyword">new</span> LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);</span><br><span class="line">        &#125;</span><br><span class="line">        params.gravity = Gravity.CENTER;</span><br><span class="line">        holder.textView.setLayoutParams(params);</span><br><span class="line"></span><br><span class="line">        holder.itemView.setOnClickListener(v -&gt; listener.onItemClick(position));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">dp2px</span><span class="params">(Context context, <span class="keyword">float</span> dpValue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">float</span> scale = context.getResources().getDisplayMetrics().density;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) (dpValue * scale + <span class="number">0.5f</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回数据数量</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getItemCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> dataSource.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回不同的随机ItemView高度</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getRandomHeight</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>)(Math.random() * <span class="number">500</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据不同的position选择一个图片</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getIcon</span><span class="params">(<span class="keyword">int</span> position)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (position % <span class="number">5</span>)&#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">return</span> R.drawable.ic_4k;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                <span class="keyword">return</span> R.drawable.ic_5g;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">return</span> R.drawable.ic_360;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">                <span class="keyword">return</span> R.drawable.ic_adb;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">                <span class="keyword">return</span> R.drawable.ic_alarm;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加一条数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addData</span> <span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        dataSource.add(position, <span class="string">"插入的数据"</span>);</span><br><span class="line">        notifyItemInserted(position);</span><br><span class="line">        <span class="comment">// 刷新ItemView</span></span><br><span class="line">        notifyItemRangeChanged(position, dataSource.size() - position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除一条数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeData</span> <span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        dataSource.remove(position);</span><br><span class="line">        notifyItemRemoved(position);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 刷新ItemView</span></span><br><span class="line">        notifyItemRangeChanged(position, dataSource.size() - position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyViewHolder</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">ViewHolder</span> </span>&#123;</span><br><span class="line">        ImageView imageView;</span><br><span class="line">        TextView textView;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyViewHolder</span><span class="params">(@NonNull View itemView)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>(itemView);</span><br><span class="line">            imageView = itemView.findViewById(R.id.iv);</span><br><span class="line">            textView = itemView.findViewById(R.id.tv);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">OnItemClickListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(<span class="keyword">int</span> position)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>MainActivity.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> RecyclerView recyclerView;</span><br><span class="line">    <span class="keyword">private</span> MyRecycleViewAdapter adapter;</span><br><span class="line">    <span class="keyword">private</span> LinearLayoutManager linearLayoutManager;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        recyclerView = findViewById(R.id.recycler_view);</span><br><span class="line">        <span class="comment">// 设置线性布局</span></span><br><span class="line">        linearLayoutManager = <span class="keyword">new</span> LinearLayoutManager(<span class="keyword">this</span>);</span><br><span class="line">        recyclerView.setLayoutManager(linearLayoutManager);</span><br><span class="line"></span><br><span class="line">        adapter = <span class="keyword">new</span> MyRecycleViewAdapter(<span class="keyword">this</span>, recyclerView);</span><br><span class="line">        adapter.setListener(position -&gt; Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"第"</span> + position + <span class="string">"数据被点击"</span>, Toast.LENGTH_SHORT).show());</span><br><span class="line">        recyclerView.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClickAddData</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; data = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">30</span>; i++) &#123;</span><br><span class="line">            data.add(<span class="string">"第"</span> + i + <span class="string">"条数据"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        adapter.setDataSource(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClickHorizontal</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        linearLayoutManager.setReverseLayout(<span class="keyword">false</span>);</span><br><span class="line">        <span class="comment">// 横向排列ItemView</span></span><br><span class="line">        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);</span><br><span class="line">        recyclerView.setLayoutManager(linearLayoutManager);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClickReverse</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 数据反向展示</span></span><br><span class="line">        linearLayoutManager.setReverseLayout(<span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">// 数据纵向排列</span></span><br><span class="line">        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);</span><br><span class="line">        recyclerView.setLayoutManager(linearLayoutManager);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onChangeLayout</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (view.getId())&#123;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_linear_layout:</span><br><span class="line">                LinearLayoutManager linearLayoutManager = <span class="keyword">new</span> LinearLayoutManager(<span class="keyword">this</span>);</span><br><span class="line">                recyclerView.setLayoutManager(linearLayoutManager);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_grid_layout:</span><br><span class="line">                GridLayoutManager gridLayoutManager = <span class="keyword">new</span> GridLayoutManager(<span class="keyword">this</span>, <span class="number">2</span>);</span><br><span class="line">                recyclerView.setLayoutManager(gridLayoutManager);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_staggered_grid_layout:</span><br><span class="line">                StaggeredGridLayoutManager staggeredGridLayoutManager = <span class="keyword">new</span> StaggeredGridLayoutManager(<span class="number">2</span>, StaggeredGridLayoutManager.VERTICAL);</span><br><span class="line">                recyclerView.setLayoutManager(staggeredGridLayoutManager);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 插入一条数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onInsertDataClick</span> <span class="params">(View v)</span> </span>&#123;</span><br><span class="line">        adapter.addData(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除一条数据</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRemoveDataClick</span> <span class="params">(View v)</span> </span>&#123;</span><br><span class="line">        adapter.removeData(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">布局类</th>
+<th align="left">效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">LinearLayoutManager</td>
+<td align="left">以垂直或水平滚动列表方式显示项目</td>
+</tr>
+<tr>
+<td align="left">GridLayoutManager</td>
+<td align="left">在网格中显示项目</td>
+</tr>
+<tr>
+<td align="left">StaggeredGridLayoutManager</td>
+<td align="left">在分散对齐网格中显示项目</td>
+</tr>
+</tbody></table>
+<p><img src="https://img.zouchanglin.cn/20210124213430.gif" alt=""></p>
+<h2 id="上述代码解析"><a href="#上述代码解析" class="headerlink" title="上述代码解析"></a>上述代码解析</h2><h3 id="RecyclerView使用步骤"><a href="#RecyclerView使用步骤" class="headerlink" title="RecyclerView使用步骤"></a>RecyclerView使用步骤</h3><p>1、创建Adapter：创建一个继承<code>RecyclerView.Adapter&lt;VH&gt;</code>的Adapter类（VH是ViewHolder的类名），记为MyRecycleViewAdapter。</p>
+<p>2、创建ViewHolder：在MyRecycleViewAdapter中创建一个继承RecyclerView.ViewHolder的静态内部类，记为VH。ViewHolder的实现和ListView的ViewHolder实现几乎一样。</p>
+<p>3、在MyRecycleViewAdapter中实现三个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 映射ItemLayoutId，创建VH并返回</span></span><br><span class="line">onCreateViewHolder(ViewGroup parent, <span class="keyword">int</span> viewType)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 为Holder设置指定数据</span></span><br><span class="line">onBindViewHolder(VH holder, <span class="keyword">int</span> position)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回Item的个数</span></span><br><span class="line">getItemCount()</span><br></pre></td></tr></table></figure>
+<h3 id="RecyclerView局部刷新"><a href="#RecyclerView局部刷新" class="headerlink" title="RecyclerView局部刷新"></a>RecyclerView局部刷新</h3><p>ListView通过adapter.notifyDataSetChanged()实现ListView的更新，这种更新方法的缺点是全局更新，即对每个Item View都进行重绘。但事实上很多时候，我们只是更新了其中一个Item的数据，其他Item其实可以不需要重绘。所以在上面的代码中：<code>adapter.addData(1)</code> 与<code>adapter.removeData(1)</code> 都是使用的局部刷新：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加一条数据</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addData</span> <span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">  dataSource.add(position, <span class="string">"插入的数据"</span>);</span><br><span class="line"></span><br><span class="line">  notifyItemInserted(position);</span><br><span class="line">  <span class="comment">// 刷新ItemView</span></span><br><span class="line">  notifyItemRangeChanged(position, dataSource.size() - position);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除一条数据</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeData</span> <span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">  dataSource.remove(position);</span><br><span class="line">  notifyItemRemoved(position);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 刷新ItemView</span></span><br><span class="line">  notifyItemRangeChanged(position, dataSource.size() - position);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果是ListView要完成局部刷新就稍微复杂一点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateItemView</span><span class="params">(ListView listview, <span class="keyword">int</span> position, Data data)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> firstPos = listview.getFirstVisiblePosition();</span><br><span class="line">    <span class="keyword">int</span> lastPos = listview.getLastVisiblePosition();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可见才更新，不可见则在getView()时更新</span></span><br><span class="line">    <span class="keyword">if</span>(position &gt;= firstPos &amp;&amp; position &lt;= lastPos)&#123;</span><br><span class="line">        <span class="comment">//listview.getChildAt(i)获得的是当前可见的第i个item的view</span></span><br><span class="line">        View view = listview.getChildAt(position - firstPos);</span><br><span class="line">        VH vh = (VH)view.getTag();</span><br><span class="line">        vh.text.setText(data.text);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Item的点击-长按事件"><a href="#Item的点击-长按事件" class="headerlink" title="Item的点击/长按事件"></a>Item的点击/长按事件</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">OnItemClickListener</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(<span class="keyword">int</span> position)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> OnItemClickListener listener;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setListener</span><span class="params">(OnItemClickListener listener)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.listener = listener;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(@NonNull MyRecycleViewAdapter.MyViewHolder holder, <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">    ......</span><br><span class="line">    holder.itemView.setOnClickListener(v -&gt; listener.onItemClick(position));</span><br><span class="line">    holder.itemView.setOnLongClickListener(v -&gt; &#123;</span><br><span class="line">        listener.onItemLongClick(position);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他说明"><a href="#其他说明" class="headerlink" title="其他说明"></a>其他说明</h3><p>1、dp单位转px单位：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">dp2px</span><span class="params">(Context context, <span class="keyword">float</span> dpValue)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> scale = context.getResources().getDisplayMetrics().density;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">int</span>) (dpValue * scale + <span class="number">0.5f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2、ImageView的scaleType的属性<br><code>android:scaleType=&quot;center&quot;</code>: 保持原图的大小，显示在ImageView的中心。当原图的size大于ImageView的size时，多出来的部分被截掉。</p>
+<p><code>android:scaleType=&quot;center_inside&quot;</code>: 以原图正常显示为目的，如果原图大小大于ImageView的size，就按照比例缩小原图的宽高，居中显示在ImageView中。如果原图size小于ImageView的size，则不做处理居中显示图片。</p>
+<p><code>android:scaleType=&quot;center_crop&quot;</code>: 以原图填满ImageView为目的，如果原图size大于ImageView的size，则与center_inside一样，按比例缩小，居中显示在ImageView上。如果原图size小于ImageView的size，则按比例拉升原图的宽和高，填充ImageView居中显示。</p>
+<p><code>android:scaleType=&quot;matrix&quot;</code>: 不改变原图的大小，从ImageView的左上角开始绘制，超出部分做剪切处理。</p>
+<p><code>androd:scaleType=&quot;fit_xy&quot;</code>: 把图片按照指定的大小在ImageView中显示，拉伸显示图片，不保持原比例，填满ImageView。</p>
+<p><code>android:scaleType=&quot;fit_start&quot;</code>: 把原图按照比例放大缩小到ImageView的高度，显示在ImageView的start（前部/上部）。</p>
+<p><code>android:sacleType=&quot;fit_center&quot;</code>: 把原图按照比例放大缩小到ImageView的高度，显示在ImageView的center（中部/居中显示）。</p>
+<p><code>android:scaleType=&quot;fit_end&quot;</code>: 把原图按照比例放大缩小到ImageView的高度，显示在ImageVIew的end（后部/尾部/底部）。</p>
+<h2 id="ListView和RecyclerView对比"><a href="#ListView和RecyclerView对比" class="headerlink" title="ListView和RecyclerView对比"></a>ListView和RecyclerView对比</h2><p><strong>ListView的一些优点：</strong><br>1、可以通过addHeaderView(), addFooterView()添加头视图和尾视图。</p>
+<p>2、可以通过<code>&quot;android:divider&quot;</code>设置自定义分割线。</p>
+<p>3、通过setOnItemClickListener()和setOnItemLongClickListener()可以很方便的设置点击事件和长按事件。</p>
+<blockquote>
+<p>这些功能在RecyclerView中都没有直接的接口，虽然实现起来很简单但还是要自己实现，所以ListView用来实现简单的显示功能更简单。</p>
+</blockquote>
+<p><strong>RecyclerView的优点：</strong><br>1、默认已经实现了View的复用，回收机制更加完善。</p>
+<p>2、默认支持局部刷新。</p>
+<p>3、容易实现添加item、删除item的动画效果。</p>
+<p>4、容易实现拖拽、侧滑删除等功能。</p>
+<p>5、RecyclerView是一个插件式的实现，对各个功能进行解耦，从而扩展性比较好。</p>
+<h2 id="回收机制分析"><a href="#回收机制分析" class="headerlink" title="回收机制分析"></a>回收机制分析</h2><h3 id="ListView回收机制"><a href="#ListView回收机制" class="headerlink" title="ListView回收机制"></a>ListView回收机制</h3><p>ListView为了保证Item View的复用，实现了一套回收机制，该回收机制的实现类是RecycleBin，他实现了两级缓存：</p>
+<p>View[] mActiveViews: 缓存屏幕上的View，在该缓存里的View不需要调用getView()。</p>
+<p>ArrayList<View>[] mScrapViews: 每个Item Type对应一个列表作为回收站，缓存由于滚动而消失的View，此处的View如果被复用，会以参数的形式传给getView()。<br>接下来我们通过源码分析ListView是如何与RecycleBin交互的。其实ListView和RecyclerView的layout过程大同小异，ListView的布局函数是layoutChildren()，实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">layoutChildren</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 1. 如果数据被改变了，则将所有ItemView回收至scrapView  </span></span><br><span class="line">    <span class="comment">// 而RecyclerView会根据情况放入Scrap Heap或RecyclePool,否则回收至mActiveViews</span></span><br><span class="line">    <span class="keyword">if</span>(dataChanged) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; childCount; i++) &#123;</span><br><span class="line">            recycleBin.addScrapView(getChildAt(i), firstPosition+i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">    	recycleBin.fillActiveViews(childCount, firstPosition);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 填充</span></span><br><span class="line">    <span class="keyword">switch</span>()&#123;</span><br><span class="line">        <span class="keyword">case</span> LAYOUT_XXX:</span><br><span class="line">            fillXxx();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> LAYOUT_XXX:</span><br><span class="line">            fillXxx();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 回收多余的activeView</span></span><br><span class="line">    mRecycler.scrapActiveViews();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中fillXxx()实现了对Item View进行填充，该方法内部调用了makeAndAddView()，实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">View <span class="title">makeAndAddView</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!mDataChanged) &#123;</span><br><span class="line">        child = mRecycler.getActiveView(position);</span><br><span class="line">        <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    child = obtainView(position, mIsScrap);</span><br><span class="line">    <span class="keyword">return</span> child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，getActiveView()是从mActiveViews中获取合适的View，如果获取到了，则直接返回，而不调用obtainView()，这也印证了如果从mActiveViews获取到了可复用的View，则不需要调用getView()。</p>
+<p>obtainView()是从mScrapViews中获取合适的View，然后以参数形式传给了getView()，实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">View <span class="title">obtainView</span><span class="params">(<span class="keyword">int</span> position)</span></span>&#123;</span><br><span class="line">    <span class="keyword">final</span> View scrapView = mRecycler.getScrapView(position);  <span class="comment">// 从RecycleBin中获取复用的View</span></span><br><span class="line">    <span class="keyword">final</span> View child = mAdapter.getView(position, scrapView, <span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下去我们介绍getScrapView(position)的实现，该方法通过position得到Item Type，然后根据Item Type从mScrapViews获取可复用的View，如果获取不到，则返回null，具体实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RecycleBin</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> View[] mActiveViews;           <span class="comment">// 存储屏幕上的View</span></span><br><span class="line">    <span class="keyword">private</span> ArrayList&lt;View&gt;[] mScrapViews; <span class="comment">// 每个item type对应一个ArrayList</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewTypeCount;            <span class="comment">// item type的个数</span></span><br><span class="line">    <span class="keyword">private</span> ArrayList&lt;View&gt; mCurrentScrap; <span class="comment">// mScrapViews[0]</span></span><br><span class="line">    <span class="function">View <span class="title">getScrapView</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> whichScrap = mAdapter.getItemViewType(position);</span><br><span class="line">        <span class="keyword">if</span>(whichScrap &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(mViewTypeCount == <span class="number">1</span>) &#123;</span><br><span class="line">             <span class="keyword">return</span> retrieveFromScrap(mCurrentScrap, position);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (whichScrap &lt; mScrapViews.length) &#123;</span><br><span class="line">            <span class="keyword">return</span> retrieveFromScrap(mScrapViews[whichScrap], position);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> View <span class="title">retrieveFromScrap</span><span class="params">(ArrayList&lt;View&gt; scrapViews, <span class="keyword">int</span> position)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> size = scrapViews.size();</span><br><span class="line">        <span class="keyword">if</span>(size &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> scrapView.remove(scrapViews.size() - <span class="number">1</span>);  <span class="comment">// 从回收列表中取出最后一个元素复用</span></span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="RecyclerView回收机制"><a href="#RecyclerView回收机制" class="headerlink" title="RecyclerView回收机制"></a>RecyclerView回收机制</h3><p>RecyclerView和ListView的回收机制非常相似，但是ListView是以View作为单位进行回收，RecyclerView是以ViewHolder作为单位进行回收。Recycler是RecyclerView回收机制的实现类，他实现了四级缓存：</p>
+<p>mAttachedScrap: 缓存在屏幕上的ViewHolder。<br>mCachedViews: 缓存屏幕外的ViewHolder，默认为2个。ListView对于屏幕外的缓存都会调用getView()。<br>mViewCacheExtensions: 需要用户定制，默认不实现。<br>mRecyclerPool: 缓存池，多个RecyclerView共用。</p>
+<p>主要需要关注的是 getViewForPosition()方法，因此此处介绍该方法的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">View <span class="title">getViewForPosition</span><span class="params">(<span class="keyword">int</span> position, <span class="keyword">boolean</span> dryRun)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(holder == <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="comment">// 从mAttachedScrap,mCachedViews获取ViewHolder</span></span><br><span class="line">        holder = getScrapViewForPosition(position,INVALID,dryRun); <span class="comment">// 此处获得的View不需要bind</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> type = mAdapter.getItemViewType(offsetPosition);</span><br><span class="line">    <span class="keyword">if</span> (mAdapter.hasStableIds()) &#123; <span class="comment">// 默认为false</span></span><br><span class="line">        holder = getScrapViewForId(mAdapter.getItemId(offsetPosition), type, dryRun);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(holder == <span class="keyword">null</span> &amp;&amp; mViewCacheExtension != <span class="keyword">null</span>)&#123;</span><br><span class="line">        <span class="keyword">final</span> View view = mViewCacheExtension.getViewForPositionAndType(<span class="keyword">this</span>, position, type);</span><br><span class="line">        <span class="keyword">if</span>(view != <span class="keyword">null</span>)&#123;</span><br><span class="line">            holder = getChildViewHolder(view);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(holder == <span class="keyword">null</span>)&#123;</span><br><span class="line">        holder = getRecycledViewPool().getRecycledView(type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(holder == <span class="keyword">null</span>)&#123;  <span class="comment">// 没有缓存，则创建</span></span><br><span class="line">        holder = mAdapter.createViewHolder(RecyclerView.<span class="keyword">this</span>, type); <span class="comment">// 调用onCreateViewHolder()</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!holder.isBound() || holder.needsUpdate() || holder.isInvalid())&#123;</span><br><span class="line">        mAdapter.bindViewHolder(holder, offsetPosition);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> holder.itemView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上述实现可以看出，依次从mAttachedScrap, mCachedViews, mViewCacheExtension, mRecyclerPool寻找可复用的ViewHolder，如果是从mAttachedScrap或mCachedViews中获取的ViewHolder，则不会调用onBindViewHolder()，mAttachedScrap和mCachedViews也就是我们所说的Scrap Heap；而如果从mViewCacheExtension或mRecyclerPool中获取的ViewHolder，则会调用onBindViewHolder()。</p>
+<p>RecyclerView局部刷新的实现原理也是基于RecyclerView的回收机制，即能直接复用的ViewHolder就不调用onBindViewHolder()。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、强大而灵活的RecyclerView Adapter: <a href="https://github.com/CymChad/BaseRecyclerViewAdapterHelper/blob/master/readme/0-BaseRecyclerViewAdapterHelper.md" target="_blank" rel="noopener">https://github.com/CymChad/BaseRecyclerViewAdapterHelper</a></p>
+<p>2、<a href="https://www.bilibili.com/video/BV1zW411w76j" target="_blank" rel="noopener">RecyclerView ins and outs - Google I_O 2016</a></p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -272,21 +365,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -294,118 +387,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/3653446494.html" title="RecyclerView的应用" target="_blank">https://zouchanglin.cn/3653446494.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/移动开发//" class="article-tag-list-link color5">移动开发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/3653446494.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/2719388914.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          设计一个简易图片缓存组件
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1024374978.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">EventBus的应用</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用RecyclerView"><span class="toc-number">1.</span> <span class="toc-text">使用RecyclerView</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#上述代码解析"><span class="toc-number">2.</span> <span class="toc-text">上述代码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RecyclerView使用步骤"><span class="toc-number">2.1.</span> <span class="toc-text">RecyclerView使用步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RecyclerView局部刷新"><span class="toc-number">2.2.</span> <span class="toc-text">RecyclerView局部刷新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Item的点击-长按事件"><span class="toc-number">2.3.</span> <span class="toc-text">Item的点击&#x2F;长按事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他说明"><span class="toc-number">2.4.</span> <span class="toc-text">其他说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ListView和RecyclerView对比"><span class="toc-number">3.</span> <span class="toc-text">ListView和RecyclerView对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#回收机制分析"><span class="toc-number">4.</span> <span class="toc-text">回收机制分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ListView回收机制"><span class="toc-number">4.1.</span> <span class="toc-text">ListView回收机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RecyclerView回收机制"><span class="toc-number">4.2.</span> <span class="toc-text">RecyclerView回收机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -537,10 +703,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -561,15 +723,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -609,15 +775,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -629,11 +795,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -697,10 +863,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -721,7 +883,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -733,7 +903,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -742,14 +916,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -873,19 +1039,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,6 +1052,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -209,60 +209,131 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-JDK9新特性(二)" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      JDK9新特性(二)
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2494561989.html" class="archive-article-date">
+        <time datetime="2020-04-16T10:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-16</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">2.9k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">10分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>在上一篇的文章我记述了JDK9的两个最重要的特性：一个是模块化，一个是jShell。另外就是String底层存储结构和StreamAPI的一些改动与优化。本次要记述主要的特性是全新的多分辨率图像API、全新的HTTP客户端API（其实是借鉴OkHTTP的框架，或者说是整合吧）、Deprecated相关API、智能Java编译工具与动态编译器、统一的JVM日志系统、javadoc对H5的支持、JavaScript引擎升级：Nashorn。然后再谈谈JDK9还需要什么吧，也就是对未来Java的展望。</p>
+<a id="more"></a>
+
+<h1 id="多分辨率图像API"><a href="#多分辨率图像API" class="headerlink" title="多分辨率图像API"></a>多分辨率图像API</h1><p>在Mac上，JDK已经支持视网膜显示，但在Linux和Windows上，并没有支持。Java程序在当前的高分辨率屏幕上可能看起来很小，不能使用它们。这是因为像素用于这些系统的大小计算（无论像素实际有多大）。毕竟，高分辨率显示器的有效部分是像素非常小。</p>
+<p>JEP 263以这样的方式扩展了JDK，即Windows和Linux也考虑到像素的大小。为此，使用比现在更多的现代API：Direct2D for Windows和GTK+，而不是Xlib for Linux。图形，窗口和文本由此自动缩放。JEP 251还提供处理多分辨率图像的能力，即包含不同分辨率的相同图像的文件。根据屏幕的DPI度量，然后以适当的分辨率使用图像。</p>
+<ul>
+<li>新的API定义在java.awt.image包下</li>
+<li>将不同分辨率的图像封装到一张（多分辨率的）图像中，作为它的变体</li>
+<li>获取这个图像的所有变体</li>
+<li>获取特定分辨率的图像变体-表示一张已知分辨率单位为DPI的特定尺寸大小的逻辑图像，并且这张图像是最佳的变体。</li>
+<li>基于当前屏幕分辨率大小和运用的图像转换算法，java.awt.Graphics类可以从接口MultiResolutionImage获取所需的变体。</li>
+<li>MultiResolutionImage的基础实现是java.awt.image.BaseMultiResolutionImage。</li>
+</ul>
+<h1 id="全新的HTTP客户端"><a href="#全新的HTTP客户端" class="headerlink" title="全新的HTTP客户端"></a>全新的HTTP客户端</h1><p><a href="http://openjdk.java.net/jeps/110" target="_blank" rel="noopener">http://openjdk.java.net/jeps/110</a> ，这个是改动说明文档。2015年，HTTP2成为标准。HTTP/1.1和HTTP/2的主要区别是如何在客户端和服务器之间构建和传输数据。HTTP/1.1依赖于请求/响应周期。 HTTP/2允许服务器<code>push</code>数据：它可以发送比客户端请求更多的数据。 这使得它可以优先处理并发送对于首先加载网页至关重要的数据。</p>
+<p>Java 9中有新的方式来处理HTTP调用。它提供了一个新的HTTP客户端（HttpClient），它将替代仅适用于阻塞模式的HttpURLConnection （HttpURLConnection是在HTTP 1.0的时代创建的，并使用了协议无关的方法），并提供对WebSocket 和 HTTP/2的支持。</p>
+<p>其实在Android中就已经有了异步调用API，这些API已经被封装在了新的AndroidSDK中，现在Java终于支持了。此外，HTTP客户端还提供API来处理HTTP/2的特性，比如流和服务器推送等功能。全新的HTTP客户端API可以从jdk.incubator.httpclient模块中获取。因为在默认情况下，这个模块是不能根据classpath获取的，需要使用add modules命令选项配置这个模块，将这个模块添加到classpath中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HTTPAPITest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, InterruptedException </span>&#123;</span><br><span class="line">        HttpClient client = HttpClient.newHttpClient();</span><br><span class="line">        HttpRequest req = HttpRequest.newBuilder(URI.create(<span class="string">"http://zouchanglin.cn"</span>))</span><br><span class="line">                .GET()</span><br><span class="line">                .build();</span><br><span class="line">        HttpResponse&lt;String&gt; response = client.send(req, HttpResponse.BodyHandler.asString());</span><br><span class="line">        System.out.println(response.statusCode());</span><br><span class="line">        System.out.println(response.version().name());</span><br><span class="line">        System.out.println(response.body());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Deprecated的相关API"><a href="#Deprecated的相关API" class="headerlink" title="Deprecated的相关API"></a>Deprecated的相关API</h1><p>Java 9 废弃或者移除了几个不常用的功能。其中最主要的是 Applet API，现在是标记为废弃的。随着对安全要求的提高，主流浏览器已经取消对 Java 浏览器插件的支持。HTML5 的出现也进一步加速了它的消亡。开发者现在可以使用像 Java Web Start 这样的技术来代替 Applet，它可以实现从浏览器启动应用程序或者安装应用程序。同时，appletviewer 工具也被标记为废弃。</p>
+<ul>
+<li><a href="http://openjdk.java.net/jeps/211" target="_blank" rel="noopener">http://openjdk.java.net/jeps/211</a></li>
+<li><a href="http://openjdk.java.net/jeps/214" target="_blank" rel="noopener">http://openjdk.java.net/jeps/214</a></li>
+<li><a href="http://openjdk.java.net/jeps/277" target="_blank" rel="noopener">http://openjdk.java.net/jeps/277</a></li>
+<li><a href="http://openjdk.java.net/jeps/289" target="_blank" rel="noopener">http://openjdk.java.net/jeps/289</a></li>
+<li><a href="http://openjdk.java.net/jeps/291" target="_blank" rel="noopener">http://openjdk.java.net/jeps/291</a></li>
+</ul>
+<h1 id="智能Java编译工具"><a href="#智能Java编译工具" class="headerlink" title="智能Java编译工具"></a>智能Java编译工具</h1><p>官方Feature：<a href="http://openjdk.java.net/jeps/199" target="_blank" rel="noopener">http://openjdk.java.net/jeps/199</a></p>
+<p>智能Java编译工具(sjavac) 的第一个阶段始于JEP139这个项目，用于在多核处理器情况下提升JDK的编译速度。如今，这个项目已经进入第二阶段，即JEP199，其目的是改进Java编译工具，并取代目前JDK编译工具javac，继而成为Java环境默认的通用的智能编译工具。<br>JDK 9 还更新了javac 编译器以便能够将Java9的代码编译运行在低版本 Java 中。</p>
+<h1 id="统一的JVM日志系统"><a href="#统一的JVM日志系统" class="headerlink" title="统一的JVM日志系统"></a>统一的JVM日志系统</h1><p>官方Feature：</p>
+<ul>
+<li><a href="http://openjdk.java.net/jeps/158" target="_blank" rel="noopener">http://openjdk.java.net/jeps/158</a></li>
+<li><a href="http://openjdk.java.net/jeps/271" target="_blank" rel="noopener">http://openjdk.java.net/jeps/271</a></li>
+</ul>
+<p>日志是解决问题的唯一有效途径：曾经很难知道导致JVM性能问题和导致JVM崩溃的根本原因。不同的JVM日志的碎片化和日志选项（例如：JVM组件对于日志使用的是不同的机制和规则），这使得JVM难以进行调试。</p>
+<p>解决该问题最佳方法：对所有的JVM组件引入一个单一的系统，这些JVM组件支持细粒度的和易配置的JVM日志</p>
+<h1 id="javadoc的H5支持"><a href="#javadoc的H5支持" class="headerlink" title="javadoc的H5支持"></a>javadoc的H5支持</h1><p>官方Feature：</p>
+<ul>
+<li><a href="http://openjdk.java.net/jeps/224" target="_blank" rel="noopener">http://openjdk.java.net/jeps/224</a></li>
+<li><a href="http://openjdk.java.net/jeps/225" target="_blank" rel="noopener">http://openjdk.java.net/jeps/225</a></li>
+</ul>
+<p>jdk 8 ：生成的java帮助文档是在HTML4 中，而HTML4 已经是很久的标准了。<br>jdk 9 ：javadoc的输出，现在符合兼容HTML5 标准。</p>
+<h1 id="Javascript引擎升级：Nashorn"><a href="#Javascript引擎升级：Nashorn" class="headerlink" title="Javascript引擎升级：Nashorn"></a>Javascript引擎升级：Nashorn</h1><p>官方Feature：</p>
+<ul>
+<li><a href="http://openjdk.java.net/jeps/236" target="_blank" rel="noopener">http://openjdk.java.net/jeps/236</a></li>
+<li><a href="http://openjdk.java.net/jeps/292" target="_blank" rel="noopener">http://openjdk.java.net/jeps/292</a></li>
+</ul>
+<p>Nashorn 项目在 JDK 9 中得到改进（因为Nashorn是在JDK8中被引入的），它为 Java 提供轻量级的 Javascript 运行时。Nashorn 项目跟随 Netscape 的 Rhino 项目，目的是为了在 Java 中实现一个高性能但轻量级的Javascript 运行时。Nashorn 项目使得 Java 应用能够嵌入 Javascript。它在 JDK 8 中为 Java 提供一个Javascript 引擎。</p>
+<p>JDK 9 包含一个用来解析 Nashorn 的 ECMAScript 语法树的 API。这个 API 使得 IDE 和服务端框架不需要依赖 Nashorn 项目的内部实现类，就能够分析 ECMAScript 代码。</p>
+<h1 id="java的动态编译器"><a href="#java的动态编译器" class="headerlink" title="java的动态编译器"></a>java的动态编译器</h1><p>官方Feature：</p>
+<ul>
+<li><a href="http://openjdk.java.net/jeps/243" target="_blank" rel="noopener">http://openjdk.java.net/jeps/243</a></li>
+<li><a href="http://openjdk.java.net/jeps/295" target="_blank" rel="noopener">http://openjdk.java.net/jeps/295</a></li>
+</ul>
+<p>Oracle 一直在努力提高 Java 启动和运行时性能，希望其能够在更广泛的场景达到或接近本地语言的性能。但是，直到今天，谈到 Java，很多 C/C++ 开发者还是会不屑地评价为启动慢，吃内存。简单说，这主要是因为 Java 编译产生的类文件是 Java 虚拟机可以理解的二进制代码，而不是真正的可执行的本地代码，需要 Java 虚拟机进行解释和编译，这带来了额外的开销。</p>
+<p>JIT（Just-in-time）编译器可以在运行时将热点编译成本地代码，速度很快。但是 Java 项目现在变得很大很复杂，因此 JIT 编译器需要花费较长时间才能热身完，而且有些 Java 方法还没法编译，性能方面也会下降。AOT 编译就是为了解决这些问题而生的。<br>在 JDK 9 中， AOT（JEP 295: Ahead-of-Time Compilation）作为实验特性被引入进来，开发者可以利用新的 jaotc工具将重点代码转换成类似类库一样的文件。虽然仍处于试验阶段，但这个功能使得 Java 应用在被虚拟机启动之前能够先将 Java 类编译为原生代码。此功能旨在改进小型和大型应用程序的启动时间，同时对峰值性能的影响很小。这个AOT特性我在之前的文章中也说过：<a href="https://zouchanglin.cn/2019/10/25/1934507167.html">《 HotSpot JVM类型以及编译模式 》</a> 。</p>
+<p>另外 JVMCI （JEP 243: Java-Level JVM Compiler Interface）等特性，对于整个编程语言的发展，可能都具有非常重要的意义，虽然未必引起了广泛关注。目前 Graal Core API 已经被集成进入 Java 9，虽然还只是初始一小步，但是完全用 Java 语言来实现的可靠的、高性能的动态编译器，似乎不再是遥不可及，这是 Java 虚拟机开发工程师的福音。与此同时，随着 Truffle 框架和 Substrate VM 的发展，已经让个别信心满满的工程师高呼<code>One VM to Rule Them All!</code>， 也许就在不远的将来 Ploygot 以一种另类的方式成为现实。</p>
+<h1 id="对Java未来的期望"><a href="#对Java未来的期望" class="headerlink" title="对Java未来的期望"></a>对Java未来的期望</h1><h2 id="标准化的JSON-API"><a href="#标准化的JSON-API" class="headerlink" title="标准化的JSON API"></a>标准化的JSON API</h2><p>一个标准化和轻量级的JSON API被许多java开发人员所青睐。但是由于资金问题无法在Java 9中见到，但并不会削减掉。Java平台首席架构师Mark Reinhold在JDK 9邮件列中说：“这个JEP将是平台上的一个有用的补充，但是在计划中，它并不像Oracle资助的其他功能那么重要，可能会重新考虑JDK 10或更高版本中实现。 ” 但是我们目前使用的仍然是阿里的FastJSON或者谷歌的Gson等API。</p>
+<h2 id="新的货币-API"><a href="#新的货币-API" class="headerlink" title="新的货币 API"></a>新的货币 API</h2><p>对许多应用而言货币价值都是一个关键的特性，但JDK对此却几乎没有任何支持。严格来讲，现有的java.util.Currency类只是代表了当前ISO 4217货币的一个数据结构，但并没有关联的值或者自定义货币。JDK对货币的运算及转换也没有内建的支持，更别说有一个能够代表货币值的标准类型了。</p>
+<p>此前，Oracle 公布的JSR 354定义了一套新的Java货币API：JavaMoney，计划会在Java 9中正式引入。但是目前没有出现在JDK 9 中。</p>
+<p>不过，如果你用的是Maven的话，可以做如下的添加，即可使用相关的API处理货币。代码参考，可以访问<a href="https://github.com/JavaMoney，里面已经给出了使用说明和示例。" target="_blank" rel="noopener">https://github.com/JavaMoney，里面已经给出了使用说明和示例。</a></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.javamoney<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>moneta<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="面临的其他问题"><a href="#面临的其他问题" class="headerlink" title="面临的其他问题"></a>面临的其他问题</h2><p>随着云计算和 AI 等技术浪潮，当前的计算模式和场景正在发生翻天覆地的变化，不仅对 Java 的发展速度提出了更高要求，也深刻影响着 Java 技术的发展方向。传统的大型企业或互联网应用，正在被云端、容器化应用、模块化的微服务甚至是函数（FaaS， Function-as-a-Service）所替代。</p>
+<p>Java虽然标榜面向对象编程，却毫不顾忌的加入面向接口编程思想，又扯出匿名对象之概念，每增加一个新的东西，对Java的根本所在的面向对象思想的一次冲击。反观Python，抓住面向对象的本质，又能在函数编程思想方面游刃有余。Java对标C/C++，以抛掉内存管理为卖点，却又陷入了JVM优化的噩梦。选择比努力更重要，选择Java的人更需要对它有更清晰的认识。</p>
+<p>Java 需要在新的计算场景下，改进开发效率。这话说的有点笼统，我谈一些自己的体会，Java 代码虽然进行了一些类型推断等改进，更易用的集合 API 等，但仍然给开发者留下了过于刻板、形式主义的印象，这是一个长期的改进方向，但是不得不说Java确实还是越变越优秀了。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -272,21 +343,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -294,118 +365,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/2494561989.html" title="JDK9新特性(二)" target="_blank">https://zouchanglin.cn/2494561989.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">模块化</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">交互式</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2494561989.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/2566926808.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          JDK11新特性
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1000236455.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">JDK9新特性(一)</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#多分辨率图像API"><span class="toc-number">1.</span> <span class="toc-text">多分辨率图像API</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#全新的HTTP客户端"><span class="toc-number">2.</span> <span class="toc-text">全新的HTTP客户端</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Deprecated的相关API"><span class="toc-number">3.</span> <span class="toc-text">Deprecated的相关API</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#智能Java编译工具"><span class="toc-number">4.</span> <span class="toc-text">智能Java编译工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#统一的JVM日志系统"><span class="toc-number">5.</span> <span class="toc-text">统一的JVM日志系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#javadoc的H5支持"><span class="toc-number">6.</span> <span class="toc-text">javadoc的H5支持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Javascript引擎升级：Nashorn"><span class="toc-number">7.</span> <span class="toc-text">Javascript引擎升级：Nashorn</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#java的动态编译器"><span class="toc-number">8.</span> <span class="toc-text">java的动态编译器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#对Java未来的期望"><span class="toc-number">9.</span> <span class="toc-text">对Java未来的期望</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#标准化的JSON-API"><span class="toc-number">9.1.</span> <span class="toc-text">标准化的JSON API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#新的货币-API"><span class="toc-number">9.2.</span> <span class="toc-text">新的货币 API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#面临的其他问题"><span class="toc-number">9.3.</span> <span class="toc-text">面临的其他问题</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -537,10 +689,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -561,15 +709,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -609,15 +761,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -629,11 +781,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -697,10 +849,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -721,7 +869,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -733,7 +889,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -742,14 +902,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -873,19 +1025,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,6 +1038,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

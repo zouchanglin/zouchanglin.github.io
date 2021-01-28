@@ -215,60 +215,110 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-Linux共享文件夹两种方式" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      Linux共享文件夹两种方式
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/37915.html" class="archive-article-date">
+        <time datetime="2018-03-22T11:01:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-22</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.2k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">5分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<h1 id="共享方式一：借助vm-tools"><a href="#共享方式一：借助vm-tools" class="headerlink" title="共享方式一：借助vm-tools"></a>共享方式一：借助vm-tools</h1><p>在桌面新建一个文件夹作为共享文件夹，任意名称均可，接下来在虚拟机中执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装vm-tools工具</span></span><br><span class="line">yum -y install open-vm-tools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂载共享文件夹</span></span><br><span class="line">vmhgfs-fuse .host:/ /mnt/hgfs</span><br></pre></td></tr></table></figure>
+<p>执行完毕后需要在虚拟机软件中添加共享文件夹：</p>
+<p><img src="https://img.zouchanglin.cn/20180322214755.png" alt=""><br>做完上述配置后，需要重启虚拟机：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<p>接下来就OK了，为了排除防火墙干扰，最好直接关闭防火墙：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 关闭防火墙</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"></span><br><span class="line"><span class="comment"># 防火墙禁止开机启动</span></span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.zouchanglin.cn/20180322214849.png" alt=""></p>
+<h1 id="共享方式二：借助SMB"><a href="#共享方式二：借助SMB" class="headerlink" title="共享方式二：借助SMB"></a>共享方式二：借助SMB</h1><p>Samba是在Linux系统上实现SMB协议的一个免费软件，由服务器及客户端程序构成。 SMB(Server Messages Block, 信息服务块)是一种在局域网上共享文件和打印机的一种通信协议， 它为局域网内的不同计算机之间提供文件及打印机等资源的共享服务。 SMB协议是客户机/服务器型协议，客户机通过该协议可以访问服务器上的共享文件系统，打印机及其他资源。 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装samba</span></span><br><span class="line">yum install -y samba</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一个名为root的samba账号，这与Linux用户的root无任何关系</span></span><br><span class="line">smbpasswd -a root</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置密码</span></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次输入密码</span></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动刚才添加的samba账号</span></span><br><span class="line">smbpasswd -e root</span><br></pre></td></tr></table></figure>
+
+<p>关于samba用户的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加 Samba 用户帐号</span></span><br><span class="line">smbpasswd -a sambauser</span><br><span class="line"></span><br><span class="line"><span class="comment"># 禁用 Samba 用户帐号</span></span><br><span class="line">smbpasswd -d sambauser</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用 Samba 用户帐号</span></span><br><span class="line">smbpasswd -e sambauser</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 Samba 用户帐号</span></span><br><span class="line">smbpasswd -x sambauser</span><br></pre></td></tr></table></figure>
+
+<p>修改samba配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先备份一个配置文件</span></span><br><span class="line">cp /etc/samba/smb.conf /etc/samba/smb.conf.back</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先新建一个文件夹作为Linux下的共享文件夹</span></span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">mkdir share-folder</span><br><span class="line">chmod -R 777 share-folder/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑配置文件</span></span><br><span class="line">vim /etc/samba/smb.conf</span><br></pre></td></tr></table></figure>
+
+<p>smb.conf：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># See smb.conf.example for a more detailed config file or</span></span><br><span class="line"><span class="comment"># read the smb.conf manpage.</span></span><br><span class="line"><span class="comment"># Run 'testparm' to verify the config is correct after</span></span><br><span class="line"><span class="comment"># you modified it.</span></span><br><span class="line"></span><br><span class="line"><span class="section">[global]</span></span><br><span class="line">        workgroup = SAMBA</span><br><span class="line">        security = user</span><br><span class="line"></span><br><span class="line">        passdb backend = tdbsam</span><br><span class="line"></span><br><span class="line">        printing = cups</span><br><span class="line">        printcap name = cups</span><br><span class="line">        load printers = yes</span><br><span class="line">        cups options = raw</span><br><span class="line"></span><br><span class="line"><span class="comment">#[homes]</span></span><br><span class="line"><span class="comment">#       comment = Home Directories</span></span><br><span class="line"><span class="comment">#       valid users = %S, %D%w%S</span></span><br><span class="line"><span class="comment">#       browseable = No</span></span><br><span class="line"><span class="comment">#       read only = No</span></span><br><span class="line"><span class="comment">#       inherit acls = Yes</span></span><br><span class="line"></span><br><span class="line"><span class="section">[myshare]</span></span><br><span class="line">        comment = MyShareFolder</span><br><span class="line">        path = /root/share-folder</span><br><span class="line">        writable = yes</span><br><span class="line">        browseable = Yes</span><br><span class="line">        create mask = 0664</span><br><span class="line">        force create mode = 0664</span><br><span class="line">        directory mask = 0775</span><br><span class="line"><span class="section">[printers]</span></span><br><span class="line">        comment = All Printers</span><br><span class="line">        path = /var/tmp</span><br><span class="line">        printable = Yes</span><br><span class="line">        create mask = 0600</span><br><span class="line">        browseable = No</span><br><span class="line"></span><br><span class="line"><span class="section">[print$]</span></span><br><span class="line">        comment = Printer Drivers</span><br><span class="line">        path = /var/lib/samba/drivers</span><br><span class="line">        write list = @printadmin root</span><br><span class="line">        force group = @printadmin</span><br><span class="line">        create mask = 0664</span><br><span class="line">        directory mask = 0775</span><br></pre></td></tr></table></figure>
+
+<p>共享默认会将用户的主目录共享 , 这是不安全的 , 所以将其注释掉了。</p>
+<p>现在启动/停止/重启服务命令都是一致的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动smb服务</span></span><br><span class="line">systemctl start smb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止smb服务</span></span><br><span class="line">systemctl stop smb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启smb服务</span></span><br><span class="line">systemctl restart smb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看smb服务状态</span></span><br><span class="line">systemctl status smb</span><br></pre></td></tr></table></figure>
+
+<p>如果 Windows 下访问 Linux 下共享目录， 提示没有权限：</p>
+<p>1、确保 Linux 下防火墙关闭或者是开放共享目录权限</p>
+<p>2、确保 Samba 服务器配置文件 smb.conf 设置没有问题</p>
+<p>3、确保 setlinux 关闭 , 可以用 setenforce 0 命令执行; 默认 SELinux 禁止网络上对 Samba 服务器上的共享目录进行写操作</p>
+<p><img src="https://img.zouchanglin.cn/20180322214929.png" alt=""></p>
+<p>Samb 还需要开放下面四个端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UDP 137、UDP 138、TCP 139、TCP 445</span><br></pre></td></tr></table></figure>
+
+<h1 id="云服务器文件夹共享"><a href="#云服务器文件夹共享" class="headerlink" title="云服务器文件夹共享"></a>云服务器文件夹共享</h1><p>由于云服务器445端口不开放，所以需要修改服务器端口，也就是smb ports = 4455这一句配置：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># See smb.conf.example for a more detailed config file or</span></span><br><span class="line"><span class="comment"># read the smb.conf manpage.</span></span><br><span class="line"><span class="comment"># Run 'testparm' to verify the config is correct after</span></span><br><span class="line"><span class="comment"># you modified it.</span></span><br><span class="line"></span><br><span class="line"><span class="section">[global]</span></span><br><span class="line">	workgroup = SAMBA</span><br><span class="line">	security = user</span><br><span class="line"></span><br><span class="line">	passdb backend = tdbsam</span><br><span class="line"></span><br><span class="line">	printing = cups</span><br><span class="line">	printcap name = cups</span><br><span class="line">	load printers = yes</span><br><span class="line">	cups options = raw</span><br><span class="line">	smb ports = 4455</span><br><span class="line"><span class="section">[tenent-cloud]</span></span><br><span class="line">        comment = MyShareFolder</span><br><span class="line">        path = /root/tenent-cloud</span><br><span class="line">        writable = yes</span><br><span class="line">        browseable = Yes</span><br><span class="line">        create mask = 0664</span><br><span class="line">        force create mode = 0664</span><br><span class="line">        directory mask = 0775</span><br><span class="line"></span><br><span class="line"><span class="section">[printers]</span></span><br><span class="line">	comment = All Printers</span><br><span class="line">	path = /var/tmp</span><br><span class="line">	printable = Yes</span><br><span class="line">	create mask = 0600</span><br><span class="line">	browseable = No</span><br><span class="line"></span><br><span class="line"><span class="section">[print$]</span></span><br><span class="line">	comment = Printer Drivers</span><br><span class="line">	path = /var/lib/samba/drivers</span><br><span class="line">	write list = @printadmin root</span><br><span class="line">	force group = @printadmin</span><br><span class="line">	create mask = 0664</span><br><span class="line">	directory mask = 0775</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以定义其他端口，我这里选择的端口是4455，需要在云服务器的安全组配置里进出设置开放4455端口。接下来在Windows上配置端口转发，因为Windows默认配置为445，打开管理员powershell：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 配置端口转发</span></span><br><span class="line">netsh interface portproxy add v4tov4 listenport=445 listenaddress=127.0.0.1 connectport=4455 connectaddress=85.80.220.107</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除配置的端口转发</span></span><br><span class="line">netsh interface portproxy delete v4tov4 listenaddress=85.80.220.107 listenport=4455</span><br></pre></td></tr></table></figure>
+
+<p>上面的例子中，85.80.220.107是云服务的地址，4455是云服务的端口，接下来只需要在本地访问127.0.0.1即可访问到云服务器的服务：</p>
+<p><img src="https://img.zouchanglin.cn/20180322215014.png" alt=""></p>
+<p>如果访问到的是本地的共享，那么需要把本地的文件共享服务给关闭（必须禁用，再重启电脑）：</p>
+<p><img src="https://img.zouchanglin.cn/20180322215043.png" alt=""></p>
+<p>这样电脑就等于有一个免费的网盘了。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -278,21 +328,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -300,118 +350,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/37915.html" title="Linux共享文件夹两种方式" target="_blank">https://zouchanglin.cn/37915.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">存储</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">文件下载</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/开发工具//" class="article-tag-list-link color5">开发工具</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/37915.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/2681279307.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          C语言关键字
+        
+      </div>
+    </a>
+  
+  
+    <a href="/3592943501.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">使用服务注册特殊广播接收者</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#共享方式一：借助vm-tools"><span class="toc-number">1.</span> <span class="toc-text">共享方式一：借助vm-tools</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#共享方式二：借助SMB"><span class="toc-number">2.</span> <span class="toc-text">共享方式二：借助SMB</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#云服务器文件夹共享"><span class="toc-number">3.</span> <span class="toc-text">云服务器文件夹共享</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -543,10 +674,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -567,15 +694,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -615,15 +746,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -635,11 +766,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -703,10 +834,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -727,7 +854,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -739,7 +874,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -748,14 +887,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -879,19 +1010,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -900,6 +1023,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -218,60 +218,110 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-Netty服务器编码实战" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      Netty编码实战与Channel生命周期
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/1716304322.html" class="archive-article-date">
+        <time datetime="2020-07-03T01:19:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-03</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.8k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">8分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>本次将搭建一个最简单的Hello Netty服务器，并且通过这个简单的示例了解了Channel的生命周期。最后将基于Netty搭建一个Websocket网页聊天小程序，可以使用户在Web浏览器或者移动端浏览器进行消息的收发，来深入体会一下使用Netty编码NIO服务器是多么便捷。</p>
+<a id="more"></a>
+
+<h1 id="Hello-Netty服务器"><a href="#Hello-Netty服务器" class="headerlink" title="Hello Netty服务器"></a>Hello Netty服务器</h1><ul>
+<li>构建一对主从线程组</li>
+<li>定义服务器启动类</li>
+<li>为服务器设置Channel</li>
+<li>设置处理从线程池的助手类初始化器</li>
+<li>监听启动和关闭服务器</li>
+</ul>
+<h2 id="1、构建主从线程组与服务启动类"><a href="#1、构建主从线程组与服务启动类" class="headerlink" title="1、构建主从线程组与服务启动类"></a>1、构建主从线程组与服务启动类</h2><p>首先新建一个Maven工程，引入Netty的依赖，我引入的依赖如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.netty<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>netty-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.1.50.Final<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/blog/20200726/H4H9BdoUHKUc.png" alt="mark"></p>
+<h2 id="2、设置Channel初始化器"><a href="#2、设置Channel初始化器" class="headerlink" title="2、设置Channel初始化器"></a>2、设置Channel初始化器</h2><p>每一个channel由多个handler共同组成管道(pipeline)</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/IgK44aVns08q.png" alt="mark"></p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/DrTBxEJYqYnS.png" alt="mark"></p>
+<h2 id="3、开始编写自定义的助手类"><a href="#3、开始编写自定义的助手类" class="headerlink" title="3、开始编写自定义的助手类"></a>3、开始编写自定义的助手类</h2><p><img src="https://img.zouchanglin.cn/blog/20200726/uaPhjgqhaORc.png" alt="mark"></p>
+<p>然后接下来启动服务器，通过Postman访问一下<code>http://localhost:8080</code>得到如下结果：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/VBF5pKf3LJtP.png" alt="mark"></p>
+<p>如果直接在浏览器端访问的话会打印两次客户端远程地址，因为浏览器默认还访问了<code>http://localhost:8080/favicon.ico</code>，或者使用在Linux环境下使用curl进行测试也是可以的。</p>
+<h1 id="探究Channel生命周期"><a href="#探究Channel生命周期" class="headerlink" title="探究Channel生命周期"></a>探究Channel生命周期</h1><p>我们通过重写下图所示的方法来研究一下Channel的生命周期（IDEA快捷键 Ctrl + O）：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/JeTuGvsYoEyT.png" alt="mark"></p>
+<p>重写完成之后的CustomHandler如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHandler</span> <span class="keyword">extends</span> <span class="title">SimpleChannelInboundHandler</span>&lt;<span class="title">HttpObject</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, HttpObject msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 获取Channel</span></span><br><span class="line">        Channel channel = ctx.channel();</span><br><span class="line">        <span class="keyword">if</span>(msg <span class="keyword">instanceof</span> HttpRequest) &#123;</span><br><span class="line">            <span class="comment">// 显示客户端的远程地址</span></span><br><span class="line">            System.out.println(channel.remoteAddress());</span><br><span class="line">            <span class="comment">// 数据Copy至缓冲区(定义发送的数据消息)</span></span><br><span class="line">            ByteBuf content = Unpooled.copiedBuffer(<span class="string">"&lt;h1&gt;Hello Netty&lt;/h1&gt;"</span>, CharsetUtil.UTF_8);</span><br><span class="line">            <span class="comment">// 构建一个Http Response</span></span><br><span class="line">            FullHttpResponse response = <span class="keyword">new</span> DefaultFullHttpResponse(</span><br><span class="line">                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);</span><br><span class="line">            <span class="comment">// 为响应增加一个数据类型和长度</span></span><br><span class="line">            response.headers().set(HttpHeaderNames.CONTENT_TYPE, <span class="string">"text.plain"</span>);</span><br><span class="line">            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());</span><br><span class="line">            <span class="comment">// 把响应刷到客户端</span></span><br><span class="line">            ctx.writeAndFlush(response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRegistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-注册"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelRegistered(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelUnregistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-移除"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelUnregistered(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-活跃"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelActive(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-不活跃（断开了）"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelInactive(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelReadComplete</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-读取数据完毕"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelReadComplete(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">userEventTriggered</span><span class="params">(ChannelHandlerContext ctx, Object evt)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"用户事件触发"</span>);</span><br><span class="line">        <span class="keyword">super</span>.userEventTriggered(ctx, evt);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelWritabilityChanged</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Channel-可写更改"</span>);</span><br><span class="line">        <span class="keyword">super</span>.channelWritabilityChanged(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx, Throwable cause)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"捕获到异常"</span>);</span><br><span class="line">        <span class="keyword">super</span>.exceptionCaught(ctx, cause);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handlerAdded</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"助手类添加"</span>);</span><br><span class="line">        <span class="keyword">super</span>.handlerAdded(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handlerRemoved</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"助手类移除"</span>);</span><br><span class="line">        <span class="keyword">super</span>.handlerRemoved(ctx);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过Curl访问控制台打印如下：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/UF8YPE0D0uUd.png" alt="mark"></p>
+<p>为什么要用CURL而不是浏览器或者PostMan呢？因为我们使用了HTTP1.1的版本，支持长连接，而且默认是开启状态，所以看不到Channel不活跃断开的状态，所以才使用CURL来访问。</p>
+<h1 id="网页版的WebSocket聊天室"><a href="#网页版的WebSocket聊天室" class="headerlink" title="网页版的WebSocket聊天室"></a>网页版的WebSocket聊天室</h1><h2 id="1、Netty-服务器编码"><a href="#1、Netty-服务器编码" class="headerlink" title="1、Netty 服务器编码"></a>1、Netty 服务器编码</h2><p>Netty 服务器启动类WSServe.java如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.netty.bootstrap.ServerBootstrap;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelFuture;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.EventLoopGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.nio.NioEventLoopGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.socket.nio.NioServerSocketChannel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WSServer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        EventLoopGroup bossGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">        EventLoopGroup workerGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            ServerBootstrap serverBootstrap = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">            serverBootstrap.group(bossGroup, workerGroup)</span><br><span class="line">                    .channel(NioServerSocketChannel<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">                    .<span class="title">childHandler</span>(<span class="title">new</span> <span class="title">WSServerInitializer</span>())</span>;</span><br><span class="line"></span><br><span class="line">            ChannelFuture channelFuture = serverBootstrap.bind(<span class="number">8080</span>).sync();</span><br><span class="line">            channelFuture.channel().closeFuture().sync();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            bossGroup.shutdownGracefully();</span><br><span class="line">            workerGroup.shutdownGracefully();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来是Channel初始化器WSServerInitializer.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelInitializer;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelPipeline;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.socket.SocketChannel;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.http.HttpObjectAggregator;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.http.HttpServerCodec;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.stream.ChunkedWriteHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WSServerInitializer</span> <span class="keyword">extends</span> <span class="title">ChannelInitializer</span>&lt;<span class="title">SocketChannel</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel socketChannel)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ChannelPipeline pipeline = socketChannel.pipeline();</span><br><span class="line">        <span class="comment">// WebSocket基于Http协议，添加Http编解码器</span></span><br><span class="line">        pipeline.addLast(<span class="keyword">new</span> HttpServerCodec());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 添加对写大数据流的支持</span></span><br><span class="line">        pipeline.addLast(<span class="keyword">new</span> ChunkedWriteHandler());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对Http Message进行聚合，聚合成FullHttpRequest或FullHttpResponse</span></span><br><span class="line">        <span class="comment">// 几乎在Netty中的编程都会使用到此Handler</span></span><br><span class="line">        pipeline.addLast(<span class="keyword">new</span> HttpObjectAggregator(<span class="number">1024</span> * <span class="number">64</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//-------------------- 以上是用于支持HTTP协议 ----------------------</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// WebSocket服务器处理的协议，并且指定给客户端链接访问的路由</span></span><br><span class="line">        <span class="comment">// 使用此Handler会直接帮你处理握手动作（Close、Ping、Pong）</span></span><br><span class="line">        <span class="comment">// 对于WebSocket，都是以帧进行传输的，不同数据对应的帧也不同</span></span><br><span class="line">        pipeline.addLast(<span class="keyword">new</span> WebSocketServerProtocolHandler(<span class="string">"/ws"</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 自定义的Handler</span></span><br><span class="line">        pipeline.addLast(<span class="keyword">new</span> ChatHandler());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后是自定义的Handler，ChatHandler.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.netty.channel.Channel;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.ChannelHandlerContext;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.SimpleChannelInboundHandler;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.group.ChannelGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.channel.group.DefaultChannelGroup;</span><br><span class="line"><span class="keyword">import</span> io.netty.handler.codec.http.websocketx.TextWebSocketFrame;</span><br><span class="line"><span class="keyword">import</span> io.netty.util.concurrent.GlobalEventExecutor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对于WebSocket，都是以帧进行传输的，不同数据对应的帧也不同 -&gt; TextWebSocketFrame</span></span><br><span class="line"><span class="comment">// TextWebSocketFrame是WebSocket专门用于处理文本的对象，Frame是消息的载体</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChatHandler</span> <span class="keyword">extends</span> <span class="title">SimpleChannelInboundHandler</span>&lt;<span class="title">TextWebSocketFrame</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用于记录和管理所有客户端的Channel</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ChannelGroup clients = <span class="keyword">new</span> DefaultChannelGroup(GlobalEventExecutor.INSTANCE);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, TextWebSocketFrame msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 从客户端获取到的消息内容</span></span><br><span class="line">        String content = msg.text();</span><br><span class="line">        System.out.println(<span class="string">"接收到的数据："</span> + content);</span><br><span class="line">        String message = <span class="string">"[服务器收到消息] "</span> + LocalDateTime.now() + <span class="string">"消息为:"</span> + content;</span><br><span class="line">        <span class="keyword">for</span>(Channel channel: clients)&#123;</span><br><span class="line">            <span class="comment">//channel.writeAndFlush(content); ERROR 不能直接传String，而是TextWebSocketFrame载体</span></span><br><span class="line">            channel.writeAndFlush(<span class="keyword">new</span> TextWebSocketFrame(message));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 下面这种方式与For循环一致</span></span><br><span class="line">        <span class="comment">//clients.writeAndFlush(new TextWebSocketFrame(message));</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handlerAdded</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Channel channel = ctx.channel();</span><br><span class="line">        <span class="comment">// 当客户端打开链接后，获取客户端的Channel并且添加Channel至ChannelGroup中进行管理</span></span><br><span class="line">        clients.add(channel);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handlerRemoved</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 当触发handlerRemoved,ChannelGroup会自动移除客户端的Channel</span></span><br><span class="line">        System.out.println(<span class="string">"客户端断开, Channel对应的长ID："</span> + ctx.channel().id().asLongText());</span><br><span class="line">        System.out.println(<span class="string">"客户端断开, Channel对应的短ID："</span> + ctx.channel().id().asShortText());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、前端JavaScript编码"><a href="#2、前端JavaScript编码" class="headerlink" title="2、前端JavaScript编码"></a>2、前端JavaScript编码</h2><p>下面是前端需要用到的WebSocket API：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200726/IW2Va2AgWWin.png" alt="mark"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span><span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span>&gt;</span>发送消息<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">id</span>=<span class="string">"msgContent"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"button"</span> <span class="attr">onclick</span>=<span class="string">"CHAT.chat()"</span> <span class="attr">value</span>=<span class="string">"发送"</span>/&gt;</span></span><br><span class="line">		</span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span>&gt;</span>接收消息<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"receiveMsg"</span> <span class="attr">style</span>=<span class="string">"background-color: darkturquoise;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"application/javascript"</span>&gt;</span></span><br><span class="line"><span class="javascript">			<span class="built_in">window</span>.CHAT = &#123;</span></span><br><span class="line"><span class="actionscript">				socket: <span class="literal">null</span>,</span></span><br><span class="line"><span class="actionscript">				init: <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="javascript">					<span class="keyword">if</span>(<span class="built_in">window</span>.WebSocket)&#123;</span></span><br><span class="line"><span class="actionscript">						CHAT.socket = <span class="keyword">new</span> WebSocket(<span class="string">"ws://127.0.0.1:8080/ws"</span>);</span></span><br><span class="line"><span class="actionscript">						CHAT.socket.onopen = <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="javascript">							<span class="built_in">console</span>.log(<span class="string">'连接建立成功...'</span>);</span></span><br><span class="line">						&#125;,</span><br><span class="line"><span class="actionscript">						CHAT.socket.onclose = <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="javascript">							<span class="built_in">console</span>.log(<span class="string">'连接建立关闭...'</span>);</span></span><br><span class="line">						&#125;,</span><br><span class="line"><span class="actionscript">						CHAT.socket.onerror = <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="javascript">							<span class="built_in">console</span>.log(<span class="string">'连接建立发生错误...'</span>);</span></span><br><span class="line">						&#125;,</span><br><span class="line"><span class="actionscript">						CHAT.socket.onmessage = <span class="function"><span class="keyword">function</span><span class="params">(e)</span></span>&#123;</span></span><br><span class="line"><span class="javascript">							<span class="built_in">console</span>.log(<span class="string">'收到消息...'</span> + e.data);</span></span><br><span class="line"><span class="javascript">							<span class="keyword">var</span> receiveMsg = <span class="built_in">document</span>.getElementById(<span class="string">'receiveMsg'</span>);</span></span><br><span class="line"><span class="actionscript">							<span class="keyword">var</span> html = receiveMsg.innerHTML;</span></span><br><span class="line"><span class="actionscript">							receiveMsg.innerHTML = html + <span class="string">"&lt;br/&gt;"</span> + e.data;</span></span><br><span class="line">						&#125;</span><br><span class="line"><span class="actionscript">					&#125;<span class="keyword">else</span>&#123;</span></span><br><span class="line"><span class="actionscript">						alert(<span class="string">'不支持WebSocket'</span>);</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125;,</span><br><span class="line"><span class="actionscript">				chat: <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span></span><br><span class="line"><span class="javascript">					<span class="keyword">var</span> msg = <span class="built_in">document</span>.getElementById(<span class="string">"msgContent"</span>);</span></span><br><span class="line">					CHAT.socket.send(msg.value);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			CHAT.init();</span><br><span class="line">		<span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3、效果展示"><a href="#3、效果展示" class="headerlink" title="3、效果展示"></a>3、效果展示</h2><p><img src="https://img.zouchanglin.cn/20200726090838.gif" alt=""></p>
+<h1 id="Netty编码的小总结"><a href="#Netty编码的小总结" class="headerlink" title="Netty编码的小总结"></a>Netty编码的小总结</h1><p>首先是流程，先新建主从线程组，编写启动类，因为Netty官方推荐的模式也是主从线程模型。接下来是编写Channel初始化器，继承自ChannelInitializer，Channel注册后会执行里面的相应的初始化方法，通过Channel获取管道，然后添加需要的Handler，最后添加自己的自定义的Handler来处理请求。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -281,21 +331,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -303,118 +353,195 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/1716304322.html" title="Netty编码实战与Channel生命周期" target="_blank">https://zouchanglin.cn/1716304322.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">NIO</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RPC</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/高性能网络//" class="article-tag-list-link color1">高性能网络</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1716304322.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/3887185772.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          基于Netty实现PRC框架
+        
+      </div>
+    </a>
+  
+  
+    <a href="/329748250.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Netty的Reactor线程模型</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Hello-Netty服务器"><span class="toc-number">1.</span> <span class="toc-text">Hello Netty服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、构建主从线程组与服务启动类"><span class="toc-number">1.1.</span> <span class="toc-text">1、构建主从线程组与服务启动类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、设置Channel初始化器"><span class="toc-number">1.2.</span> <span class="toc-text">2、设置Channel初始化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、开始编写自定义的助手类"><span class="toc-number">1.3.</span> <span class="toc-text">3、开始编写自定义的助手类</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#探究Channel生命周期"><span class="toc-number">2.</span> <span class="toc-text">探究Channel生命周期</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#网页版的WebSocket聊天室"><span class="toc-number">3.</span> <span class="toc-text">网页版的WebSocket聊天室</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、Netty-服务器编码"><span class="toc-number">3.1.</span> <span class="toc-text">1、Netty 服务器编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、前端JavaScript编码"><span class="toc-number">3.2.</span> <span class="toc-text">2、前端JavaScript编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、效果展示"><span class="toc-number">3.3.</span> <span class="toc-text">3、效果展示</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Netty编码的小总结"><span class="toc-number">4.</span> <span class="toc-text">Netty编码的小总结</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -546,10 +673,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -570,15 +693,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -618,15 +745,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -638,11 +765,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -706,10 +833,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -730,7 +853,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -742,7 +873,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -751,14 +886,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -882,19 +1009,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -903,6 +1022,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

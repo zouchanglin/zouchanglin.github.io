@@ -212,60 +212,322 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-高效易用的IO库【Okio应用篇】" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      高效易用的IO库【Okio应用篇】
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/91228.html" class="archive-article-date">
+        <time datetime="2020-12-12T15:58:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-12-12</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">5k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">20分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>OkHttp是Android中包含的功能强大的HTTP客户端，此框架平时用的还挺多的，但是今天的主角是OkHttp的低层IO库——Okio，Okio是对java.io和java.nio的补充，使访问、存储和处理数据变得更加容易。 这里是它的官网：<a href="https://square.github.io/okio/" target="_blank" rel="noopener">https://square.github.io/okio/</a> ， 最开始它作为OKHttp的一个组件，现在可以独立使用它来解决一些IO问题，接下来的内容来自对Okio官网的文档以及一些代码示例。</p>
+<a id="more"></a>
+
+<h1 id="ByteString与Buffer"><a href="#ByteString与Buffer" class="headerlink" title="ByteString与Buffer"></a>ByteString与Buffer</h1><p>Okio是围绕这两种类型构建的，它们将大量功能集成到了简单的API中：</p>
+<p><strong>ByteString</strong> 是一个不可变的字节序列，String的基础是字符，而ByteString就像是String的兄弟一样，它可以轻松将二进制数据视为某些值。这个类非常聪明：它知道如何对自己进行十六进制，base64和UTF-8编码和解码。</p>
+<p><strong>Buffer</strong> 是可变的字节序列。与ArrayList一样，无需预先设置缓冲区大小。以队列的方式读取和写入缓冲区：将数据写入末尾，然后从队列头部读取。没有必要去管理读取位置，范围或容量。 </p>
+<p>在内部，ByteString和Buffer做一些巧妙的事情来节省CPU和内存。 如果将UTF-8字符串编码为ByteString，它会缓存对该字符串的引用，以便以后进行解码时无需做任何工作。</p>
+<p>缓冲区被实现为段的链表。当您将数据从一个缓冲区移到另一个缓冲区时，它会重新分配段的所有权，而不是跨缓冲区复制数据。这种方法对多线程程序特别有用：与网络请求相关的线程可以与工作线程交换数据，而无需任何复制或多余的操作。</p>
+<h1 id="Source与Sink"><a href="#Source与Sink" class="headerlink" title="Source与Sink"></a>Source与Sink</h1><p>java.io中的一个优雅的设计是如何对流进行分层来处理加密和压缩等转换。同样的Okio有自己的stream类型：Source和Sink，分别类似于java的Inputstream和Outputstream，但是有一些关键区别：</p>
+<ul>
+<li>超时（Timeout）：流提供了对底层I/O超时机制的访问。与java.io的socket字节流不同，read()和write()方法都给予超时机制。</li>
+<li>实现简单： Source只声明了三个方法：read()、close()和timeout()。没有像available()或单字节读取这样会导致性能下降问题。</li>
+<li>使用方便：虽然source和sink中只有三个方法需要实现，但是调用方可以实现Bufferedsource和Bufferedsink接口，这两个接口提供了丰富API能够满足你所需要的一切。</li>
+<li>字节流和字符流的处理没有直观的区别：因为它们都是数据。你可以以字节、UTF-8字符串、big-endian的32位整数、little-endian的短整数等任何你想要的形式进行读写；再也不需要InputStreamReader！</li>
+<li>测试简单： Buffer类同时实现了BufferedSource和BufferedSink，因此测试代码简单明了。</li>
+</ul>
+<p>Sources 和 Sinks分别与InputStream和OutputStream交互操作。你可以将任何Source看做InputStream ，也可以将任何InputStream当做Source。对于Sink和Outputstream也是如此。</p>
+<h1 id="Okio的使用示例"><a href="#Okio的使用示例" class="headerlink" title="Okio的使用示例"></a>Okio的使用示例</h1><p>这是它的Maven方式依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.squareup.okio<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>okio<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="1、逐行读取文本"><a href="#1、逐行读取文本" class="headerlink" title="1、逐行读取文本"></a>1、逐行读取文本</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">readLines</span><span class="params">(File file)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> (Source fileSource = Okio.source(file);</span><br><span class="line">         BufferedSource bufferedSource = Okio.buffer(fileSource)) &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            String line = bufferedSource.readUtf8Line();</span><br><span class="line">            <span class="keyword">if</span> (line == <span class="keyword">null</span>) <span class="keyword">break</span>;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中readUtf8Line()这个API读取所有数据，直到下一行分隔符 \n、\r\n或文件末尾。它以字符串形式返回该数据，并在最后省略定界符。当遇到空行时，该方法将返回一个空字符串。 如果没有更多要读取的数据，它将返回null，所以使用for来代替while(true)也是OK的，这样的写法会让程序更加紧凑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">readLines</span><span class="params">(File file)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> (BufferedSource source = Okio.buffer(Okio.source(file))) &#123;</span><br><span class="line">        <span class="keyword">for</span> (String line; (line = source.readUtf8Line()) != <span class="keyword">null</span>; ) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、将字符串写入文本文件"><a href="#2、将字符串写入文本文件" class="headerlink" title="2、将字符串写入文本文件"></a>2、将字符串写入文本文件</h2><p>上面我们使用了Source和BufferedSource来读取文件。在写入文件时，我们使用一个Sink和一个BufferedSink。他们有着异曲同工之处：功能更强大的API和更高的性能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeToFile</span><span class="params">(File file)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> (Sink fileSink = Okio.sink(file);</span><br><span class="line">         BufferedSink bufferedSink = Okio.buffer(fileSink)) &#123;</span><br><span class="line">        bufferedSink.writeUtf8(<span class="string">"Hello"</span>);</span><br><span class="line">        bufferedSink.writeUtf8(<span class="string">"\n"</span>);</span><br><span class="line">        bufferedSink.writeAll(Okio.source(<span class="keyword">new</span> File(<span class="string">"my.txt"</span>)));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、UTF-8编码"><a href="#3、UTF-8编码" class="headerlink" title="3、UTF-8编码"></a>3、UTF-8编码</h2><p>在以上API中，可以看到Okio非常喜欢UTF-8。早期的计算机系统遇到了许多不兼容的字符编码：ISO-8859-1，ASCII，EBCDIC等。编写支持多种字符集的软件太糟糕了，我们甚至没有表情符号！今天，我们很幸运，全世界各地都已经在UTF-8上实现了标准化，而在遗留系统中很少使用其他字符集。</p>
+<p>如果你需要其他字符集，则可以使用readString()和writeString()。 这些方法要求传入指定字符集的参数。 否则，可能会意外地创建只能由本地计算机读取的数据，大多数程序应该仅使用writeUtf8()这类方法。</p>
+<p>尽管每当我们在I/O中读写字符串时都使用UTF-8，但当它们在内存中时，Java字符串会使用过时的字符编码UTF-16。这是一种错误的编码方式，因为它对大多数字符使用16位字符，但有些字符不合适。 特别是，大多数表情符号使用两个Java字符。这是有问题的，因为String.length()返回一个令人惊讶的结果：UTF-16字符数而不是字体原本的字符数量：</p>
+<p><img src="https://img.zouchanglin.cn/20201212165536.png-zouchanglin.cn" alt=""></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">"Café \uD83C\uDF69"</span>;</span><br><span class="line">String s2 = <span class="string">"Café \uD83C\uDF69"</span>;</span><br><span class="line">System.out.println(s.length());</span><br><span class="line">System.out.println(s2.length());</span><br></pre></td></tr></table></figure>
+
+<p>在大多数情况下，Okio可以让你忽略这些问题并专注于数据。但是当你需要它们时，可以使用方便的API处理低级UTF-8字符串。使用Utf8.size()来计算将字符串编码为UTF-8所需的字节数（但是并不会真正去做一次编码操作）。这在诸如协议缓冲区中处理固定长度前缀的时候非常方便。</p>
+<p>使用BufferedSource.readUtf8CodePoint()读取一个Codepoint，并使BufferedSink.writeUtf8CodePoint()写入一个Codepoint。</p>
+<h2 id="4、序列化和反序列化"><a href="#4、序列化和反序列化" class="headerlink" title="4、序列化和反序列化"></a>4、序列化和反序列化</h2><p>Okio喜欢测试。该库本身已经过严格的测试，我们发现一种非常有用的模式是”黄金价值”测试，此类测试的目的是确认当前程序可以安全地解码使用程序的早期版本编码的数据。</p>
+<p>我们将通过使用Java序列化对值进行编码来说明这一点。尽管我们必须否认Java序列化是一个糟糕的编码系统，并且大多数程序应该更喜欢JSON或protobuf之类的其他格式！无论如何，这是一个获取对象，对其进行序列化并以ByteString返回结果的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ByteString <span class="title">serialize</span><span class="params">(Object o)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">  Buffer buffer = <span class="keyword">new</span> Buffer();</span><br><span class="line">  <span class="keyword">try</span> (ObjectOutputStream objectOut = <span class="keyword">new</span> ObjectOutputStream(buffer.outputStream())) &#123;</span><br><span class="line">    objectOut.writeObject(o);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> buffer.readByteString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用Buffer对象代替Java的ByteArrayOutputstream，然后从buffer中获得输出流对象，并通过ObjectOutputStream写入对象到buffer缓冲区当中，当你向Buffer中写数据时，总是会写到缓冲区的末尾。最后，通过buffer对象的readByteString()从缓冲区读取一个ByteString对象，这会从缓冲区的头部开始读取，readByteString()方法可以指定要读取的字节数，如果不指定，则读取全部内容。 </p>
+<p>我们利用上面的方法将一个对象进行序列化，并得到的<code>ByteString</code>对象按照<code>base64</code>格式进行输出： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Point point = <span class="keyword">new</span> Point(<span class="number">8</span>, <span class="number">15</span>);</span><br><span class="line">ByteString pointBytes = serialize(point);</span><br><span class="line">System.out.println(pointBytes.base64());</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rO0ABXNyAA5qYXZhLmF3dC5Qb2ludLbEinI0fsgmAgACSQABeEkAAXl4cAAAAAgAAAAP</span><br></pre></td></tr></table></figure>
+
+<p>Okio将这个字符串称之为Golden Value，接下来，我们尝试将这个字符串（Golden Value）反序列化为一个Point对象，首先转回ByteString对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Point point = <span class="keyword">new</span> Point(<span class="number">8</span>, <span class="number">15</span>);</span><br><span class="line">    ByteString pointBytes = <span class="keyword">new</span> App().serialize(point);</span><br><span class="line">    String base64 = pointBytes.base64();</span><br><span class="line">    System.out.println(base64);</span><br><span class="line"></span><br><span class="line">    ByteString byteString = ByteString.decodeBase64(base64);</span><br><span class="line">    Point other = (Point) <span class="keyword">new</span> App().deserialize(byteString);</span><br><span class="line">    System.out.println(other.equals(point)); <span class="comment">// true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">deserialize</span><span class="params">(ByteString byteString)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException </span>&#123;</span><br><span class="line">    Buffer buffer = <span class="keyword">new</span> Buffer();</span><br><span class="line">    buffer.write(byteString);</span><br><span class="line">    <span class="keyword">try</span> (ObjectInputStream objectIn = <span class="keyword">new</span> ObjectInputStream(buffer.inputStream())) &#123;</span><br><span class="line">        Object result = objectIn.readObject();</span><br><span class="line">        <span class="keyword">if</span> (objectIn.read() != -<span class="number">1</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Unconsumed bytes in stream"</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> ByteString <span class="title">serialize</span><span class="params">(Object o)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    Buffer buffer = <span class="keyword">new</span> Buffer();</span><br><span class="line">    <span class="keyword">try</span> (ObjectOutputStream objectOut = <span class="keyword">new</span> ObjectOutputStream(buffer.outputStream())) &#123;</span><br><span class="line">        objectOut.writeObject(o);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> buffer.readByteString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201212172237.png-zouchanglin.cn" alt=""></p>
+<p>这样我们可以在不破坏兼容性的情况下更改对象的序列化方式。</p>
+<p>这个序列化与Java原生的序列化有一个明显的区别就是GodenValue可以在不同客户端之间兼容（只要序列化和反序列化的Class是相同的）。什么意思呢，比如我在PC端使用Okio序列化一个User对象生成的GodenValue字符串，这个字符串你拿到手机端照样可以反序列化出来User对象。</p>
+<h2 id="5、将字节流写入文件"><a href="#5、将字节流写入文件" class="headerlink" title="5、将字节流写入文件"></a>5、将字节流写入文件</h2><p>编码二进制文件与编码文本文件没有什么不同。Okio使用相同的BufferedSink和BufferedSource字节。这对于同时包含字节和字符数据的二进制格式非常方便。写入二进制数据比写入文本更危险，因为如果你犯了错误，通常很难诊断，避免这样的错误需要注意以下几点：</p>
+<ul>
+<li>每个字段的宽度：即字节的数量。Okio没有释放部分字节的机制。如果你需要的话，需要自己在写操作之前对字节进行shift和mask运算。</li>
+<li>每个字段的字节序：所有多字节的字段都具有结束符：字节的顺序是从最高位到最低位（大字节 big endian），还是从最低位到最高位（小字节 little endian）。Okio中针对小字节排序的方法都带有Le的后缀；而没有后缀的方法默认是大字节排序的。</li>
+<li>有符号和无符号： Java没有无符号的基础类型（除了char！）因此，在应用程序层经常会遇到这种情况。为方便使用，Okio的writeByte() 和 writeShort()方法可以接受int类型。你可以直接传递一个无符号字节像255，Okio会做正确的处理。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>宽度</th>
+<th>字节排序</th>
+<th>值</th>
+<th>编码后的值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>writeByte</td>
+<td>1</td>
+<td></td>
+<td>3</td>
+<td><code>03</code></td>
+</tr>
+<tr>
+<td>writeShort</td>
+<td>2</td>
+<td>big</td>
+<td>3</td>
+<td><code>00 03</code></td>
+</tr>
+<tr>
+<td>writeInt</td>
+<td>4</td>
+<td>big</td>
+<td>3</td>
+<td><code>00 00 00 03</code></td>
+</tr>
+<tr>
+<td>writeLong</td>
+<td>8</td>
+<td>big</td>
+<td>3</td>
+<td><code>00 00 00 00 00 00 00 03</code></td>
+</tr>
+<tr>
+<td>writeShortLe</td>
+<td>2</td>
+<td>little</td>
+<td>3</td>
+<td><code>03 00</code></td>
+</tr>
+<tr>
+<td>writeIntLe</td>
+<td>4</td>
+<td>little</td>
+<td>3</td>
+<td><code>03 00 00 00</code></td>
+</tr>
+<tr>
+<td>writeLongLe</td>
+<td>8</td>
+<td>little</td>
+<td>3</td>
+<td><code>03 00 00 00 00 00 00 00</code></td>
+</tr>
+<tr>
+<td>writeByte</td>
+<td>1</td>
+<td></td>
+<td>Byte.MAX_VALUE</td>
+<td><code>7f</code></td>
+</tr>
+<tr>
+<td>writeShort</td>
+<td>2</td>
+<td>big</td>
+<td>Short.MAX_VALUE</td>
+<td><code>7f ff</code></td>
+</tr>
+<tr>
+<td>writeInt</td>
+<td>4</td>
+<td>big</td>
+<td>Int.MAX_VALUE</td>
+<td><code>7f ff ff ff</code></td>
+</tr>
+<tr>
+<td>writeLong</td>
+<td>8</td>
+<td>big</td>
+<td>Long.MAX_VALUE</td>
+<td><code>7f ff ff ff ff ff ff ff</code></td>
+</tr>
+<tr>
+<td>writeShortLe</td>
+<td>2</td>
+<td>little</td>
+<td>Short.MAX_VALUE</td>
+<td><code>ff 7f</code></td>
+</tr>
+<tr>
+<td>writeIntLe</td>
+<td>4</td>
+<td>little</td>
+<td>Int.MAX_VALUE</td>
+<td><code>ff ff ff 7f</code></td>
+</tr>
+<tr>
+<td>writeLongLe</td>
+<td>8</td>
+<td>little</td>
+<td>Long.MAX_VALUE</td>
+<td><code>ff ff ff ff ff ff ff 7f</code></td>
+</tr>
+</tbody></table>
+<p>下面的示例代码是按照 <a href="https://en.wikipedia.org/wiki/BMP_file_format" target="_blank" rel="noopener">BMP文件格式</a> 对文件进行编码： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">encode</span><span class="params">(Bitmap bitmap, BufferedSink sink)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> height = bitmap.height();</span><br><span class="line">  <span class="keyword">int</span> width = bitmap.width();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> bytesPerPixel = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">int</span> rowByteCountWithoutPadding = (bytesPerPixel * width);</span><br><span class="line">  <span class="keyword">int</span> rowByteCount = ((rowByteCountWithoutPadding + <span class="number">3</span>) / <span class="number">4</span>) * <span class="number">4</span>;</span><br><span class="line">  <span class="keyword">int</span> pixelDataSize = rowByteCount * height;</span><br><span class="line">  <span class="keyword">int</span> bmpHeaderSize = <span class="number">14</span>;</span><br><span class="line">  <span class="keyword">int</span> dibHeaderSize = <span class="number">40</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// BMP Header</span></span><br><span class="line">  sink.writeUtf8(<span class="string">"BM"</span>); <span class="comment">// ID.</span></span><br><span class="line">  sink.writeIntLe(bmpHeaderSize + dibHeaderSize + pixelDataSize); <span class="comment">// File size.</span></span><br><span class="line">  sink.writeShortLe(<span class="number">0</span>); <span class="comment">// Unused.</span></span><br><span class="line">  sink.writeShortLe(<span class="number">0</span>); <span class="comment">// Unused.</span></span><br><span class="line">  sink.writeIntLe(bmpHeaderSize + dibHeaderSize); <span class="comment">// Offset of pixel data.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// DIB Header</span></span><br><span class="line">  sink.writeIntLe(dibHeaderSize);</span><br><span class="line">  sink.writeIntLe(width);</span><br><span class="line">  sink.writeIntLe(height);</span><br><span class="line">  sink.writeShortLe(<span class="number">1</span>);  <span class="comment">// Color plane count.</span></span><br><span class="line">  sink.writeShortLe(bytesPerPixel * Byte.SIZE);</span><br><span class="line">  sink.writeIntLe(<span class="number">0</span>);    <span class="comment">// No compression.</span></span><br><span class="line">  sink.writeIntLe(<span class="number">16</span>);   <span class="comment">// Size of bitmap data including padding.</span></span><br><span class="line">  sink.writeIntLe(<span class="number">2835</span>); <span class="comment">// Horizontal print resolution in pixels/meter. (72 dpi).</span></span><br><span class="line">  sink.writeIntLe(<span class="number">2835</span>); <span class="comment">// Vertical print resolution in pixels/meter. (72 dpi).</span></span><br><span class="line">  sink.writeIntLe(<span class="number">0</span>);    <span class="comment">// Palette color count.</span></span><br><span class="line">  sink.writeIntLe(<span class="number">0</span>);    <span class="comment">// 0 important colors.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Pixel data.</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> y = height - <span class="number">1</span>; y &gt;= <span class="number">0</span>; y--) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> x = <span class="number">0</span>; x &lt; width; x++) &#123;</span><br><span class="line">      sink.writeByte(bitmap.blue(x, y));</span><br><span class="line">      sink.writeByte(bitmap.green(x, y));</span><br><span class="line">      sink.writeByte(bitmap.red(x, y));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Padding for 4-byte alignment.</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> p = rowByteCountWithoutPadding; p &lt; rowByteCount; p++) &#123;</span><br><span class="line">      sink.writeByte(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码中对文件按照BMP的格式写入二进制数据，这会生成一个bmp格式的图片文件，BMP格式要求每行以4字节开始，所以代码中加了很多0来做字节对齐。</p>
+<p>编码其他二进制的格式非常相似。一些值得注意的点：</p>
+<ul>
+<li>使用Golden values编写测试，对于确认程序的预期结果可以使调试更容易。</li>
+<li>使用<code>Utf8.size()</code>方法计算编码字符串的字节长度。这对于<code>length-prefixed</code>格式必不可少。</li>
+<li>使用<code>Float.floatToIntBits()</code>和<code>Double.doubleToLongBits()</code>来编码浮点型的数值。</li>
+</ul>
+<h2 id="6、使用Socket进行通信"><a href="#6、使用Socket进行通信" class="headerlink" title="6、使用Socket进行通信"></a>6、使用Socket进行通信</h2><p>通过网络发送和接收数据有点像文件的读写。Okio使用BufferedSink对输出进行编码，使用BufferedSource对输入进行解码。与文件一样，网络协议可以是文本、二进制或两者的混合。但是网络和文件系统之间也有一些实质性的区别。</p>
+<p>当你有一个文件对象，你只可以选择读或者写，但是网络与之不同的是可以同时进行读和写！在有一些协议中，处理这个问题的方式是轮流的进行：写入请求、读取响应、重复以上操作。你可以用一个单线程来实现这种协议。而在其他协议中，你可以同时进行读写。通常你需要一个专门的线程来读取数据。对于写入数据，你可以使用专门线程或者使用synchronized，以便多个线程可以共享一个Sink。Okio的流在并发情况下使用是不安全的。</p>
+<p>对于Okio的Sinks缓冲区，必须手动调用flush()来传输数据，以最小化I/O操作。通常，面向消息的协议会在每条消息之后刷新。注意，当缓冲数据超过某个阈值时，Okio将自动刷新。但这只是为了节省内存，不能依赖它进行协议交互。</p>
+<p>Okio是基于java.io.socket建立连接的，当你通过socket创建服务器或客户端后，可以使用Okio.source(Socket)进行读取，使用Okio.sink(Socket)进行写入，这些API也同样适用于SSLSocket。</p>
+<p>在任意线程中想要取消socket连接可以调用Socket.close()方法，这将导致sources 和 sinks 对象立即抛出IOException而失败。Okio中可以为所有的socket操作配置超时限制，但并不需要你去调用Socket的方法来设置超时：Source和Sink会提供超时的接口，即使对流进行了装饰，此API仍然有效。</p>
+<p>Okio官方Demo中编写了一个 <a href="https://github.com/square/okio/blob/master/samples/src/main/java/okio/samples/SocksProxyServer.java" target="_blank" rel="noopener">简单的Socket代理服务</a> 来示例完整的网络交互操作，下面是其中的部分代码截取：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleSocket</span><span class="params">(<span class="keyword">final</span> Socket fromSocket)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> BufferedSource fromSource = Okio.buffer(Okio.source(fromSocket));</span><br><span class="line">        <span class="keyword">final</span> BufferedSink fromSink = Okio.buffer(Okio.sink(fromSocket));</span><br><span class="line">        <span class="comment">//..............</span></span><br><span class="line">        <span class="comment">//..................</span></span><br><span class="line">    &#125;  <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        .....</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到通过Socket创建sources 和 sinks的方式与通过文件创建的方式一样，都是先通过Okio.source()拿到Socket对应的Source或Sink对象，然后通过Okio.buffer()获取对应的装饰者缓冲对象。在Okio中，一旦你为Socket对象创建了Source 或者 Sink，那么你就不能再使用InputStream或OutputStream了。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Buffer buffer = <span class="keyword">new</span> Buffer();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">long</span> byteCount; (byteCount = source.read(buffer, <span class="number">8192L</span>)) != -<span class="number">1</span>; ) &#123;</span><br><span class="line">  sink.write(buffer, byteCount);</span><br><span class="line">  sink.flush();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码中，循环从source中读取数据写入到sink当中，并调用flush()进行刷新，如果你不需要每次写数据都进行flush()，那么for循环里的两句可以使用BufferedSink.writeAll(Source)一行代码来代替。</p>
+<p>你会发现，在read()方法中传递了一个8192作为读取的字节数，其实这里可以传任何数字，但是Okio更喜欢用8 kib，因为这是Okio在单个系统调用中所能处理的最大值。大多数时候应用程序代码不需要处理这样的限制！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> addressType = fromSource.readByte() &amp; <span class="number">0xff</span>;</span><br><span class="line"><span class="keyword">int</span> port = fromSource.readShort() &amp; <span class="number">0xffff</span>;</span><br></pre></td></tr></table></figure>
+
+<p>Okio使用的是有符号类型，如<code>byte</code>和<code>short</code>，但通常协议需要的是无符号的值，而在Java中将有符号的值转换为无符号值的首选方式，就是通过是按位与<code>&amp;</code>运算符。以下是字节、短整型和整型的转换清单：</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Signed Range</th>
+<th>Unsigned Range</th>
+<th>Signed to Unsigned</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>byte</td>
+<td>-128…127</td>
+<td>0…255</td>
+<td><code>int u = s &amp; 0xff;</code></td>
+</tr>
+<tr>
+<td>short</td>
+<td>-32,768…32,767</td>
+<td>0…65,535</td>
+<td><code>int u = s &amp; 0xffff;</code></td>
+</tr>
+<tr>
+<td>int</td>
+<td>-2,147,483,648…2,147,483,647</td>
+<td>0…4,294,967,295</td>
+<td><code>long u = s &amp; 0xffffffffL;</code></td>
+</tr>
+</tbody></table>
+<p>Java中没有能够表示无符号的long型的基本类型。</p>
+<h2 id="7、哈希"><a href="#7、哈希" class="headerlink" title="7、哈希"></a>7、哈希</h2><p>哈希函数应用广泛，如HTTPS证书、Git提交、BitTorrent完整性检查和区块链块等都使用到加密散列， 良好地使用哈希可以提高应用程序的性能、隐私性、安全性和简单性。每个加密哈希函数接受一个可变长度的字节输入流，并生成一个长度固定的字符串值，称之为哈希值。哈希函数具有以下重要特性：</p>
+<ul>
+<li>确定性：每个输入总是产生相同的输出。</li>
+<li>统一：每个输出的字节字符串的可能性相同。很难找到或创建产生相同输出的不同输入对。即“碰撞”。</li>
+<li>不可逆：知道输出并不能帮助你找到输入。</li>
+<li>易于理解：哈希在很多环境中都已被实现并且被严格理解。</li>
+</ul>
+<p>Okio支持一些常见的哈希函数：</p>
+<ul>
+<li><strong>MD5</strong>：128位（16字节）加密哈希。它既不安全又是过时的，因为它的逆向成本很低！之所以提供此哈希，是因为它在安全性较低的系统中使用比较非常流行并且方便。</li>
+<li><strong>SHA-1</strong>：160位（20字节）加密散列。最近的研究表明，创建SHA-1碰撞是可行的。考虑从sha-1升级到sha-256。</li>
+<li><strong>SHA-256</strong>：256位（32字节）加密哈希。SHA-256被广泛理解，逆向操作成本较高。这是大多数系统应该使用的哈希。</li>
+<li><strong>SHA-512</strong>：512位（64字节）加密哈希。逆向操作成本很高。</li>
+</ul>
+<p>Okio可以从ByteString中生成加密哈希： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ByteString byteString = readByteString(<span class="keyword">new</span> File(<span class="string">"README.md"</span>));</span><br><span class="line">System.out.println(<span class="string">"   md5: "</span> + byteString.md5().hex());</span><br><span class="line">System.out.println(<span class="string">"  sha1: "</span> + byteString.sha1().hex());</span><br><span class="line">System.out.println(<span class="string">"sha256: "</span> + byteString.sha256().hex());</span><br><span class="line">System.out.println(<span class="string">"sha512: "</span> + byteString.sha512().hex());</span><br></pre></td></tr></table></figure>
+
+<p>从Buffer中生成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Buffer buffer = readBuffer(<span class="keyword">new</span> File(<span class="string">"README.md"</span>));</span><br><span class="line">System.out.println(<span class="string">"   md5: "</span> + buffer.md5().hex());</span><br><span class="line">System.out.println(<span class="string">"  sha1: "</span> + buffer.sha1().hex());</span><br><span class="line">System.out.println(<span class="string">"sha256: "</span> + buffer.sha256().hex());</span><br><span class="line">System.out.println(<span class="string">"sha512: "</span> + buffer.sha512().hex());</span><br></pre></td></tr></table></figure>
+
+<p>从Source输入流得到哈希值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> (HashingSink hashingSink = HashingSink.sha256(Okio.blackhole());</span><br><span class="line">     BufferedSource source = Okio.buffer(Okio.source(file))) &#123;</span><br><span class="line">  source.readAll(hashingSink);</span><br><span class="line">  System.out.println(<span class="string">"sha256: "</span> + hashingSink.hash().hex());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从Sink输出流得到哈希值： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> (HashingSink hashingSink = HashingSink.sha256(Okio.blackhole());</span><br><span class="line">     BufferedSink sink = Okio.buffer(hashingSink);</span><br><span class="line">     Source source = Okio.source(file)) &#123;</span><br><span class="line">  sink.writeAll(source);</span><br><span class="line">  sink.close(); <span class="comment">// Emit anything buffered.</span></span><br><span class="line">  System.out.println(<span class="string">"sha256: "</span> + hashingSink.hash().hex());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Okio还支持HMAC（哈希消息认证代码），它结合了一个秘钥值和一个hash值。应用程序可以使用HMAC进行数据完整性和身份验证：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ByteString secret = ByteString.decodeHex(<span class="string">"7065616e7574627574746572"</span>);</span><br><span class="line">System.out.println(<span class="string">"hmacSha256: "</span> + byteString.hmacSha256(secret).hex());</span><br></pre></td></tr></table></figure>
+
+<p>同样样，你可以从<code>ByteString</code>, <code>Buffer</code>, <code>HashingSource</code>, 和<code>HashingSink</code>生成<code>HMAC</code>。注意，Okio没有为<code>MD5</code>实现<code>HMAC</code>。Okio使用Java的<code>java.security.MessageDigest</code>用于加密散列和<code>javax.crypto.Mac</code> 生成HMAC。 </p>
+<h2 id="8、加密和解密"><a href="#8、加密和解密" class="headerlink" title="8、加密和解密"></a>8、加密和解密</h2><p>使用Okio.cipherSink(Sink,Cipher)或Okio.cipherSource(Source,Cipher)使用区块加密算法对Stream进行加密或解密。调用者负责使用算法，密钥和特定于算法的附加参数（如初始化向量）初始化加密或解密密码。 以下示例显示了AES加密的典型用法，其中key和iv参数都应为16个字节长度：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">encryptAes</span><span class="params">(ByteString bytes, File file, <span class="keyword">byte</span>[] key, <span class="keyword">byte</span>[] iv)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> GeneralSecurityException, IOException </span>&#123;</span><br><span class="line">  Cipher cipher = Cipher.getInstance(<span class="string">"AES/CBC/PKCS5Padding"</span>);</span><br><span class="line">  cipher.init(Cipher.ENCRYPT_MODE, <span class="keyword">new</span> SecretKeySpec(key, <span class="string">"AES"</span>), <span class="keyword">new</span> IvParameterSpec(iv));</span><br><span class="line">  <span class="keyword">try</span> (BufferedSink sink = Okio.buffer(Okio.cipherSink(Okio.sink(file), cipher))) &#123;</span><br><span class="line">    sink.write(bytes);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ByteString <span class="title">decryptAesToByteString</span><span class="params">(File file, <span class="keyword">byte</span>[] key, <span class="keyword">byte</span>[] iv)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> GeneralSecurityException, IOException </span>&#123;</span><br><span class="line">  Cipher cipher = Cipher.getInstance(<span class="string">"AES/CBC/PKCS5Padding"</span>);</span><br><span class="line">  cipher.init(Cipher.DECRYPT_MODE, <span class="keyword">new</span> SecretKeySpec(key, <span class="string">"AES"</span>), <span class="keyword">new</span> IvParameterSpec(iv));</span><br><span class="line">  <span class="keyword">try</span> (BufferedSource source = Okio.buffer(Okio.cipherSource(Okio.source(file), cipher))) &#123;</span><br><span class="line">    <span class="keyword">return</span> source.readByteString();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是对OKio官方文档的部分翻译，英文比较好的话可以参考官方文档：<a href="https://square.github.io/okio/" target="_blank" rel="noopener">《Okio Reference》</a>，关于Okio的具体实现细节等到后面的源码分析文章再详谈。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -275,21 +537,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -297,118 +559,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/91228.html" title="高效易用的IO库【Okio应用篇】" target="_blank">https://zouchanglin.cn/91228.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">序列化</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">IO</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Stream</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/高性能网络//" class="article-tag-list-link color1">高性能网络</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/91228.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/4221524257.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          多仓库管理工具——Repo
+        
+      </div>
+    </a>
+  
+  
+    <a href="/64846.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Android Socket与HTTPS校验</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ByteString与Buffer"><span class="toc-number">1.</span> <span class="toc-text">ByteString与Buffer</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Source与Sink"><span class="toc-number">2.</span> <span class="toc-text">Source与Sink</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Okio的使用示例"><span class="toc-number">3.</span> <span class="toc-text">Okio的使用示例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、逐行读取文本"><span class="toc-number">3.1.</span> <span class="toc-text">1、逐行读取文本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、将字符串写入文本文件"><span class="toc-number">3.2.</span> <span class="toc-text">2、将字符串写入文本文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、UTF-8编码"><span class="toc-number">3.3.</span> <span class="toc-text">3、UTF-8编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、序列化和反序列化"><span class="toc-number">3.4.</span> <span class="toc-text">4、序列化和反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、将字节流写入文件"><span class="toc-number">3.5.</span> <span class="toc-text">5、将字节流写入文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、使用Socket进行通信"><span class="toc-number">3.6.</span> <span class="toc-text">6、使用Socket进行通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、哈希"><span class="toc-number">3.7.</span> <span class="toc-text">7、哈希</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8、加密和解密"><span class="toc-number">3.8.</span> <span class="toc-text">8、加密和解密</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -540,10 +883,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -564,15 +903,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -612,15 +955,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -632,11 +975,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -700,10 +1043,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -724,7 +1063,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -736,7 +1083,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -745,14 +1096,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -876,19 +1219,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -897,6 +1232,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

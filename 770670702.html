@@ -209,60 +209,199 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-浅析指针与数组" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      浅析指针与数组
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/770670702.html" class="archive-article-date">
+        <time datetime="2018-04-04T06:00:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-04</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">4.3k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">17分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>指针是C/C++的精华，如果未能很好的掌握指针也基本等于没学，本篇主要内容有：数组指针、指针数组、函数指针、函数指针数组、指向函数指针数组的指针、指针与数组的区别、多维数组与多级指针。暂且不要觉得这些概念比较复杂，且听我逐一道来！</p>
+<a id="more"></a>
+
+<h2 id="数组指针"><a href="#数组指针" class="headerlink" title="数组指针"></a>数组指针</h2><p>很多人开始把数组指针和指针数组搞不清楚，本人第一次听到这两个名词也是有点晕，但是要搞清楚并不难，数组指针就是一个指针，一个指向数组的指针、而指针数组就是一个数组，一个存放指针的数组。</p>
+<h3 id="数组指针的定义"><a href="#数组指针的定义" class="headerlink" title="数组指针的定义"></a>数组指针的定义</h3><p>数组指针毕竟是个指针，而且是指向数组的指针。我们知道整型叫int，指向整型的指针就是int*。同样的数组也是一种类型，但是准确的说数组的类型有很多种，元素个数不同或者元素类型不同那么数组的类型就不同。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> num = <span class="number">10</span>;</span><br><span class="line">	<span class="keyword">int</span>* pNum = &amp;num; <span class="comment">//整型变量的地址使用整型指针来保存</span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span> arr[] = &#123; <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span> &#125;;</span><br><span class="line">	<span class="keyword">int</span>(*pArr)[<span class="number">10</span>] = &amp;arr; <span class="comment">//数组的地址使用数组指针来保存</span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中pArr指向数组arr，int是arr中元素的类型，[10]则表示了指向数组元素的个数， 数组类型是由其中存储的元素类型和元素个数共同决定的： 任何一个条件不匹配都会导致编译的时候类型不兼容！</p>
+<h3 id="数组指针的使用"><a href="#数组指针的使用" class="headerlink" title="数组指针的使用"></a>数组指针的使用</h3><p>数组指针意义就是指向一个数组，接下来看一个示例:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span> arr[] = &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>&#125;;</span><br><span class="line">	<span class="keyword">int</span>(*pArr)[<span class="number">10</span>] = &amp;arr;<span class="comment">//数组的地址使用数组指针来保存</span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"%d "</span>,(* pArr)[i]);</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 这个基本上看不出数组指针的意义何在，反倒变得更加麻烦了，其实数组指针多用于二维数组传参。数组指针既然是一个指针，那么就是用来接收地址，在传参时就接收数组的地址，所以数组指针在作为函数参数时对应的实参应该是二维数组。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">int</span>(*pArr)[<span class="number">4</span>])</span><span class="comment">//子函数中的形参，指针数组</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//TUDO...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> a[<span class="number">3</span>][<span class="number">4</span>] = &#123; <span class="number">0</span> &#125;;	<span class="comment">//主函数中定义的二维数组</span></span><br><span class="line">	fun(a);		<span class="comment">//主函数调用子函数的实参，是二维数组的首元素首地址</span></span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 主函数调用子函数的实参，是二维数组的首元素地址，但是二维数组首元素是个一维数组，必须传入一维数组的地址，这个时候我们发现使用 int * 类型作为函数的形参当然是不行的，我们需要的是一个一维数组的地址，也就是指向一维数组的指针，这个时候才是数组指针的用武之地！</p>
+<p>很多人在写以一维数组传参的时候写成整型指针 <code>int *</code>，这一点问题都没有,因为参数是匹配的一维数组的首元素地址确实是 <code>int *</code> ,但是接着遇到二维数组传参就会出错，很多人把二维数组传参写成了 <code>int **</code>，这种做法是绝对错误的。 </p>
+<h3 id="数组作为参数传递"><a href="#数组作为参数传递" class="headerlink" title="数组作为参数传递"></a>数组作为参数传递</h3><p>我们指针，在C语言中只是存在值传递（地址传递也只是值拷贝），我们在传递单个值得时候就会发生值拷贝，但是如果我们在传递数组的时候也逐个拷贝，如果只是很少的元素还好，一旦元素多了那效率就太低了，于是C中在传递数组的时候只是将数组的首元素地址给传递过去，避免了拷贝数组，效率自然就高了！<br>注意：当一维数组作为函数参数的时候，编译器总是把它解析成一个指向其首元素地址的指针<br>所以当我们传递二维数组的时候，它的首元素是一个以为数组，传递过去的自然也就是一个指向一维数组的指针！</p>
+<h2 id="指针数组"><a href="#指针数组" class="headerlink" title="指针数组"></a>指针数组</h2><h3 id="指针数组的定义"><a href="#指针数组的定义" class="headerlink" title="指针数组的定义"></a>指针数组的定义</h3><p>指针数组 —— 本质为数组，只不过这是一个存储指针的数组,接下来看看这个存储了4个 <code>int*</code> 类型指针的数组</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span>* pInt1 = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">int</span>* pInt2 = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">int</span>* pInt3 = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">int</span>* pInt4 = <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span>* arr[<span class="number">4</span>] = &#123;pInt1, pInt2, pInt3, pInt4&#125;;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 上面这个指针的数组的大小在32位平台下就是16个字节，64位平台下是32字节，无论指针指向什么内容，指针的大小只是和平台有关，所以数组的大小是非常容易确定的！ </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span>* arr[<span class="number">4</span>] = &#123;<span class="string">"AAA"</span>, <span class="string">"BBB"</span>, <span class="string">"CCC"</span>, <span class="string">"DDD"</span>&#125;;</span><br><span class="line"> </span><br><span class="line">	<span class="comment">//TUDO...</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 有时候我们常见这种写法，其实也不难理解，只要想明白它们在内存中的布局就可以轻松解决问题 </p>
+<table>
+<thead>
+<tr>
+<th align="left">内存</th>
+<th align="left">内容</th>
+<th align="left">权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">栈区</td>
+<td align="left">函数中的普通变量</td>
+<td align="left">可读 可写</td>
+</tr>
+<tr>
+<td align="left">堆区</td>
+<td align="left">动态申请的内存</td>
+<td align="left">可读 可写</td>
+</tr>
+<tr>
+<td align="left">静态变量区</td>
+<td align="left">static修饰的变量</td>
+<td align="left">可读 可写</td>
+</tr>
+<tr>
+<td align="left">数据区</td>
+<td align="left">用于初始化变量的常量</td>
+<td align="left">只读</td>
+</tr>
+</tbody></table>
+<h3 id="指针数组的使用"><a href="#指针数组的使用" class="headerlink" title="指针数组的使用"></a>指针数组的使用</h3><p>指针数组常用在main函数传参，在写主函数时，参数有两个，一个确定参数个数，一个这是指针数组用来接收每个参数（字符串）的地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//TUDO...</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时可以想象内存映像图，主函数的栈区有一个叫argv的数组，这个数组的元素是你输入的参数的地址，指向着只读数据区。</p>
+<h2 id="指针数组对应着二级指针"><a href="#指针数组对应着二级指针" class="headerlink" title="指针数组对应着二级指针"></a>指针数组对应着二级指针</h2><p>这个其实也不难理解，我们看看main函数的另一种写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//TUDO...</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 这和传递一个普通数组的思想一样，不能传递整个数组过去，如果数组很大，这样内存利用率很低，所以应该传递数组的首地址，用一个指针接收这个地址。因此，指针数组对应着二级指针 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">char</span>* arr[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//TUDO...</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun2</span><span class="params">(<span class="keyword">char</span>** arr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//TUDO...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span>* arr[<span class="number">4</span>] = &#123;<span class="string">"AAA"</span>, <span class="string">"BBB"</span>, <span class="string">"CCC"</span>, <span class="string">"DDD"</span>&#125;;</span><br><span class="line"> </span><br><span class="line">	fun(arr);</span><br><span class="line">	fun2(arr);</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>数组名当参数传递表示首元素地址，而指针数组的元素本来就是指针，所以接受参数的时候使用二级指针是完全正确的！！！</strong></p>
+</blockquote>
+<h2 id="函数指针"><a href="#函数指针" class="headerlink" title="函数指针"></a>函数指针</h2><p>函数指针也是一个指针，只不过这个指针是指向函数的指针。C在编译时，每一个函数都有一个 入口地址 ，该入口地址就是函数指针所指向的地址。有了指向函数的指针变量后，可用该指针变量调用函数，就如同用指针变量可引用其他类型变量一样，在这些概念上是大体一致的。函数指针有两个用途：调用函数和做函数的参数。</p>
+<h3 id="普通函数指针"><a href="#普通函数指针" class="headerlink" title="普通函数指针"></a>普通函数指针</h3><p>普通函数指针的简单使用呢，参考示例:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> num1,<span class="keyword">int</span> num2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> num1 + num2;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span>(*pAdd)(<span class="keyword">int</span>, <span class="keyword">int</span>) = <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">	pAdd = &amp;add;</span><br><span class="line">	pAdd = add;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">	ret = pAdd(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"ret = %d\n"</span>,ret);</span><br><span class="line"> </span><br><span class="line">	ret = (* pAdd)(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"ret = %d\n"</span>, ret);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 函数指针使用的时候无需加*解引用，获取函数地址的时候直接使用函数名和对函数名取地址是一样的。地址指向函数的指针变量没有<code>++</code>和<code>--</code>运算，这一点要切记！ </p>
+<h3 id="可变参数函数指针"><a href="#可变参数函数指针" class="headerlink" title="可变参数函数指针"></a>可变参数函数指针</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">int</span> num,...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//TODO...</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">void</span>(*pFun)(<span class="keyword">int</span>, ...) = <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">	pFun = &amp;fun;</span><br><span class="line">	pFun = fun;</span><br><span class="line"> </span><br><span class="line">	pFun(<span class="number">3</span>, <span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>);</span><br><span class="line">	(* pFun)(<span class="number">3</span>, <span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>);</span><br><span class="line"> </span><br><span class="line">	pFun(<span class="number">4</span>, <span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>, <span class="number">44</span>);</span><br><span class="line">	(* pFun)(<span class="number">4</span>, <span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>, <span class="number">44</span>);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可变参数函数指针与普通函数指针用法是一致的！</p>
+<h2 id="指针函数和函数指针"><a href="#指针函数和函数指针" class="headerlink" title="指针函数和函数指针"></a>指针函数和函数指针</h2><p>指针函数是指返回值是指针的函数，即本质是一个函数。我们知道函数都有返回类型，只不过指针函数返回类型是某一类型的指针。返回类型可以是任何基本类型和复合类型。</p>
+<h3 id="函数指针的重要作用：回调函数"><a href="#函数指针的重要作用：回调函数" class="headerlink" title="函数指针的重要作用：回调函数"></a>函数指针的重要作用：回调函数</h3><p>回调函数：回调函数是一个通过函数指针调用的函数，回调函数不是由该函数的实现方直接调用，而是在特定的事件或条件发生时由另外的一方进行调用，用于对该事件或条件进行响应。</p>
+<h4 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h4><p>这个示例演示了非常简单的回调函数机制，首先我们定义了一个求3个数字加法的函数add，接着定义了求平均值的函数get_average，由于get_average的函数参数列表中有一个参数类型是函数指针，并且我们在使用的时候将add函数放入了这个函数指针中，所以导致的必然结果就是调用get_average函数必然会去调用add函数，这就是回调函数机制！</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b, <span class="keyword">int</span> c)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">get_average</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b, <span class="keyword">int</span> c, <span class="keyword">int</span>(*pAdd)(<span class="keyword">int</span>, <span class="keyword">int</span>, <span class="keyword">int</span>) )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ret = pAdd(a, b, c);</span><br><span class="line">	<span class="keyword">return</span> ret / <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">double</span> ret = get_average(<span class="number">12</span>, <span class="number">15</span>, <span class="number">17</span>, add);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例二"><a href="#示例二" class="headerlink" title="示例二"></a>示例二</h4><p>qsort函数的使用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Stu</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> age;</span><br><span class="line">	<span class="keyword">char</span> name[<span class="number">20</span>];</span><br><span class="line">&#125;Stu;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//通过年龄来比较</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cmp_age</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> * e1, <span class="keyword">const</span> <span class="keyword">void</span> * e2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> ((((Stu*)e1)-&gt;age) &gt; (((Stu*)e2)-&gt;age))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> (((Stu*)e1)-&gt;age) - (((Stu*)e2)-&gt;age);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//通过名字来排序</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cmp_name</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> * e1, <span class="keyword">const</span> <span class="keyword">void</span> * e2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">strcmp</span>(((Stu*)e1)-&gt;name, ((Stu*)e2)-&gt;name);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_Stu</span><span class="params">(Stu arr[], <span class="keyword">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[age = %d,name = %s] \n"</span>, arr[i].age, arr[i].name );</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">	Stu arr[] = &#123; &#123; <span class="number">21</span>, <span class="string">"tim"</span> &#125;, &#123; <span class="number">16</span>, <span class="string">"lilililala"</span> &#125;, &#123; <span class="number">20</span>, <span class="string">"joker"</span> &#125;, &#123; <span class="number">18</span>, <span class="string">"avinla"</span> &#125; &#125;;</span><br><span class="line">	<span class="keyword">int</span> len = <span class="keyword">sizeof</span>(arr) / <span class="keyword">sizeof</span>(arr[<span class="number">0</span>]);</span><br><span class="line"> </span><br><span class="line">	qsort(arr, len, <span class="keyword">sizeof</span>(Stu), cmp_age);</span><br><span class="line">	print_Stu(arr, len);</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"-------------------------\n"</span>);</span><br><span class="line"> </span><br><span class="line">	qsort(arr, len, <span class="keyword">sizeof</span>(Stu), cmp_name);</span><br><span class="line">	print_Stu(arr, len);</span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很显然我们是对结构体进行排序，并不是简单地int或者double型，自定义的结构体类型当然只有我们自己才知道排序规则，调用的两次比较函数一次是通过年龄比较、一次是通过名称比较，然后同一个函数是怎样明确我们的比较规则的呢？这当然就是回调函数的功劳了，我们只需要改变函数指针的值就可以吧我们定义的规则传进去，这样对再复杂的结构体只要我自定义排序规则，将这个“规则”函数传入即可完成排序！</p>
+<h4 id="示例三"><a href="#示例三" class="headerlink" title="示例三"></a>示例三</h4><p>自定义实现qsort，首先我们看看qsort的参数说明：</p>
+<blockquote>
+<p><strong>void qsort ( void base, size_t num, size_t size, int ( comparator ) ( const void , const void ) );</strong></p>
+</blockquote>
+<p>1、第一个参数 base 是需要排序的目标数组名(或者也可以理解成开始排序的地址，因为可以写&amp;s[i]这样的表达式)<br>2、第二个参数 num 是 参与排序的目标数组元素个数<br>3、第三个参数 width 是单个元素的大小(或者目标数组中每一个元素长度），推荐使用sizeof(s[0])这样的表达式)</p>
+<p>4、第四个参数 compare 比较函数,自定义的算法</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Stu</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> age;</span><br><span class="line">	<span class="keyword">char</span> name[<span class="number">20</span>];</span><br><span class="line">&#125;Stu;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//通过年龄来比较</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cmp_age</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> * e1, <span class="keyword">const</span> <span class="keyword">void</span> * e2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> ((((Stu*)e1)-&gt;age) &gt; (((Stu*)e2)-&gt;age))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> (((Stu*)e1)-&gt;age) - (((Stu*)e2)-&gt;age);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//通过名字来排序</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cmp_name</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> * e1, <span class="keyword">const</span> <span class="keyword">void</span> * e2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">strcmp</span>(((Stu*)e1)-&gt;name, ((Stu*)e2)-&gt;name);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_Stu</span><span class="params">(Stu arr[], <span class="keyword">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[age = %d,name = %s] \n"</span>, arr[i].age, arr[i].name );</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">void</span> _swap(<span class="keyword">char</span> *e1,<span class="keyword">char</span> *e2,<span class="keyword">int</span> <span class="built_in">size</span>)</span><br><span class="line">&#123;</span><br><span class="line">	assert((e1 != <span class="literal">NULL</span>) &amp;&amp; (e2 != <span class="literal">NULL</span>));</span><br><span class="line">	<span class="keyword">while</span> (<span class="built_in">size</span>--)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">char</span> tmp = *e1;</span><br><span class="line">		*e1 = *e2;</span><br><span class="line">		*e2 = tmp;</span><br><span class="line">		e1++;</span><br><span class="line">		e2++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">my_qsort</span><span class="params">(<span class="keyword">void</span> * base, <span class="keyword">int</span> num, <span class="keyword">int</span> <span class="built_in">size</span>, <span class="keyword">int</span>(*cmparator) (<span class="keyword">const</span> <span class="keyword">void</span> *, <span class="keyword">const</span> <span class="keyword">void</span> *))</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">	assert(base != <span class="literal">NULL</span>);</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; num<span class="number">-1</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; num - i <span class="number">-1</span>; j++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (cmparator((<span class="keyword">char</span>*)base+j*<span class="built_in">size</span>,(<span class="keyword">char</span>*)base+(j+<span class="number">1</span>)*<span class="built_in">size</span>)&gt;<span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">//执行交换</span></span><br><span class="line">				_swap((<span class="keyword">char</span>*)base + j*<span class="built_in">size</span>, (<span class="keyword">char</span>*)base + (j + <span class="number">1</span>)*<span class="built_in">size</span> ,<span class="built_in">size</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> </span><br><span class="line">	Stu arr[] = &#123; &#123; <span class="number">21</span>, <span class="string">"tim"</span> &#125;, &#123; <span class="number">16</span>, <span class="string">"lilililala"</span> &#125;, &#123; <span class="number">20</span>, <span class="string">"joker"</span> &#125;, &#123; <span class="number">18</span>, <span class="string">"avinla"</span> &#125; &#125;;</span><br><span class="line">	<span class="keyword">int</span> len = <span class="keyword">sizeof</span>(arr) / <span class="keyword">sizeof</span>(arr[<span class="number">0</span>]);</span><br><span class="line"> </span><br><span class="line">	my_qsort(arr, len, <span class="keyword">sizeof</span>(Stu), cmp_age);</span><br><span class="line">	print_Stu(arr, len);</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"-------------------------\n"</span>);</span><br><span class="line"> </span><br><span class="line">	my_qsort(arr, len, <span class="keyword">sizeof</span>(Stu), cmp_name);</span><br><span class="line">	print_Stu(arr, len);</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数指针的小练习"><a href="#函数指针的小练习" class="headerlink" title="函数指针的小练习"></a>函数指针的小练习</h3><blockquote>
+<p><strong>(* (void(*)())0)();</strong><br>把0强制类型转换为函数指针类型，具体类型为(void(*)),然后对这个函数指针解引用就把它当成了函数使用</p>
+</blockquote>
+<blockquote>
+<p><strong>void( *signal(int,void(* )(int)))(int)</strong><br>signal是一个函数声明，signal有两个参数，一个是int，一个是函数指针<br>该函数指针指向的函数有一个int参数，返回值类型为void<br>signal函数的返回值类型为一个函数指针<br>该函数指针指向的函数有一个int参数，返回类型为void</p>
+</blockquote>
+<h2 id="函数指针数组的应用：转移表"><a href="#函数指针数组的应用：转移表" class="headerlink" title="函数指针数组的应用：转移表"></a>函数指针数组的应用：转移表</h2><p>函数指针数组的概念其实不难理解，本质还是一个数组，这个数组中存放的元素类型是函数指针。</p>
+<p>转移表其实就是和状态相关，我们在实际应用中使用if-else结构或者switch语句进行一些状态的切换。但是如果遇到比较复杂情况，转移次数达到数百次或者数千次，如果再使用if-else结构或者switch语句，维护起这个软件系统，工作量将会相当大。这个时候可以采用”转移表”来避免这个情况。</p>
+<p>我们要实现一个计算器程序，我们可能就会用到这样的switch分支结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(operation)  </span><br><span class="line">&#123;  </span><br><span class="line">      <span class="keyword">case</span> ADD:  </span><br><span class="line">              result=add(a,b);<span class="keyword">break</span>;  </span><br><span class="line">      <span class="keyword">case</span> SUB:  </span><br><span class="line">              result=sub(a,b);<span class="keyword">break</span>;  </span><br><span class="line">      <span class="keyword">case</span> MUL:  </span><br><span class="line">              result=mul(a,b);<span class="keyword">break</span>;  </span><br><span class="line">      <span class="keyword">case</span> DIV:  </span><br><span class="line">              result=div(a,b);<span class="keyword">break</span>;  </span><br><span class="line">      .....  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 如果这个计算器要实现的功能很多，那么将有很多这样的语句，可维护性很差。如果我们将具体的数值操作与选择操作的代码分开将会提高代码的可读性。这种情况下，我们需要建立一个“转移表”。在建立转移表之间需要对涉及到的函数提前声明，然后建立转移表，对于上面的可以这么修改： </p>
+<p>那么建立的转移表如下： </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> (*operation_fun[])(<span class="keyword">double</span>,<span class="keyword">double</span>)=&#123;add,sub,mul,div,......&#125;;</span><br></pre></td></tr></table></figure>
+
+<p> 在调用的时候可以这样操作： </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> result;</span><br><span class="line">result=operation_fun[operation](a,b);</span><br></pre></td></tr></table></figure>
+
+<p>上面两句可以替换switch语句，使得程序的可维护性大大增强！</p>
+<h2 id="指向函数指针数组的指针"><a href="#指向函数指针数组的指针" class="headerlink" title="指向函数指针数组的指针"></a>指向函数指针数组的指针</h2><p>指向函数指针数组的指针是一个指针 ，指针指向一个数组 ，数组的元素都是函数指针，如 <strong>void (*(*p)[10]) )(void)</strong> 这样的形式它表示:一个指向有10个元素 、每个元素为指向一个返回值为空的函数的数组的这样一个指针!</p>
+<h2 id="指针与数组的区别"><a href="#指针与数组的区别" class="headerlink" title="指针与数组的区别"></a>指针与数组的区别</h2><p>两种情况：<br>①定义为数组、声明为指针，错误<br>②定义为指针、声明为数组，错误<br><strong>注意：声明一个变量时是不会创建空间的！</strong></p>
+<h2 id="二维数组和二级指针参数"><a href="#二维数组和二级指针参数" class="headerlink" title="二维数组和二级指针参数"></a>二维数组和二级指针参数</h2><p>二维数组和二级指针参数的等效关系</p>
+<table>
+<thead>
+<tr>
+<th align="left">数组参数</th>
+<th align="left">等效的指针参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">数组的数组:char arr[3][4]</td>
+<td align="left">数组的指针:char(*p)[10]</td>
+</tr>
+<tr>
+<td align="left">指针数组:char *arr[5]</td>
+<td align="left">指针的指针:char ** p</td>
+</tr>
+</tbody></table>
+<p>在C语言中，当一位数组作为函数参数的时候，编译器总是把它解析成为一个指向其首元素地址的指针。但是这条规则并不是递归的，也就是说只有一维数组才是如此，当数组超过一维时，将第一维改写为指向数组元素首地址的指针之后，后面的维再也不可改写。比如:<code>a[3][4][5]</code>作为参数时可以被修改为(*p)[4][5])</p>
+<p>至于超过二维数组和超过二级的指针，由于本身很少使用，在此不做讨论！</p>
+<h2 id="指针和数组的对比"><a href="#指针和数组的对比" class="headerlink" title="指针和数组的对比"></a>指针和数组的对比</h2><p><img src="https://img.zouchanglin.cn///20200131/gGHd8GRKePmk.png" alt="mark"></p>
+<p> 在《天龙八部》八部中，乔峰血战聚贤庄，一套平凡的太祖长拳打得虎虎生威，在场英雄无不佩服至极，这是其苦练的结果！C语言是程序员的内功，无论招式如何华丽只有内功深厚才是正道，注意这一点等于掌握编程的半壁江山！！！ </p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -272,21 +411,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -294,118 +433,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/770670702.html" title="浅析指针与数组" target="_blank">https://zouchanglin.cn/770670702.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/770670702.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/4007090141.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          指针与引用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1827956180.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">最冤枉的sizeof</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数组指针"><span class="toc-number">1.</span> <span class="toc-text">数组指针</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数组指针的定义"><span class="toc-number">1.1.</span> <span class="toc-text">数组指针的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数组指针的使用"><span class="toc-number">1.2.</span> <span class="toc-text">数组指针的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数组作为参数传递"><span class="toc-number">1.3.</span> <span class="toc-text">数组作为参数传递</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指针数组"><span class="toc-number">2.</span> <span class="toc-text">指针数组</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#指针数组的定义"><span class="toc-number">2.1.</span> <span class="toc-text">指针数组的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指针数组的使用"><span class="toc-number">2.2.</span> <span class="toc-text">指针数组的使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指针数组对应着二级指针"><span class="toc-number">3.</span> <span class="toc-text">指针数组对应着二级指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数指针"><span class="toc-number">4.</span> <span class="toc-text">函数指针</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#普通函数指针"><span class="toc-number">4.1.</span> <span class="toc-text">普通函数指针</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可变参数函数指针"><span class="toc-number">4.2.</span> <span class="toc-text">可变参数函数指针</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指针函数和函数指针"><span class="toc-number">5.</span> <span class="toc-text">指针函数和函数指针</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#函数指针的重要作用：回调函数"><span class="toc-number">5.1.</span> <span class="toc-text">函数指针的重要作用：回调函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#示例一"><span class="toc-number">5.1.1.</span> <span class="toc-text">示例一</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#示例二"><span class="toc-number">5.1.2.</span> <span class="toc-text">示例二</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#示例三"><span class="toc-number">5.1.3.</span> <span class="toc-text">示例三</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#函数指针的小练习"><span class="toc-number">5.2.</span> <span class="toc-text">函数指针的小练习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数指针数组的应用：转移表"><span class="toc-number">6.</span> <span class="toc-text">函数指针数组的应用：转移表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指向函数指针数组的指针"><span class="toc-number">7.</span> <span class="toc-text">指向函数指针数组的指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指针与数组的区别"><span class="toc-number">8.</span> <span class="toc-text">指针与数组的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二维数组和二级指针参数"><span class="toc-number">9.</span> <span class="toc-text">二维数组和二级指针参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指针和数组的对比"><span class="toc-number">10.</span> <span class="toc-text">指针和数组的对比</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -537,10 +749,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -561,15 +769,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -609,15 +821,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -629,11 +841,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -697,10 +909,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -721,7 +929,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -733,7 +949,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -742,14 +962,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -873,19 +1085,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -894,6 +1098,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

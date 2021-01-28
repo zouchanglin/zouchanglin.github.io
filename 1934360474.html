@@ -214,60 +214,127 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-服务拆分方法论" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      服务拆分方法论
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/1934360474.html" class="archive-article-date">
+        <time datetime="2020-05-14T10:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-14</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">2.2k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">7分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>微服务是当下非常热门的话题，微服务发展到现在，已经不再单单局限于微服务架构本身，还与容器化、DevOps等新的理念相结合，成为当前移动互联网时代最先进的业务架构解决方案，能更好地迎合移动互联网业务快速迭代的要求。 本篇文章中我主要探讨的是什么时候适合微服务改造，如何做服务拆分等问题。</p>
+<a id="more"></a>
+
+<h1 id="微服务适用场景"><a href="#微服务适用场景" class="headerlink" title="微服务适用场景"></a>微服务适用场景</h1><p>这些年关于服务拆分的理论层出不穷，在我看来我们首先需要搞明白起点和终点，然后还需要考虑的因素与坚持的原则。什么是起点和终点呢？第一种由于历史原因，公司的产品不得不从传统应用架构转为微服务架构，第二种原因呢就是马上开发一个全新的系统，需要用上微服务架构（当然不排除是BOSS装B，要追求新技术，因为微服务比较潮流嘛）。我们自己无论如何还是需要审视一下起点，也就是现有的架构是个什么样子，要考虑是否真的需要转成为微服务架构。至于终点呢，以一言蔽之：<strong>好的架构不是设计出来的，而是进化出来的</strong>，而且是一直在演进，生命不息，进化不止。吾生也有涯，而知也无涯。</p>
+<p>我们可以看看Dubbo架构路线图：从单一应用架构 -&gt; 垂直应用架构 -&gt; 分布式服务架构 -&gt; 流动计算架构</p>
+<p><img src="https://img.zouchanglin.cn///20200514/reUxUKbU80SK.png" alt="mark"></p>
+<p>微服务与SOA之间就只是差了个ESB企业服务总线，如果此时的已经是SOA的架构，那么此时需要关心的也就是ESB了。从单体应用迁移到微服务架构的过程中，需要关注的重点是不一样的。微服务系统很可能是异构的，那么当前Java在整个系统中的占比是多少呢，有没有已经包含了服务注册与发现相关的组件呢，负载均衡的组件是弃用还是保留，如何以最小的代价切换过去。不过我们最需要优先考虑的就是，这个系统是否真的那么适合用微服务架构呢？在我看来，下列业务形态是不适合使用微服务架构的：</p>
+<p>1、系统中包含很多很多强事务场景的不适合使用微服务架构。因为微服务是分布式的，如果是强事务场景，是不适合用微服务架构的。<br>2、业务相对稳定，迭代周期长。比如系统本来就是一个非常稳定的系统，几乎也没什么变更迭代，几个月代码都不会更新一次，如果一定要切换到微服务的话代价还是比较大的。<br>3、访问压力不高，可用性要求不高。比如中小型企业的内部OA系统，没啥访问量，偶尔出问题挂了个把小时其实也所谓，这样的项目如果用微服务架构岂不是杀鸡用牛刀。</p>
+<p><strong>所以微服务也不是放之四海而皆准的。</strong></p>
+<h1 id="服务拆分方法论"><a href="#服务拆分方法论" class="headerlink" title="服务拆分方法论"></a>服务拆分方法论</h1><p>我们可以先看看什么是扩展立方模型 (Scale Cube)，Scale Cube是用于定义微服务和扩展技术产品的模型。AKF Partners于2007年发明了Scale Cube，最初于2017年在博客上发布<a href="https://akfpartners.com/growth-blog/splitting-applications-or-services-for-scale" target="_blank" rel="noopener">《SPLITTING APPLICATIONS OR SERVICES FOR SCALE》</a> ，在《可扩展的艺术》一书中也出现过扩展立方模型：</p>
+<p><img src="https://img.zouchanglin.cn///20200514/N52DzjtuPpNM.png" alt="mark"></p>
+<p>立方体有三个轴线，每个轴线描述扩展性的一个维度！<br>X轴：代表无差别的克隆服务和数据，通过负载均衡工作可以很均匀的分散在不同的服务实例上；<br>Y轴：关注应用中职责的划分，比如数据类型，交易执行类型的划分；<br>Z轴：关注服务和数据的优先级划分，如分地域划分。</p>
+<p>通过这三个维度上的扩展，可以快速提高产品的扩展能力，适应不同场景下产品的快速增长。不同维度上的扩展，有着不同的优缺点： </p>
+<p>1、X轴扩展</p>
+<ul>
+<li>优点：成本最低，实施简单；</li>
+<li>缺点：受指令集多少和数据集大小的约束。当单个产品或应用过大时，服务响应变慢，无法通过X轴的水平扩展提高速度；</li>
+<li>场景：发展初期，业务复杂度低，需要增加系统容量。</li>
+</ul>
+<p><img src="https://img.zouchanglin.cn///20200514/Ff3NH35WHdRW.png" alt="mark"></p>
+<p>2、Y轴扩展</p>
+<ul>
+<li>优点：可以解决指令集和数据集的约束，解决代码复杂度问题，可以实现隔离故障，可以提高响应时间，可以使团队聚焦更利于团队成长；</li>
+<li>缺点：成本相对较高；</li>
+<li>场景：业务复杂，数据量大，代码耦合度高，团队规模大。</li>
+</ul>
+<p><img src="https://img.zouchanglin.cn///20200514/Rpmz3HPzTjHd.png" alt="mark"></p>
+<p>3、Z轴扩展</p>
+<ul>
+<li>优点：能解决数据集的约束，降低故障风险，实现渐进交付，可以带来最大的扩展性。</li>
+<li>缺点：成本最昂贵，且不一定能解决指令集的问题；</li>
+<li>场景：用户指数级快速增长。</li>
+</ul>
+<p><img src="https://img.zouchanglin.cn///20200514/2bownxzH4MxK.png" alt="mark"></p>
+<p>三个维度拆分后，微服务的架构图就如下图所示： </p>
+<p><img src="https://img.zouchanglin.cn///20200514/KLOAOiqXTJR8.png" alt="mark"></p>
+<h1 id="功能拆分的角度"><a href="#功能拆分的角度" class="headerlink" title="功能拆分的角度"></a>功能拆分的角度</h1><p>1、单一职责、松耦合、高内聚</p>
+<p>2、关注点分离</p>
+<ul>
+<li>按职责分离</li>
+<li>按通用性分离</li>
+<li>按粒度级别</li>
+</ul>
+<h1 id="将理论付诸实践"><a href="#将理论付诸实践" class="headerlink" title="将理论付诸实践"></a>将理论付诸实践</h1><p>1、为扩展分割应用</p>
+<ul>
+<li>X轴：从单体系统或服务，水平克隆出许多系统，通过负载均衡平均分配请求；</li>
+<li>Y轴 ：面向服务分割，基于功能或者服务分割，例如电商网站可以将登陆、搜索、下单等服务进行Y轴的拆分，每一组服务再进行X轴的扩展；</li>
+<li>Z轴 ：面向查找分割，基于用户、请求或者数据分割，例如可以将不同产品的SKU分到不同的搜索服务，可以将用户哈希到不同的服务等。</li>
+</ul>
+<p>2、为扩展分割数据库 </p>
+<ul>
+<li>X轴：从单库，水平克隆为多个库上读，一个库写，通过数据库的自我复制实现，要允许一定的读写时延；</li>
+<li>Y轴 ：根据不同的信息类型，分割为不同的数据库，即分库，例如产品库，用户库等；</li>
+<li>Z轴 ：按照一定算法，进行分片，例如将搜索按照MapReduce的原理进行分片，把SKU的数据按照不同的哈希值进行分片存储，每个分片再进行X轴冗余。</li>
+</ul>
+<p>3、为扩展而缓存<br>在理想情况下，处理大流量最好的方法是通过高速缓存来避免处理它。从架构层面看，我们能控制的主要有以下三个层次的缓存：<br>① 对象缓存：对象缓存用来存储应用的对象以供重复使用，一般在系统内部，通过使用应用缓存可以帮助数据库和应用层卸载负载。</p>
+<p>② 应用缓存：应用缓存包括代理缓存和反向代理缓存，一个在用户端，一个在服务端，目标是提高性能或减少资源的使用量。</p>
+<p>③ 内容交付网络缓存：CDN的总原则是将内容推送到尽可能接近用户终端的地方，通过不同地区使用不同ISP的网关缓存，达到更快的响应时间和对源服务的更少请求。</p>
+<p>4、为扩展而异步<br>同步改异步：同步调用，由于调用间的同步依赖关系，有可能会导致雪崩效应，出现一系列的连锁故障，进而导致整个系统出现问题，所以在进行系统设计时，要尽可能的考虑异步调用方式，邮件系统就是一个非常好的异步调用例子。</p>
+<p>应用无状态：当进行AKF扩展立方体的任何一个轴上的扩展时，都要首先解决应用的状态问题，即会话的管理，可以通过避免、集中和分散的方式进行解决。</p>
+<p>AKF扩展立方体是一套通用的扩展性理论，它不仅可以应用到系统的架构扩展上，也可以应用到人员的组织架构扩展上甚至其他相关的工业领域。当然并不是所有公司都需要同时在XYZ三个方向上进行扩展，并且每个方向上的扩展都有它的利弊，我们不可避免的要进行适当的权衡。</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -277,21 +344,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -299,118 +366,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/1934360474.html" title="服务拆分方法论" target="_blank">https://zouchanglin.cn/1934360474.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">软件工程</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/微服务架构//" class="article-tag-list-link color1">微服务架构</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1934360474.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/3125899592.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          RestTemplate与负载均衡器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/1129629698.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">软件工程方法之DevOps</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#微服务适用场景"><span class="toc-number">1.</span> <span class="toc-text">微服务适用场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#服务拆分方法论"><span class="toc-number">2.</span> <span class="toc-text">服务拆分方法论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#功能拆分的角度"><span class="toc-number">3.</span> <span class="toc-text">功能拆分的角度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#将理论付诸实践"><span class="toc-number">4.</span> <span class="toc-text">将理论付诸实践</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -542,10 +682,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -566,15 +702,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -614,15 +754,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -634,11 +774,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -702,10 +842,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -726,7 +862,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -738,7 +882,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -747,14 +895,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -878,19 +1018,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -899,6 +1031,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -221,60 +221,174 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-DockerFile快速构建自定义镜像" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      DockerFile快速构建自定义镜像
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/1242485673.html" class="archive-article-date">
+        <time datetime="2019-08-03T10:31:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-03</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">2.2k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">8分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<h1 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h1><h2 id="什么是Dockerfile"><a href="#什么是Dockerfile" class="headerlink" title="什么是Dockerfile"></a>什么是Dockerfile</h2><p>Dockerfile是用来构建Docker镜像的构建文件，是由一系列命令和参数构成的脚本。通俗的理解，和Maven一样，只需要写好pom文件就可以定义整个工程的构建，DockerFile是一样的，通过这个脚本可以构建出自己想要的容器！</p>
+<a id="more"></a>
+
+<h2 id="Dockerfile构建步骤"><a href="#Dockerfile构建步骤" class="headerlink" title="Dockerfile构建步骤"></a>Dockerfile构建步骤</h2><ul>
+<li>编写Dockerfile文件</li>
+<li>docker build</li>
+<li>docker run</li>
+</ul>
+<p>以我们熟悉的CentOS为例 ，看看CentOS的Dockerfile的内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">FROM scratch (scratch相当于Object，是所有镜像的祖先镜像)</span><br><span class="line">MAINTAINER The CentOS Project &lt;cloud-ops@centos.org&gt;</span><br><span class="line">ADD c68-docker.tar.xz /</span><br><span class="line">LABEL name=<span class="string">"CentOS Base Image"</span> \</span><br><span class="line">	vendor=<span class="string">"CentOS"</span> \</span><br><span class="line">	license=<span class="string">"GPLv2"</span> \</span><br><span class="line">	build-date=<span class="string">"2016-06-02"</span></span><br><span class="line">	</span><br><span class="line"><span class="comment"># Default command</span></span><br><span class="line">CMD [<span class="string">"/bin/bash"</span>]</span><br></pre></td></tr></table></figure>
+
+<p>DockerFile基础语法</p>
+<p>1：每条保留字指令都必须为大写字母且后面要跟随至少一个参数</p>
+<p>2：指令按照从上到下，顺序执行</p>
+<p>3：#表示注释</p>
+<p>4：每条指令都会创建一个新的镜像层，并对镜像进行提交</p>
+<p><strong>Docker执行Dockerfile的大致流程</strong></p>
+<p>（1）docker从基础镜像运行一个容器</p>
+<p>（2）执行一条指令并对容器作出修改</p>
+<p>（3）执行类似docker commit的操作提交一个新的镜像层</p>
+<p>（4）docker再基于刚提交的镜像运行一个新容器</p>
+<p>（5）执行dockerfile中的下一条指令直到所有指令都执行完成</p>
+<p>从应用软件的角度来看，Dockerfile、Docker镜像与Docker容器分别代表软件的三个不同阶段：</p>
+<p>1、Dockerfile 是软件的原材料<br>2、Docker 镜像是软件的交付品<br>3、Docker 容器则可以认为是软件的运行态。</p>
+<p>Dockerfile面向开发，Docker镜像成为交付标准<br><img src="https://img.zouchanglin.cn///20200202/5NpB4H84AAJ9.png" alt="mark"></p>
+<p>1 Dockerfile，需要定义一个Dockerfile，Dockerfile定义了进程需要的一切东西。Dockerfile涉及的内容包括执行代码或者是文件、环境变量、依赖包、运行时环境、动态链接库、操作系统的发行版、服务进程和内核进程(当应用进程需要和系统服务和内核进程打交道，这时需要考虑如何设计namespace的权限控制)等等;</p>
+<p>2 Docker镜像，在用Dockerfile定义一个文件之后，docker build时会产生一个Docker镜像，当运行 Docker镜像时，会真正开始提供服务;</p>
+<p>3 Docker容器，容器是直接提供服务的。</p>
+<h2 id="DockerFile体系结构"><a href="#DockerFile体系结构" class="headerlink" title="DockerFile体系结构"></a>DockerFile体系结构</h2><p>FROM</p>
+<p>基础镜像，当前新镜像是基于哪个镜像的</p>
+<p>MAINTAINER</p>
+<p>镜像维护者的姓名和邮箱地址</p>
+<p>RUN</p>
+<p>容器构建时需要运行的命令</p>
+<p>EXPOSE</p>
+<p>当前容器对外暴露出的端口</p>
+<p>WORKDIR</p>
+<p>指定在创建容器后，终端默认登陆的进来工作目录，一个落脚点</p>
+<p>ENV</p>
+<p>用来在构建镜像过程中设置环境变量，比如ENV MY_PATH /usr/mytest，这个环境变量可以在后续的任何RUN指令中使用，这就如同在命令前面指定了环境变量前缀一样；也可以在其它指令中直接使用这些环境变量，比如：WORKDIR $MY_PATH</p>
+<p>ADD</p>
+<p>将宿主机目录下的文件拷贝进镜像且<strong>ADD命令会自动处理URL和解压tar压缩包</strong></p>
+<p>COPY</p>
+<p>类似ADD，拷贝文件和目录到镜像中。将从构建上下文目录中 &lt;源路径&gt; 的文件/目录复制到新的一层的镜像内的 &lt;目标路径&gt; 位置</p>
+<p>COPY的写法有两种：<code>COPY src dest</code> 或者 <code>COPY [&quot;src&quot;, &quot;dest&quot;]</code></p>
+<p>VOLUME</p>
+<p>容器数据卷，用于数据保存和持久化工作</p>
+<p>CMD</p>
+<p>指定一个容器启动时要运行的命令</p>
+<p>CMD命令也是两种格式，一种是Shell脚本 <code>CMD&lt; 命令&gt;</code>，另一种是 <code>CMD [&quot;可执行文件&quot;, &quot;参数一&quot;,  &quot;参数二&quot;]</code>， <strong>Dockerfile 中可以有多个 CMD 指令，但只有最后一个生效，CMD 会被 docker run 之后的参数替换</strong></p>
+<p>ENTRYPOINT</p>
+<p>指定一个容器启动时要运行的命令</p>
+<p>ENTRYPOINT 的目的和 CMD 一样，都是在指定容器启动程序及参数</p>
+<p>ONBUILD</p>
+<p>当构建一个被继承的Dockerfile时运行命令，父镜像在被子继承后父镜像的onbuild被触发</p>
+<p><img src="https://img.zouchanglin.cn///20200202/4G3sNG4z3bIW.png" alt="mark"></p>
+<h2 id="Dockerfile案例"><a href="#Dockerfile案例" class="headerlink" title="Dockerfile案例"></a>Dockerfile案例</h2><p>Docker Hub 中 99% 的镜像都是通过在 base 镜像中安装和配置需要的软件构建出来的</p>
+<h3 id="一、自定义一个CentOS"><a href="#一、自定义一个CentOS" class="headerlink" title="一、自定义一个CentOS"></a>一、自定义一个CentOS</h3><p><img src="https://img.zouchanglin.cn///20200202/LluLKUas0LJW.png" alt="mark"></p>
+<p>现在我们需要自定义一个镜像来支持vim、ifconfig、并且登录后的默认路径改做修改</p>
+<p>编写Dockerfile：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从标准centos构建</span></span><br><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义作者信息</span></span><br><span class="line"><span class="keyword">MAINTAINER</span> tim&lt;<span class="number">15291418231</span>@<span class="number">163</span>.com&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个变量</span></span><br><span class="line"><span class="keyword">ENV</span> mypath /tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置登录后的落脚点</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> <span class="variable">$mypath</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装vim和net-tools工具</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install vim</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install net-tools</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> <span class="built_in">echo</span> <span class="variable">$mypath</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"success----------ok"</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> /bin/bash</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来开始构建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -f &#x2F;mydocker&#x2F;Dockerfile -t mycentos:1.3 .</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn///20200202/IDCMRrgh6ftG.png" alt="mark"></p>
+<p>然后启动镜像，测试一下：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/GtAujGTT6x7Y.png" alt="mark"></p>
+<p>看看构建过程是否是如前面所说，这也证实了镜像的分层：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/7VMhR0cwrDMI.png" alt="mark"></p>
+<h3 id="二、制作可以查询IP信息的镜像"><a href="#二、制作可以查询IP信息的镜像" class="headerlink" title="二、制作可以查询IP信息的镜像"></a>二、制作可以查询IP信息的镜像</h3><p>Dockerfile 中可以有多个 CMD 指令，但只有最后一个生效，CMD 会被 docker run 之后的参数替换，这是什么意思呢？</p>
+<p><img src="https://img.zouchanglin.cn///20200202/2iJF1mRar04N.png" alt="mark"></p>
+<p>Tomcat 并没有运行起来，就是因为Docker的run命令后面加了参数！所以ENTRYPOINT命令就更好用了，ENTRYPOINT不会覆盖，只是追加命令！</p>
+<p>首先解释一下curl命令</p>
+<p>curl命令可以用来执行下载、发送各种HTTP请求，指定HTTP头部等操作。如果系统没有curl可以使用yum install curl安装，也可以下载安装。curl是将下载文件输出到stdout使用命令：curl <a href="http://www.baidu.com，执行后，www.baidu.com的html页面就会以文本的形式显示在屏幕上了。" target="_blank" rel="noopener">http://www.baidu.com，执行后，www.baidu.com的html页面就会以文本的形式显示在屏幕上了。</a></p>
+<p>这是最简单的使用方法。用这个命令获得了<a href="http://curl.haxx.se指向的页面，同样，如果这里的URL指向的是一个文件或者一幅图都可以直接下载到本地。如果下载的是HTML文档，那么缺省的将只显示文件头部，即HTML的header。要全部显示，请加参数-i" target="_blank" rel="noopener">http://curl.haxx.se指向的页面，同样，如果这里的URL指向的是一个文件或者一幅图都可以直接下载到本地。如果下载的是HTML文档，那么缺省的将只显示文件头部，即HTML的header。要全部显示，请加参数-i</a></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>使用curl这个工具就可以查看IP，现在使用构件好的镜像run一下：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/lJTmfUync9Pd.png" alt="mark"></p>
+<p>哈哈，居然给我识别成渭南的，这个工具不是很准呀！如果要显示HTML的header需要加参数-i，下面我们来试一下：</p>
+<p><img src="https://img.zouchanglin.cn///20200202/EEEWr4o6EYPl.png" alt="mark"></p>
+<p>很显然不好使了，这就是为什么CMD指令不生效的原因，就是因为后面加的参数，所以出现了ENTRYPOINT指令，接下来使用ENTRYPOINT指令构建一下镜像：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>果然，在ENTRYPOINT指令下加参数是可用的</p>
+<p><img src="https://img.zouchanglin.cn///20200202/wjt4KANNXyVr.png" alt="mark"></p>
+<h3 id="三、ONBUILD指令的使用"><a href="#三、ONBUILD指令的使用" class="headerlink" title="三、ONBUILD指令的使用"></a>三、ONBUILD指令的使用</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ONBUILD</span> <span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"father build finished! 886"</span></span></span><br></pre></td></tr></table></figure>
+
+<p>在父镜像构建完成的时候执行ONBUILD的指令，执行构建，构建出父镜像为mycentos:1.6</p>
+<p><img src="https://img.zouchanglin.cn///20200202/9lizdqu6hQq1.png" alt="mark"></p>
+<p>接下来编写子镜像的Dockerfile</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 由于需要从父镜像构建，所以FROM写成mycentos1.6</span></span><br><span class="line"><span class="keyword">FROM</span> mycentos:<span class="number">1.6</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum install -y curl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [<span class="string">"curl"</span>, <span class="string">"-s"</span>, <span class="string">"https://ip.cn"</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn///20200202/SXWQq58ChX0v.png" alt="mark"></p>
+<p>可以看到，在构建父镜像完成后执行了ONBUILD的后面的内容！</p>
+<h3 id="四、自定义构建Tomcat"><a href="#四、自定义构建Tomcat" class="headerlink" title="四、自定义构建Tomcat"></a>四、自定义构建Tomcat</h3><p>新建一个文件夹，里面包含（apache-tomcat-9.0.8.tar.gz、jdk-8u171-linux-x64.tar.gz、a.txt）</p>
+<p>编写Dockerfile</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span>         centos</span><br><span class="line"><span class="keyword">MAINTAINER</span>    tim&lt;<span class="number">15291418231</span>@<span class="number">163</span>.com&gt;</span><br><span class="line"><span class="comment">#把宿主机当前上下文的a.txt拷贝到容器/usr/local/路径下</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> a.txt /usr/<span class="built_in">local</span>/cincontainer.txt</span></span><br><span class="line"><span class="comment">#把java与tomcat添加到容器中</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash"> jdk-8u171-linux-x64.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash"> apache-tomcat-9.0.8.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="comment">#安装vim编辑器</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> yum -y install vim</span></span><br><span class="line"><span class="comment">#设置工作访问时候的WORKDIR路径，登录落脚点</span></span><br><span class="line"><span class="keyword">ENV</span> MYPATH /usr/local</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> <span class="variable">$MYPATH</span></span></span><br><span class="line"><span class="comment">#配置java与tomcat环境变量</span></span><br><span class="line"><span class="keyword">ENV</span> JAVA_HOME /usr/local/jdk1.<span class="number">8.0</span>_171</span><br><span class="line"><span class="keyword">ENV</span> CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar</span><br><span class="line"><span class="keyword">ENV</span> CATALINA_HOME /usr/local/apache-tomcat-<span class="number">9.0</span>.<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> CATALINA_BASE /usr/local/apache-tomcat-<span class="number">9.0</span>.<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> PATH $PATH:$JAVA_HOME/bin:$CATALINA_HOME/lib:$CATALINA_HOME/bin</span><br><span class="line"><span class="comment">#容器运行时监听的端口</span></span><br><span class="line"><span class="keyword">EXPOSE</span>  <span class="number">8080</span></span><br><span class="line"><span class="comment">#启动时运行tomcat</span></span><br><span class="line"><span class="comment"># ENTRYPOINT ["/usr/local/apache-tomcat-9.0.8/bin/startup.sh" ]</span></span><br><span class="line"><span class="comment"># CMD ["/usr/local/apache-tomcat-9.0.8/bin/catalina.sh","run"]</span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> /usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/bin/startup.sh &amp;&amp; tail -F /usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/bin/logs/catalina.out</span></span><br></pre></td></tr></table></figure>
+
+<p>开始构建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t mytomcat:1.1</span><br></pre></td></tr></table></figure>
+
+<p>开始运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 --name mytomcat9 -v /tim/mydockerfile/tomcat9/<span class="built_in">test</span>:/usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/webapps/<span class="built_in">test</span> -v /tim/mydockerfile/tomcat9/tomcat9logs/:/usr/<span class="built_in">local</span>/apache-tomcat-9.0.8/logs --privileged=<span class="literal">true</span> mytomcat9</span><br></pre></td></tr></table></figure>
+
+<p>其实这条命令虽然看起来很长，但是无非是启动镜像并且添加了两个数据卷，privileged 是Docker挂载主机目录Docker访问出现cannot open directory .: Permission denied的时候需要加上的参数！</p>
+<h2 id="Dockerfile的总结"><a href="#Dockerfile的总结" class="headerlink" title="Dockerfile的总结"></a>Dockerfile的总结</h2><p><img src="https://img.zouchanglin.cn///20200202/uukKNghPmbDw.png" alt="mark"></p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -284,21 +398,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -306,118 +420,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/1242485673.html" title="DockerFile快速构建自定义镜像" target="_blank">https://zouchanglin.cn/1242485673.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/虚拟化技术//" class="article-tag-list-link color1">虚拟化技术</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/1242485673.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/4017947719.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Docker常用软件安装与镜像发布
+        
+      </div>
+    </a>
+  
+  
+    <a href="/4034105062.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Docker镜像与数据容器卷</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Dockerfile"><span class="toc-number">1.</span> <span class="toc-text">Dockerfile</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Dockerfile"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile构建步骤"><span class="toc-number">1.2.</span> <span class="toc-text">Dockerfile构建步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DockerFile体系结构"><span class="toc-number">1.3.</span> <span class="toc-text">DockerFile体系结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile案例"><span class="toc-number">1.4.</span> <span class="toc-text">Dockerfile案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、自定义一个CentOS"><span class="toc-number">1.4.1.</span> <span class="toc-text">一、自定义一个CentOS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、制作可以查询IP信息的镜像"><span class="toc-number">1.4.2.</span> <span class="toc-text">二、制作可以查询IP信息的镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、ONBUILD指令的使用"><span class="toc-number">1.4.3.</span> <span class="toc-text">三、ONBUILD指令的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、自定义构建Tomcat"><span class="toc-number">1.4.4.</span> <span class="toc-text">四、自定义构建Tomcat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dockerfile的总结"><span class="toc-number">1.5.</span> <span class="toc-text">Dockerfile的总结</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -549,10 +736,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -573,15 +756,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -621,15 +808,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -641,11 +828,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -709,10 +896,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -733,7 +916,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -745,7 +936,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -754,14 +949,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -885,19 +1072,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -906,6 +1085,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

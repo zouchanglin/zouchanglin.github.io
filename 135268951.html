@@ -216,60 +216,110 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-MyBatis（二）" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      MyBatis（二）
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/135268951.html" class="archive-article-date">
+        <time datetime="2019-02-03T11:20:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-03</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">3k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">11分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p><img src="https://img.zouchanglin.cn///20200405/RJgTdIyoPYUW.png" alt="mark"></p>
+<h1 id="作用域（Scope）和生命周期"><a href="#作用域（Scope）和生命周期" class="headerlink" title="作用域（Scope）和生命周期"></a>作用域（Scope）和生命周期</h1><p>SqlSessionFactoryBuilder这个类可以被实例化、使用和丢弃，一旦创建了 SqlSessionFactory，就不再需要它了。因此 SqlSessionFactoryBuilder 实例的最佳作用域是方法作用域（也就是局部方法变量）。你可以重用 SqlSessionFactoryBuilder 来创建多个 SqlSessionFactory 实例，但是最好还是不要让其一直存在以保证所有的 XML 解析资源开放给更重要的事情。</p>
+<a id="more"></a>
+
+<p>SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，没有任何理由对它进行清除或重建。使用 SqlSessionFactory 的最佳实践是在应用运行期间不要重复创建多次，多次重建 SqlSessionFactory 被视为一种代码“坏味道（bad smell）”。因此 SqlSessionFactory 的最佳作用域是应用作用域。有很多方法可以做到，最简单的就是使用单例模式或者静态单例模式。</p>
+<p>每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，所以它的最佳的作用域是请求或方法作用域。绝对不能将 SqlSession 实例的引用放在一个类的静态域，甚至一个类的实例变量也不行。也绝不能将 SqlSession 实例的引用放在任何类型的管理作用域中，比如 Servlet 架构中的 HttpSession。如果你现在正在使用一种 Web 框架，要考虑 SqlSession 放在一个和 HTTP 请求对象相似的作用域中。换句话说，每次收到的 HTTP 请求，就可以打开一个 SqlSession，返回一个响应，就关闭它。这个关闭操作是很重要的，你应该把这个关闭操作放到 finally 块中以确保每次都能执行关闭。下面的示例就是一个确保 SqlSession 关闭的标准模式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="comment">// do work</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">	session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以归纳一下：<br>| 类名称                   | SCOPE                               |<br>| :———————– | :———————————- |<br>| SqlSessionFactoryBuilder | method                              |<br>| SqlSessionFactory        | application                         |<br>| SqlSession               | request/method （可以认为是线程级） |</p>
+<h1 id="Result-Maps"><a href="#Result-Maps" class="headerlink" title="Result Maps"></a>Result Maps</h1><p>resultMap 元素是 MyBatis 中最重要最强大的元素。它可以让你从 90% 的 JDBC ResultSets 数据提取代码中解放出来, 并在一些情形下允许你做一些 JDBC 不支持的事情。 实际上，在对复杂语句进行联合映射的时候，它很可能可以代替数千行的同等功能的代码。 ResultMap 的设计思想是，简单的语句不需要明确的结果映射，而复杂一点的语句只需要描述它们的关系就行了。</p>
+<p>下面的示例基于<a href="https://blog.csdn.net/m0_38032942/article/details/86742118" target="_blank" rel="noopener">《MyBatis（一）》</a>，但是在数据库层面稍有修改，新增department表代表部门和部门id，employee表新增d_id，意思是员工的部门编号：<br><img src="https://img.zouchanglin.cn///20200405/KuoxNgbUGR5f.png" alt="mark"><br>现在假设我们根据employee表设计出来的JavaBean是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xpu.bean;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> Integer e_id;</span><br><span class="line">	<span class="keyword">private</span> String e_name;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">char</span> e_gender;</span><br><span class="line">	<span class="keyword">private</span> String e_address;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> Department dept;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Department <span class="title">getDept</span><span class="params">()</span> </span>&#123;.&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDept</span><span class="params">(Department dept)</span> </span>&#123;.&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">(Integer e_id, String e_name, <span class="keyword">char</span> e_gender, String e_address)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>();</span><br><span class="line">		<span class="keyword">this</span>.e_id = e_id;</span><br><span class="line">		<span class="keyword">this</span>.e_name = e_name;</span><br><span class="line">		<span class="keyword">this</span>.e_gender = e_gender;</span><br><span class="line">		<span class="keyword">this</span>.e_address = e_address;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Integer <span class="title">getE_id</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setE_id</span><span class="params">(Integer e_id)</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getE_name</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setE_name</span><span class="params">(String e_name)</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">char</span> <span class="title">getE_gender</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setE_gender</span><span class="params">(<span class="keyword">char</span> e_gender)</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getE_address</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setE_address</span><span class="params">(String e_address)</span> </span>&#123;...&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明显，我们设计的JavaBean的属性名称和employee表的列并不是对应的，此时我们可以通过在SQL语句给列名起别名的方式来保证正确性，但是一般不着这样做，而是从配置文件下手，应该如何写配置文件呢？ 同样这个示例也是一个多表查询的例子：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">type</span>=<span class="string">"com.xpu.bean.Employee"</span> <span class="attr">id</span>=<span class="string">"resultMap_01"</span>&gt;</span></span><br><span class="line">	    </span><br><span class="line">	<span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"id"</span> <span class="attr">property</span>=<span class="string">"e_id"</span> /&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"name"</span> <span class="attr">property</span>=<span class="string">"e_name"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"gender"</span> <span class="attr">property</span>=<span class="string">"e_gender"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"address"</span> <span class="attr">property</span>=<span class="string">"e_address"</span> /&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"d_id"</span> <span class="attr">property</span>=<span class="string">"dept.d_id"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"d_name"</span> <span class="attr">property</span>=<span class="string">"dept.d_name"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="comment">&lt;!-- 多表查询 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"selectAll"</span> <span class="attr">resultMap</span>=<span class="string">"resultMap_01"</span>&gt;</span></span><br><span class="line">    select e.id id, e.name name, e.gender gender, e.address</span><br><span class="line">    address, d.d_id d_id, d.d_name d_name </span><br><span class="line">    from employee e, department d where e.d_id = d.d_id </span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在上述配置文件中，resultMap的id必须和上面配置的id一致，这样就解决了即使JavaBean和表的字段不匹配也可以查询到数据了！还有需要注意的是：resultMap 中的id是主键，需要使用id标签，其他属性或字段都是result标签，在IEmployee.java中写法和以前一致，看看调用测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">fun</span><span class="params">()</span></span>&#123;</span><br><span class="line">	Reader reader = Resources.getResourceAsReader(<span class="string">"resource.xml"</span>);</span><br><span class="line">	SqlSessionFactory factory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(reader);</span><br><span class="line">	SqlSession session = factory.openSession(<span class="keyword">true</span>);</span><br><span class="line">	</span><br><span class="line">	IEmployeeDao mapper = session.getMapper(IEmployeeDao<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">	</span><br><span class="line">	List&lt;Employee&gt; list = mapper.selectAll2();</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span> (Employee employee : list) &#123;</span><br><span class="line">		System.out.println(employee);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就完成了多表查询，而且是一次性完成，下面看看如何分步查询？</p>
+<h1 id="分步查询与延迟加载"><a href="#分步查询与延迟加载" class="headerlink" title="分步查询与延迟加载"></a>分步查询与延迟加载</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- association 可以使用分步骤查询 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">type</span>=<span class="string">"com.xpu.bean.Employee"</span> <span class="attr">id</span>=<span class="string">"resultMap_02"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"id"</span> <span class="attr">property</span>=<span class="string">"e_id"</span> /&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"name"</span> <span class="attr">property</span>=<span class="string">"e_name"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"gender"</span> <span class="attr">property</span>=<span class="string">"e_gender"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"address"</span> <span class="attr">property</span>=<span class="string">"e_address"</span> /&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">association</span> <span class="attr">property</span>=<span class="string">"dept"</span> <span class="attr">javaType</span>=<span class="string">"com.xpu.bean.Department"</span>&gt;</span></span><br><span class="line">	    <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"d_id"</span> <span class="attr">property</span>=<span class="string">"d_id"</span>/&gt;</span></span><br><span class="line">	    <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"d_name"</span> <span class="attr">property</span>=<span class="string">"d_name"</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">association</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"selectAll2"</span> <span class="attr">resultMap</span>=<span class="string">"resultMap_02"</span>&gt;</span></span><br><span class="line">    select e.id id, e.name name, e.gender gender, e.address address, d.d_id d_id, d.d_name d_name </span><br><span class="line">     from employee e, department d where e.d_id = d.d_id </span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>通过association 标签制定一个分步查询的下一个步骤，其实总体上来说就是先根据Id找到员工employee，再根据employee的d_id字段查找到对应的部门，所以这个是分步骤的多表查询：<br>Department.xml 和IDpartmentDao.java：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.xpu.dao.IDepartmentDao"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"getDepartmentById"</span> <span class="attr">resultType</span>=<span class="string">"com.xpu.bean.Department"</span>&gt;</span></span><br><span class="line">	    select * from department where d_id = #&#123;d_id&#125;</span><br><span class="line">	<span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IDepartmentDao</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Department <span class="title">getDepartmentById</span><span class="params">(String id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么要分步骤查询呢？假设电商平台，查询订单信息时需要查询部分的用户信息；相对于关联查询来说，分步查询将查询SQL拆分，这里引申出一个问题是：分步查询与关联表查询的不同</p>
+<p>关联表查询能够有效的简化代码编写逻辑，减小代码编写难度，同时尽量避免出错，而分步查询则能够增强代码的可用性，关联表查询毕竟只需要查询一次数据库，对于业务量较小的系统来说，效率更高，数据库压   力相对较小；分步查询虽然需要多次查询数据，但是这也意味着能够更好地使用数据缓存服务，且缓存的数据耦合度低，利用率高，而且单次查询效率很高，数据库压力较小（对于业务量较大的系统来说）。还有一点则是数据库锁的问题，毕竟关联查询是多表同时使用，分步查询每次只操作一个表！</p>
+<p>分步骤查询很多时候是配合延迟加载使用，下面是一个示例：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">type</span>=<span class="string">"com.xpu.bean.Employee"</span> <span class="attr">id</span>=<span class="string">"selectByStep"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">"id"</span> <span class="attr">property</span>=<span class="string">"e_id"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"name"</span> <span class="attr">property</span>=<span class="string">"e_name"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"gender"</span> <span class="attr">property</span>=<span class="string">"e_gender"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">"address"</span> <span class="attr">property</span>=<span class="string">"e_address"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">association</span> <span class="attr">property</span>=<span class="string">"dept"</span> <span class="attr">select</span>=<span class="string">"com.xpu.dao.IDepartmentDao.getDepartmentById"</span></span></span><br><span class="line"><span class="tag">	    <span class="attr">column</span>=<span class="string">"d_id"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">association</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"selectStep"</span> <span class="attr">resultMap</span>=<span class="string">"selectByStep"</span>&gt;</span></span><br><span class="line">    select * from employee where id=#&#123;id&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当在某项业务里需要同时获取两份数据，但是其中份数据又不需要立即使用，当程序需要加载另一份数据时，再去请求数据库来获取那一份数据，而不是一次性将数据全部取出来或者重新发送一份请求，这就是延迟加载。为了节省内存的消耗！</p>
+<p>想要使用懒加载，有些配置是默认的，但是由于版本在更替，有些默认设置还是自己指明比较好，如果想单个开启或禁用延迟加载，可以使用fetchType属性来实现，设置延迟加载需要在总体配置文件中配置如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 防止版本更新发生改变 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"lazyLoadingEnabled"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"aggressiveLazyLoading"</span> <span class="attr">value</span>=<span class="string">"false"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个是测试懒加载的代码，需要用的时候再加载：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Employee step = mapper.selectStep(<span class="string">"1"</span>);</span><br><span class="line"><span class="comment">// 这个时候还没有用到d_id、等到用到的时候再加载，节省内存开销</span></span><br><span class="line">System.out.println(step.getE_name());</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行下面这句代码的时候才会去查询数据库获得相应的数据</span></span><br><span class="line">System.out.println(step.getDept().getD_name());</span><br></pre></td></tr></table></figure>
+<h1 id="MyBatis的缓存"><a href="#MyBatis的缓存" class="headerlink" title="MyBatis的缓存"></a>MyBatis的缓存</h1><p>Mybatis中有一级缓存和二级缓存，默认情况下一级缓存是开启的，而且是不能关闭的。一级缓存是指SqlSession级别的缓存，当在同一个SqlSession中进行相同的SQL语句查询时，第二次以后的查询不会从数据库查询，而是直接从缓存中获取，一级缓存最多缓存1024条SQL。二级缓存是指可以跨SqlSession的缓存，Mybatis中进行SQL查询是通过org.apache.ibatis.executor.Executor接口进行的，总体来讲，它一共有两类实现，一类是BaseExecutor，一类是CachingExecutor。前者是非启用二级缓存时使用的，而后者是采用的装饰器模式，在启用了二级缓存时使用，当二级缓存没有命中时，底层还是通过BaseExecutor来实现的：<br><img src="https://img.zouchanglin.cn///20200405/o8AlXsIT9K8n.png" alt="mark"></p>
+<blockquote>
+<p><strong>一、一级缓存的有效期是多久呢？</strong></p>
+</blockquote>
+<p>1、当不是同一个SqlSession对象的时候，s1对象的缓存只能s1用<br>2、当Sqlsession对象调用clearCache()的时候，缓存清除<br>3、当SqlSession对象close的时候<br>4、当在两次查询中穿插了add、delete、update的时候，缓存就无效了</p>
+<blockquote>
+<p><strong>二、一级缓存如何实现呢？</strong></p>
+</blockquote>
+<p>1、一级缓存通过简单地Map来实现的，没有对Map集合大小的限制<br>2、一级缓存是一个粗粒度的缓存，没有办法去精确的控制数据是否过长，以及更新数据<br>3、多个SqlSession对象缓存的数据无法共享，为了解决这个问题就需要二级缓存<br><img src="https://img.zouchanglin.cn///20200405/UTXgxrcjCBME.png" alt="mark"><br>二级缓存属于nameSpace级别（一个xml文件对应一个二级缓存），在一个Web应用中，你可以理解为只有一个二级缓存！二级缓存并没有默认开启，那么如何开启二级缓存呢？通样在全局配置文件中配置如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">"cacheEnabled"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意配置的顺序：</p>
+<p><img src="https://img.zouchanglin.cn///20200405/nQRstz19ix0J.png" alt="mark"></p>
+<p><strong>在前面的一定要将标签配置在前面，否则是无法解析导致出错的</strong>！<br>我们要想使用二级缓存，是需要在对应的xml文件中定义其中的查询语句需要使用哪个cache来缓存数据的。这有两种方式可以定义，一种是通过cache元素定义，一种是通过cache-ref元素来定义。但是需要注意的是对于同一个Mapper来讲，它只能使用一个Cache，当同时使用了和时使用定义的优先级更高。Mapper使用的Cache是与我们的Mapper对应的namespace绑定的，一个namespace最多只会有一个Cache与其绑定，所以我配置了一个 <code>useCache=&quot;true&quot;</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 多表查询 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"selectAll"</span> <span class="attr">resultMap</span>=<span class="string">"resultMap_01"</span> <span class="attr">useCache</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">	    select e.id id, e.name name, e.gender gender, e.address address, d.d_id d_id, d.d_name d_name </span><br><span class="line">	     from employee e, department d where e.d_id = d.d_id </span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>还有一个问题，在使用缓存的时候需要引入一些Jar包，除了cglib别忘记其他的jar包，并且JavaBean要实现序列化接口：<br><img src="https://img.zouchanglin.cn///20200405/2aSrwHTI6FmJ.png" alt="mark"><br>好了，MyBatis学习至此就算是入了个门，重点还是以后在实际开发中的应用，以后遇到了问题再慢慢总结（下面的图纯粹是写完娱乐一下，哈哈），如果文中有错误还望及时指出我不胜感激！<br><img src="https://img.zouchanglin.cn///20200405/SUhffPPkH9zH.png" alt="mark"></p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -279,21 +329,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -301,118 +351,195 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/135268951.html" title="MyBatis（二）" target="_blank">https://zouchanglin.cn/135268951.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaEE</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">ORM框架</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Web开发//" class="article-tag-list-link color1">Web开发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/135268951.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/1013739183.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Spring入门笔记(一)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/939976335.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">MyBatis（一）</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#作用域（Scope）和生命周期"><span class="toc-number">1.</span> <span class="toc-text">作用域（Scope）和生命周期</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Result-Maps"><span class="toc-number">2.</span> <span class="toc-text">Result Maps</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分步查询与延迟加载"><span class="toc-number">3.</span> <span class="toc-text">分步查询与延迟加载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MyBatis的缓存"><span class="toc-number">4.</span> <span class="toc-text">MyBatis的缓存</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -544,10 +671,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -568,15 +691,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -616,15 +743,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -636,11 +763,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -704,10 +831,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -728,7 +851,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -740,7 +871,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -749,14 +884,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -880,19 +1007,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -901,6 +1020,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

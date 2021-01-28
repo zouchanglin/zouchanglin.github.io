@@ -207,60 +207,119 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-结构体、位段与联合体" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      结构体、位段与联合体
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2714529611.html" class="archive-article-date">
+        <time datetime="2018-05-26T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-27</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">3.1k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">11分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>结构体和指针是数据结构的根基，所以这篇博客这算是对结构体有一个重新的认识，主要内容包括：匿名结构体、结构体的自引用、结构体的不完整声明、结构体内存对齐、位段的使用、联合体的应用场景等等。</p>
+<a id="more"></a>
+
+<h2 id="匿名结构体"><a href="#匿名结构体" class="headerlink" title="匿名结构体"></a>匿名结构体</h2><p>匿名结构体简言之就是没有名字的结构体，在结构体的时候就已经定义它的具体结构体对象。以后再也不允许创建新的结构体。这是我遇到的第一个坑，先看看下面这段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">int</span> age;</span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;s;</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> age;</span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;*p;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line"> </span><br><span class="line">	p = &amp;s;</span><br><span class="line">	p-&gt;age = <span class="number">20</span>;</span><br><span class="line">	p-&gt;id = <span class="number">9</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"id = %d ,age = %d\n"</span>, s.id, s.age);</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着还是将VS的 #define _CRT_SECURE_NO_WARNINGS 去掉果然还是报出警告： warning C4133: “=”: 从“<em>”到“</em>”的类型不兼容这段代码居然连警告都没有直接跑起来了，结果发现是我冤枉了VS编译器，由于之前使用scanf和strcpy等函数的时候VS老是报警告说使用这些函数是不安全的，于是乎我果断在前面加了一句： #define _CRT_SECURE_NO_WARNINGS ,直接导致了VS没有报出警告信息。刚开始没有发现这个问题，接着在Linux下的gcc下跑了一回，警告!</p>
+<blockquote>
+<p>原因：虽然两个结构体的成员都是一模一样的，但是都是匿名结构体，两个没有结构体标签，编译器认为上边的两个类型不同，所以这个操作时会报警告，但是由于部分编译器对这种情况的检查不严格，所以仍然是可以得出正确的结果，但是我们只需要明白这属于非法操作就行了!。</p>
+</blockquote>
+<h2 id="结构体的自引用"><a href="#结构体的自引用" class="headerlink" title="结构体的自引用"></a>结构体的自引用</h2><p>结构体的自引用就是在结构中包含一个类型为该结构体本身的成员</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//错误写法</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span>&#123;</span></span><br><span class="line">	Node* p;</span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line"><span class="comment">//错误写法</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span>&#123;</span></span><br><span class="line">	Node p;</span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>①这种引用是非法的，这里的目的是使用typedef为结构体创建一个别名Node。但是这里是错误的，因为类型名的作用域是从语句的结尾开始，而在结构体内部是不能使用的，因为还没定义。</p>
+<p>②这种引用是非法的，因为成员p是另外一个完整的结构，其内部还将包含它自己的成员p.这第二个成员又是另一个完整的结构，它仍将包含自己的成员p，这样重复下去将永无止境。就像一个永远没有出口的递归！</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//正确写法</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span>&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Node</span>* <span class="title">p</span>;</span></span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;Node;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//正确写法</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span>&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Node</span>* <span class="title">p</span>;</span></span><br><span class="line">	<span class="keyword">int</span> id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这个声明和前面那个声明的区别在于p现在是一个指针而不是结构，编译器在结构的长度确定之前就已经知道了指针的长度，所以其自引用是合法的。</p>
+<h2 id="结构体的不完整声明"><a href="#结构体的不完整声明" class="headerlink" title="结构体的不完整声明"></a>结构体的不完整声明</h2><p>结构体的不完整声明就是如果两个结构体互相包含，则需要对其中一个结构体进行不完整声明。比如在A结构体成员中包含B结构体指针，在B结构体成员中包含A结构体指针，但是总是得有一个在前面声明，所以就有了不完整声明！</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//结构体不完整声明</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">B</span>;</span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="comment">//结构体A中包含指向结构体B的指针</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">B</span>* <span class="title">pB</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">B</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="comment">//结构体B中包含指向结构体A的指针</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">A</span>* <span class="title">pA</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="结构体内存对齐"><a href="#结构体内存对齐" class="headerlink" title="结构体内存对齐"></a>结构体内存对齐</h2><p>结构体内存对齐的概念比较重要，也是面试中经常考到的问题！<br>结构体内存对齐：元素是按照定义顺序一个一个放到内存中去的，但并不是紧密排列的。从结构体存储的首地址开始，每个元素放置到内存中时，它都会认为内存是按照自己的大小来划分的，因此元素放置的位置一定会在自己宽度的整数倍上开始。</p>
+<h3 id="结构体内存对齐的好处"><a href="#结构体内存对齐的好处" class="headerlink" title="结构体内存对齐的好处"></a>结构体内存对齐的好处</h3><ul>
+<li>效率原因:CPU访问某个数据时，要求其存储地址必须是相应数据类型的自然边界。对于存储地址不在其相应类型自然边界的数据，不支持非对齐数据访问的CPU，会导致CPU异常；即使是支持非对齐数据访问的CPU，也会严重影响程序效率，因为需要多次访问才可以拿到完整的的数据！内存对齐这种做法相当于是在 拿空间换时间！</li>
+<li>移植性原因:不是所有的硬件平台都能访问任意地址上的任意数据的；某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。</li>
+</ul>
+<h3 id="结构体内存对齐的规则"><a href="#结构体内存对齐的规则" class="headerlink" title="结构体内存对齐的规则"></a>结构体内存对齐的规则</h3><p>1、第一个成员放在与结构体变量偏移量为0的地址处<br>2、剩下的其他成员对齐到对齐数的整数倍地址处。对齐数就是编译器默认对齐数与该成员大小的较小值，VS的编译器默认值是8，Linux的gcc编译器是4。更改方法：在结构体struct之前加上#pragma pack(对齐数)，在struct之后加上#pragma pack;便可以设置两条指令之间的结构体的对齐参数。注意对齐参数不能任意设置，只能是内置类型已有的字节数，如设置为1、2、4…<br>3、结构体的总大小为最大对齐数的整数倍</p>
+<p>4、如果有嵌套了结构体的情况，嵌套的结构体对齐到自身的最大对齐数的整数倍处，结构体的总大小就是所有对齐数中最大对齐数的整数倍</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stddef.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>  <span class="title">S</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> a;</span><br><span class="line">	<span class="keyword">char</span> b;</span><br><span class="line">	<span class="keyword">double</span> c;</span><br><span class="line">	<span class="keyword">char</span> d;</span><br><span class="line">&#125;S;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, a));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, b));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, c));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, d));</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"sizeof(struct S) = %d\n"</span>,<span class="keyword">sizeof</span>(S));</span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们是如何得知结构体某个成员相对于结构体起始位置的偏移量呢？需要一个宏：offsetof,这个宏的设置比较巧妙，首先将0地址强制转换为type类型的指针，然后就可以定位到member在结构体中偏移位置，编译器把0当做有效地址，认为0是type指针的起始地址，这样就立刻得出了偏移量! </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> offsetof(type,menber) (size_t)&amp;(((type*)0)-&gt;member)</span></span><br></pre></td></tr></table></figure>
+
+<p>第一个成员放在与结构体变量偏移量为0的地址处，现在可用偏移为4偏移，接下来存char b; 由于4是1的倍数，故而，b占用4偏移，接下来可用偏移为5偏移，接下来该存double c; 由于5不是8的倍数，所以向后偏移5，6，7，都不是8的倍数，偏移到8时，8是8的倍数，故而c从8处开始存储，占用8，9，10，11，12，13，14，15偏移，现在可用偏移为16偏移，最后该存char d ;因为16是1的倍数，故d占用16偏移，接下来在整体向后偏移一位，现处于17偏移，min(默认对齐参数，类型最大字节数)=8；因为17不是8的倍数，所以继续向后偏移18…23都不是8的倍数，到24偏移处时，28为8的整数倍，故而，该结构体大小为24个字节。接下来我们再看这样一个结构体: </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stddef.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>  <span class="title">S</span>&#123;</span></span><br><span class="line">	<span class="keyword">double</span> a;</span><br><span class="line">	<span class="keyword">int</span> b;</span><br><span class="line">	<span class="keyword">char</span> c;</span><br><span class="line">	<span class="keyword">char</span> d;</span><br><span class="line">&#125;S;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, a));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S,  b));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, c));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, offsetof(S, d));</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"sizeof(struct S) = %d\n"</span>,<span class="keyword">sizeof</span>(S));</span><br><span class="line"> </span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这说明我们在设计结构体的时候应该尽量让小的成员贴在一起，避免不必要的空间浪费！</strong></p>
+<h2 id="结构体的应用场景"><a href="#结构体的应用场景" class="headerlink" title="结构体的应用场景"></a>结构体的应用场景</h2><p>1、一般当内置内存无法满足用户需要，没有合适类型对应对象时，需要封装特定的类型<br>2、当函数有多个参数时，返回值过多，需要封装特定类型，将参数打包返回。</p>
+<h2 id="位段"><a href="#位段" class="headerlink" title="位段"></a>位段</h2><p>C语言允许在一个结构体中以位为单位来指定其成员所占内存长度，这种以位为单位的成员称为“位段”或称“位域”( bit field) 。利用位段能够用较少的位数存储数据。一个位段必须存储在同一存储单元中，不能跨两个单元。如果第一个单元空间不能容纳下一个位段，则该空间不用，而从下一个单元起存放该位段。(见下例)<br>1.位段声明和结构体类似<br>2.位段的成员必须是int、unsigned int、signed int<br>3.位段的成员名后边有一个冒号和一个数字</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">int</span> a : <span class="number">2</span>;</span><br><span class="line">	<span class="comment">//先开辟4个字节的空间，也就是32个比特位</span></span><br><span class="line">	<span class="comment">//a占掉2个比特位，32-2=30</span></span><br><span class="line">	<span class="keyword">int</span> b : <span class="number">5</span>;</span><br><span class="line">	<span class="comment">//b占掉5个比特位，30-5=25</span></span><br><span class="line">	<span class="keyword">int</span> c : <span class="number">10</span>;</span><br><span class="line">	<span class="comment">//c占掉10个比特位，25-10=15</span></span><br><span class="line">	<span class="keyword">int</span> d : <span class="number">30</span>;</span><br><span class="line">	<span class="comment">//d占30个比特位，前边开辟的4个字节已经不够用了，因此在开辟四个字节</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="位段无跨平台性"><a href="#位段无跨平台性" class="headerlink" title="位段无跨平台性"></a>位段无跨平台性</h2><p>1.int位段被当成是有符号还是无符号是不确定的<br>2.位段中最大位的数目不能确定<br>3.位段中的成员在内存中是从右向左还是从左向右分配的不确定<br>4.当一个结构包含两个位段，第二个位段成员比较大，放不下在第一个位段剩余的为时，舍弃还是利用第二个位段成员是不确定的</p>
+<h2 id="位段应用场景"><a href="#位段应用场景" class="headerlink" title="位段应用场景"></a>位段应用场景</h2><p>由于位段比较节省内存，通常用于网络数据包的封装信息，在网络此次发达的时代，为了减缓网络拥堵提交网络访问速率，在封装数据包头部信息的时候通常是采用位段的方式来存储数据，减少网络流量！</p>
+<h2 id="联合体"><a href="#联合体" class="headerlink" title="联合体"></a>联合体</h2><p>在进行某些算法的C语言编程的时候，需要使几种不同类型的变量存放到同一段内存单元中。也就是使用覆盖技术，几个变量互相覆盖。这种几个不同的变量共同占用一段内存的结构，在C语言中，被称作“共用体”类型结构，简称共用体，也叫联合体。</p>
+<h2 id="联合体大小的计算"><a href="#联合体大小的计算" class="headerlink" title="联合体大小的计算"></a>联合体大小的计算</h2><p>1.联合的大小至少是最大成员的大小<br>2.当最大成员大小不是最大对齐数的整数倍时，就要对齐要最大对齐数的整数倍</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> un1&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">char</span> arr[<span class="number">6</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">union</span> un2&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	short arr[<span class="number">5</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"sizeof(un1) = %d\n"</span>,<span class="keyword">sizeof</span>(<span class="keyword">union</span> un1)); <span class="comment">//8</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"sizeof(un1) = %d\n"</span>, <span class="keyword">sizeof</span>(<span class="keyword">union</span> un2));<span class="comment">//12</span></span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="联合体判断大小端"><a href="#联合体判断大小端" class="headerlink" title="联合体判断大小端"></a>联合体判断大小端</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//返回1则是小端存储、返回0则是大端存储</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">decide</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">union</span> un&#123;</span><br><span class="line">		<span class="keyword">int</span> i;</span><br><span class="line">		<span class="keyword">char</span> c;</span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="keyword">union</span> un u1;</span><br><span class="line">	u1.i = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">int</span>)u1.c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="巧用联合体与结构体"><a href="#巧用联合体与结构体" class="headerlink" title="巧用联合体与结构体"></a>巧用联合体与结构体</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _CRT_SECURE_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">S2</span>&#123;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> a;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> b;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> c;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> d;</span><br><span class="line">&#125;S2;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> S&#123;</span><br><span class="line">	<span class="keyword">long</span> num;</span><br><span class="line">	S2 s1;</span><br><span class="line">&#125;S;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">	S s;</span><br><span class="line">	s.num = <span class="number">2378912378</span>;</span><br><span class="line"> </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d.%d.%d.%d\n"</span>, s.s1.a, s.s1.b, s.s1.c, s.s1.d );</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用联合体这种巧妙地存储结构就可以轻松的将数据拆分出来，这绝对是一个非常有用的技巧！</p>
+<p>本次对结构体、联合体、位段进行了比较综合的复习，温故而知新，啊哈哈！</p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -270,21 +329,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -292,118 +351,191 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/2714529611.html" title="结构体、位段与联合体" target="_blank">https://zouchanglin.cn/2714529611.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">C/C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/编程语言//" class="article-tag-list-link color5">编程语言</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/2714529611.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/3584465602.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Linux调度器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/3368183231.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">浅谈函数栈帧</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#匿名结构体"><span class="toc-number">1.</span> <span class="toc-text">匿名结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构体的自引用"><span class="toc-number">2.</span> <span class="toc-text">结构体的自引用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构体的不完整声明"><span class="toc-number">3.</span> <span class="toc-text">结构体的不完整声明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构体内存对齐"><span class="toc-number">4.</span> <span class="toc-text">结构体内存对齐</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#结构体内存对齐的好处"><span class="toc-number">4.1.</span> <span class="toc-text">结构体内存对齐的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结构体内存对齐的规则"><span class="toc-number">4.2.</span> <span class="toc-text">结构体内存对齐的规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构体的应用场景"><span class="toc-number">5.</span> <span class="toc-text">结构体的应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位段"><span class="toc-number">6.</span> <span class="toc-text">位段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位段无跨平台性"><span class="toc-number">7.</span> <span class="toc-text">位段无跨平台性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位段应用场景"><span class="toc-number">8.</span> <span class="toc-text">位段应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#联合体"><span class="toc-number">9.</span> <span class="toc-text">联合体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#联合体大小的计算"><span class="toc-number">10.</span> <span class="toc-text">联合体大小的计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#联合体判断大小端"><span class="toc-number">11.</span> <span class="toc-text">联合体判断大小端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#巧用联合体与结构体"><span class="toc-number">12.</span> <span class="toc-text">巧用联合体与结构体</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -535,10 +667,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -559,15 +687,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -607,15 +739,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -627,11 +759,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -695,10 +827,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -719,7 +847,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -731,7 +867,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -740,14 +880,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -871,19 +1003,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -892,6 +1016,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

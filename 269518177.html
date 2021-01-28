@@ -223,60 +223,125 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-NIO与通道数据传输" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      NIO与通道数据传输
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/269518177.html" class="archive-article-date">
+        <time datetime="2020-02-08T11:24:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-02-08</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.3k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">4分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<h2 id="NIO的通道"><a href="#NIO的通道" class="headerlink" title="NIO的通道"></a>NIO的通道</h2><p>通道( Channel) ：由java.nio.channels包定义的。Channel 表示IO源与目标打开的连接。Channel类似于传统的“流”， 只不过Channel本身不能直接访问数据，Channel只能与Buffer进行交互。</p>
+<p>应用程序与磁盘之间的数据写入或者读出，都需要由用户地址空间和内存地址空间之间来回复制数据，内存地址空间中的数据通过操作系统层面的IO接口，完成与磁盘的数据存取。在应用程序调用这些系统IO接口时，由CPU完成一系列调度、任务分配，在早期这些IO接口都是由CPU独立负责。所以当发生大规模读写请求时，CPU的占用率很高。 </p>
+<p><img src="https://img.zouchanglin.cn///20200208/ERDg8DebUJIv.png" alt="mark"></p>
+<a id="more"></a>
+
+<p>之后，操作系统为了避免CPU完全被各种IO接口调用占用，引入了DMA，也就是直接存储器。当应用程序对操作系统发出一个读写请求时，会由DMA先向CPU申请权限，申请到权限之后，内存地址空间与磁盘之间的IO操作就全由DMA来负责操作。这样，在读写请求的过程中，CPU不需要再参与，CPU去做其他事情。当然，DMA来独立完成数据在磁盘与内存空间中的复制，需要借助于DMA总线。当频繁发生IO操作时，会导致DMA总线增多，但是当DMA总线过多时，大量的IO操作也会造成总线冲突的问题，即也会影响最终的读写性能。 </p>
+<p><img src="https://img.zouchanglin.cn///20200208/DL24jwADvOgu.png" alt="mark"></p>
+<p>为了避免DMA总线冲突对性能的影响，后来便有了通道的方式。通道，它是一个完全独立的处理器。CPU是中央处理器，通道本身也是一个处理器，完全独立的处理器，但是也附属于CPU，专门负责IO操作。既然是处理器，通道有自己的IO命令，与CPU无关。它更适用于大型的IO操作，性能更高。 </p>
+<p><img src="https://img.zouchanglin.cn///20200208/BWvOPzGGQotn.png" alt="mark"></p>
+<p>直接存储器DMA有独立总线。但在大量数据面前，可能会存在总线冲突，还是需要CPU来处理。通道是一个独立的处理器，DMA方式还是需要向CPU申请DMA总线的。通道有自己的处理器，适合与大量IO请求的场景，数据传输直接通过通道进行传输，不再需要请求CPU，这样便避免了大量IO导致CPU资源占用过高的问题！</p>
+<h2 id="NIO完成文件复制"><a href="#NIO完成文件复制" class="headerlink" title="NIO完成文件复制"></a>NIO完成文件复制</h2><p>Channel 用于源节点与目标节点的连接，在JavaNIO中负责缓冲区数据的传输，本身不存储数据，所以需要配置缓冲区进行数据传输（铁路配合火车）</p>
+<p>一、通道的主要实现类</p>
+<p>实现的是java.nio.channels.Channel接口</p>
+<ul>
+<li>FileChannel 文件IO</li>
+<li>SocketChannel TCP的IO</li>
+<li>ServerSocketChannel TCP的IO</li>
+<li>DatagramChannel UDP的IO</li>
+</ul>
+<p>二、获取通道</p>
+<p>1、对支持通道的类提供了 getChannel()</p>
+<ul>
+<li>本地IO</li>
+<li>FileInputStream/FileOutputStream</li>
+<li>RandomAccessFile</li>
+<li>网络IO</li>
+<li>Socket</li>
+<li>ServerSocket</li>
+<li>DatagramChannel</li>
+</ul>
+<p>2、JDK1.7中的NIO.2针对各种通道提供了静态方法</p>
+<p>3、JDK1.7中的NIO.2的Files工具类的newByteChannel()</p>
+<p>1、FileInputStream打开的通道，通过通道+非直接缓冲区完成文件复制</p>
+<p><img src="https://img.zouchanglin.cn///20200208/BmJ6IT1xTIBx.png" alt="mark"></p>
+<p>2、这是通过把缓冲区建立在物理内存中的做法，使用了FileChannel的静态方法打开的通道</p>
+<p><img src="https://img.zouchanglin.cn///20200208/GbhIIAl2sn0q.png" alt="mark"></p>
+<p>3、这是使用直接操作缓冲区完成的文件复制</p>
+<p><img src="https://img.zouchanglin.cn///20200208/63KgGwBE1lL4.png" alt="mark"></p>
+<p>4、这是不建立缓冲区，直接通道数据传输</p>
+<p><img src="https://img.zouchanglin.cn///20200208/bTk0MTHOiWuJ.png" alt="mark"></p>
+<p>我试了一下，复制1.3G的压缩包，四种方式分别用时为：</p>
+<p>1、通道+非直接缓冲区完成文件复制：5956、 5645（内存有波动，不明显）</p>
+<p>2、通道+直接缓冲区完成文件复制：5439、5302（内存有波动，不明显）</p>
+<p>3、直接操作缓冲区完成的文件复制：1581、1560、1523（内存波动特别明显，见下图）</p>
+<p>4、这是不建立缓冲区，直接通道数据传输：704、685、615 （内存几乎无波动）</p>
+<p><img src="https://img.zouchanglin.cn///20200208/xh4xBqqaYipz.png" alt="mark"></p>
+<p>得出结论：直接缓冲区肯定比非直接缓冲区快，但是我这次测试效果不是很明显，直接操作内存映射文件速度明显提升，但是也会导致内存突然爆涨（因为是直接操作的内存映射文件），方式4就更狠了，直接通道传输数据，压根与内存没关系，因为没有缓冲区的存在，所以也是最快的！</p>
+<h2 id="分散读取和聚集写入"><a href="#分散读取和聚集写入" class="headerlink" title="分散读取和聚集写入"></a>分散读取和聚集写入</h2><p>分散读取( Scattering Reads)是指从Channel中读取的数据“分散”到多个Buffer中。</p>
+<p><img src="https://img.zouchanglin.cn///20200208/MeGdxhhKGTmQ.png" alt="mark"></p>
+<p> 注意：按照缓冲区的顺序，从 Channel 中读取的数据依次将 Buffer 填满。 </p>
+<p> 聚集写入（ Gathering Writes）是指将多个 Buffer 中的数据“聚集”到 Channel中，与分散读取是反的。  注意：按照缓冲区的顺序，写入 position 和 limit 之间的数据到 Channel 。 </p>
+<p><img src="https://img.zouchanglin.cn///20200208/OuLJjDpur3rD.png" alt="mark"></p>
+<p>下面是一个分散读取&amp;聚集写入的示例：</p>
+<p><img src="https://img.zouchanglin.cn///20200209/wArb2DMjxIgh.png" alt="mark"></p>
+<p>分散读取（Scattering Reads）：将通道中的数据分散到多个缓冲区中</p>
+<p>聚集写入（Gathering Writes）：将多个缓冲区中的数据聚集到通道中 </p>
+<h2 id="字符集Charset"><a href="#字符集Charset" class="headerlink" title="字符集Charset"></a>字符集Charset</h2><p>只要是需要知道CharBuffer和ByteBuffer 的相互装换即可</p>
+<p><img src="https://img.zouchanglin.cn///20200208/qEGkaWWvsw8A.png" alt="mark"></p>
+<h2 id="FileChannel常用的API"><a href="#FileChannel常用的API" class="headerlink" title="FileChannel常用的API"></a>FileChannel常用的API</h2><p><img src="https://img.zouchanglin.cn///20200208/gpy47ikxFTqV.png" alt="mark"></p>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -286,21 +351,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -308,118 +373,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/269518177.html" title="NIO与通道数据传输" target="_blank">https://zouchanglin.cn/269518177.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">JavaSE</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">NIO</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/高性能网络//" class="article-tag-list-link color1">高性能网络</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/269518177.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/3232140802.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          NIO网络通信
+        
+      </div>
+    </a>
+  
+  
+    <a href="/244262852.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">NIO与缓冲区</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NIO的通道"><span class="toc-number">1.</span> <span class="toc-text">NIO的通道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NIO完成文件复制"><span class="toc-number">2.</span> <span class="toc-text">NIO完成文件复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分散读取和聚集写入"><span class="toc-number">3.</span> <span class="toc-text">分散读取和聚集写入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#字符集Charset"><span class="toc-number">4.</span> <span class="toc-text">字符集Charset</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FileChannel常用的API"><span class="toc-number">5.</span> <span class="toc-text">FileChannel常用的API</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -551,10 +697,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -575,15 +717,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -623,15 +769,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -643,11 +789,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -711,10 +857,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -735,7 +877,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -747,7 +897,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -756,14 +910,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -887,19 +1033,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -908,6 +1046,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

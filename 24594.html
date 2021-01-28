@@ -218,60 +218,152 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-探究ContentProvider" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      探究ContentProvider
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/24594.html" class="archive-article-date">
+        <time datetime="2020-12-09T14:48:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-12-09</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">3.5k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">16分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>为什么微信、QQ、淘宝等App都能访问联系人(通讯录)呢？是因为Android存在一种应用之间的数据共享机制，即ContentProvider，ContentProvider作为Android四大组件之一，为存储和获取数据提供统一的接口，可以在不同的应用程序之间共享数据。对于ContentProvier而言，无论数据的来源是什么，它都认为是种表（同时也支持文件数据，只是表格形式用得比较多），然后把数据组织成表格返回给使用者。</p>
+<a id="more"></a>
+
+<h1 id="自定义ContentProvider"><a href="#自定义ContentProvider" class="headerlink" title="自定义ContentProvider"></a>自定义ContentProvider</h1><p>step1、自定义类继承于ContentProvider，实现要求的方法<br>step2、在配置文件中通过provider标签配置，通过android:name属性指定待配置的类，通过android:authorities属性授权，指定当前内容提供者的uri标识，必须唯一。</p>
+<p>下面来展示一个B应用来操作A应用中的数据的例子：</p>
+<p><img src="https://img.zouchanglin.cn/20201209154026.png-zouchanglin.cn" alt=""></p>
+<p>首先在ContentProviderDemo这个工程里写一个名为MyContentProvider的ContentProvider：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyContentProvider</span> <span class="keyword">extends</span> <span class="title">ContentProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MyContentProvider"</span>;</span><br><span class="line">    <span class="keyword">private</span> SQLiteDatabase sqLiteDatabase;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyContentProvider</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">delete</span><span class="params">(Uri uri, String selection, String[] selectionArgs)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"delete: "</span>);</span><br><span class="line">        <span class="keyword">return</span> sqLiteDatabase.delete(<span class="string">"stu_info"</span>, selection, selectionArgs);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getType</span><span class="params">(Uri uri)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> Implement this to handle requests for the MIME type of the data</span></span><br><span class="line">        <span class="comment">// at the given URI.</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">"Not yet implemented"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Uri <span class="title">insert</span><span class="params">(Uri uri, ContentValues values)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"insert: "</span>);</span><br><span class="line">        <span class="comment">// 参数解释：操作表的名称、可以为空的列、参数</span></span><br><span class="line">        sqLiteDatabase.insert(<span class="string">"stu_info"</span>, <span class="keyword">null</span>, values);</span><br><span class="line">        <span class="keyword">return</span> uri;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在ContentProvider创建时调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        SQLiteOpenHelper helper = <span class="keyword">new</span> SQLiteOpenHelper(getContext(), <span class="string">"stu.db"</span>, <span class="keyword">null</span>, <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(SQLiteDatabase db)</span> </span>&#123;</span><br><span class="line">                db.execSQL(<span class="string">"create table stu_info (id integer primary key autoincrement,"</span> +</span><br><span class="line">                        <span class="string">" name varchar(30) not null, age integer,"</span> +</span><br><span class="line">                        <span class="string">" gender varchar(2) not null)"</span>);</span><br><span class="line">                Log.i(TAG, <span class="string">"onCreate: 数据库创建成功"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        sqLiteDatabase = helper.getWritableDatabase();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Cursor <span class="title">query</span><span class="params">(Uri uri, String[] projection, String selection,</span></span></span><br><span class="line"><span class="function"><span class="params">                        String[] selectionArgs, String sortOrder)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"query: "</span>);</span><br><span class="line">        <span class="keyword">return</span> sqLiteDatabase.query(<span class="string">"stu_info"</span>, projection, selection, selectionArgs, sortOrder, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">update</span><span class="params">(Uri uri, ContentValues values, String selection,</span></span></span><br><span class="line"><span class="function"><span class="params">                      String[] selectionArgs)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"update: "</span>);</span><br><span class="line">        <span class="keyword">return</span> sqLiteDatabase.update(<span class="string">"stu_info"</span>, values, selection, selectionArgs);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于四大组件之一的ContentProvider同样需要在AndroidManifest.xml中声明：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">package</span>=<span class="string">"cn.tim.contentproviderdemo"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">....</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">provider</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">".MyContentProvider"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:authorities</span>=<span class="string">"cn.tim.myprovider"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:enabled</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">		...</span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>必须通过android:name属性指定待配置的类，通过android:authorities属性授权，指定当前内容提供者的uri标识，必须唯一，因为对于使用ContentProvier的App来说，这是唯一可以找到该ContentProvier的信息，就像坐标一样，是唯一可以确定你的位置的信息。</p>
+<p>可以看到在这个类里面主要包含了CRUD等方法，还有getType()方法和onCreate()方法。所以为什么说对于ContentProvier而言，无论数据的来源是什么，它都认为是种表，然后把数据组织成表格。因为这恰好对应了表中数据的CRUD。至于getType()方法是做什么现在可以不管，整个MyContentProvider不过是在初始化的时候创建了数据库，拿到了SQLiteDatabase对象，然后MyContentProvider其中的CRUD方法实现成了数据库的操作方法而已。如果对数据库不太熟悉，可以参考之前的文章<a href="https://zouchanglin.cn/2020/12/03/43941.html">《SQLite原理与运用》</a>，里面有具体介绍使用方法。</p>
+<p>值得注意的是，虽然我们在MyContentProvider的CRUD中使用了SQLite数据库，但是其实这和ContentProvider本身并没有关系，数据的增删改查我们完全也可以用HashMap这种数据结构存在内存中，或者存成文件的形式，一行文本就代表一个数据对象，这里为了方便演示所以直接采用了SQLite。</p>
+<p>ContentProviderDemo这个工程就结束了，因为作为内容提供者，它无需提供操作界面。下面看看使用者，也就是图中的OtherApplication。当然在这个示例中，这个工程名称为ContentAcquireDemo，界面和<a href="https://zouchanglin.cn/2020/12/03/43941.html">《SQLite原理与运用》</a>中的界面一模一样，只不过是在CRUD的时候不再是操作本地SQLite，而是操作ContentProviderDemo中的MyContentProvider：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MainActivity"</span>;</span><br><span class="line">    ContentResolver contentResolver;</span><br><span class="line">    <span class="keyword">private</span> EditText etId;</span><br><span class="line">    <span class="keyword">private</span> EditText etName;</span><br><span class="line">    <span class="keyword">private</span> EditText etAge;</span><br><span class="line">    <span class="keyword">private</span> String sex = <span class="string">"男"</span>;</span><br><span class="line">    <span class="keyword">private</span> ListView lvData;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        etId = findViewById(R.id.et_id);</span><br><span class="line">        etName = findViewById(R.id.et_name);</span><br><span class="line">        etAge = findViewById(R.id.et_age);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 单选框组件</span></span><br><span class="line">        RadioGroup rgSex = findViewById(R.id.rg_sex);</span><br><span class="line">        lvData = findViewById(R.id.lv_data);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取ContentResolver对象</span></span><br><span class="line">        contentResolver = getContentResolver();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置单选框的监听</span></span><br><span class="line">        rgSex.setOnCheckedChangeListener(<span class="keyword">new</span> RadioGroup.OnCheckedChangeListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCheckedChanged</span><span class="params">(RadioGroup group, <span class="keyword">int</span> checkedId)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">switch</span> (checkedId)&#123;</span><br><span class="line">                    <span class="keyword">case</span> R.id.rb_female:</span><br><span class="line">                        sex = <span class="string">"女"</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    <span class="keyword">case</span> R.id.rb_male:</span><br><span class="line">                        sex = <span class="string">"男"</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        flushStuData();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">flushStuData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Uri uri = Uri.parse(<span class="string">"content://cn.tim.myprovider"</span>);</span><br><span class="line">        List&lt;StudentInfo&gt; stuList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="comment">// 参数解释：表名、要查询的字段、列条件、列条件参数、GroupBy、having、orderBy</span></span><br><span class="line">        Cursor cursor = contentResolver.query(uri, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">if</span>(cursor !=<span class="keyword">null</span> &amp;&amp; cursor.moveToFirst())&#123;</span><br><span class="line">            <span class="keyword">do</span>&#123;</span><br><span class="line">                <span class="keyword">int</span> id = cursor.getInt(<span class="number">0</span>);</span><br><span class="line">                String name = cursor.getString(<span class="number">1</span>);</span><br><span class="line">                <span class="keyword">int</span> age = cursor.getInt(<span class="number">2</span>);</span><br><span class="line">                String sex = cursor.getString(<span class="number">3</span>);</span><br><span class="line">                stuList.add(<span class="keyword">new</span> StudentInfo(id, name, age, sex));</span><br><span class="line">            &#125; <span class="keyword">while</span> (cursor.moveToNext());</span><br><span class="line">            cursor.close();</span><br><span class="line">        &#125;</span><br><span class="line">        lvData.setAdapter(<span class="keyword">new</span> StuInfoAdapter(<span class="keyword">this</span>, stuList));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operatorData</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        Uri uri = Uri.parse(<span class="string">"content://cn.tim.myprovider"</span>);</span><br><span class="line">        <span class="keyword">int</span> viewId = view.getId();</span><br><span class="line">        <span class="keyword">switch</span> (viewId) &#123;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_add:</span><br><span class="line">                ContentValues values = <span class="keyword">new</span> ContentValues();</span><br><span class="line">                values.put(<span class="string">"name"</span>, etName.getText().toString());</span><br><span class="line">                values.put(<span class="string">"age"</span>, Integer.parseInt(etAge.getText().toString()));</span><br><span class="line">                values.put(<span class="string">"gender"</span>, sex);</span><br><span class="line">                contentResolver.insert(uri, values);</span><br><span class="line">                <span class="comment">// 刷新数据展示</span></span><br><span class="line">                flushStuData();</span><br><span class="line">                Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"添加成功"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_update:</span><br><span class="line">                String idStr = etId.getText().toString();</span><br><span class="line">                ContentValues updateValues = <span class="keyword">new</span> ContentValues();</span><br><span class="line">                <span class="comment">// Key - value</span></span><br><span class="line">                updateValues.put(<span class="string">"name"</span>, etName.getText().toString());</span><br><span class="line">                updateValues.put(<span class="string">"age"</span>, Integer.parseInt(etAge.getText().toString()));</span><br><span class="line">                updateValues.put(<span class="string">"gender"</span>, sex);</span><br><span class="line">                contentResolver.update(uri, updateValues, <span class="string">"id=?"</span>, <span class="keyword">new</span> String[]&#123;idStr&#125;);</span><br><span class="line">                Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"更新成功"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">                flushStuData();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> R.id.btn_delete:</span><br><span class="line">                String deleteIdStr = etId.getText().toString();</span><br><span class="line">                contentResolver.delete(uri, <span class="string">"id=?"</span>, <span class="keyword">new</span> String[]&#123;deleteIdStr&#125;);</span><br><span class="line">                <span class="comment">// 刷新数据展示</span></span><br><span class="line">                flushStuData();</span><br><span class="line">                Toast.makeText(MainActivity.<span class="keyword">this</span>, <span class="string">"删除成功"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209161256.png-zouchanglin.cn" alt=""></p>
+<p>可以看到，其实使用content://cn.tim.myprovider这个ContentProvider同样达到了CRUD的效果，需要注意的就是别把URI写错了就行，所以下面来看看URI的解析：</p>
+<h1 id="Uri匹配之UriMatcher"><a href="#Uri匹配之UriMatcher" class="headerlink" title="Uri匹配之UriMatcher"></a>Uri匹配之UriMatcher</h1><p>UriMatcher：在ContentProvider创建时，制定好匹配规则，当调用了ContentProvider中的操作方法时，利用匹配类去匹配传的uri，根据不同的uri给出不同的处理。</p>
+<p>现在在MyContentProvider的onCrate()方法中定义一个UriMatcher匹配器，并且给出匹配规则如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyContentProvider</span> <span class="keyword">extends</span> <span class="title">ContentProvider</span> </span>&#123;</span><br><span class="line">   	...</span><br><span class="line">	<span class="keyword">private</span> UriMatcher matcher;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">delete</span><span class="params">(Uri uri, String selection, String[] selectionArgs)</span> </span>&#123;</span><br><span class="line">        Log.i(TAG, <span class="string">"delete: "</span>);</span><br><span class="line">        <span class="keyword">int</span> matchCode = matcher.match(uri);</span><br><span class="line">        <span class="keyword">switch</span> (matchCode)&#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1001</span>:</span><br><span class="line">                Log.i(TAG, <span class="string">"delete: 匹配到路径是/hello"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                Log.i(TAG, <span class="string">"delete: 执行删除数据库内容操作"</span>);</span><br><span class="line">                <span class="keyword">return</span> sqLiteDatabase.delete(<span class="string">"stu_info"</span>, selection, selectionArgs);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	...</span><br><span class="line">    <span class="comment">// 在ContentProvider创建时调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        sqLiteDatabase = helper.getWritableDatabase();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 参数代表无法匹配</span></span><br><span class="line">        <span class="comment">// content://cn.tim.myprovider/hello</span></span><br><span class="line">        matcher = <span class="keyword">new</span> UriMatcher(UriMatcher.NO_MATCH);</span><br><span class="line">        <span class="comment">// Authority 、路径、匹配码</span></span><br><span class="line">        matcher.addURI(<span class="string">"cn.tim.myprovider"</span>, <span class="string">"hello"</span>, <span class="number">1001</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样在另一个App中使用MyContentProvider的delete()方法的时候就会进行URI匹配判断：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contentResolver.delete(Uri.parse(<span class="string">"content://cn.tim.myprovider/hello"</span>), <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209191259.png-zouchanglin.cn" alt=""></p>
+<p>大家在今后的开发中可能会用到更多的匹配模式，接下来我们学习UriMatcher更多匹配：</p>
+<p>UriMatcher还可以使用匹配通配符来匹配任意不确定的值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">matcher = <span class="keyword">new</span> UriMatcher(UriMatcher.NO_MATCH);</span><br><span class="line"><span class="comment">// Authority 、路径、匹配码</span></span><br><span class="line">matcher.addURI(<span class="string">"cn.tim.myprovider"</span>, <span class="string">"hello"</span>, <span class="number">1001</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匹配 cn.tim.myprovider/hello/任意数字</span></span><br><span class="line">matcher.addURI(<span class="string">"cn.tim.myprovider"</span>, <span class="string">"hello/#"</span>, <span class="number">1002</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匹配 cn.tim.myprovider/world/任意字符串</span></span><br><span class="line">matcher.addURI(<span class="string">"cn.tim.myprovider"</span>, <span class="string">"world/*"</span>, <span class="number">1003</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">true</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209192151.png-zouchanglin.cn" alt=""></p>
+<h1 id="Uri与Uri自带的解析方法"><a href="#Uri与Uri自带的解析方法" class="headerlink" title="Uri与Uri自带的解析方法"></a>Uri与Uri自带的解析方法</h1><h2 id="使用Uri自带的解析方法"><a href="#使用Uri自带的解析方法" class="headerlink" title="使用Uri自带的解析方法"></a>使用Uri自带的解析方法</h2><p>现在ContentAcquireDemo假设添加方法是这样调用的，即把参数写在Uri里面，这样在ContentProviderDemo工程的MyContentProvider中又是如何解析的呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Uri insertUri = Uri.parse(<span class="string">"content://cn.tim.myprovider/whatever?name=Tim&amp;age=22&amp;gender=男"</span>);</span><br><span class="line">Uri uri = contentResolver.insert(insertUri, <span class="keyword">new</span> ContentValues());</span><br><span class="line"><span class="keyword">long</span> newId = ContentUris.parseId(uri);</span><br><span class="line">Toast.makeText(<span class="keyword">this</span>, <span class="string">"添加成功: Id"</span> + newId, Toast.LENGTH_SHORT).show();</span><br></pre></td></tr></table></figure>
+
+<p>MyContentProvider.java的关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Uri <span class="title">insert</span><span class="params">(Uri uri, ContentValues values)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> id = <span class="number">0</span>;</span><br><span class="line">    	<span class="comment">// 为了保持原来的方式不做变更，所以这里需要判断一下</span></span><br><span class="line">        <span class="keyword">if</span>(values.size() &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            id = sqLiteDatabase.insert(<span class="string">"stu_info"</span>, <span class="keyword">null</span>, values);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            String authority = uri.getAuthority();</span><br><span class="line">            String path = uri.getPath();</span><br><span class="line">            String query = uri.getQuery();</span><br><span class="line">            String name = uri.getQueryParameter(<span class="string">"name"</span>);</span><br><span class="line">            String age = uri.getQueryParameter(<span class="string">"age"</span>);</span><br><span class="line">            String gender = uri.getQueryParameter(<span class="string">"gender"</span>);</span><br><span class="line">            Log.i(TAG, <span class="string">"insert:-&gt;主机名:"</span> + authority</span><br><span class="line">                    + <span class="string">"，路径:"</span> + path + <span class="string">"，查询数据:"</span> + query + <span class="string">"，姓名:"</span> + name</span><br><span class="line">            + <span class="string">"，age:"</span> + age + <span class="string">"，gender:"</span> + gender);</span><br><span class="line">            values.put(<span class="string">"name"</span>, name);</span><br><span class="line">            values.put(<span class="string">"age"</span>, age);</span><br><span class="line">            values.put(<span class="string">"gender"</span>, gender);</span><br><span class="line">            id = sqLiteDatabase.insert(<span class="string">"stu_info"</span>, <span class="keyword">null</span>, values);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ContentUris.withAppendedId(uri, id);    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209194949.png-zouchanglin.cn" alt=""></p>
+<p>果然通过这样的Uri自带的解析方式来传递参数也是OK的。</p>
+<h2 id="关于Uri必须知道的"><a href="#关于Uri必须知道的" class="headerlink" title="关于Uri必须知道的"></a>关于Uri必须知道的</h2><p>这样的解析方式涉及到Uri的组成和结构问题，首先来说一说URI和Uri是什么关系吧，Uri是Android的API，扩展了JavaSE中URI的一些功能来特定的适用于Android开发，所以大家在开发时，只使用Android 提供的Uri即可。</p>
+<p>Uri统一资源标识符(Uniform Resource Identifier)，有时我们又看到URL这样的东西，他们之间的又是什么关系呢？统一资源标志符URI就是在某一规则下能把一个资源独一无二地标识出来，比如想要标识一个我国公民，只要用身份证号就可以作为唯一标识，但是使用其他方式也可以用来标识唯一个人，比如：个人定位协议://中华人名共和国/陕西省/西安市/临潼区/斜口街道/西安工程大学/8#宿舍/A120/邹长林， 这个字符串同样标识出了唯一的一个人，起到了URI的作用，所以URL是URI的子集。URL是以描述人的位置来唯一确定一个人的。 </p>
+<p><strong>所以统一资源标志符URI就是在某一规则下能把一个资源独一无二地标识出来，URL就是某主机上的某路径上的文件来唯一确定一个资源，也就是定位的方式来实现的URI，即URL是URI的一种实现。</strong></p>
+<p>关于更多Uri结构和代码提取的资料可以参考<a href="https://blog.csdn.net/harvic880925/article/details/44679239" target="_blank" rel="noopener">《Uri详解之——Uri结构与代码提取》</a>。</p>
+<h1 id="使用系统的ContentProvider"><a href="#使用系统的ContentProvider" class="headerlink" title="使用系统的ContentProvider"></a>使用系统的ContentProvider</h1><p>下面是通过读写系统通讯录和读取短信的几个小例子，作为ContentProvider使用练习：</p>
+<h2 id="读取通讯录"><a href="#读取通讯录" class="headerlink" title="读取通讯录"></a>读取通讯录</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visitAddressBook</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    ContentResolver resolver = getContentResolver();</span><br><span class="line">    <span class="comment">//联系人姓名 + Id</span></span><br><span class="line">    Uri uri = ContactsContract.Contacts.CONTENT_URI;</span><br><span class="line">    <span class="comment">//联系人电话</span></span><br><span class="line">    Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;</span><br><span class="line">    Cursor cursor = resolver.query(uri, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">while</span>(cursor!= <span class="keyword">null</span> &amp;&amp; cursor.moveToNext())&#123;</span><br><span class="line">        String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));</span><br><span class="line">        String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));</span><br><span class="line">        Log.i(TAG, <span class="string">"visitAddressBook: name = "</span> + name + <span class="string">", id = "</span> + contactId);</span><br><span class="line">        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + <span class="string">"="</span> +contactId;</span><br><span class="line">        Cursor phoneCursor = resolver.query(uriPhone,<span class="keyword">null</span>, selection, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">while</span> (phoneCursor != <span class="keyword">null</span> &amp;&amp; phoneCursor.moveToNext())&#123;</span><br><span class="line">            String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));</span><br><span class="line">            Log.i(TAG, <span class="string">"visitAddressBook: name = "</span> + name + <span class="string">", phone = "</span> + phone);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(phoneCursor != <span class="keyword">null</span>) phoneCursor.close();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(cursor != <span class="keyword">null</span>) cursor.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209222954.png-zouchanglin.cn" alt=""></p>
+<h2 id="添加通讯录"><a href="#添加通讯录" class="headerlink" title="添加通讯录"></a>添加通讯录</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MainActivity"</span>;</span><br><span class="line">    <span class="comment">// 申请权限请求码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> REQUEST_READ_SMS = <span class="number">1001</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查权限，这种写法主要是针对比较新的Android6.0及以后的版本</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">verifyStoragePermissions</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> smsPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS);</span><br><span class="line">        <span class="keyword">int</span> contactsPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);</span><br><span class="line">        <span class="keyword">int</span> writeContactsPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_CONTACTS);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (smsPermission != PackageManager.PERMISSION_GRANTED</span><br><span class="line">                || contactsPermission != PackageManager.PERMISSION_GRANTED</span><br><span class="line">                || writeContactsPermission != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">            <span class="comment">// 如果没有权限需要动态地去申请权限</span></span><br><span class="line">            ActivityCompat.requestPermissions(</span><br><span class="line">                    activity,</span><br><span class="line">                    <span class="comment">// 权限数组</span></span><br><span class="line">                    <span class="keyword">new</span> String[]&#123;Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS,  Manifest.permission.WRITE_CONTACTS&#125;,</span><br><span class="line">                    <span class="comment">// 权限请求码</span></span><br><span class="line">                    REQUEST_READ_SMS</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        verifyStoragePermissions(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addAddressBook</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1、往一个ContentProvider中插入一条空数据，获取新生成的Id</span></span><br><span class="line">        <span class="comment">//2、利用刚刚生成的Id分别组合姓名和电话号码往另一个ContentProvider中插入数据</span></span><br><span class="line">        ContentValues values = <span class="keyword">new</span> ContentValues();</span><br><span class="line">        ContentResolver resolver = getContentResolver();</span><br><span class="line">        Uri uri = resolver.insert(ContactsContract.RawContacts.CONTENT_URI, values);</span><br><span class="line">        <span class="keyword">if</span>(uri == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"插入新联系人失败"</span>);</span><br><span class="line">        values.clear();</span><br><span class="line">        <span class="keyword">long</span> id = ContentUris.parseId(uri);</span><br><span class="line">        <span class="comment">// 插入姓名</span></span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.StructuredName.RAW_CONTACT_ID, id);</span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, <span class="string">"Mike"</span>);</span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.StructuredName.MIMETYPE,</span><br><span class="line">                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);</span><br><span class="line">        uri = resolver.insert(ContactsContract.Data.CONTENT_URI, values);</span><br><span class="line">        <span class="keyword">if</span>(uri != <span class="keyword">null</span>) Log.i(TAG, <span class="string">"addAddressBook: 插入姓名,id = "</span> + ContentUris.parseId(uri));</span><br><span class="line">        <span class="comment">//插入电话信息</span></span><br><span class="line">        values.clear();</span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID, id);</span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.Phone.NUMBER, <span class="string">"15720918678"</span>); <span class="comment">//添加号码</span></span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.Phone.MIMETYPE,</span><br><span class="line">                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);</span><br><span class="line">        values.put(ContactsContract.CommonDataKinds.Phone.TYPE,</span><br><span class="line">                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE); <span class="comment">//添加号码类型</span></span><br><span class="line">        uri = resolver.insert(ContactsContract.Data.CONTENT_URI, values);</span><br><span class="line">        <span class="keyword">if</span>(uri != <span class="keyword">null</span>) Log.i(TAG, <span class="string">"addAddressBook: 插入电话号码,id = "</span> + ContentUris.parseId(uri));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209224353.png-zouchanglin.cn" alt=""></p>
+<h2 id="读取短信"><a href="#读取短信" class="headerlink" title="读取短信"></a>读取短信</h2><table>
+<thead>
+<tr>
+<th>短信类型</th>
+<th>Uri</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>短信箱</td>
+<td>content://sms</td>
+</tr>
+<tr>
+<td>收件箱</td>
+<td>content://sms/inbox</td>
+</tr>
+<tr>
+<td>发件箱</td>
+<td>content://sms/sent</td>
+</tr>
+<tr>
+<td>草稿箱</td>
+<td>content://sms/draft</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MainActivity"</span>;</span><br><span class="line">    <span class="comment">// 申请权限请求码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> REQUEST_READ_SMS = <span class="number">1001</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查权限，这种写法主要是针对比较新的Android6.0及以后的版本</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">verifyStoragePermissions</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> smsPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS);</span><br><span class="line">        <span class="keyword">int</span> contactsPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (smsPermission != PackageManager.PERMISSION_GRANTED</span><br><span class="line">                || contactsPermission != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">            <span class="comment">// 如果没有权限需要动态地去申请权限</span></span><br><span class="line">            ActivityCompat.requestPermissions(</span><br><span class="line">                    activity,</span><br><span class="line">                    <span class="comment">// 权限数组</span></span><br><span class="line">                    <span class="keyword">new</span> String[]&#123;Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS&#125;,</span><br><span class="line">                    <span class="comment">// 权限请求码</span></span><br><span class="line">                    REQUEST_READ_SMS</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        verifyStoragePermissions(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visitMessage</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">        ContentResolver resolver = getContentResolver();</span><br><span class="line">        Uri uri = Uri.parse(<span class="string">"content://sms"</span>);</span><br><span class="line">        Cursor cursor = resolver.query(uri, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">while</span>(cursor != <span class="keyword">null</span> &amp;&amp; cursor.moveToNext())&#123;</span><br><span class="line">            <span class="keyword">int</span> addressIndex = cursor.getColumnIndex(<span class="string">"address"</span>);</span><br><span class="line">            <span class="keyword">int</span> bodyIndex = cursor.getColumnIndex(<span class="string">"body"</span>);</span><br><span class="line">            String address = cursor.getString(addressIndex);</span><br><span class="line">            String body = cursor.getString(bodyIndex);</span><br><span class="line">            Log.i(TAG, <span class="string">"visitMessage:"</span> + address + <span class="string">":"</span> + body);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(cursor != <span class="keyword">null</span>) cursor.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在AndroidManifest.xml配置一下权限：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.READ_SMS"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/20201209215346.png-zouchanglin.cn" alt=""></p>
+<h1 id="ContentProvider的优点"><a href="#ContentProvider的优点" class="headerlink" title="ContentProvider的优点"></a>ContentProvider的优点</h1><p>ContentProvider的底层实现是Binder，更多关于Binder的内容可以参考官方文档<a href="https://developer.android.google.cn/reference/kotlin/android/os/Binder" target="_blank" rel="noopener">《Binder》</a>。ContentProvider为应用间的数据交互提供了一个安全的环境：允许把自己的应用数据根据需求开放给其他应用进行CRUD，而不用担心因为直接开放数据库权限而带来的安全问题。而其他对外共享数据的方式，数据访问方式会因数据存储的方式而不同而发生变化，底层存储方式变更会影响上层，使访问数据变得更加复杂。而采用ContentProvider方式，其解耦了底层数据的存储方式，使得无论底层数据存储采用何种方式，外界对数据的访问方式都是统一的，这使得访问简单且高效。</p>
+<blockquote>
+<p>原文地址：<a href="https://zouchanglin.cn/2020/12/09/24594.html">《探究ContentProvider》</a></p>
+</blockquote>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -281,21 +373,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -303,118 +395,199 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/24594.html" title="探究ContentProvider" target="_blank">https://zouchanglin.cn/24594.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">服务解耦</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">IPC通信</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/移动开发//" class="article-tag-list-link color5">移动开发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/24594.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/64846.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Android Socket与HTTPS校验
+        
+      </div>
+    </a>
+  
+  
+    <a href="/35923.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">远程服务使用AIDL通信</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#自定义ContentProvider"><span class="toc-number">1.</span> <span class="toc-text">自定义ContentProvider</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Uri匹配之UriMatcher"><span class="toc-number">2.</span> <span class="toc-text">Uri匹配之UriMatcher</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Uri与Uri自带的解析方法"><span class="toc-number">3.</span> <span class="toc-text">Uri与Uri自带的解析方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Uri自带的解析方法"><span class="toc-number">3.1.</span> <span class="toc-text">使用Uri自带的解析方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于Uri必须知道的"><span class="toc-number">3.2.</span> <span class="toc-text">关于Uri必须知道的</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用系统的ContentProvider"><span class="toc-number">4.</span> <span class="toc-text">使用系统的ContentProvider</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#读取通讯录"><span class="toc-number">4.1.</span> <span class="toc-text">读取通讯录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加通讯录"><span class="toc-number">4.2.</span> <span class="toc-text">添加通讯录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#读取短信"><span class="toc-number">4.3.</span> <span class="toc-text">读取短信</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ContentProvider的优点"><span class="toc-number">5.</span> <span class="toc-text">ContentProvider的优点</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -546,10 +719,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -570,15 +739,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -618,15 +791,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -638,11 +811,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -706,10 +879,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -730,7 +899,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -742,7 +919,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -751,14 +932,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -882,19 +1055,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -903,6 +1068,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">

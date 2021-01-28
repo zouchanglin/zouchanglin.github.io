@@ -215,60 +215,135 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="<%= post.layout %>-<%= post.slug %>" class="article article-type-<%= post.layout %> <%if(index){%> article-index<%}%>" itemscope itemprop="blogPost">
+            <article id="post-海量数据序列化协议Protobuf应用及核心源码分析" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    <% if (post.link || post.title){ %>
+    
       <header class="article-header">
-  <%- partial('post/title', {class_name: 'article-title'}) %>
-  <% if (!post.noDate){ %>
-  <%- partial('post/date', {class_name: 'archive-article-date', date_format: null}) %>
-  <% } %>
-  <% if(theme.word_count && theme.word_count.enable && !post.no_word_count){%>
-    <%- partial('post/word') %>
-  <% } %>
+  
+  
+    <h1 class="article-title" itemprop="name">
+      海量数据序列化协议Protobuf应用及核心源码分析
+    </h1>
+  
+
+
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/54440.html" class="archive-article-date">
+        <time datetime="2020-09-28T10:09:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-28</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">2.7k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">11分</span>
+    </span>
+  </span>
+</div>
+
+
+  
   </header>
-  <% } %>
+  
   <div class="article-entry" itemprop="articleBody">
-    <% if (page.type === "tags") { %>
-<div class="tag-cloud">
-	<div class="tag-cloud-title">
-	<%- _p('', site.tags.length) %>
-	</div>
+    
 
-	<div class="tag-cloud-tags">
-	<%- tagcloud({
-		min_font: 12,
-		max_font: 30,
-		amount: 200,
-		color: true,
-		start_color: '#ccc',
-		end_color: '#111'
-		}) %>
-	</div>
-</div>
-
-<% } else if (page.type === 'categories') { %>
-
-<div class="category-all-page">
-	<div class="category-all-title">
-	<%- _p('文章分类在以后写博客的过程中会慢慢改进 ~', site.categories.length) %>
-	</div>
 	
-	<div class="category-all">
-	<%- list_categories() %>
-	</div>
+		<p>Protocol Buffers 是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或 RPC 数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。这里是Protobuf的官方手册 <a href="https://developers.google.cn/protocol-buffers/docs/overview" target="_blank" rel="noopener">https://developers.google.cn/protocol-buffers/docs/overview</a></p>
+<a id="more"></a>
+
+<h1 id="序列化协议考虑哪些点"><a href="#序列化协议考虑哪些点" class="headerlink" title="序列化协议考虑哪些点"></a>序列化协议考虑哪些点</h1><p>为什么很多RPC框架底层会使用Protobuf协议作为序列化协议呢？我们不难想到，对于一个PRC框架来说，如果能以比较少的数据传输量传达更多的信息，并且序列化和反序列化的速度肯定是越快越好，而且如果具备跨语言的特性就更好，所以总结一下：</p>
+<p>1、序列化之后的码流大小（占用网络带宽）字节长度<br>2、序列化和反序列化的性能（CPU资源占用）<br>3、是否支持跨语言</p>
+<p>Protobuf相对于其他格式，Protobuf解析速度快（即序列化反序列化速度快），占用空间小，以及兼容性好，很适合做数据存储或网络通讯间的数据传输。 </p>
+<p>其他的一些序列化协议</p>
+<ul>
+<li>JSON</li>
+<li>XML</li>
+<li>Hessian</li>
+<li>Thrift</li>
+<li>Kryo</li>
+<li>protostuff</li>
+<li>….</li>
+<li>Protobuf-google开源的</li>
+</ul>
+<h1 id="Java原生的序列化操作"><a href="#Java原生的序列化操作" class="headerlink" title="Java原生的序列化操作"></a>Java原生的序列化操作</h1><p>先通过一个示例来看看Java的原生序列化是如何使用的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">8619259453444471644L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> teacherId;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; courses = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Teacher</span><span class="params">(<span class="keyword">long</span> teacherId, String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.teacherId = teacherId;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// getter and setter...</span></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Teacher&#123;"</span> +</span><br><span class="line">                <span class="string">"teacherId="</span> + teacherId +</span><br><span class="line">                <span class="string">", name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", age="</span> + age +</span><br><span class="line">                <span class="string">", courses="</span> + courses +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在来测试一下Java的原生序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SerialTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        Teacher tim = <span class="keyword">new</span> Teacher(<span class="number">1L</span>, <span class="string">"Tim"</span>, <span class="number">34</span>);</span><br><span class="line">        tim.getCourses().add(<span class="string">"Java"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 序列化</span></span><br><span class="line">        <span class="keyword">byte</span>[] byteArray = serialize(tim);</span><br><span class="line">        System.out.println(Arrays.toString(byteArray));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 反序列化</span></span><br><span class="line">        Teacher teacher = deserialize(byteArray);</span><br><span class="line">        System.out.println(teacher);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 序列化</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] serialize(Teacher tim) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        ByteArrayOutputStream bos = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line">        ObjectOutputStream oos = <span class="keyword">new</span> ObjectOutputStream(bos);</span><br><span class="line">        oos.writeObject(tim);</span><br><span class="line">        <span class="keyword">return</span> bos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反序列化</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Teacher <span class="title">deserialize</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ObjectInputStream ois = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> ByteArrayInputStream(bytes));</span><br><span class="line">        <span class="keyword">return</span> (Teacher)ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/blog/20200928/uAOCfKCB4W0h.png" alt="mark"></p>
+<p>通过测试我们可以看到，对于这样一个Teacher类，通过Java原生序列化方式序列化出来的byteArray结果是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[-84, -19, 0, 5, 115, 114, 0, 23, 100, 97, 121, 95, 48, 53, 46, 112, 114,</span><br><span class="line"> 111, 116, 111, 98, 117, 102, 46, 84, 101, 97, 99, 104, 101, 114, 119,</span><br><span class="line"> -99, -62, -50, 93, 124, 59, 92, 2, 0, 4, 73, 0, 3, 97, 103, 101, 74, 0,</span><br><span class="line"> 9, 116, 101, 97, 99, 104, 101, 114, 73, 100, 76, 0, 7, 99, 111, 117,</span><br><span class="line"> 114, 115, 101, 115, 116, 0, 16, 76, 106, 97, 118, 97, 47, 117, 116, </span><br><span class="line"> 105, 108, 47, 76, 105, 115, 116, 59, 76, 0, 4, 110, 97, 109, 101, 116,</span><br><span class="line"> 0, 18, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, </span><br><span class="line"> 105, 110, 103, 59, 120, 112, 0, 0, 0, 34, 0, 0, 0, 0, 0, 0, 0, 1, 115, </span><br><span class="line"> 114, 0, 19, 106, 97, 118, 97, 46, 117, 116, 105, 108, 46, 65, 114, 114,</span><br><span class="line"> 97, 121, 76, 105, 115, 116, 120, -127, -46, 29, -103, -57, 97, -99, 3,</span><br><span class="line"> 0, 1, 73, 0, 4, 115, 105, 122, 101, 120, 112, 0, 0, 0, 1, 119, 4, 0, 0,</span><br><span class="line"> 0, 1, 116, 0, 4, 74, 97, 118, 97, 120, 116, 0, 3, 84, 105, 109]</span><br></pre></td></tr></table></figure>
+
+<h1 id="通过Protobuf进行序列化"><a href="#通过Protobuf进行序列化" class="headerlink" title="通过Protobuf进行序列化"></a>通过Protobuf进行序列化</h1><p>首先下载：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">https://github.com/protocolbuffers/protobuf/releases/download/v3.7.0/protobuf-java-3.7.0.zip</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">https://github.com/protocolbuffers/protobuf/releases/download/v3.7.0/protoc-3.7.0-win64.zip</span></span><br></pre></td></tr></table></figure>
+
+<p>需要定义一个teacher.proto</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">"proto2"</span>;</span><br><span class="line"><span class="keyword">option</span> java_package = <span class="string">"edu.xpu"</span>;</span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">"TeacherSerializer"</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">Teacher</span></span>&#123;</span><br><span class="line">	<span class="keyword">required</span> <span class="built_in">int64</span> teacherId = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">required</span> <span class="built_in">int32</span> age = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">required</span> <span class="built_in">string</span> name = <span class="number">3</span>;</span><br><span class="line">	<span class="keyword">repeated</span> <span class="built_in">string</span> courses = <span class="number">4</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这些字段的解释如下：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">xxx</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 字段规则：required -&gt; 字段只能也必须出现 1 次</span></span><br><span class="line">  <span class="comment">// 字段规则：optional -&gt; 字段可出现 0 次或1次</span></span><br><span class="line">  <span class="comment">// 字段规则：repeated -&gt; 字段可出现任意多次（包括 0）</span></span><br><span class="line">  <span class="comment">// 类型：int32、int64、sint32、sint64、string、32-bit ....</span></span><br><span class="line">  <span class="comment">// 字段编号：0 ~ 536870911（除去 19000 到 19999 之间的数字）</span></span><br><span class="line">  字段规则 类型 名称 = 字段编号;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.zouchanglin.cn/blog/20200928/DPe1YNvVSbuC.png" alt="mark"></p>
+<p>当前生成的Java文件中用到的类还需要我们引入Protobuf的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.protobuf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>protobuf-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.13.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>把生成的Java文件给复制到工程当中，然后测试一下序列化和反序列化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtobufTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = serialize();</span><br><span class="line">        System.out.println(Arrays.toString(bytes));</span><br><span class="line"></span><br><span class="line">        TeacherSerializer.Teacher teacher = deserialize(bytes);</span><br><span class="line">        System.out.println(teacher);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 序列化</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] serialize()&#123;</span><br><span class="line">        <span class="comment">// 构造器，构造Teacher</span></span><br><span class="line">        TeacherSerializer.Teacher.Builder builder = TeacherSerializer.Teacher.newBuilder();</span><br><span class="line">        builder.setName(<span class="string">"Tim"</span>)</span><br><span class="line">                .setAge(<span class="number">34</span>)</span><br><span class="line">                .setTeacherId(<span class="number">1L</span>)</span><br><span class="line">                .addCourses(<span class="string">"Java"</span>);</span><br><span class="line">        TeacherSerializer.Teacher teacher = builder.build();</span><br><span class="line">        <span class="keyword">return</span> teacher.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反序列化</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> TeacherSerializer.<span class="function">Teacher <span class="title">deserialize</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> TeacherSerializer.Teacher.parseFrom(bytes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样属性的JavaBean对象，但是通过Protobuf序列化和反序列化的代价却小很多，和Java原生序列化的大小产生了鲜明对比：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200928/bdqMydcljp6P.png" alt="mark"></p>
+<p>那么为什么Java序列化出的对象这么大呢？其实其中还包含了Class信息，就拿上面的Teacher对象来说，Java原生序列化方式实际上是包含了Teacher这个类的信息（导包、类型、方法等等）和数据本身相关的信息。但是Protobuf是如何保存的呢？其实Protobuf通过辅助类来保存了类信息，也就是我们在命令行里面生成的类，该类就已经存储了类相关信息。</p>
+<h1 id="Protobuf特性与基本原理"><a href="#Protobuf特性与基本原理" class="headerlink" title="Protobuf特性与基本原理"></a>Protobuf特性与基本原理</h1><p>1、生成的序列化器（辅助类）中保存了需要序列化的对象的类信息</p>
+<p>2、动态伸缩性，int(1-5字节)，long(1-9字节)<br>例如: age = 34 只占了1个字节大小，只动态分配1个字节存储</p>
+<p>下面先主要看看Protobuf是如何实现动态伸缩性的，我们以无符号int类型举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeVarint32</span><span class="params">(<span class="keyword">int</span> value)</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">	<span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">		<span class="keyword">if</span>((value &amp; ~<span class="number">0x7F</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">			writeRawByte(value);</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			writeRawByte(value &amp; <span class="number">0x7F</span> | <span class="number">0x80</span>);</span><br><span class="line">			value &gt;&gt;&gt;= <span class="number">7</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么这段代码的意义何在呢？这就是Protobuf动态伸缩性的精髓所在了：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200928/jaGKcxzBMvJq.png" alt="mark"></p>
+<h1 id="Protobuf原理深入剖析"><a href="#Protobuf原理深入剖析" class="headerlink" title="Protobuf原理深入剖析"></a>Protobuf原理深入剖析</h1><p>下面会介绍ProtoBuf是如何尽可能的压榨编码性能和效率的， Varint 是一种紧凑的表示数字的方法。它用一个或多个字节来表示一个数字，值越小的数字使用越少的字节数，这能减少用来表示数字的字节数，这也就是我在上面分析动态伸缩无符号int类型的示例。不妨先看看ProtoBuf的编码结构：</p>
+<p>Protobuf编码结构采用了Tag - Length - Value格式。Tag 作为该字段的唯一标识，Length 代表 Value 数据域的长度，最后的Value便是数据本身ProtoBuf 编码采用类似的结构，但是实际上又有较大区别，其编码结构可见下图：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200928/fzLQ9Gs2BKfd.png" alt="mark"></p>
+<p>在上图中的Tag的wire_type字段中， Start group 和 End group 两种类型已被遗弃。这些类型在各大编程语言中的对应关系可以在官网查得：</p>
+<p><img src="https://img.zouchanglin.cn/blog/20200928/VwQ8VpCwrcKT.png" alt="mark"></p>
+<p>对于 int32 类型的数字，一般需要 4 个 byte 来表示。但是采用 Varint，对于很小的 int32 类型的数字，则可以用 1 个 byte 来表示。当然凡事都有好的也有不好的一面，采用 Varint 表示法，大的数字则需要 5 个byte 来表示。从统计的角度来说，一般不会所有的消息中的数字都是大数，因此大多数情况下，采用Varint后，可以用更少的字节数来表示数字信息。Varint 中的每个 byte 的最高位 bit 有特殊的含义，如果该位为1，表示后续的 byte 也是该数字的一部分，如果该位为 0，则结束。其他的 7 个 bit 都用来表示数字。因此小于 128 的数字都可以用一个 byte 表示。大于 128 的数字，比如 300，会用两个字节来表示：1010 1100 0000 0010。</p>
+<p>在Type为0所能表示的数据类型中有 int32 和 sint32 这两个非常类似的数据类型。Google Protocol Buffer 区别它们的主要意图也是为了减少 encoding 后的字节数。在计算机内，一个负数一般会被表示为一个很大的整数，因为计算机定义负数的符号位为数字的最高位。如果采用 Varint 表示一个负数，那么一定需要 5 个 byte。为此 Google Protocol Buffer 定义了 sint32 这种类型，采用 zigzag 编码。Zigzag 编码用无符号数来表示有符号数字，正数和负数交错，关于zigzag的详细内容可以参考<a href="https://blog.csdn.net/zgwangbo/article/details/51590186" target="_blank" rel="noopener">《小而巧的数字压缩算法：zigzag》</a>。</p>
+<h1 id="Protobuf的优缺点"><a href="#Protobuf的优缺点" class="headerlink" title="Protobuf的优缺点"></a>Protobuf的优缺点</h1><h2 id="Protobuf-的优点"><a href="#Protobuf-的优点" class="headerlink" title="Protobuf 的优点"></a>Protobuf 的优点</h2><p>Protobuf 有如 XML，不过它更小、更快、也更简单。你可以定义自己的数据结构，然后使用代码生成器生成的代码来读写这个数据结构。你甚至可以在无需重新部署程序的情况下更新数据结构。只需对数据结构进行一次描述，即可利用各种不同语言或从各种不同数据流中对你的结构化数据轻松读写。</p>
+<p>它有一个非常棒的特性，即“向后”兼容性好，人们不必破坏已部署的、依靠“老”数据格式的程序就可以对数据结构进行升级。这样您的程序就可以不必担心因为消息结构的改变而造成的大规模的代码重构或者迁移的问题。因为添加新的消息中的 field 并不会引起已经发布的程序的任何改变。</p>
+<p>Protobuf 语义更清晰，无需类似 XML 解析器的东西（因为 Protobuf 编译器会将 .proto 文件编译生成对应的数据访问类以对 Protobuf 数据进行序列化、反序列化操作）。</p>
+<p>使用 Protobuf 无需学习复杂的文档对象模型，Protobuf 的编程模式比较友好，简单易学，同时它拥有良好的文档和示例，对于喜欢简单事物的人们而言，Protobuf 比其他的技术更加有吸引力。</p>
+<h2 id="Protobuf-的不足"><a href="#Protobuf-的不足" class="headerlink" title="Protobuf 的不足"></a>Protobuf 的不足</h2><p>Protobuf 与 XML 相比也有不足之处。它功能简单，无法用来表示复杂的概念。</p>
+<p>XML 已经成为多种行业标准的编写工具，Protobuf 只是 Google 公司内部使用的工具，在通用性上还差很多。</p>
+<p>由于文本并不适合用来描述数据结构，所以 Protobuf 也不适合用来对基于文本的标记文档（如 HTML）建模。另外，由于 XML 具有某种程度上的自解释性，它可以被人直接读取编辑，在这一点上 Protobuf 不行，它以二进制的方式存储，除非你有 .proto 定义，否则你没法直接读出 Protobuf 的任何内容。</p>
+<blockquote>
+<p>参考资料：<a href="https://www.cnblogs.com/onlysun/p/4569595.html" target="_blank" rel="noopener">https://www.cnblogs.com/onlysun/p/4569595.html</a></p>
+</blockquote>
+
 	
-</div>
 
-<% } else { %>
 
-	<% if (post.excerpt && index){ %>		<%- post.excerpt %>
-	<% } else { %>
-		<%- post.content %>
-	<% } %>
-<% } %>
-
-    <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
+    
     <div class="page-reward">
       <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
         <div class="tooltip tooltip-east">
@@ -278,21 +353,21 @@
           <span class="tooltip-content">
             <span class="tooltip-text">
               <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i><%= theme.reward_wording%><i
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我喝咖啡<i
                     class="icon icon-quo-right"></i></p>
                 <div class="reward-box">
-                  <% if(theme.alipay) {%>
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.alipay) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190211.png">
                     <span class="reward-type">支付宝</span>
                   </div>
-                  <% } %>
-                  <% if(theme.weixin) {%>
+                  
+                  
                   <div class="reward-box-item">
-                    <img class="reward-img" src="<%- url_for(theme.weixin) %>">
+                    <img class="reward-img" src="https://img.zouchanglin.cn/20201201190247.png">
                     <span class="reward-type">微信</span>
                   </div>
-                  <% } %>
+                  
                 </div>
               </span>
             </span>
@@ -300,118 +375,195 @@
         </div>
       </a>
     </div>
-    <% } %>
+    
 
-    <% if (((theme.copyright_type === 2) || (theme.copyright_type === 1 && post.copyright)) && !index){ %>
+    
     <div class="declare"> 
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          <%= config.author%>
+          Tim
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="<%- yilia_plus_full_url(post.path) %>" title="<%= post.title %>" target="_blank"><%- yilia_plus_full_url(post.path) %></a>
+          <a href="https://zouchanglin.cn/54440.html" title="海量数据序列化协议Protobuf应用及核心源码分析" target="_blank">https://zouchanglin.cn/54440.html</a>
         </li>
-        <% if (theme.copyright_text || theme.copyright_text == null){ %>
+        
         <li>
           <strong>版权声明： </strong>
-          <% var defaultCopyrightText = '本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！'; %>
-          <%- ( theme.copyright_text == null || theme.copyright_text == true ) ? defaultCopyrightText : theme.copyright_text %>
+          
+          本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
         </li>
-        <% } %>
+        
       </ul>
     </div>
-    <% } %>
+    
 
   </div>
   <div class="article-info article-info-index">
-    <%if(post.top){%>
-    <div class="article-pop-out tagcloud">
-      <i class="icon-tuding"></i>
-      <a class="article-tag-list-link color3">置顶</a>
-    </div>
-    <% } %>
-    <%- partial('post/tag') %>
-    <%- partial('post/category') %>
-    <% if (index && theme.show_all_link){ %>
-    <p class="article-more-link">
-      <a class="article-more-a" href="<%- url_for(post.path) %>"><%= theme.show_all_link %> >></a>
-    </p>
-    <% } %>
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Protobuf</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">序列化</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/高性能网络//" class="article-tag-list-link color1">高性能网络</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+    
 	
-    <% if (!index && theme.share_jia){ %>
-    <%- partial('post/share') %>
-    <% } %>
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=https://zouchanglin.cn/54440.html" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
     <div class="clearfix"></div>
   </div>
   </div>
 </article>
-<% if (!index){ %>
-<%- partial('post/nav') %>
-<% } %>
-<%- partial('_partial/aside') %>
 
 
-<% if (!index && post.comments){ %>
+<nav id="article-nav">
+  
+    <a href="/11218.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Activity的四种启动模式与生命周期
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2867675772.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">LinkHashMap与LRU</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
 
-<% if (theme.changyan_appid && theme.changyan_conf){ %>
-<%- partial('post/changyan', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#序列化协议考虑哪些点"><span class="toc-number">1.</span> <span class="toc-text">序列化协议考虑哪些点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Java原生的序列化操作"><span class="toc-number">2.</span> <span class="toc-text">Java原生的序列化操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#通过Protobuf进行序列化"><span class="toc-number">3.</span> <span class="toc-text">通过Protobuf进行序列化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Protobuf特性与基本原理"><span class="toc-number">4.</span> <span class="toc-text">Protobuf特性与基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Protobuf原理深入剖析"><span class="toc-number">5.</span> <span class="toc-text">Protobuf原理深入剖析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Protobuf的优缺点"><span class="toc-number">6.</span> <span class="toc-text">Protobuf的优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Protobuf-的优点"><span class="toc-number">6.1.</span> <span class="toc-text">Protobuf 的优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Protobuf-的不足"><span class="toc-number">6.2.</span> <span class="toc-text">Protobuf 的不足</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+
+
+
 
 <!-- 自己加的 -->
-<iframe id="comment-box" width="100%" height="700" frameborder="0">
-			您的浏览器不支持iframe，请升级
-</iframe>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+<div id="comment-box" style="width: 100%; height: 100%;">
+
+</div>
 <script>
-	document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  //document.getElementById('comment-box').src = 'https://comment.zouchanglin.cn/?url=' + window.location.href;
+  document.getElementById('comment-box').load('https://comment.zouchanglin.cn/?url=' + window.location.href)
 </script>
-<% if (theme.disqus || config.disqus_shortname){ %>
-<section id="comments">
-  <div id="disqus_thread">
-  
-  </div>
-  <script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    var disqus_shortname =
-    '<%= theme.disqus || config.disqus_shortname %>'; // required: replace example with your forum shortname
 
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function () {
-      var dsq = document.createElement('script');
-      dsq.type = 'text/javascript';
-      dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
 
-  </script>
-  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by
-      Disqus.</a></noscript>
-</section>
-<% } %>
 
-<% if (theme.giteement && theme.giteement.enable){ %>
-<%- partial('post/giteement', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-<% } %>
 
-<% if (theme.gitment_owner && theme.gitment_repo &&theme.gitment_oauth && theme.gitment_oauth.client_id && theme.gitment_oauth.client_secret){ %>
-  <%- partial('post/gitment', {
-      key: post.slug,
-      title: post.title,
-      url: config.url+url_for(post.path)
-    }) %>
-  <% } %>
 
-<% } %>
+
+
+
 
           </div>
         </div>
@@ -543,10 +695,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">索引</a>
               </li>
              
@@ -567,15 +715,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">JavaSE</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JUC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">组件通信</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -615,15 +767,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">网络安全</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">非对称加密</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Gradle</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -635,11 +787,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
+                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Jenkins</a>
+                <a href="javascript:void(0)" class="js-tag color4">字符串</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -703,10 +855,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">博客</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">概率论</a>
               </li>
              
@@ -727,7 +875,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">博客</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">哈希</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -739,7 +895,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">openCV</a>
+                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -748,14 +908,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">面向对象</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">流媒体</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rtmp</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -879,19 +1031,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">GC</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">REST</a>
+                <a href="javascript:void(0)" class="js-tag color2">ffmpeg</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -900,6 +1044,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">缓存中间件</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">REST</a>
               </li>
              
               <li class="article-tag-list-item">
