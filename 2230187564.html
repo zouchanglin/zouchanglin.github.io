@@ -19,7 +19,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img.zouchanglin.cn/20210218000346.png">
 <meta property="article:published_time" content="2021-02-17T15:45:29.000Z">
-<meta property="article:modified_time" content="2021-02-20T14:05:54.370Z">
+<meta property="article:modified_time" content="2021-04-05T02:31:56.219Z">
 <meta property="article:author" content="Tim">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="模块化">
@@ -130,6 +130,8 @@
 				
 					<a class="rss" href="/atom.xml" title="RSS订阅" target="_blank"><i class="icon-rss"></i></a>
 				
+					<a class="bilibili" href="https://space.bilibili.com/348054848" title="哔哩哔哩" target="_blank"><i class="icon-bilibili"></i></a>
+				
 			</div>
 		
 		</nav>
@@ -180,6 +182,8 @@
 						<a class="mail" target="_blank" href="mailto:zchanglin@163.com" title="NULL"><i class="icon-mail"></i></a>
 			        
 						<a class="rss" target="_blank" href="/atom.xml" title="RSS订阅"><i class="icon-rss"></i></a>
+			        
+						<a class="bilibili" target="_blank" href="https://space.bilibili.com/348054848" title="哔哩哔哩"><i class="icon-bilibili"></i></a>
 			        
 				</div>
 			</nav>
@@ -245,7 +249,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">913字</span>
+      <span class="post-count">1.2k字</span>
     </span>
   </span>
 
@@ -254,7 +258,7 @@
     <span class="post-meta-item-icon">
       <i class="icon-book icon"></i>
       <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">3分</span>
+      <span class="post-count">4分</span>
     </span>
   </span>
 </div>
@@ -282,7 +286,25 @@
 <h3 id="组件化与插件化区别"><a href="#组件化与插件化区别" class="headerlink" title="组件化与插件化区别"></a>组件化与插件化区别</h3><p>组件化开发：就是将一个app分成多个Module，每个Module都是一个组件(也可以是一个基础库供组件依赖)，开发的过程中我们可以单独调试部分组件，组件间不需要互相依赖，但可以相互调用，最终发布的时候所有组件以arr包的形式被主app工程依赖并打包成1个apk。</p>
 <p>插件化开发：和组件化开发略有不用，插件化开发时将整个app拆分成很多模块，这些模块包括一个宿主和多个插件，每个模块都是一个apk（组件化的每个模块是个arr包），最终打包的时候将宿主apk和插件apk(或其他格式)分开或者联合打包。</p>
 <p><img src="https://img.zouchanglin.cn/20210218000346.png" alt=""></p>
-<h3 id="实现一个组件化工程"><a href="#实现一个组件化工程" class="headerlink" title="实现一个组件化工程"></a>实现一个组件化工程</h3>
+<h2 id="实现组件化工程"><a href="#实现组件化工程" class="headerlink" title="实现组件化工程"></a>实现组件化工程</h2><p>这个完全可以参考<a href="3612843011.html">《组件化Gradle语法》</a>，另外我在B站的视频里也有一个视频是专门讲解Android组件化工程搭建的：</p>
+<div style="position: relative; width: 100%; height: 0; padding-bottom: 75%;">
+    <iframe src="//player.bilibili.com/player.html?aid=756826615&bvid=BV1Ar4y1A7kh&cid=301160469&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;"></iframe>
+</div>
+
+<h2 id="APT与JavaPoet"><a href="#APT与JavaPoet" class="headerlink" title="APT与JavaPoet"></a>APT与JavaPoet</h2><p>APT：Annotation Processing Tool，是一个处理注解的工具，根据注解自动生成代码。</p>
+<p>EventBus直接一行一行把代码写进去的 -&gt; <a href="https://github.com/greenrobot/EventBus/blob/master/EventBusAnnotationProcessor/src/org/greenrobot/eventbus/annotationprocessor/EventBusAnnotationProcessor.java" target="_blank" rel="noopener">EventBusAnnotationProcessor.java</a></p>
+<p>生成Java文件的两种方式：<br>1、传统方式：以EventBus为代表<br>    优点：以编程的流程写下去就行了<br>    缺点：没有面向对象的思想融入<br>2、JavaPoet：<br>    优点：加入面向对象的思想进行代码生成<br>    缺点：倒序的流程写代码</p>
+<p>JavaPoet真的比传统方式好吗？并不是这样的，如果复杂的代码生成，反而效率低下。但是JavaPoet是发展趋势，加入面向对象的思想进行代码生成，真正的掌握了JavaPoet以后会爱不释手。</p>
+<h3 id="JavaPoet常用方法总结"><a href="#JavaPoet常用方法总结" class="headerlink" title="JavaPoet常用方法总结"></a>JavaPoet常用方法总结</h3><p>常用Element子类</p>
+<p>TypeElement：类<br>ExecutableElement：成员方法<br>VariableElement：成员变量<br>通过包名和类名获取TypeName</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeName targetClassName = ClassName.get(“PackageName”, “ClassName”);</span><br></pre></td></tr></table></figure>
+<p>通过Element获取TypeName</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeName type = TypeName.get(element.asType());</span><br></pre></td></tr></table></figure>
+<p>获取TypeElement的包名</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String packageName = processingEnv.getElementUtils().getPackageOf(type).getQualifiedName().toString();</span><br></pre></td></tr></table></figure>
+<p>获取TypeElement的所有成员变量和成员方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;? extends Element&gt; members = processingEnv.getElementUtils().getAllMembers(typeElement);</span><br></pre></td></tr></table></figure>
+
 	
 
 
@@ -483,7 +505,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Android组件化"><span class="toc-number">1.</span> <span class="toc-text">Android组件化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Android组件化"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Android组件化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组件化与插件化区别"><span class="toc-number">1.2.</span> <span class="toc-text">组件化与插件化区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现一个组件化工程"><span class="toc-number">1.3.</span> <span class="toc-text">实现一个组件化工程</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Android组件化"><span class="toc-number">1.</span> <span class="toc-text">Android组件化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Android组件化"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Android组件化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组件化与插件化区别"><span class="toc-number">1.2.</span> <span class="toc-text">组件化与插件化区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现组件化工程"><span class="toc-number">2.</span> <span class="toc-text">实现组件化工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#APT与JavaPoet"><span class="toc-number">3.</span> <span class="toc-text">APT与JavaPoet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JavaPoet常用方法总结"><span class="toc-number">3.1.</span> <span class="toc-text">JavaPoet常用方法总结</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -1068,6 +1090,10 @@
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">开发工具</a>
               </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">编译生成</a>
+              </li>
             
             <div class="clearfix"></div>
           </ul>
@@ -1118,7 +1144,7 @@
         <ul class="search-ul">
           
             <li class="search-li">
-              <a href="https://www.processon.com/diagrams" target="_blank" class="search-title" >
+              <a href="https://www.processon.com/i/5db3da52e4b002a645cd076a" target="_blank" class="search-title" >
                 
                   <i class="icon-link icon"></i>
                 
